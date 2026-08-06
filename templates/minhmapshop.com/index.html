@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head th:replace="minhmapshop :: head">
+
+
+ </head>
+<body>
+	<!-- HEADER -->
+
+		<header th:replace="minhmapshop :: topheader"> </header>
+	<!-- /HEADER -->
+
+	
+
+	<div class="section" id="banner-image">
+		<img th:src=" ${client.clientBanner}" width="100%" height="auto" 
+			alt="Minhmapshop.com - Banner" style="opacity: 1;">
+	</div>
+
+	<!-- SECTION -->
+	<div class="section">
+		<!-- container 
+			<div class="container">
+				<div class="row">
+					<div class="col-md-4 col-xs-6">
+						<div class="shop">
+							<div class="shop-img">
+								<img src="./img/shop01.png" alt="">
+							</div>
+							<div class="shop-body">
+								<h3>Laptop<br>Collection</h3>
+								<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-xs-6">
+						<div class="shop">
+							<div class="shop-img">
+								<img src="./img/shop03.png" alt="">
+							</div>
+							<div class="shop-body">
+								<h3>Accessories<br>Collection</h3>
+								<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-xs-6">
+						<div class="shop">
+							<div class="shop-img">
+								<img src="./img/shop02.png" alt="">
+							</div>
+							<div class="shop-body">
+								<h3>Cameras<br>Collection</h3>
+								<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
+							</div>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+			<!-- /container -->
+	</div>
+	<!-- /SECTION -->
+
+	<!-- SECTION -->
+	<div class="section">
+		<!-- container -->
+		<div class="container">
+			<!-- row -->
+			<div class="row">
+
+				<!-- section title -->
+				<!-- div class="col-md-12">
+						<div class="section-title">
+							<h3 class="title">New Products</h3>
+							<div class="section-nav">
+								<ul class="section-tab-nav tab-nav">
+									<li  th:each="catalog : ${catalogs}" class="active"  >
+										<a data-toggle="tab" th:href="'product?catalog=' + ${catalog.catalogCode}" th:text=" ${catalog.catalogName}"></a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div -->
+				<!-- /section title -->
+
+				<!-- Products tab & slick -->
+				<div id="store" class="col-md-15"  th:each="group : ${productGroups}">
+					
+					<!-- /PAGE CONTENT SECTION -->
+
+
+					<!-- store products -->
+					<div th:id="'productList'+ ${group.stringId}" + th:fragment="'productList'+ ${group.stringId}" >
+					<div class="row" style="background-color:#F1F1F1;">
+					 <div class="store-filter clearfix" style="align-items: center;">
+					 <h3 style="padding-top: 15px; padding-left:15px;" th:text="${group.productGroupName}" ></h3>
+							<ul class="store-pagination" >
+								<li th:each="page : ${group.pageCount}"  th:class="${page.activeClassString}">
+								<a th:id="${group.stringId}" th:class="${page.activeClassString}"  th:text="${page.pageNumber}" th:onclick=" 'loadPage(event,this,' +  ${page.pageNumber} + ')' " > </a></li>
+								<!--  li><a href="#"><i class="fa fa-angle-right"></i></a></li-->
+							</ul>
+						</div>
+						<!-- product -->
+						<div class="custom-productpage col-md-3 col-xs-6 " style="" th:each="product : ${group.currentPageProductList}">
+							<div class="product">
+								<div class="product-img"> <a th:href="'san-pham/' + ${product.path}">
+									<img th:src="  ${product.productImageDesUrl}" alt=""></a>
+									<div class="product-label">
+										
+										<span class="sale"
+											th:text="${product.formatedProductDiscount}"
+											th:style=" ' display: ' + ${product.formatedProductDiscountHidden} ">-30%</span>
+										<span class="new" th:text="${product.newProductString}"
+											th:style=" ' display: ' + ${product.newProductStringHidden} ">NEW</span>
+
+									</div>
+								</div>
+								<div class="product-body">
+									<p class="product-category"
+										th:text="${product.productCategory.catalogName}">Category</p>
+									<h3 class="product-name text-container"
+										th:title="${product.productName}">
+										<a th:href="'san-pham/' + ${product.path}"
+											th:text="${product.productName}">product name goes here</a>
+									</h3>
+									<del class="product-old-price" th:style=" ' visibility: ' + ${product.formatedPriceAmoutHidden} + '; border:3px; font-size: 18px;'">
+									<span th:text="${product.formatedPriceAmoutMajor}"></span>
+									<span class="smaller-digits" th:text="${product.formatedPriceAmoutMinor} + ${product.productPriceCurrency}"> 000</span></del>
+									<h4 class="product-price small">
+									    <span th:text="${product.formatedPriceAfterDiscountMajor}"></span>
+									    <span class="smaller-digits" th:text="${product.formatedPriceAfterDiscountMinor} + ${product.productPriceCurrency}">200</span> 
+									</h4>
+									<!-- del class="product-old-price" th:text="${product.formatedPriceAmout} + ${product.productPriceCurrency}" th:style=" ' display: ' + ${product.formatedPriceAmoutHidden} ">$990.00</del -->
+									<div class="product-rating">
+										<i class="fa fa-star"></i> <i class="fa fa-star"></i> <i
+											class="fa fa-star"></i> <i class="fa fa-star"></i> <i
+											class="fa fa-star"></i>
+									</div>
+									<!-- div class="product-btns">
+										<button class="add-to-wishlist">
+											<i class="fa fa-heart-o"></i><span class="tooltipp">add
+												to wishlist</span>
+										</button>
+										<button class="add-to-compare">
+											<i class="fa fa-exchange"></i><span class="tooltipp">add
+												to compare</span>
+										</button>
+										<button class="quick-view">
+											<i class="fa fa-eye"></i><span class="tooltipp">quick
+												view</span>
+										</button>
+									</div> -->
+								</div>
+								<!-- div class="add-to-cart">
+									<button class="add-to-cart-btn">
+										<i class="fa fa-shopping-cart"></i> add to cart
+									</button>
+								</div> -->
+
+							</div>
+						</div>
+						<!-- /product -->
+
+						<div class="clearfix visible-sm visible-xs"></div>
+						
+						
+
+					</div>
+					<!-- store bottom filter -->
+						<div class="store-filter clearfix">
+							<ul class="store-pagination">
+								<li th:each="page : ${group.pageCount}"  th:class="${page.activeClassString}">
+								<a th:id="${group.stringId}" th:class="${page.activeClassString}"  th:text="${page.pageNumber}" th:onclick=" 'loadPage(event,this,' +  ${page.pageNumber} + ')' " > </a></li>
+								<!--  li><a href="#"><i class="fa fa-angle-right"></i></a></li-->
+							</ul>
+						</div>
+					</div>
+					</div>
+				<!-- Products tab & slick -->
+			</div>
+			<!-- /row -->
+		</div>
+		<!-- /container -->
+	</div>
+	<!-- /SECTION -->
+
+	<!-- PAGE CONTENT SECTION -->
+	<div class="section">
+
+		<div class="container" th:utext="${page.articleContent}"></div>
+	</div>
+	<!-- /PAGE CONTENT SECTION -->
+
+	<div th:replace="anhmedia :: articleGallery"></div>
+	
+	<!-- SECTION -->
+	<div class="section">
+		<!-- container -->
+		<div class="container">
+			<!-- row 
+			<div class="row">
+
+				<!-- section title
+				<div class="col-md-12">
+					<div class="section-title">
+						<h3 class="title">Sản phẩm bán chạy</h3>
+						<div class="section-nav">
+							<ul class="section-tab-nav tab-nav">
+								<li  th:each="catalog: ${topCatalogs}" th:class="${catalog.htmlClassString}" ><a data-toggle="tab"  th:href="${catalog.catalogCode}"  th:onclick="'fetchProducts(event, this)'" th:text="${catalog.catalogName}"  >Laptops</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!-- /section title
+
+			</div>
+			<!-- /row -->
+		</div>
+		<!-- /container -->
+	</div>
+	<!-- /SECTION -->
+
+	<!-- SECTION -->
+	<!-- /SECTION -->
+	
+<div th:replace="minhmapshop :: footer"> </div>
+	
+	<!-- jQuery Plugins -->
+	<script th:src=" ${domain} + '/js/jquery.min.js'"></script>
+	<script th:src=" ${domain} + '/js/bootstrap.min.js'"></script>
+	<script th:src=" ${domain} + '/js/slick.min.js'"></script>
+	<script th:src=" ${domain} + '/js/nouislider.min.js'"></script>
+	<script th:src=" ${domain} + '/js/jquery.zoom.min.js'"></script>
+	<script th:src=" ${domain} + '/js/main.js'"></script>
+	
+
+</body>
+</html>

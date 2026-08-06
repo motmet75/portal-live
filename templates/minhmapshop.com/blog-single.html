@@ -1,0 +1,255 @@
+<!DOCTYPE HTML>
+<!--
+	ZeroFour by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html  >
+<head>
+<meta charset="utf-8">
+ 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+              <title th:text="${article.articleTitle}">Furni Free Bootstrap 5 Template for Furniture and
+	Interior Design Websites by Untree.co</title>
+               <link rel="shortcut icon" th:href=" '/' + ${domain} + '/img/' + 'favicon.png'">
+               
+                <meta content="" name="keywords">
+                <meta content="" name="description">
+                <!-- Favicon -->
+                
+                <meta name="keywords" th:content="${article.articleKeyWord}">
+                <link rel="canonical" th:href="'https://' +${domain}  + '/' + ${midpath} + '/' + ${article.articleLink}"/>
+                <meta property="og:title" th:content="${article.articleTitle}" />
+                <meta property="og:description" th:content="${article.articleDescription}" />
+                <meta property="og:url" th:content="'https://' +${domain}  + '/' + ${midpath} + '/' + ${article.articleLink}" />
+                <meta property="og:type" th:content="website" />
+                <meta property="og:image" th:content=" ${article.articleThumnailURLWithHost2}"  />
+                <meta property="og:image:height" content="150" />
+                <meta property="og:image:width" content="200" />
+
+<!-- Bootstrap CSS -->
+<link th:href="'/' + ${domain} + '/' + 'css/bootstrap.min.css'" rel="stylesheet">
+<link
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+	rel="stylesheet">
+<link th:href="'/' + ${domain} + '/' + 'css/tiny-slider.css'" rel="stylesheet">
+<link th:href="'/' + ${domain} + '/' + 'css/style.css'" rel="stylesheet">
+
+<link th:href="'/' + ${domain} + '/' + 'css/cart.css'" rel="stylesheet">
+	
+	<script th:src="'/' + ${domain} + '/' + 'js/custom.js'"></script>
+	<script th:src="'/' + ${domain} + '/' + 'js/cart.js'"></script>
+	
+<title th:text="${article.articleTitle}">Furni Free Bootstrap 5 Template for Furniture and
+	Interior Design Websites by Untree.co</title>
+	
+	<script async
+		src="https://www.googletagmanager.com/gtag/js?id=G-QSZRCWCFH6"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+	
+	  gtag('config', 'G-QSZRCWCFH6');
+</script>
+    <link rel="stylesheet" href="/css/article-reader-controls.css">
+</head>
+
+<body>
+	<!-- HEADER -->
+
+		<header th:replace="minhmapshop :: topheader"> </header>
+	<!-- /HEADER -->
+	<!-- End Header/Navigation -->
+
+	<!-- Start Hero Section -->
+	<div class="hero" style="padding:0">
+		<div class="container">
+			<div class="row justify-content-between">
+				<div class="col-lg-5">
+					<div class="intro-excerpt">
+						<h2 th:text="${article.articleTitle}" style="color:black">Blog</h2>
+						<p class="mb-4" th:utext="${article.articleDescription}">Donec vitae odio quis nisl dapibus malesuada.
+							Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor
+							tempor tristique.</p>
+						
+					</div>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+	<!-- End Hero Section -->
+
+
+
+	<!-- Start Blog Section -->
+	<div class="blog-section">
+		<div class="container">
+			<th:block th:with="
+			    vid=${article.videoUrl},
+			    hasVid=${vid != null and vid != '' and vid != 'videoUrl' and vid != 'none'},
+			    isYtWatch=${hasVid and (#strings.contains(vid,'youtube.com/watch') or #strings.contains(vid,'youtu.be/'))},
+			    afterV=${(hasVid and isYtWatch) ? (#strings.contains(vid,'v=') ? #strings.substringAfter(vid,'v=') : #strings.substringAfterLast(vid,'/')) : ''},
+			    ytId=${#strings.substringBefore(#strings.substringBefore(afterV,'&'),'?')},
+			    embedSrc=${(hasVid and isYtWatch) ? ('https://www.youtube.com/embed/' + ytId) : vid}
+			">
+				<div th:if="${hasVid}" style="position:relative;width:100%;padding-top:56.25%;overflow:hidden;border-radius:4px;margin-bottom:1rem;">
+					<iframe th:src="${embedSrc}"
+					        frameborder="0" allowfullscreen
+					        allow="autoplay; fullscreen; picture-in-picture; web-share"
+					        style="position:absolute;top:0;left:0;width:100%;height:100%;">
+					</iframe>
+				</div>
+			</th:block>
+			<section class="article-editorial-summary" th:if="${articleAiSummary != null and !#strings.isEmpty(articleAiSummary)}" style="margin:0 0 2rem;padding:1rem 0;border-top:1px solid #d9dedb;border-bottom:1px solid #d9dedb;">
+				<h2 th:text="${articleAiSummaryTitle}" style="font-size:1.25rem;margin:0 0 .75rem;">Editorial summary</h2>
+				<div th:utext="${articleAiSummary}"></div>
+			</section>
+			<div class="row article-reader-content"  style="margin:1em;" th:utext="${article.articleContent}" data-reader-content>
+
+
+			</div>
+		</div>
+	</div>
+	<!-- End Blog Section -->
+
+
+
+	<!-- Start Testimonial Slider 
+	<div class="testimonial-section before-footer-section">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-7 mx-auto text-center">
+					<h2 class="section-title">Testimonials</h2>
+				</div>
+			</div>
+
+			<div class="row justify-content-center">
+				<div class="col-lg-12">
+					<div class="testimonial-slider-wrap text-center">
+
+						<div id="testimonial-nav">
+							<span class="prev" data-controls="prev"><span
+								class="fa fa-chevron-left"></span></span> <span class="next"
+								data-controls="next"><span class="fa fa-chevron-right"></span></span>
+						</div>
+
+						<div class="testimonial-slider">
+
+							<div class="item">
+								<div class="row justify-content-center">
+									<div class="col-lg-8 mx-auto">
+
+										<div class="testimonial-block text-center">
+											<blockquote class="mb-5">
+												<p>&ldquo;Donec facilisis quam ut purus rutrum lobortis.
+													Donec vitae odio quis nisl dapibus malesuada. Nullam ac
+													aliquet velit. Aliquam vulputate velit imperdiet dolor
+													tempor tristique. Pellentesque habitant morbi tristique
+													senectus et netus et malesuada fames ac turpis egestas.
+													Integer convallis volutpat dui quis scelerisque.&rdquo;</p>
+											</blockquote>
+
+											<div class="author-info">
+												<div class="author-pic">
+													<img th:src="${domain} + '/' + 'images/person-1.png'" alt="Maria Jones"
+														class="img-fluid">
+												</div>
+												<h3 class="font-weight-bold">Maria Jones</h3>
+												<span class="position d-block mb-3">CEO, Co-Founder,
+													XYZ Inc.</span>
+											</div>
+										</div>
+
+									</div>
+								</div>
+							</div>
+							<!-- END item 
+
+							<div class="item">
+								<div class="row justify-content-center">
+									<div class="col-lg-8 mx-auto">
+
+										<div class="testimonial-block text-center">
+											<blockquote class="mb-5">
+												<p>&ldquo;Donec facilisis quam ut purus rutrum lobortis.
+													Donec vitae odio quis nisl dapibus malesuada. Nullam ac
+													aliquet velit. Aliquam vulputate velit imperdiet dolor
+													tempor tristique. Pellentesque habitant morbi tristique
+													senectus et netus et malesuada fames ac turpis egestas.
+													Integer convallis volutpat dui quis scelerisque.&rdquo;</p>
+											</blockquote>
+
+											<div class="author-info">
+												<div class="author-pic">
+													<img th:src="${domain} + '/' + 'images/person-1.png'" alt="Maria Jones"
+														class="img-fluid">
+												</div>
+												<h3 class="font-weight-bold">Maria Jones</h3>
+												<span class="position d-block mb-3">CEO, Co-Founder,
+													XYZ Inc.</span>
+											</div>
+										</div>
+
+									</div>
+								</div>
+							</div>
+							<!-- END item 
+
+							<div class="item">
+								<div class="row justify-content-center">
+									<div class="col-lg-8 mx-auto">
+
+										<div class="testimonial-block text-center">
+											<blockquote class="mb-5">
+												<p>&ldquo;Donec facilisis quam ut purus rutrum lobortis.
+													Donec vitae odio quis nisl dapibus malesuada. Nullam ac
+													aliquet velit. Aliquam vulputate velit imperdiet dolor
+													tempor tristique. Pellentesque habitant morbi tristique
+													senectus et netus et malesuada fames ac turpis egestas.
+													Integer convallis volutpat dui quis scelerisque.&rdquo;</p>
+											</blockquote>
+
+											<div class="author-info">
+												<div class="author-pic">
+													<img th:src="${domain} + '/' + 'images/person-1.png'" alt="Maria Jones"
+														class="img-fluid">
+												</div>
+												<h3 class="font-weight-bold">Maria Jones</h3>
+												<span class="position d-block mb-3">CEO, Co-Founder,
+													XYZ Inc.</span>
+											</div>
+										</div>
+
+									</div>
+								</div>
+							</div>
+							<!-- END item 
+
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- End Testimonial Slider -->
+
+
+
+	<!-- Start Footer Section -->
+	<div th:replace="minhmapshop :: footer"> </div>
+	<!-- End Footer Section -->
+
+
+	<script th:src=" '/' + ${domain} + '/js/jquery.min.js'"></script>
+	<script th:src=" '/' + ${domain} + '/js/bootstrap.min.js'"></script>
+	<script th:src=" '/' + ${domain} + '/js/slick.min.js'"></script>
+	<script th:src=" '/' + ${domain} + '/js/nouislider.min.js'"></script>
+	<script th:src=" '/' + ${domain} + '/js/jquery.zoom.min.js'"></script>
+	<script th:src=" '/' + ${domain} + '/js/main.js'"></script>
+    <script src="/js/article-reader-controls.js" defer></script>
+</body>
+
+</html>

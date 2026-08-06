@@ -1,0 +1,268 @@
+<!-- /*
+* Bootstrap 5
+* Template Name: Furni
+* Template Author: Untree.co
+* Template URI: https://untree.co/
+* License: https://creativecommons.org/licenses/by/3.0/
+*/ -->
+<!doctype html>
+<html lang="en">
+<head th:replace="minhmapshop :: head"> 
+
+
+
+</head>
+
+
+
+<body>
+
+<style>
+
+.blog-section .post-entry2 .post-thumbnail2 {
+	display: block;
+	margin-bottom: 20px;
+}
+
+.blog-section .post-entry2 a {
+	text-decoration: none;
+}
+
+
+
+.blog-section .post-entry2 a {
+	text-decoration: none;
+}a {
+	text-decoration: none;
+	-webkit-transition: .3s all ease;
+	-o-transition: .3s all ease;
+	transition: .3s all ease;
+	color: #2f2f2f;
+	text-decoration: underline;
+}
+
+*, ::after, ::before {
+	box-sizing: border-box;
+}
+
+.row {
+	--bs-gutter-x: 1.5rem;
+	--bs-gutter-y: 0;
+}
+
+.img-fluid2 {
+	max-width: 100%;
+	height: auto;
+}
+
+.blog-section .post-entry2 .post-thumbnail2 img {
+	border-radius: 20px;
+	-webkit-transition: .3s all ease;
+	-o-transition: .3s all ease;
+	transition: .3s all ease;
+}
+</style>
+	<!-- HEADER -->
+
+		<header th:replace="minhmapshop :: topheader"> </header>
+	<!-- /HEADER -->
+	<!-- End Header/Navigation -->
+
+	<!-- Start Hero Section -->
+	<div class="hero">
+		<div class="container">
+			<div class="row justify-content-between">
+				<!-- div class="col-lg-5">
+					<div class="intro-excerpt">
+						<h1 th:text="${page.articleTitle}">Blog</h1>
+						<p class="mb-4" th:utext="${page.articleContent}">Donec vitae odio quis nisl dapibus malesuada.
+							Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor
+							tempor tristique.</p>
+						<p>
+							<a th:href="${domain} + '/' + 'san-pham.html'" class="btn btn-secondary me-2">Mua ngay</a>
+						</p>
+					</div -->
+				</div>
+				<div class="col-lg-7">
+					<div class="hero-img-wrap">
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- End Hero Section -->
+
+
+
+	<!-- Start Blog Section -->
+	<div class="blog-section">
+		<div class="container">
+			<div class="pagination" th:replace="fragments :: pageable"></div>
+			<div class="row">
+
+				
+				
+				<div class="col-12 col-sm-6 col-md-4 mb-4 mb-md-0" th:each="article : ${articles}">
+					<div class="post-entry2">
+						<a th:href="${midpath} + '/' +${article.articleLink}" class="post-thumbnail2"><img
+							th:src=" ${article.articleThumnailURLWithHost2}" alt="Image"
+							class="img-fluid2"></a>
+						<div class="post-content-entry">
+							<h3>
+								<a th:href="${midpath} + '/' +${article.articleLink}" th:text="${article.articleTitle}">First Time Home Owner
+									Ideas</a>
+							</h3>
+							<div class="meta">
+								<span>by <a th:href="${article.originAuthor}"  th:text="${article.originAuthor}">Kristin
+										Watson</a></span> <span> <!-- a th:href="${domain} + '/' + '#'">Dec
+										19, 2021</a--></span>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+
+			</div>
+		</div>
+	</div>
+	<!-- End Blog Section -->
+
+
+
+	<!-- Start Testimonial Slider 
+	<div class="testimonial-section before-footer-section">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-7 mx-auto text-center">
+					<h2 class="section-title">Testimonials</h2>
+				</div>
+			</div>
+
+			<div class="row justify-content-center">
+				<div class="col-lg-12">
+					<div class="testimonial-slider-wrap text-center">
+
+						<div id="testimonial-nav">
+							<span class="prev" data-controls="prev"><span
+								class="fa fa-chevron-left"></span></span> <span class="next"
+								data-controls="next"><span class="fa fa-chevron-right"></span></span>
+						</div>
+
+						<div class="testimonial-slider">
+
+							<div class="item">
+								<div class="row justify-content-center">
+									<div class="col-lg-8 mx-auto">
+
+										<div class="testimonial-block text-center">
+											<blockquote class="mb-5">
+												<p>&ldquo;Donec facilisis quam ut purus rutrum lobortis.
+													Donec vitae odio quis nisl dapibus malesuada. Nullam ac
+													aliquet velit. Aliquam vulputate velit imperdiet dolor
+													tempor tristique. Pellentesque habitant morbi tristique
+													senectus et netus et malesuada fames ac turpis egestas.
+													Integer convallis volutpat dui quis scelerisque.&rdquo;</p>
+											</blockquote>
+
+											<div class="author-info">
+												<div class="author-pic">
+													<img th:src="${domain} + '/' + 'images/person-1.png'" alt="Maria Jones"
+														class="img-fluid">
+												</div>
+												<h3 class="font-weight-bold">Maria Jones</h3>
+												<span class="position d-block mb-3">CEO, Co-Founder,
+													XYZ Inc.</span>
+											</div>
+										</div>
+
+									</div>
+								</div>
+							</div>
+							<!-- END item 
+
+							<div class="item">
+								<div class="row justify-content-center">
+									<div class="col-lg-8 mx-auto">
+
+										<div class="testimonial-block text-center">
+											<blockquote class="mb-5">
+												<p>&ldquo;Donec facilisis quam ut purus rutrum lobortis.
+													Donec vitae odio quis nisl dapibus malesuada. Nullam ac
+													aliquet velit. Aliquam vulputate velit imperdiet dolor
+													tempor tristique. Pellentesque habitant morbi tristique
+													senectus et netus et malesuada fames ac turpis egestas.
+													Integer convallis volutpat dui quis scelerisque.&rdquo;</p>
+											</blockquote>
+
+											<div class="author-info">
+												<div class="author-pic">
+													<img th:src="${domain} + '/' + 'images/person-1.png'" alt="Maria Jones"
+														class="img-fluid">
+												</div>
+												<h3 class="font-weight-bold">Maria Jones</h3>
+												<span class="position d-block mb-3">CEO, Co-Founder,
+													XYZ Inc.</span>
+											</div>
+										</div>
+
+									</div>
+								</div>
+							</div>
+							<!-- END item 
+
+							<div class="item">
+								<div class="row justify-content-center">
+									<div class="col-lg-8 mx-auto">
+
+										<div class="testimonial-block text-center">
+											<blockquote class="mb-5">
+												<p>&ldquo;Donec facilisis quam ut purus rutrum lobortis.
+													Donec vitae odio quis nisl dapibus malesuada. Nullam ac
+													aliquet velit. Aliquam vulputate velit imperdiet dolor
+													tempor tristique. Pellentesque habitant morbi tristique
+													senectus et netus et malesuada fames ac turpis egestas.
+													Integer convallis volutpat dui quis scelerisque.&rdquo;</p>
+											</blockquote>
+
+											<div class="author-info">
+												<div class="author-pic">
+													<img th:src="${domain} + '/' + 'images/person-1.png'" alt="Maria Jones"
+														class="img-fluid">
+												</div>
+												<h3 class="font-weight-bold">Maria Jones</h3>
+												<span class="position d-block mb-3">CEO, Co-Founder,
+													XYZ Inc.</span>
+											</div>
+										</div>
+
+									</div>
+								</div>
+							</div>
+							<!-- END item 
+
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- End Testimonial Slider -->
+
+
+
+	<!-- Start Footer Section -->
+	<div th:replace="minhmapshop :: footer"> </div>
+	<!-- End Footer Section -->
+
+
+	<script th:src=" ${domain} + '/js/jquery.min.js'"></script>
+	<script th:src=" ${domain} + '/js/bootstrap.min.js'"></script>
+	<script th:src=" ${domain} + '/js/slick.min.js'"></script>
+	<script th:src=" ${domain} + '/js/nouislider.min.js'"></script>
+	<script th:src=" ${domain} + '/js/jquery.zoom.min.js'"></script>
+	<script th:src=" ${domain} + '/js/main.js'"></script>
+</body>
+
+</html>

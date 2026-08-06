@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head th:replace="minhmapshop :: head"> </head>
+<body>
+	<!-- HEADER -->
+
+		<header th:replace="minhmapshop :: topheader"> </header>
+	<!-- /HEADER -->
+
+
+	<!-- BREADCRUMB -->
+	<div id="breadcrumb" class="section">
+		<!-- container -->
+		<div class="container">
+			<!-- row -->
+			<div class="row">
+				<div class="col-md-12">
+					<h3 class="breadcrumb-header">Checkout</h3>
+					<ul class="breadcrumb-tree">
+
+					</ul>
+				</div>
+			</div>
+			<!-- /row -->
+		</div>
+		<!-- /container -->
+	</div>
+	<!-- /BREADCRUMB -->
+
+	<!-- SECTION -->
+	<div class="section">
+		<!-- container -->
+		<div class="container">
+			<!-- row -->
+			<h3 class="breadcrumb-header">MAP</h3>
+			<div class="row" th:utext="${client.clientMapEmbeded}"></div>
+			<!-- /row -->
+		</div>
+		<!-- /container -->
+	</div>
+	
+	<!-- /SECTION -->
+
+
+	<!-- PAGE CONTENT SECTION -->
+	<div class="section">
+
+		<div class="container" th:utext="${page.articleContent}"></div>
+	</div>
+	<!-- /PAGE CONTENT SECTION -->
+
+	<div th:replace="minhmapshop :: footer"> </div>
+	<!-- /FOOTER -->
+
+	<!-- jQuery Plugins -->
+	<script th:src=" ${domain} + '/js/jquery.min.js'"></script>
+	<script th:src=" ${domain} + '/js/bootstrap.min.js'"></script>
+	<script th:src=" ${domain} + '/js/slick.min.js'"></script>
+	<script th:src=" ${domain} + '/js/nouislider.min.js'"></script>
+	<script th:src=" ${domain} + '/js/jquery.zoom.min.js'"></script>
+	<script th:src=" ${domain} + '/js/main.js'"></script>
+
+</body>
+</html>

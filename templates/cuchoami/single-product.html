@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{cuchoami :: head}"></head>
+<body>
+<header th:replace="~{cuchoami :: navigation('menu')}"></header>
+<main id="main-content" class="product-detail">
+    <a class="back-link" href="/products.html?lang=vi">← Trở về thực đơn</a>
+    <section class="product-detail__spread">
+        <figure class="product-detail__image">
+            <span aria-hidden="true">✿</span>
+            <img th:src="${product != null and product.productImageDesUrl != null and !product.productImageDesUrl.isBlank() and product.productImageDesUrl != 'none'
+                    ? product.productImageDesUrl : '/cuchoami/images/tiem-cuc-hoa-mi-full.jpg'}"
+                 th:alt="${product != null ? product.productName : 'Nước Long Nhãn Thái Lan'}">
+            <figcaption>Ảnh từ trang Foody của cửa hàng</figcaption>
+        </figure>
+        <div class="product-detail__copy">
+            <p class="kicker" th:text="${product != null and product.productCatalog != null and product.productCatalog != 'none' ? product.productCatalog : 'Món đặc trưng'}">Món đặc trưng</p>
+            <h1 th:text="${product != null ? product.productName : 'Nước Long Nhãn Thái Lan'}">Nước Long Nhãn Thái Lan</h1>
+            <p class="product-detail__lead"
+               th:text="${product != null and product.productShortDes != null and product.productShortDes != 'none' ? product.productShortDes : 'Vị ngọt thanh, hương nhãn dịu và cảm giác mát lành cho ngày nắng.'}">
+                Vị ngọt thanh, hương nhãn dịu và cảm giác mát lành cho ngày nắng.
+            </p>
+            <div class="product-detail__price">
+                <strong th:if="${product != null and product.productPriceAmount != null and product.productPriceAmount > 0}"
+                        th:text="${product.formatedPriceAfterDiscount} + ' ' + ${product.productPriceCurrency}">0 VND</strong>
+                <strong class="price-contact" th:unless="${product != null and product.productPriceAmount != null and product.productPriceAmount > 0}">Giá đang cập nhật</strong>
+                <small>Vui lòng gọi tiệm để xác nhận giá và tình trạng món.</small>
+            </div>
+            <div class="product-detail__actions">
+                <a class="button button--berry" href="tel:0358121518">Gọi đặt món <span>↗</span></a>
+                <a class="button button--outline" href="https://www.google.com/maps/search/?api=1&amp;query=587+Minh+Phung+Phuong+10+Quan+11" target="_blank" rel="noopener">Đến cửa hàng <span>↗</span></a>
+            </div>
+            <dl class="product-detail__meta">
+                <div><dt>Phục vụ</dt><dd>08:00–22:00</dd></div>
+                <div><dt>Địa chỉ</dt><dd>587 Minh Phụng, P.10, Q.11</dd></div>
+                <div><dt>Điện thoại</dt><dd>0358 121 518</dd></div>
+            </dl>
+        </div>
+    </section>
+    <section class="product-description" th:if="${product != null and product.productLongDes != null and product.productLongDes != 'none'}">
+        <p class="kicker">Thông tin món</p>
+        <div th:utext="${product.productLongDes}"></div>
+    </section>
+</main>
+<footer th:replace="~{cuchoami :: footer}"></footer>
+<script src="/cuchoami/js/cuchoami.js" defer></script>
+</body>
+</html>

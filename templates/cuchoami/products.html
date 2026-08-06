@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{cuchoami :: head}"></head>
+<body>
+<header th:replace="~{cuchoami :: navigation('menu')}"></header>
+<main id="main-content" class="catalog-page">
+    <section class="catalog-cover">
+        <p class="kicker">Tiệm Cúc Hoạ Mi · Minh Phụng</p>
+        <h1>Thực đơn<br><em>mát lành.</em></h1>
+        <p>Những món nước của tiệm, trình bày như một cuốn menu nhỏ để bạn thong thả lựa chọn.</p>
+        <a href="#all-menu" class="button button--berry">Mở menu <span>↓</span></a>
+    </section>
+
+    <section class="catalog-list" id="all-menu">
+        <article class="catalog-row" th:each="product, stat : ${products}">
+            <span class="catalog-row__number" th:text="${#numbers.formatInteger(stat.count, 2)}">01</span>
+            <a class="catalog-row__image" th:href="'/product/' + ${product.path}">
+                <img th:src="${product.productImageDesUrl != null and !product.productImageDesUrl.isBlank() and product.productImageDesUrl != 'none'
+                        ? product.productImageDesUrl : '/cuchoami/images/tiem-cuc-hoa-mi-full.jpg'}"
+                     th:alt="${product.productName}">
+            </a>
+            <div class="catalog-row__copy">
+                <p th:text="${product.productCatalog != null and product.productCatalog != 'none' ? product.productCatalog : 'Nước long nhãn'}">Nước long nhãn</p>
+                <h2 th:text="${product.productName}">Nước Long Nhãn Thái Lan</h2>
+                <div class="catalog-row__price">
+                    <strong th:if="${product.productPriceAmount != null and product.productPriceAmount > 0}"
+                            th:text="${product.formatedPriceAfterDiscount} + ' ' + ${product.productPriceCurrency}">0 VND</strong>
+                    <strong class="price-contact" th:unless="${product.productPriceAmount != null and product.productPriceAmount > 0}">Giá đang cập nhật</strong>
+                    <a th:href="'/product/' + ${product.path}">Xem chi tiết ↗</a>
+                </div>
+            </div>
+        </article>
+
+        <article class="catalog-row" th:if="${products == null or #lists.isEmpty(products)}">
+            <span class="catalog-row__number">01</span>
+            <div class="catalog-row__image"><img src="/cuchoami/images/tiem-cuc-hoa-mi-full.jpg" alt="Nước Long Nhãn Thái Lan"></div>
+            <div class="catalog-row__copy">
+                <p>Món đặc trưng</p><h2>Nước Long Nhãn Thái Lan</h2>
+                <div class="catalog-row__price"><strong class="price-contact">Giá đang cập nhật</strong><a href="tel:0358121518">Gọi tiệm ↗</a></div>
+            </div>
+        </article>
+    </section>
+
+    <section class="catalog-end">
+        <span aria-hidden="true">✿</span>
+        <p>Giá trên Foody đang để trống.</p>
+        <h2>Gọi tiệm để có<br><em>giá mới nhất.</em></h2>
+        <a class="button button--cream" href="tel:0358121518">Gọi 0358 121 518 <span>↗</span></a>
+    </section>
+</main>
+<footer th:replace="~{cuchoami :: footer}"></footer>
+<script src="/cuchoami/js/cuchoami.js" defer></script>
+</body>
+</html>
