@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+<title th:text="${page.articleTitle}">Electro - HTML Ecommerce
+	Template</title>
+
+<link rel="shortcut icon" th:href="'/' + ${domain} + '/img/favicon.png'">
+
+<meta name="keywords" th:content="${page.articleKeyWord}">
+
+<link rel="canonical"
+	th:href="'https://' + ${domain} + '/' + ${page.articleLink}" />
+<meta property="og:title" th:content="${page.articleTitle}" />
+<meta property="og:description" th:content="${page.articleDescription}" />
+<meta property="og:url" th:content="'https://' + ${domain}" />
+<meta property="og:type" th:content="website" />
+<meta property="og:image"
+	th:content="'https://' + ${domain} + '/image/' + ${page.articleThumnailURL}" />
+<meta property="og:image:height" content="150" />
+<meta property="og:image:width" content="200" />
+
+<!-- Google font -->
+<link
+	href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700"
+	rel="stylesheet">
+
+<!-- Bootstrap -->
+<link type="text/css" rel="stylesheet"
+	th:href="'/' + ${domain} + '/css/bootstrap.min.css'" />
+
+<!-- Slick -->
+<link type="text/css" rel="stylesheet"
+	th:href="'/' + ${domain} + '/css/slick.css'" />
+<link type="text/css" rel="stylesheet"
+	th:href="'/' + ${domain} + '/css/slick-theme.css'" />
+
+<!-- nouislider -->
+<link type="text/css" rel="stylesheet"
+	th:href="'/' + ${domain} + '/css/nouislider.min.css'" />
+
+<!-- Font Awesome Icon -->
+<link rel="stylesheet"
+	th:href="'/' + ${domain} + '/css/font-awesome.min.css'">
+
+<!-- Custom stlylesheet -->
+<link type="text/css" rel="stylesheet"
+	th:href="'/' + ${domain} + '/css/style.css'" />
+<link type="text/css" rel="stylesheet"	th:href="'/' + ${domain} + '/css/cart.css'" />
+<link type="text/css" rel="stylesheet"	th:href="'/' + ${domain} + '/css/gallery.css'" />
+	<link type="text/css" rel="stylesheet" th:href="'/' + ${domain} + '/css/anhmedia-live-2026.css?v=20260806'" />
+	
+<script th:src="'/' + ${domain} + '/js/cart.js'"></script>
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+		  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+		  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+		<![endif]-->
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZTS72XT9NL"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZTS72XT9NL');
+</script>
+
+</head>
+
+<!-- Google tag (gtag.js) -->
+<script th:fragment="gtag01" async src="https://www.googletagmanager.com/gtag/js?id=G-ZTS72XT9NL"></script>
+<script th:fragment="gtag02">
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZTS72XT9NL');
+</script>
+
+<body>
+<header th:fragment="topheader">
+	<style>
+		.am-site-header { font-family: Montserrat, Arial, sans-serif; background:#fff; position:relative; z-index:1030; }
+		.am-utility { background:#0d1b2a; color:#dbeafe; font-size:12px; }
+		.am-utility-inner { min-height:38px; display:flex; align-items:center; justify-content:space-between; gap:18px; }
+		.am-contact-strip,.am-account-strip { display:flex; align-items:center; gap:18px; margin:0; padding:0; list-style:none; }
+		.am-contact-strip a,.am-account-strip a { color:#dbeafe; text-decoration:none; white-space:nowrap; }
+		.am-contact-strip i,.am-account-strip i { color:#99ccff; margin-right:6px; }
+		.am-language { display:flex; align-items:center; gap:7px; margin:0; }
+		.am-language label { margin:0; color:#dbeafe; font-weight:600; white-space:nowrap; }
+		.am-language-select { min-width:128px; height:30px; padding:3px 30px 3px 10px; border:1px solid rgba(153,204,255,.4); border-radius:7px; background:#172b40; color:#fff; outline:none; cursor:pointer; }
+		.am-main-header { background:linear-gradient(135deg,#13283d,#1e4a75); padding:17px 0; }
+		.am-main-inner { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:28px; }
+		.am-search { max-width:720px; width:100%; }
+		.am-search form { display:grid; grid-template-columns:150px minmax(0,1fr) auto; border-radius:12px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,.18); }
+		.am-search select,.am-search input,.am-search button { height:46px; border:0; outline:0; }
+		.am-search select { padding:0 12px; background:#f0f7ff; border-right:1px solid #dbeafe; }
+		.am-search input { min-width:0; padding:0 16px; }
+		.am-search button { padding:0 24px; background:#d10024; color:#fff; font-weight:700; }
+		.am-cart-wrap { min-width:130px; text-align:center; }
+		.am-cart-wrap > a { display:inline-flex; align-items:center; gap:9px; color:#fff; text-decoration:none; font-weight:600; }
+		@media(max-width:991px) {
+			.am-utility-inner { align-items:flex-start; padding-top:9px; padding-bottom:9px; }
+			.am-contact-strip { flex-wrap:wrap; gap:7px 14px; }
+			.am-contact-strip li:last-child { width:100%; }
+			.am-account-strip > li:not(.am-language-item) { display:none; }
+			.am-main-inner { grid-template-columns:1fr; gap:12px; }
+			.am-cart-wrap { display:none; }
+		}
+		@media(max-width:560px) {
+			.am-utility-inner { display:block; }
+			.am-contact-strip { display:none; }
+			.am-account-strip { justify-content:flex-end; }
+			.am-language { width:100%; justify-content:space-between; }
+			.am-language-select { flex:1; max-width:190px; }
+			.am-search form { grid-template-columns:minmax(0,1fr) auto; }
+			.am-search select { display:none; }
+			.am-search button { padding:0 16px; }
+		}
+		@media(max-width:768px) {
+			#navigation nav { position:relative; }
+			#navigation .sp-nav-toggler { display:block; }
+			#navigation .sp-nav-collapse {
+				display:none; width:100%; flex-basis:100%;
+				max-height:calc(100vh - 66px); overflow-x:hidden; overflow-y:auto;
+				-webkit-overflow-scrolling:touch;
+			}
+			#navigation .sp-nav-collapse.show { display:block; }
+			#navigation .sp-navbar-nav { width:100%; flex-direction:column; }
+			#navigation .sp-nav-item { border-bottom:1px solid rgba(255,255,255,.15); }
+			#navigation .sp-nav-link { padding:12px 14px; font-size:14px; }
+			#navigation .sp-dropdown-menu {
+				position:static; width:100%; min-width:0; max-height:none;
+				overflow:visible; background:rgba(0,0,0,.12); border:0;
+				border-left:3px solid rgba(255,255,255,.3); box-shadow:none;
+			}
+			#navigation .sp-dropdown-menu .sp-dropdown-item { color:#fff; font-size:13px; white-space:normal; }
+			#navigation .sp-dropdown.open > .sp-dropdown-menu,
+			#navigation .sp-dropdown-submenu.open > .sp-dropdown-menu { display:block; }
+		}
+		@media(min-width:769px) {
+			#navigation .sp-navbar-nav { flex-wrap:wrap; justify-content:flex-start; }
+			#navigation .sp-nav-item,
+			#navigation .sp-nav-link { flex-shrink:0; white-space:nowrap; }
+		}
+	</style>
+	<div class="am-site-header">
+		<!-- TOP HEADER -->
+		<div id="top-header" class="am-utility">
+			<div class="container am-utility-inner">
+				<ul class="am-contact-strip">
+					<li><i class="fa fa-phone"></i> <a href="#"
+						th:text="${client.clientPhone}"> </a></li>
+					<li><i class="fa fa-envelope-o"></i> <a href="#"
+						th:text="${client.clientMail}"> email@email.com</a></li>
+					<li><i class="fa fa-map-marker"></i><a href="#"
+						th:text="${client.clientAddress}"> 1734 Stonecoal Road</a></li>
+				</ul>
+				<ul class="am-account-strip">
+				<li><a href="/dang-nhap" th:if="${session.SPRING_SECURITY_CONTEXT == null}"><i class="fa fa-dollar"  ></i>  Đăng nhập</a></li>
+				<li><a href="/logout" th:if="${session.username != null}"><i class="fa fa-dollar"  ></i>  Đổi tài khoản</a></li>
+				<li><a href="/logout" th:if="${session.SPRING_SECURITY_CONTEXT != null}" ><i class="fa fa-dollar" ></i>  Đăng xuất</a></li>
+					<li th:if="${session.SPRING_SECURITY_CONTEXT != null}">
+						<!-- Display the username --> <a href="/trang-ca-nhan" id="clientusername"
+						th:text="${session.SPRING_SECURITY_CONTEXT.authentication.name}"></a>
+					</li>
+
+					<li class="am-language-item">
+						<form class="am-language" action="#" th:action="@{/setLanguage}" method="get">
+							<label for="language"><i class="fa fa-globe"></i> Language</label>
+							<select name="lang" id="language" class="am-language-select" onchange="this.form.submit()" aria-label="Select language">
+								<option th:each="language : ${languages}" th:value="${language.langId}"
+									th:selected="${language.seleted}"
+									th:text="${language.langName}">Tiếng Việt</option>
+							</select>
+						</form>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<!-- /TOP HEADER -->
+
+		<!-- MAIN HEADER -->
+		<div id="header" class="am-main-header">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="am-main-inner">
+					<!-- LOGO -->
+
+					<!-- /LOGO -->
+
+					<!-- SEARCH BAR -->
+					<div class="am-search">
+						<div>
+							<form action="/trang-chu.html" method="GET">
+								<select name="catalog">
+										<option value="0">Tất cả</option>
+										<option th:each="catalog : ${catalogs}"
+											th:value="${catalog.catalogCode}"
+											th:text="${catalog.catalogName}">Category 01</option>
+								</select> <input class="input" name="keyword" placeholder="Từ khóa">
+									<button class="search-btn">Search</button>
+							</form>
+						</div>
+					</div>
+					<!-- /SEARCH BAR -->
+
+					<!-- ACCOUNT -->
+					<div class="am-cart-wrap">
+						<div>
+							<!-- Wishlist -->
+							<!--div>
+								<a href="#"> <i class="fa fa-heart-o"></i> <span>Your
+										Wishlist</span>
+									<div class="qty">2</div>
+								</a>
+							</div>
+							<!-- /Wishlist -->
+
+							<!-- Cart -->
+							<div class="shopping-cart">
+								<a class="dropdown-toggle" data-toggle="dropdown"
+									aria-expanded="true"> 
+								<div  th:replace="minhmapshop :: shopping-cart">
+									
+									
+								</div>
+									
+									<span style = "color:white;">Your	Cart</span>
+								</a>
+							</div>
+							<!-- /Cart -->
+
+
+						</div>
+					</div>
+					<!-- /ACCOUNT -->
+				</div>
+				<!-- row -->
+			</div>
+			<!-- container -->
+		</div>
+		<!-- /MAIN HEADER -->
+	</div>
+		<!-- NAVIGATION -->
+	<div id="navigation" th:fragment="navigation"
+		 style="background:#D10024; --sp-accent:#D10024; position:sticky; top:0; z-index:1020; padding:0;">
+		<div class="container" style="padding-top:2px; padding-bottom:2px;">
+			<nav style="display:flex; align-items:center; flex-wrap:wrap; gap:0;">
+
+				<a th:href="'/trang-chu.html'" style="display:inline-flex; align-items:center; text-decoration:none; padding:4px 10px 4px 0; flex-shrink:0;">
+					<img th:src="'/' + ${domain} + '/img/headerlogo.png'" style="height:50px;" onerror="this.style.display='none'">
+				</a>
+
+				<button class="sp-nav-toggler" id="sp-nav-toggler-ah" type="button"
+					aria-label="Mở menu" aria-controls="sp-nav-collapse-ah" aria-expanded="false">&#9776;</button>
+
+				<div id="sp-nav-collapse-ah" class="sp-nav-collapse" style="flex:1; min-width:0;">
+					<ul class="sp-navbar-nav">
+						<li class="sp-nav-item"><a class="sp-nav-link" th:href="'/trang-chu.html'">Trang chủ</a></li>
+
+						<li class="sp-nav-item sp-dropdown">
+							<a class="sp-nav-link" th:href="'/san-pham.html'">Sản phẩm ▾</a>
+							<ul class="sp-dropdown-menu">
+								<li><a class="sp-dropdown-item" th:href="'/san-pham.html'">Tất cả</a></li>
+								<li th:each="catalog : ${selectedHomeCatalogs}">
+									<a class="sp-dropdown-item"
+									   th:href="'/san-pham.html?catalog=' + ${catalog.catalogCode} + ';'"
+									   th:text="${catalog.catalogName}">Danh mục</a>
+								</li>
+							</ul>
+						</li>
+
+						<li th:each="menuItem : ${projectMenuEntities}"
+							th:if="${menuItem.subItems != null and !menuItem.subItems.isEmpty()}"
+							class="sp-nav-item sp-dropdown">
+							<a class="sp-nav-link" th:href="'/' + ${menuItem.path}">
+								<span th:text="${menuItem.menuName}"></span> ▾
+							</a>
+							<ul class="sp-dropdown-menu">
+								<li th:each="sub : ${menuItem.subItems}"
+									th:class="${sub.subItems != null and !sub.subItems.isEmpty()} ? 'sp-dropdown-submenu' : ''">
+									<a class="sp-dropdown-item" th:href="'/' + ${menuItem.path} + '/' + ${sub.path}">
+										<span th:text="${sub.menuName}"></span>
+										<span th:if="${sub.subItems != null and !sub.subItems.isEmpty()}" style="opacity:0.6;font-size:0.75em;">▸</span>
+									</a>
+									<ul class="sp-dropdown-menu" th:if="${sub.subItems != null and !sub.subItems.isEmpty()}">
+										<li th:each="subsub : ${sub.subItems}">
+											<a class="sp-dropdown-item"
+											   th:href="'/' + ${menuItem.path} + '/' + ${sub.path} + '/' + ${subsub.path}"
+											   th:text="${subsub.menuName}"></a>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</li>
+
+						<li class="sp-nav-item"><a class="sp-nav-link" th:href="@{/instruction-gallery.html(lang=${language})}">Gallery</a></li>
+						<li class="sp-nav-item"><a class="sp-nav-link" th:href="'/bai-viet.html'">Bài viết</a></li>
+						<li class="sp-nav-item"><a class="sp-nav-link" th:href="'/lien-he.html'">Liên hệ</a></li>
+						<li class="sp-nav-item"><a class="sp-nav-link" th:href="'/gioi-thieu.html'">Giới thiệu</a></li>
+						<li th:if="${session.SPRING_SECURITY_CONTEXT == null}" class="sp-nav-item">
+							<a class="sp-nav-link" href="/dang-nhap">Đăng nhập</a>
+						</li>
+						<li th:if="${session.SPRING_SECURITY_CONTEXT != null}" class="sp-nav-item">
+							<a class="sp-nav-link" href="/logout">Đăng xuất</a>
+						</li>
+					</ul>
+					</div>
+
+
+			</nav>
+		</div>
+		<script>
+		(function() {
+			function initAnhMediaNavigation() {
+				var navigation = document.getElementById('navigation');
+				var toggler = document.getElementById('sp-nav-toggler-ah');
+				var collapse = document.getElementById('sp-nav-collapse-ah');
+				if (!navigation || !toggler || !collapse || toggler.dataset.bound === 'true') return;
+				toggler.dataset.bound = 'true';
+
+				toggler.addEventListener('click', function() {
+					var open = collapse.classList.toggle('show');
+					toggler.setAttribute('aria-expanded', open ? 'true' : 'false');
+				});
+
+				navigation.querySelectorAll('.sp-dropdown > .sp-nav-link').forEach(function(link) {
+					link.addEventListener('click', function(event) {
+						if (window.innerWidth > 768) return;
+						event.preventDefault();
+						this.parentElement.classList.toggle('open');
+					});
+				});
+
+				navigation.querySelectorAll('.sp-dropdown-submenu > .sp-dropdown-item').forEach(function(item) {
+					item.addEventListener('click', function(event) {
+						if (window.innerWidth > 768) return;
+						var submenu = this.parentElement;
+						if (!submenu.querySelector(':scope > .sp-dropdown-menu')) return;
+						event.preventDefault();
+						submenu.classList.toggle('open');
+					});
+				});
+
+				document.querySelectorAll('.menu-toggle > a').forEach(function(link) {
+					link.addEventListener('click', function(event) {
+						if (window.innerWidth > 768) return;
+						event.preventDefault();
+						toggler.click();
+						navigation.scrollIntoView({behavior:'smooth', block:'start'});
+					});
+				});
+
+				window.addEventListener('resize', function() {
+					if (window.innerWidth > 768) {
+						collapse.classList.remove('show');
+						toggler.setAttribute('aria-expanded', 'false');
+						navigation.querySelectorAll('.open').forEach(function(item) {
+							item.classList.remove('open');
+						});
+					}
+				});
+			}
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', initAnhMediaNavigation);
+			} else {
+				initAnhMediaNavigation();
+			}
+		})();
+		</script>
+	</div>
+	<!-- /NAVIGATION -->
+	</header>
+	<script defer th:src="'/' + ${domain} + '/js/anhmedia-live-2026.js?v=20260806'"></script>
+</body>
+<div th:fragment="footer">
+<!-- div id="newsletter" class="section">
+		<!-- container
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="newsletter">
+						<p>
+							Sign Up for the <strong>NEWSLETTER</strong>
+						</p>
+						<form>
+							<input class="input" type="email" placeholder="Enter Your Email">
+							<button class="newsletter-btn">
+								<i class="fa fa-envelope"></i> Subscribe
+							</button>
+						</form>
+						<ul class="newsletter-follow">
+							<li><a href="#"><i class="fa fa-facebook"></i></a></li>
+							<li><a href="#"><i class="fa fa-twitter"></i></a></li>
+							<li><a href="#"><i class="fa fa-instagram"></i></a></li>
+							<li><a href="#"><i class="fa fa-pinterest"></i></a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div> -->
+
+
+	<!-- FOOTER -->
+	<footer id="footer">
+		<!-- top footer -->
+		<div class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<div class="col-md-6 col-xs-6">
+						<div class="footer">
+							<h3 class="footer-title" th:text="${client.clientName}">About Us</h3>
+							<p th:text="${client.clientDescription}">Lorem ipsum dolor sit amet, consectetur adipisicing elit,
+								sed do eiusmod tempor incididunt ut.</p>
+							<ul class="footer-links">
+								<li><a href="#"><i class="fa fa-map-marker"></i></a> <span
+									th:text="${client.clientAddress}"></span></li>
+								<li><a href="#"><i class="fa fa-phone"></i></a><span
+									th:text="${client.clientPhone}"></span></li>
+								<li><a href="#"><i class="fa fa-envelope-o"></i></a><span
+									th:text="${client.clientMail}"></span></li>
+							</ul>
+						</div>
+					</div>
+
+					
+
+					<div class="col-md-6 col-xs-12">
+						<div class="footer">
+							<h3 class="footer-title">Thông tin</h3>
+							<ul class="footer-link">
+								<li><a th:href="'/trang-chu.html'" style="color:white">Trang chủ</a></li>
+								<li><a th:href="'/san-pham.html'" style="color:white">Sản phẩm</a></li>
+								<li><a th:href="@{/instruction-gallery.html(lang=${language})}" style="color:white">Gallery</a></li>
+								<li><a th:href="'/bai-viet.html'" style="color:white">Bài viết</a></li>
+								<li><a th:href="'/lien-he.html'" style="color:white">Liên hệ</a></li>
+								<li><a th:href="'/gioi-thieu.html'" style="color:white">Giới thiệu</a></li>
+							</ul>
+						</div>
+					</div>
+
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /top footer -->
+
+		<!-- bottom footer -->
+		<div id="bottom-footer" class="section">
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<div class="col-md-12 text-center">
+						<ul class="footer-payments">
+							<li><a href="#"><i class="fa fa-cc-visa"></i></a></li>
+							<li><a href="#"><i class="fa fa-credit-card"></i></a></li>
+							<li><a href="#"><i class="fa fa-cc-paypal"></i></a></li>
+							<li><a href="#"><i class="fa fa-cc-mastercard"></i></a></li>
+							<li><a href="#"><i class="fa fa-cc-discover"></i></a></li>
+							<li><a href="#"><i class="fa fa-cc-amex"></i></a></li>
+						</ul>
+						<span class="copyright"> <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+							Copyright &copy;<script>document.write(new Date().getFullYear());</script>
+							All rights reserved | This template is made with <i
+							class="fa fa-heart-o" aria-hidden="true"></i> by <a
+							href="https://colorlib.com" target="_blank">Colorlib</a> <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+						</span>
+					</div>
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /bottom footer -->
+	</footer>
+	<!-- /FOOTER -->
+
+	<!-- ── Floating Chat Widget ──────────────────────────────────────── -->
+	<link rel="stylesheet" href="/floating-chat.css">
+	<div id="fc-wrap">
+		<div class="fc-bubble">Hôm nay bạn có khỏe không? 😊</div>
+		<button class="fc-btn" id="fc-btn" title="Chat với chúng tôi">&#128172;</button>
+	</div>
+	<div id="fc-panel">
+		<div class="fc-head">
+			<span class="fc-head-title">&#128172; Liên hệ hỗ trợ</span>
+			<button class="fc-close-btn" id="fc-close-btn" title="Đóng">&#10005;</button>
+		</div>
+		<div class="fc-body">
+			<form id="fc-form" autocomplete="on">
+				<div class="fc-field">
+					<label class="fc-label" for="fc-name">Tên của bạn *</label>
+					<input class="fc-input" id="fc-name" name="name" type="text"
+						placeholder="Nguyễn Văn A" maxlength="100" required autocomplete="name">
+				</div>
+				<div class="fc-field">
+					<label class="fc-label" for="fc-email">Email (tùy chọn)</label>
+					<input class="fc-input" id="fc-email" name="email" type="email"
+						placeholder="email@example.com" maxlength="200" autocomplete="email">
+				</div>
+				<div class="fc-field">
+					<label class="fc-label" for="fc-msg">Tin nhắn *</label>
+					<textarea class="fc-textarea" id="fc-msg" name="message"
+						placeholder="Chúng tôi có thể giúp gì cho bạn?" maxlength="2000" required></textarea>
+				</div>
+				<div id="fc-status" class="fc-status"></div>
+				<button type="submit" class="fc-submit">Gửi tin nhắn &#9992;</button>
+			</form>
+		</div>
+	</div>
+	<script src="/floating-chat.js"></script>
+	<!-- ── /Floating Chat Widget ─────────────────────────────────────── -->
+</div>
+
+		   <div class="shopping-cart" th:fragment="shopping-cart">
+							<!-- Biểu tượng giỏ hàng -->
+							<div onclick="toggleCart()">
+								<img th:src="'/nlsjsc.com/images/cart.svg'"> <span
+									class="cart-count" th:text="${cart.totalItems}">0</span>
+							</div>
+
+							<!-- Dropdown danh sách giỏ hàng -->
+							<div id="cart-dropdown" class="cart-dropdown"
+								style="display: none;">
+								<ul class="cart-items">
+									<li th:each="item : ${cart.items}">
+									<p style="margin-right: 5px;" th:text="${item.id}"> <p>
+									<img
+										th:src="${item.imageUrl}" style="wild: 50px; height: 50px; padding-right:1rem;" alt="Product Image">
+										<div class="item-details">
+											<a th:href="@{/san-pham/{id}(id=${item.path})}">
+											  <p th:text="${item.name}" style="font-weight:bold;">Product Name</p>
+											</a>
+											<p th:text="${item.colorCode}">Product Name</p>
+											<span th:text="${item.quantity} + ' x '" style="font-weight:bold;color:red;">1 x</span >  
+											<span style="font-weight:bold;color:red;"
+												th:text="${item.formatedPrice}" ></span>
+												
+												 <span  th:text="${cart.currency}" style="font-weight:bold;color:red;">$0.00</span>
+										</div>
+										<button class="remove-item" 
+											th:onclick="'removeFromCart(' + ${item.id} + ')'">Xóa</button>
+									</li>
+								</ul>
+								<div class="cart-total">
+									<p>Tổng: </p>
+									<span id="cart-total-price" class="product-price small"  th:text="${cart.formatedPrice} + ${cart.currency}" style="font-weight:bold; font-size:18px;">$0.00</span>
+								</div>
+								<div class="cart-total floating">
+									<p style="padding-right:15px">Tổng:</p>
+									<a href="/gio-hang"
+										style="font-weight: bold; font-size: 18px; text-decoration: none; color: blue;">
+										<span id="cart-total-price-floating" class="product-price small" 
+										th:text="${cart.formatedPrice} + ${cart.currency}">$0.00</span>
+									</a>
+								</div>
+								<div class="cart-actions">
+									<a th:href="'/dat-hang'" class="checkout-btn">Đặt hàng</a> <a
+										th:href="'/gio-hang'" class="view-cart-btn">Giỏ hàng</a>
+										
+										
+								</div>
+								<div class="cart-actions"><a
+									th:href="'/trang-thai-don-hang'" class="btn btn-orders" style =" background-color:silver;">Đơn hàng</a></div>
+								<div class="cart-actions">
+									<a onclick="toggleCart()" style="font-weight: bold; font-size: 12px; text-decoration: none; color: blue;">Ẩn giỏ hàng</a>
+								</div>
+							</div>
+						</div>
+						
+    <!-- Article Gallery Fragment -->
+    <div th:fragment="articleGallery" class="article-gallery">
+        <div class="container">
+            <div class="gallery-header">
+                <h2 class="gallery-title">Latest Articles</h2>
+                <p class="gallery-subtitle">Discover our latest insights and stories</p>
+            </div>
+            
+            <div class="articles-grid">
+                <article th:each="article, iterStat : ${articles}" >
+                         <!-- th:class="'article-card ' + (${iterStat.id == 0} ? 'featured' : '')"
+                         th:if="${iterStat.id < 10}"> -->
+                    
+                    <div class="article-image">
+                        <img th:src="${article.articleThumnailURLWithHost2 != null ? article.articleThumnailURLWithHost2 : '/images/default-article.jpg'}" 
+                             th:alt="${article.articleTitle}"
+                             loading="lazy">
+                        <div class="article-overlay">
+                           <!--  <span class="read-time" th:text="${article.readTime != null ? article.readTime + ' min read' : '5 min read'}"></span> -->
+                        </div>
+                    </div>
+                    
+                    <div class="article-content">
+                        <div class="article-meta">
+                           <!--  <span class="article-category" th:text="${article.category}">Technology</span> -->
+                            <span class="article-date" th:text="${#temporals.format(article.articleTime, 'MMM dd, yyyy')}">Jan 15, 2024</span>
+                        </div>
+                        
+                        <h3 class="article-title">
+                            <a th:href="@{'/article/' + ${article.articleLink}}" th:text="${article.articleTitle}">Article Title</a>
+                        </h3>
+                        
+                        <p class="article-excerpt" th:text="${article.articleDescription}">
+                            This is a brief description of the article content that will engage readers...
+                        </p>
+                        
+                        <div class="article-footer">
+                            <div class="author-info">
+                               <!--  <img th:src="${article.author.avatar != null ? article.author.avatar : '/images/default-avatar.jpg'}" 
+                                     th:alt="${article.author.name}"
+                                     class="author-avatar"> -->
+                                <span class="author-name" th:text="${article.originAuthor}">Author Name</span>
+                            </div>
+                            
+                            <a th:href="@{'/article/' + ${article.articleLink}}" class="read-more">
+                                Read More
+                                <svg class="read-more-icon" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                    <path d="M5 12h14m-7-7l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            
+            <!-- <div class="gallery-footer">
+                <button class="load-more-btn" onclick="">
+                    <span class="btn-text">Load More Articles</span>
+                    <div class="btn-loader" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+            </div> -->
+        </div>
+    </div>
+
+    <script th:src="'/' + ${domain} + '/js/gallery.js'"></script>
+
+</html>

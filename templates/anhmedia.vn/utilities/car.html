@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxury Sports Car - For Sale</title>
+
+    <!-- Load model-viewer library -->
+    <script type="module"
+            src="https://cdn.jsdelivr.net/npm/@google/model-viewer/dist/model-viewer.min.js">
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a0a;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .top-bar {
+            background: #000;
+            padding: 12px 0;
+            text-align: center;
+            color: #999;
+            font-size: 13px;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        header {
+            background: #000;
+            padding: 30px 60px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        header h1 {
+            color: #fff;
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .product-section {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            background: #000;
+            min-height: calc(100vh - 120px);
+        }
+
+        .viewer-container {
+            position: relative;
+            background: #0a0a0a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            border-right: 1px solid #1a1a1a;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #0a0a0a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .progress-circle {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+
+        .progress-circle svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .progress-circle-bg {
+            fill: none;
+            stroke: #1a1a1a;
+            stroke-width: 2;
+        }
+
+        .progress-circle-fill {
+            fill: none;
+            stroke: #fff;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-dasharray: 339.292;
+            stroke-dashoffset: 339.292;
+            transition: stroke-dashoffset 0.3s ease;
+        }
+
+        .progress-percentage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .loading-text {
+            color: #666;
+            font-size: 13px;
+            margin-top: 30px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        .loading-bar-container {
+            width: 300px;
+            height: 2px;
+            background: #1a1a1a;
+            margin-top: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading-bar {
+            height: 100%;
+            background: #fff;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .badge {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 2px;
+            font-weight: 400;
+            z-index: 10;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        model-viewer {
+            width: 100%;
+            height: 700px;
+            background: transparent;
+        }
+
+        .product-info {
+            padding: 80px 60px;
+            background: #000;
+            color: #fff;
+            overflow-y: auto;
+        }
+
+        .product-info h2 {
+            font-size: 48px;
+            color: #fff;
+            margin-bottom: 8px;
+            font-weight: 300;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 16px;
+            margin-bottom: 40px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .price-section {
+            border-top: 1px solid #1a1a1a;
+            border-bottom: 1px solid #1a1a1a;
+            padding: 30px 0;
+            margin: 40px 0;
+        }
+
+        .price {
+            font-size: 54px;
+            font-weight: 300;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .price-details {
+            font-size: 13px;
+            color: #666;
+            letter-spacing: 0.5px;
+        }
+
+        .finance-option {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #888;
+        }
+
+        .description {
+            color: #aaa;
+            margin: 40px 0;
+            line-height: 1.9;
+            font-size: 15px;
+            font-weight: 300;
+        }
+
+        .section-title {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 50px 0 25px 0;
+            font-weight: 500;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1px;
+            background: #1a1a1a;
+            border: 1px solid #1a1a1a;
+            margin: 25px 0;
+        }
+
+        .spec-item {
+            background: #0a0a0a;
+            padding: 24px;
+        }
+
+        .spec-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            font-weight: 400;
+            letter-spacing: 1.5px;
+        }
+
+        .spec-value {
+            font-size: 18px;
+            color: #fff;
+            font-weight: 300;
+            margin-top: 8px;
+        }
+
+        .features {
+            list-style: none;
+            margin: 25px 0;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1px;
+            background: #1a1a1a;
+            border: 1px solid #1a1a1a;
+        }
+
+        .features li {
+            padding: 18px 24px;
+            background: #0a0a0a;
+            font-size: 13px;
+            color: #aaa;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            margin-top: 60px;
+            background: #1a1a1a;
+            border: 1px solid #1a1a1a;
+        }
+
+        .btn {
+            padding: 22px 30px;
+            font-size: 12px;
+            font-weight: 400;
+            border: none;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: #0a0a0a;
+            color: #fff;
+        }
+
+        .btn:hover {
+            background: #1a1a1a;
+        }
+
+        .contact-dealer {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            padding: 40px;
+            margin-top: 50px;
+        }
+
+        .contact-dealer h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #fff;
+        }
+
+        .contact-dealer p {
+            font-size: 13px;
+            color: #666;
+            font-weight: 300;
+        }
+
+        .dealer-phone {
+            font-size: 28px;
+            font-weight: 300;
+            color: #fff;
+            margin-top: 20px;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 1200px) {
+            .product-section {
+                grid-template-columns: 1fr;
+            }
+
+            .viewer-container {
+                border-right: none;
+                border-bottom: 1px solid #1a1a1a;
+                padding: 40px;
+            }
+
+            model-viewer {
+                height: 500px;
+            }
+
+            .product-info {
+                padding: 60px 40px;
+            }
+
+            header {
+                padding: 25px 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .specs-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .product-info {
+                padding: 40px 25px;
+            }
+
+            .viewer-container {
+                padding: 25px;
+            }
+
+            header h1 {
+                font-size: 20px;
+                letter-spacing: 2px;
+            }
+
+            .product-info h2 {
+                font-size: 36px;
+            }
+
+            .price {
+                font-size: 42px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="top-bar">CERTIFIED PRE-OWNED COLLECTION</div>
+
+<header>
+    <h1>ATELIER AUTOMOTIVE</h1>
+</header>
+
+<div class="container">
+    <div class="product-section">
+        <div class="viewer-container">
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="progress-circle">
+                    <svg viewBox="0 0 120 120">
+                        <circle class="progress-circle-bg" cx="60" cy="60" r="54"></circle>
+                        <circle class="progress-circle-fill" id="progressCircle" cx="60" cy="60" r="54"></circle>
+                    </svg>
+                    <div class="progress-percentage" id="progressPercentage">0%</div>
+                </div>
+                <div class="loading-text">Loading 3D Model</div>
+                <div class="loading-bar-container">
+                    <div class="loading-bar" id="loadingBar"></div>
+                </div>
+            </div>
+            <div class="badge">Certified</div>
+            <model-viewer
+                id="carModel"
+                src="/anhmedia.vn/models/car.glb"
+                alt="Luxury Sports Car 3D Model"
+                camera-controls
+                auto-rotate
+                shadow-intensity="0.8"
+                exposure="1"
+                environment-image="neutral">
+            </model-viewer>
+        </div>
+
+        <div class="product-info">
+            <h2>Executive Sedan</h2>
+            <p class="subtitle">Performance Edition</p>
+
+            <div class="price-section">
+                <div class="price">$89,995</div>
+                <div class="price-details">MSRP $105,000 • SAVE $15,005</div>
+                <div class="finance-option">From $1,249/month with approved credit</div>
+            </div>
+
+            <p class="description">
+                A masterpiece of engineering and design. This meticulously maintained vehicle 
+                represents the pinnacle of automotive excellence, combining refined luxury 
+                with exhilarating performance. Every element has been thoughtfully crafted 
+                to deliver an unparalleled driving experience.
+            </p>
+
+            <div class="section-title">Specifications</div>
+            <div class="specs-grid">
+                <div class="spec-item">
+                    <div class="spec-label">Mileage</div>
+                    <div class="spec-value">12,450 Miles</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">Engine</div>
+                    <div class="spec-value">3.0L V6 Twin-Turbo</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">Transmission</div>
+                    <div class="spec-value">8-Speed Automatic</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">Drivetrain</div>
+                    <div class="spec-value">All-Wheel Drive</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">Exterior Color</div>
+                    <div class="spec-value">Midnight Blue Metallic</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">Interior</div>
+                    <div class="spec-value">Black Nappa Leather</div>
+                </div>
+            </div>
+
+            <div class="section-title">Premium Equipment</div>
+            <ul class="features">
+                <li>Adaptive Cruise Control</li>
+                <li>Harman Kardon Sound System</li>
+                <li>Panoramic Glass Sunroof</li>
+                <li>Ventilated Front Seats</li>
+                <li>Head-Up Display</li>
+                <li>360° Camera System</li>
+                <li>Active Lane Keeping</li>
+                <li>Parking Assistance Plus</li>
+            </ul>
+
+            <div class="buttons">
+                <button class="btn" onclick="scheduleTest()">Schedule Test Drive</button>
+                <button class="btn" onclick="makeOffer()">Request Information</button>
+            </div>
+
+            <div class="contact-dealer">
+                <h3>Concierge Service</h3>
+                <p>Available Monday through Saturday, 9:00 AM to 8:00 PM</p>
+                <p>Sunday, 10:00 AM to 6:00 PM</p>
+                <div class="dealer-phone">(555) 123-4567</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modelViewer = document.getElementById('carModel');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const progressPercentage = document.getElementById('progressPercentage');
+    const progressCircle = document.getElementById('progressCircle');
+    const loadingBar = document.getElementById('loadingBar');
+    const circumference = 2 * Math.PI * 54; // 2πr where r=54
+
+    // Update loading progress
+    modelViewer.addEventListener('progress', (event) => {
+        const progress = event.detail.totalProgress;
+        const percentage = Math.round(progress * 100);
+        
+        // Update percentage text
+        progressPercentage.textContent = percentage + '%';
+        
+        // Update circular progress
+        const offset = circumference - (progress * circumference);
+        progressCircle.style.strokeDashoffset = offset;
+        
+        // Update loading bar
+        loadingBar.style.width = percentage + '%';
+    });
+
+    // Hide loading when model is ready
+    modelViewer.addEventListener('load', () => {
+        setTimeout(() => {
+            loadingOverlay.classList.add('hidden');
+        }, 500);
+    });
+
+    // Handle loading errors
+    modelViewer.addEventListener('error', () => {
+        progressPercentage.textContent = 'Error';
+        document.querySelector('.loading-text').textContent = 'Failed to load 3D model';
+        progressCircle.style.stroke = '#ff4444';
+    });
+
+    function scheduleTest() {
+        alert('Thank you for your interest.\n\nOur concierge team will contact you within 24 hours to arrange your private test drive experience.\n\nPlease have your driver\'s license ready for verification.');
+    }
+
+    function makeOffer() {
+        alert('Information Request\n\nA dedicated specialist will contact you shortly with detailed information about this vehicle, including additional photographs, service history, and financing options.');
+    }
+</script>
+
+</body>
+</html>

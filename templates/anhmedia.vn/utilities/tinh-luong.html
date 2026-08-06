@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tính Ngày Làm Việc & Lương</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+        h1 { color: #4c51bf; margin-bottom: 10px; font-size: 2em; }
+        .subtitle { color: #718096; margin-bottom: 30px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+        .card {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .card h3 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+        .form-group { margin-bottom: 15px; }
+        label {
+            display: block;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        button:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 0.9em;
+            width: auto;
+            display: inline-block;
+        }
+        .btn-success { background: #48bb78; }
+        .btn-success:hover { background: #38a169; }
+        .btn-danger { background: #f56565; }
+        .btn-danger:hover { background: #e53e3e; }
+        .btn-warning { background: #ed8936; }
+        .btn-warning:hover { background: #dd6b20; }
+        .result-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        .result-box h3 { color: white; margin-bottom: 20px; }
+        .result-item {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        .result-item:last-child { border-bottom: none; }
+        .result-total {
+            font-size: 1.5em;
+            font-weight: bold;
+            padding-top: 15px;
+            margin-top: 15px;
+            border-top: 2px solid rgba(255,255,255,0.3);
+        }
+        .holiday-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 2px solid #fbd38d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .holiday-info { flex: 1; }
+        .holiday-name { font-weight: 600; color: #2d3748; }
+        .holiday-date { font-size: 0.9em; color: #718096; }
+        .holiday-actions { display: flex; gap: 10px; }
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 5px 10px;
+            width: auto;
+        }
+        .icon-btn:hover { transform: scale(1.2); }
+        .detail-day {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .day-work { background: #c6f6d5; border-left: 4px solid #48bb78; }
+        .day-half { background: #fef5e7; border-left: 4px solid #ed8936; }
+        .day-holiday { background: #fed7d7; border-left: 4px solid #f56565; }
+        .day-weekend { background: #e2e8f0; border-left: 4px solid #a0aec0; }
+        .details-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+        }
+        .card-config { background: #edf2f7; }
+        .card-salary { background: #f0fff4; }
+        .card-holiday { background: #fffaf0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📅 Tính Ngày Làm Việc & Lương</h1>
+        <p class="subtitle">Tính toán chính xác ngày làm việc và lương theo quy định Việt Nam</p>
+
+        <div class="grid">
+            <!-- Left Column -->
+            <div>
+                <!-- Config Card -->
+                <div class="card card-config">
+                    <h3>⏰ Cấu hình ngày nghỉ</h3>
+                    <div class="form-group">
+                        <label>Chế độ cuối tuần:</label>
+                        <select id="weekendOption">
+                            <option value="both">Nghỉ Thứ 7 & Chủ Nhật</option>
+                            <option value="halfSaturday">Nghỉ nửa Thứ 7 & Chủ Nhật</option>
+                            <option value="sunday">Chỉ nghỉ Chủ Nhật</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Từ ngày:</label>
+                        <input type="date" id="startDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Đến ngày:</label>
+                        <input type="date" id="endDate">
+                    </div>
+                </div>
+
+                <!-- Salary Card -->
+                <div class="card card-salary">
+                    <h3>💰 Cấu hình lương</h3>
+                    <div class="form-group">
+                        <label>Lương mỗi giờ (VNĐ):</label>
+                        <input type="number" id="hourlyRate" value="50000">
+                    </div>
+                    <div class="form-group">
+                        <label>Giờ tăng ca (giờ):</label>
+                        <input type="number" id="overtimeHours" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Phần trăm tăng ca (%):</label>
+                        <input type="number" id="overtimePercent" value="150">
+                    </div>
+                </div>
+
+                <button onclick="calculateWorkdays()">📊 Tính Toán</button>
+
+                <!-- Result -->
+                <div id="resultContainer"></div>
+                <div id="detailsContainer"></div>
+            </div>
+
+            <!-- Right Column - Holidays -->
+            <div>
+                <div class="card card-holiday">
+                    <h3>📅 Danh sách ngày lễ</h3>
+                    <div id="holidayList" style="max-height: 400px; overflow-y: auto; margin-bottom: 20px;"></div>
+                    
+                    <hr style="margin: 20px 0; border: none; border-top: 2px solid #fbd38d;">
+                    
+                    <h4 style="margin-bottom: 15px; color: #744210;">Thêm ngày lễ mới</h4>
+                    <div class="form-group">
+                        <input type="text" id="newHolidayName" placeholder="Tên ngày lễ">
+                    </div>
+                    <div class="form-group">
+                        <input type="date" id="newHolidayStart">
+                    </div>
+                    <div class="form-group">
+                        <input type="date" id="newHolidayEnd">
+                    </div>
+                    <button class="btn-warning" onclick="addHoliday()">➕ Thêm Ngày Lễ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let holidays = [
+            { id: 1, name: 'Tết Dương Lịch', startDate: '2026-01-01', endDate: '2026-01-01' },
+            { id: 2, name: 'Tết Nguyên Đán', startDate: '2026-02-14', endDate: '2026-02-22' },
+            { id: 3, name: 'Giỗ Tổ Hùng Vương', startDate: '2025-04-10', endDate: '2025-04-10' },
+            { id: 4, name: 'Giải phóng miền Nam', startDate: '2025-04-30', endDate: '2025-04-30' },
+            { id: 5, name: 'Quốc tế Lao động', startDate: '2025-05-01', endDate: '2025-05-01' },
+            { id: 6, name: 'Quốc Khánh', startDate: '2025-09-02', endDate: '2025-09-02' }
+        ];
+
+        let editingId = null;
+        let showDetails = false;
+        let detailedDays = [];
+
+        function renderHolidays() {
+            const list = document.getElementById('holidayList');
+            list.innerHTML = holidays.map(h => {
+                if (editingId === h.id) {
+                    return `
+                        <div class="holiday-item">
+                            <div style="flex: 1;">
+                                <input type="text" id="editName${h.id}" value="${h.name}" style="margin-bottom: 10px;">
+                                <input type="date" id="editStart${h.id}" value="${h.startDate}" style="margin-bottom: 10px;">
+                                <input type="date" id="editEnd${h.id}" value="${h.endDate}" style="margin-bottom: 10px;">
+                                <button class="btn-small btn-success" onclick="saveHoliday(${h.id})">💾 Lưu</button>
+                            </div>
+                        </div>
+                    `;
+                }
+                return `
+                    <div class="holiday-item">
+                        <div class="holiday-info">
+                            <div class="holiday-name">${h.name}</div>
+                            <div class="holiday-date">${h.startDate}${h.startDate !== h.endDate ? ' đến ' + h.endDate : ''}</div>
+                        </div>
+                        <div class="holiday-actions">
+                            <button class="icon-btn" onclick="editHoliday(${h.id})" title="Sửa">✏️</button>
+                            <button class="icon-btn" onclick="deleteHoliday(${h.id})" title="Xóa">❌</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addHoliday() {
+            const name = document.getElementById('newHolidayName').value;
+            const start = document.getElementById('newHolidayStart').value;
+            const end = document.getElementById('newHolidayEnd').value;
+
+            if (!name || !start || !end) {
+                alert('Vui lòng điền đầy đủ thông tin');
+                return;
+            }
+
+            holidays.push({
+                id: Date.now(),
+                name: name,
+                startDate: start,
+                endDate: end
+            });
+
+            document.getElementById('newHolidayName').value = '';
+            document.getElementById('newHolidayStart').value = '';
+            document.getElementById('newHolidayEnd').value = '';
+
+            renderHolidays();
+        }
+
+        function deleteHoliday(id) {
+            if (confirm('Bạn có chắc muốn xóa ngày lễ này?')) {
+                holidays = holidays.filter(h => h.id !== id);
+                renderHolidays();
+            }
+        }
+
+        function editHoliday(id) {
+            editingId = id;
+            renderHolidays();
+        }
+
+        function saveHoliday(id) {
+            const name = document.getElementById('editName' + id).value;
+            const start = document.getElementById('editStart' + id).value;
+            const end = document.getElementById('editEnd' + id).value;
+
+            const holiday = holidays.find(h => h.id === id);
+            if (holiday) {
+                holiday.name = name;
+                holiday.startDate = start;
+                holiday.endDate = end;
+            }
+
+            editingId = null;
+            renderHolidays();
+        }
+
+        function isWeekend(date, option) {
+            const day = date.getDay();
+            if (option === 'both') return day === 0 || day === 6;
+            if (option === 'sunday') return day === 0;
+            if (option === 'halfSaturday') return day === 0;
+            return false;
+        }
+
+        function isHoliday(date) {
+            const dateStr = date.toISOString().split('T')[0];
+            return holidays.some(h => dateStr >= h.startDate && dateStr <= h.endDate);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        function calculateWorkdays() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const weekendOption = document.getElementById('weekendOption').value;
+            const hourlyRate = parseFloat(document.getElementById('hourlyRate').value);
+            const overtimeHours = parseFloat(document.getElementById('overtimeHours').value);
+            const overtimePercent = parseFloat(document.getElementById('overtimePercent').value);
+
+            if (!startDate || !endDate) {
+                alert('Vui lòng chọn khoảng thời gian');
+                return;
+            }
+
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+
+            if (start > end) {
+                alert('Ngày bắt đầu phải trước ngày kết thúc');
+                return;
+            }
+
+            let workdays = 0;
+            let weekendDays = 0;
+            let holidayDays = 0;
+            detailedDays = [];
+            let currentDate = new Date(start);
+
+            while (currentDate <= end) {
+                const dateStr = currentDate.toISOString().split('T')[0];
+                const dayName = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'][currentDate.getDay()];
+                let status = 'Làm việc';
+                let dayValue = 1;
+                let cssClass = 'day-work';
+
+                if (isHoliday(currentDate)) {
+                    status = 'Ngày lễ';
+                    dayValue = 0;
+                    holidayDays++;
+                    cssClass = 'day-holiday';
+                } else if (isWeekend(currentDate, weekendOption)) {
+                    status = 'Nghỉ cuối tuần';
+                    dayValue = 0;
+                    weekendDays++;
+                    cssClass = 'day-weekend';
+                } else if (weekendOption === 'halfSaturday' && currentDate.getDay() === 6) {
+                    status = 'Nửa ngày (T7)';
+                    dayValue = 0.5;
+                    workdays += 0.5;
+                    cssClass = 'day-half';
+                } else {
+                    workdays += 1;
+                }
+
+                detailedDays.push({ date: dateStr, dayName, status, dayValue, cssClass });
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            const totalDays = detailedDays.length;
+            const workHours = workdays * 8;
+            const normalSalary = workHours * hourlyRate;
+            const overtimeSalary = overtimeHours * hourlyRate * (overtimePercent / 100);
+            const totalSalary = normalSalary + overtimeSalary;
+
+            const resultHTML = `
+                <div class="result-box">
+                    <h3>Kết quả:</h3>
+                    <div class="result-item">
+                        <strong>Tổng số ngày:</strong> ${totalDays} ngày
+                    </div>
+                    <div class="result-item">
+                        <strong>Số ngày làm việc:</strong> ${workdays} ngày<br>
+                        <small style="opacity: 0.9;">• Ngày nghỉ cuối tuần: ${weekendDays} ngày</small><br>
+                        <small style="opacity: 0.9;">• Ngày nghỉ lễ: ${holidayDays} ngày</small>
+                    </div>
+                    <div class="result-item">
+                        <strong>Tổng giờ làm:</strong> ${workHours} giờ
+                    </div>
+                    <hr style="margin: 15px 0; border: none; border-top: 1px solid rgba(255,255,255,0.3);">
+                    <div class="result-item">
+                        <strong>Lương cơ bản:</strong> ${formatCurrency(normalSalary)}
+                    </div>
+                    <div class="result-item">
+                        <strong>Lương tăng ca:</strong> ${formatCurrency(overtimeSalary)}
+                    </div>
+                    <div class="result-total">
+                        Tổng lương: ${formatCurrency(totalSalary)}
+                    </div>
+                    <button onclick="toggleDetails()" style="margin-top: 20px; background: rgba(255,255,255,0.2);">
+                        ${showDetails ? 'Ẩn chi tiết từng ngày' : 'Xem chi tiết từng ngày'}
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('resultContainer').innerHTML = resultHTML;
+            if (showDetails) renderDetails();
+        }
+
+        function toggleDetails() {
+            showDetails = !showDetails;
+            if (showDetails) {
+                renderDetails();
+            } else {
+                document.getElementById('detailsContainer').innerHTML = '';
+            }
+            calculateWorkdays();
+        }
+
+        function renderDetails() {
+            const html = `
+                <div class="details-container">
+                    <h3 style="margin-bottom: 15px; color: #2d3748;">Chi tiết từng ngày:</h3>
+                    ${detailedDays.map(day => `
+                        <div class="detail-day ${day.cssClass}">
+                            <div>
+                                <strong>${day.date}</strong> <span style="color: #718096;">(${day.dayName})</span>
+                            </div>
+                            <div style="text-align: right;">
+                                <strong>${day.status}</strong>
+                                ${day.dayValue > 0 ? `<small style="color: #718096;"> (${day.dayValue} ngày)</small>` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            document.getElementById('detailsContainer').innerHTML = html;
+        }
+
+        // Initialize
+        renderHolidays();
+    </script>
+</body>
+</html>

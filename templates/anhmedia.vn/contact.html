@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="anhmedia :: head"></head>
+<body>
+
+  <header th:replace="anhmedia :: topheader"></header>
+
+<style>
+/* ===== CONTACT PAGE TOKENS ===== */
+:root {
+  --cp:      #356ba2;
+  --cp-dark: #1e4a75;
+  --cp-lt:   #99ccff;
+  --cp-acc:  #2ecc71;
+  --cp-dn:   #0d1b2a;
+  --cp-mid:  #334155;
+  --cp-mut:  #64748b;
+  --cp-surf: #f0f7ff;
+  --cp-bdr:  #dbeafe;
+  --cp-wh:   #ffffff;
+  --cp-r:    16px;
+  --cp-rs:   10px;
+  --cp-sh:   0 4px 20px rgba(53,107,162,.14);
+  --cp-shd:  0 12px 40px rgba(53,107,162,.2);
+  --cp-tr:   .32s cubic-bezier(.4,0,.2,1);
+}
+* { box-sizing: border-box; }
+body { font-family: 'Be Vietnam Pro', 'Segoe UI', sans-serif; }
+
+/* ===== CONTACT HERO ===== */
+.contact-hero {
+  background: linear-gradient(135deg, var(--cp-dn) 0%, #0e2a4a 55%, #1a3f6f 100%);
+  padding: 100px 0 72px;
+  position: relative; overflow: hidden; text-align: center;
+}
+.contact-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 70% 80% at 50% 30%, rgba(153,204,255,.1) 0%, transparent 65%);
+  pointer-events: none;
+}
+.contact-hero .ch-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(153,204,255,.15); border: 1px solid rgba(153,204,255,.3);
+  color: var(--cp-lt); padding: 7px 18px; border-radius: 999px;
+  font-size: .78rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.contact-hero h1 {
+  font-size: clamp(2rem, 4.5vw, 3rem); font-weight: 800; color: var(--cp-wh);
+  line-height: 1.15; letter-spacing: -.02em; margin: 0 0 14px;
+}
+.contact-hero h1 span {
+  background: linear-gradient(135deg, var(--cp-lt), #60d2ff);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.contact-hero p {
+  font-size: 1.05rem; color: rgba(255,255,255,.68); max-width: 500px;
+  margin: 0 auto; line-height: 1.7;
+}
+.contact-hero .ch-cta-row {
+  display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 28px;
+}
+.ch-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+  color: rgba(255,255,255,.85); padding: 9px 20px; border-radius: 999px;
+  font-size: .85rem; font-weight: 600; transition: var(--cp-tr); text-decoration: none;
+}
+.ch-pill:hover { background: var(--cp); border-color: var(--cp); color: white; }
+.ch-pill i { font-size: .8rem; }
+
+/* ===== INFO CARDS ===== */
+.contact-info-section { background: var(--cp-wh); padding: 0; margin-top: -48px; position: relative; z-index: 10; }
+.contact-info-section .ci-container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+.info-cards-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; }
+.info-card {
+  background: var(--cp-wh); border-radius: var(--cp-r); padding: 28px 22px;
+  box-shadow: var(--cp-sh); border: 1px solid var(--cp-bdr); text-align: center;
+  transition: var(--cp-tr); position: relative; overflow: hidden;
+}
+.info-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--cp), var(--cp-lt));
+  opacity: 0; transition: opacity .3s;
+}
+.info-card:hover { transform: translateY(-5px); box-shadow: var(--cp-shd); border-color: var(--cp-lt); }
+.info-card:hover::after { opacity: 1; }
+.ic-icon { width: 56px; height: 56px; border-radius: 14px; margin: 0 auto 16px; display: grid; place-items: center; }
+.ic-icon i { font-size: 1.4rem; color: var(--cp-wh); }
+.info-card h4 { font-size: .82rem; font-weight: 700; color: var(--cp-mut); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+.info-card .ic-value { font-size: .97rem; font-weight: 700; color: var(--cp-mid); line-height: 1.5; }
+.info-card .ic-value a { color: var(--cp); text-decoration: none; transition: color .2s; }
+.info-card .ic-value a:hover { color: var(--cp-dark); }
+.info-card .ic-note { font-size: .78rem; color: var(--cp-mut); margin-top: 6px; }
+@media (max-width: 860px) { .info-cards-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 500px) { .info-cards-grid { grid-template-columns: 1fr; } }
+
+/* ===== CONTACT MAIN (Form + Map) ===== */
+.contact-main { max-width: 1100px; margin: 0 auto; padding: 72px 24px; }
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+
+/* Form */
+.contact-form-card {
+  background: var(--cp-wh); border: 1px solid var(--cp-bdr); border-radius: var(--cp-r);
+  padding: 36px 32px; box-shadow: var(--cp-sh);
+}
+.contact-form-card .cfc-header { margin-bottom: 28px; }
+.contact-form-card .cfc-header h2 { font-size: 1.5rem; font-weight: 800; color: var(--cp-dn); margin-bottom: 6px; }
+.contact-form-card .cfc-header p { font-size: .9rem; color: var(--cp-mut); line-height: 1.6; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.field-group { margin-bottom: 18px; }
+.field-group label {
+  display: block; font-size: .82rem; font-weight: 700; color: var(--cp-mid);
+  margin-bottom: 6px; letter-spacing: .02em;
+}
+.field-group label .req { color: #e53935; margin-left: 2px; }
+.field-group input,
+.field-group select,
+.field-group textarea {
+  width: 100%; padding: 12px 14px; border: 2px solid var(--cp-bdr);
+  border-radius: var(--cp-rs); font-size: .9rem; color: var(--cp-mid);
+  font-family: inherit; background: var(--cp-wh); transition: border-color .25s, box-shadow .25s;
+  outline: none;
+}
+.field-group input:focus,
+.field-group select:focus,
+.field-group textarea:focus {
+  border-color: var(--cp); box-shadow: 0 0 0 3px rgba(53,107,162,.12);
+}
+.field-group textarea { min-height: 130px; resize: vertical; }
+.field-group select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
+.btn-submit {
+  width: 100%; padding: 15px; background: var(--cp); color: white;
+  border: none; border-radius: var(--cp-rs); font-size: .95rem; font-weight: 700;
+  cursor: pointer; font-family: inherit; display: flex; align-items: center;
+  justify-content: center; gap: 8px; transition: var(--cp-tr); letter-spacing: .02em;
+  margin-top: 6px;
+}
+.btn-submit:hover { background: var(--cp-dark); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(53,107,162,.3); }
+.form-note { font-size: .76rem; color: var(--cp-mut); text-align: center; margin-top: 12px; }
+.form-note i { color: var(--cp-acc); }
+
+/* Map panel */
+.map-panel {}
+.map-panel .mp-header { margin-bottom: 18px; }
+.map-panel .mp-header h3 { font-size: 1.2rem; font-weight: 800; color: var(--cp-dn); margin-bottom: 4px; }
+.map-panel .mp-header p { font-size: .88rem; color: var(--cp-mut); }
+.map-embed-wrap {
+  border-radius: var(--cp-r); overflow: hidden; box-shadow: var(--cp-sh);
+  border: 1px solid var(--cp-bdr); aspect-ratio: 1 / 1;
+}
+.map-embed-wrap iframe { width: 100% !important; height: 100% !important; display: block; border: none; }
+.map-actions { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+.map-btn {
+  display: inline-flex; align-items: center; gap: 7px; padding: 10px 20px;
+  border-radius: var(--cp-rs); font-size: .84rem; font-weight: 700;
+  text-decoration: none; transition: var(--cp-tr); font-family: inherit;
+}
+.map-btn-primary { background: var(--cp); color: white; }
+.map-btn-primary:hover { background: var(--cp-dark); }
+.map-btn-outline { background: transparent; color: var(--cp); border: 2px solid var(--cp); }
+.map-btn-outline:hover { background: var(--cp); color: white; }
+
+@media (max-width: 780px) {
+  .contact-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .contact-form-card { padding: 24px 18px; }
+  .map-embed-wrap { aspect-ratio: 4/3; }
+}
+
+/* ===== ARTICLE CONTENT ===== */
+.contact-article { background: var(--cp-surf); padding: 56px 0; }
+.contact-article .ca-inner { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+
+/* ===== SOCIAL ROW ===== */
+.contact-social-row { background: var(--cp-dn); padding: 40px 0; }
+.csr-inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.csr-text h3 { font-size: 1.1rem; font-weight: 800; color: white; margin-bottom: 4px; }
+.csr-text p { font-size: .88rem; color: rgba(255,255,255,.55); }
+.csr-icons { display: flex; gap: 12px; }
+.csr-icon { width: 44px; height: 44px; border-radius: 10px; display: grid; place-items: center; font-size: 1.1rem; color: white; transition: var(--cp-tr); text-decoration: none; }
+.csr-icon:hover { transform: translateY(-3px) scale(1.1); }
+.csr-fb   { background: #1877f2; }
+.csr-tiktok { background: #000; border: 1px solid #333; }
+.csr-yt   { background: #ff0000; }
+.csr-zalo { background: #0068ff; }
+.csr-li   { background: #0a66c2; }
+</style>
+
+<!-- ===== CONTACT HERO ===== -->
+<section class="contact-hero">
+  <div class="ch-badge"><i class="fas fa-paper-plane"></i> Liên Hệ Với Chúng Tôi</div>
+  <h1>Chúng Tôi Luôn <span>Sẵn Sàng</span><br>Lắng Nghe Bạn</h1>
+  <p>Đội ngũ chuyên gia AnhMedia.vn sẵn sàng tư vấn, hỗ trợ và giải đáp mọi thắc mắc về giải pháp thương mại điện tử của bạn.</p>
+  <div class="ch-cta-row">
+    <a th:href="'tel:' + ${client.clientPhone}" class="ch-pill"><i class="fas fa-phone"></i> Gọi Ngay</a>
+    <a th:href="'mailto:' + ${client.clientMail}" class="ch-pill"><i class="fas fa-envelope"></i> Gửi Email</a>
+  </div>
+</section>
+
+<!-- ===== INFO CARDS ===== -->
+<div class="contact-info-section">
+  <div class="ci-container">
+    <div class="info-cards-grid">
+
+      <div class="info-card">
+        <div class="ic-icon" style="background:linear-gradient(135deg,#356ba2,#99ccff)"><i class="fas fa-phone-alt"></i></div>
+        <h4>Điện Thoại</h4>
+        <div class="ic-value"><a th:href="'tel:' + ${client.clientPhone}" th:text="${client.clientPhone}">Điện thoại</a></div>
+        <div class="ic-note">Hỗ trợ Thứ 2 – Thứ 7</div>
+      </div>
+
+      <div class="info-card">
+        <div class="ic-icon" style="background:linear-gradient(135deg,#0d7749,#2ecc71)"><i class="fas fa-envelope"></i></div>
+        <h4>Email</h4>
+        <div class="ic-value"><a th:href="'mailto:' + ${client.clientMail}" th:text="${client.clientMail}">info@anhmedia.vn</a></div>
+        <div class="ic-note">Phản hồi trong 2 giờ làm việc</div>
+      </div>
+
+      <div class="info-card">
+        <div class="ic-icon" style="background:linear-gradient(135deg,#d35400,#f39c12)"><i class="fas fa-map-marker-alt"></i></div>
+        <h4>Địa Chỉ</h4>
+        <div class="ic-value" th:text="${client.clientAddress}">TP. Hồ Chí Minh, Việt Nam</div>
+        <div class="ic-note">Có thể đặt lịch gặp trực tiếp</div>
+      </div>
+
+      <div class="info-card">
+        <div class="ic-icon" style="background:linear-gradient(135deg,#6a1b9a,#ab47bc)"><i class="fas fa-clock"></i></div>
+        <h4>Giờ Hỗ Trợ</h4>
+        <div class="ic-value">T2 – T6: 8:00 – 18:00<br>T7: 8:00 – 12:00</div>
+        <div class="ic-note">Zalo 24/7 cho gói Pro</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== CONTACT MAIN: FORM + MAP ===== -->
+<div class="contact-main">
+  <div class="contact-grid">
+
+    <!-- LEFT: FORM -->
+    <div class="contact-form-card">
+      <div class="cfc-header">
+        <h2>Gửi Tin Nhắn Cho Chúng Tôi</h2>
+        <p>Điền thông tin bên dưới, chúng tôi sẽ liên hệ lại trong vòng 1–2 giờ làm việc.</p>
+      </div>
+      <form method="post" action="#">
+        <div class="form-row">
+          <div class="field-group">
+            <label>Họ và Tên <span class="req">*</span></label>
+            <input type="text" name="fullName" placeholder="Nguyễn Văn A" required />
+          </div>
+          <div class="field-group">
+            <label>Số Điện Thoại <span class="req">*</span></label>
+            <input type="tel" name="phone" placeholder="09xx.xxx.xxx" required />
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Email <span class="req">*</span></label>
+          <input type="email" name="email" placeholder="email@doanhnghiep.vn" required />
+        </div>
+        <div class="field-group">
+          <label>Chủ Đề</label>
+          <select name="subject">
+            <option value="">-- Chọn chủ đề --</option>
+            <option>Tư vấn gói dịch vụ</option>
+            <option>Hỗ trợ kỹ thuật</option>
+            <option>Yêu cầu Demo</option>
+            <option>Hợp tác đại lý</option>
+            <option>Báo giá tùy chỉnh</option>
+            <option>Khác</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Nội Dung <span class="req">*</span></label>
+          <textarea name="message" placeholder="Mô tả nhu cầu của bạn để chúng tôi có thể hỗ trợ tốt nhất..." required></textarea>
+        </div>
+        <button type="submit" class="btn-submit">
+          <i class="fas fa-paper-plane"></i> Gửi Tin Nhắn
+        </button>
+        <p class="form-note"><i class="fas fa-shield-alt"></i> Thông tin của bạn được bảo mật tuyệt đối. Chúng tôi không chia sẻ dữ liệu với bên thứ ba.</p>
+      </form>
+    </div>
+
+    <!-- RIGHT: MAP -->
+    <div class="map-panel">
+      <div class="mp-header">
+        <h3>Tìm Chúng Tôi Trên Bản Đồ</h3>
+        <p>Ghé thăm văn phòng hoặc đặt lịch hẹn tư vấn trực tiếp với đội ngũ chuyên gia.</p>
+      </div>
+      <div class="map-embed-wrap" th:utext="${client.clientMapEmbeded}">
+        <!-- Google Maps embed injected by Thymeleaf -->
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d250470.30943814966!2d106.5308985!3d10.7763897!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317529292e8d3dd1%3A0xf15f5aad773c906b!2sHo%20Chi%20Minh%20City%2C%20Vietnam!5e0!3m2!1sen!2s!4v1700000000000!5m2!1sen!2s"
+          style="border:0;" allowfullscreen="" loading="lazy">
+        </iframe>
+      </div>
+      <div class="map-actions">
+        <a href="https://maps.google.com" target="_blank" class="map-btn map-btn-primary">
+          <i class="fas fa-directions"></i> Chỉ Đường
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== ARTICLE CONTENT (from CMS) ===== -->
+<div class="contact-article" th:if="${page != null and page.articleContent != null}">
+  <div class="ca-inner" th:utext="${page.articleContent}"></div>
+</div>
+
+<!-- ===== SOCIAL ROW ===== -->
+<div class="contact-social-row">
+  <div class="csr-inner">
+    <div class="csr-text">
+      <h3>Kết Nối Với AnhMedia.vn</h3>
+      <p>Theo dõi để nhận mẹo bán hàng, cập nhật tính năng và ưu đãi độc quyền</p>
+    </div>
+    <div class="csr-icons">
+      <a href="#" class="csr-icon csr-fb" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="#" class="csr-icon csr-tiktok" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+      <a href="#" class="csr-icon csr-yt" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+      <a href="#" class="csr-icon csr-zalo" aria-label="Zalo"><i class="fas fa-comment-dots"></i></a>
+      <a href="#" class="csr-icon csr-li" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+    </div>
+  </div>
+</div>
+
+  <div th:replace="anhmedia :: footer"></div>
+
+  <!-- Scripts (original) -->
+  <script th:src="'/' + ${domain} + '/js/jquery.min.js'"></script>
+  <script th:src="'/' + ${domain} + '/js/bootstrap.min.js'"></script>
+  <script th:src="'/' + ${domain} + '/js/slick.min.js'"></script>
+  <script th:src="'/' + ${domain} + '/js/nouislider.min.js'"></script>
+  <script th:src="'/' + ${domain} + '/js/jquery.zoom.min.js'"></script>
+  <script th:src="'/' + ${domain} + '/js/main.js'"></script>
+
+</body>
+</html>

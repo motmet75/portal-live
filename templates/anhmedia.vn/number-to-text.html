@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Reading API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+        .result.show {
+            display: block;
+        }
+        .result h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .result-text {
+            color: #555;
+            font-size: 24px;
+            font-weight: 600;
+            word-break: break-word;
+        }
+        .error {
+            background: #fff5f5;
+            border-left-color: #e53e3e;
+        }
+        .error .result-text {
+            color: #e53e3e;
+            font-size: 16px;
+        }
+        .info {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+    </style>
+    <script th:replace="anhmedia :: gtag01"></script>
+	<script th:replace="anhmedia :: gtag02"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Number Reading API</h1>
+        
+        <form id="numberForm">
+            <div class="form-group">
+                <label for="numberInput">Number (US Format)</label>
+                <input type="text" id="numberInput" placeholder="e.g., 1,234,567.89" required>
+                <div class="info">Enter numbers only. Commas for thousands separator accepted.</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="langSelect">Language</label>
+                <select id="langSelect" required>
+                    <option value="">Select Language</option>
+                   <option value="en">English (en)</option>
+                    <option value="vi">Tiếng Việt (vi)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="tokenInput">Client Token</label>
+                <input type="text" id="tokenInput" value="abc123" required>
+            </div>
+            
+            <button type="submit">Get Reading</button>
+        </form>
+        
+        <div id="result" class="result">
+            <h3>Result:</h3>
+            <div class="result-text" id="resultText"></div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('numberForm');
+        const numberInput = document.getElementById('numberInput');
+        const langSelect = document.getElementById('langSelect');
+        const tokenInput = document.getElementById('tokenInput');
+        const resultDiv = document.getElementById('result');
+        const resultText = document.getElementById('resultText');
+
+        // Format number with comma separators as user types
+        numberInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^\d.-]/g, '');
+            
+            // Check if value contains only valid number characters
+            const parts = value.split('.');
+            if (parts[0]) {
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            }
+            
+            e.target.value = parts.join('.');
+        });
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Remove commas and validate
+            const rawNumber = numberInput.value.replace(/,/g, '');
+            
+            // Strict validation: only numbers, one optional decimal point, one optional minus sign at start
+            if (!/^-?\d+(\.\d+)?$/.test(rawNumber)) {
+                showResult('Error: Please enter a valid number only. No letters or special characters allowed.', true);
+                return;
+            }
+            
+            const number = parseFloat(rawNumber);
+            const lang = langSelect.value;
+            const token = tokenInput.value;
+            
+            if (!lang) {
+                showResult('Error: Please select a language', true);
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/v1/number/read', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Client-Token': token
+                    },
+                    body: JSON.stringify({
+                        number: number,
+                        lang: lang
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.reading) {
+                    showResult(data.reading, false);
+                } else {
+                    showResult(`Error: ${data.error || 'Failed to get reading'}`, true);
+                }
+            } catch (error) {
+                showResult(`Error: ${error.message}`, true);
+            }
+        });
+
+        function showResult(text, isError) {
+            resultText.textContent = text;
+            resultDiv.classList.add('show');
+            
+            if (isError) {
+                resultDiv.classList.add('error');
+            } else {
+                resultDiv.classList.remove('error');
+            }
+        }
+    </script>
+</body>
+</html>

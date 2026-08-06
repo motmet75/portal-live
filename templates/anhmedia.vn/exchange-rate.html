@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VND Exchange Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .exchange-box {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        select {
+            cursor: pointer;
+            background-color: white;
+        }
+        
+        .swap-icon {
+            text-align: center;
+            margin: 20px 0;
+            color: #667eea;
+            font-size: 24px;
+        }
+        
+        .result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+            text-align: center;
+        }
+        
+        .result-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .result-value {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        
+        .rate-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+    <script th:replace="anhmedia :: gtag01"></script>
+<script th:replace="anhmedia :: gtag02"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>💱 Currency Exchange</h1>
+        <div class="subtitle">Vietcombank Exchange Rates</div>
+        
+        <div class="exchange-box">
+            <label for="fromCurrency">From Currency</label>
+            <select id="fromCurrency">
+                <option value="VND" selected>VND - Vietnamese Dong</option>
+                <option value="USD">USD - US Dollar</option>
+                <option value="EUR">EUR - Euro</option>
+                <option value="GBP">GBP - Pound Sterling</option>
+                <option value="JPY">JPY - Japanese Yen</option>
+                <option value="AUD">AUD - Australian Dollar</option>
+                <option value="CAD">CAD - Canadian Dollar</option>
+                <option value="CHF">CHF - Swiss Franc</option>
+                <option value="CNY">CNY - Yuan Renminbi</option>
+                <option value="HKD">HKD - Hong Kong Dollar</option>
+                <option value="SGD">SGD - Singapore Dollar</option>
+                <option value="KRW">KRW - Korean Won</option>
+                <option value="THB">THB - Thailand Baht</option>
+            </select>
+        </div>
+        
+        <div class="exchange-box">
+            <label for="amount">Amount</label>
+            <input type="number" id="amount" value="1000000" min="0" step="0.01">
+        </div>
+        
+        <div class="swap-icon">⇣</div>
+        
+        <div class="exchange-box">
+            <label for="toCurrency">To Currency</label>
+            <select id="toCurrency">
+                <option value="VND">VND - Vietnamese Dong</option>
+                <option value="USD" selected>USD - US Dollar</option>
+                <option value="EUR">EUR - Euro</option>
+                <option value="GBP">GBP - Pound Sterling</option>
+                <option value="JPY">JPY - Japanese Yen</option>
+                <option value="AUD">AUD - Australian Dollar</option>
+                <option value="CAD">CAD - Canadian Dollar</option>
+                <option value="CHF">CHF - Swiss Franc</option>
+                <option value="CNY">CNY - Yuan Renminbi</option>
+                <option value="HKD">HKD - Hong Kong Dollar</option>
+                <option value="SGD">SGD - Singapore Dollar</option>
+                <option value="KRW">KRW - Korean Won</option>
+                <option value="THB">THB - Thailand Baht</option>
+            </select>
+        </div>
+        
+        <div class="result">
+            <div class="result-label">You will receive</div>
+            <div class="result-value" id="resultValue">37.89 USD</div>
+        </div>
+        
+        <div class="rate-info">
+            <strong>Exchange Rate:</strong> <span id="rateInfo">1 USD = 26,392 VND</span>
+        </div>
+    </div>
+
+    <script>
+        const rates = {
+            'VND': { sell: 1, name: 'Vietnamese Dong' },
+            'USD': { sell: 26392.00, name: 'US Dollar' },
+            'EUR': { sell: 31220.32, name: 'Euro' },
+            'GBP': { sell: 35031.93, name: 'Pound Sterling' },
+            'JPY': { sell: 172.43, name: 'Yen' },
+            'AUD': { sell: 17265.57, name: 'Australian Dollar' },
+            'CAD': { sell: 19008.52, name: 'Canadian Dollar' },
+            'CHF': { sell: 33325.21, name: 'Swiss Franc' },
+            'CNY': { sell: 3765.36, name: 'Yuan Renminbi' },
+            'HKD': { sell: 3452.04, name: 'Hong Kong Dollar' },
+            'SGD': { sell: 20503.15, name: 'Singapore Dollar' },
+            'KRW': { sell: 18.63, name: 'Korean Won' },
+            'THB': { sell: 828.92, name: 'Thailand Baht' }
+        };
+
+        const amountInput = document.getElementById('amount');
+        const fromCurrencySelect = document.getElementById('fromCurrency');
+        const toCurrencySelect = document.getElementById('toCurrency');
+        const resultValue = document.getElementById('resultValue');
+        const rateInfo = document.getElementById('rateInfo');
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(num);
+        }
+
+        function formatVND(num) {
+            return new Intl.NumberFormat('vi-VN').format(num);
+        }
+
+        function calculate() {
+            const amount = parseFloat(amountInput.value) || 0;
+            const fromCurrency = fromCurrencySelect.value;
+            const toCurrency = toCurrencySelect.value;
+            
+            // Convert from source currency to VND first
+            const vndAmount = amount * rates[fromCurrency].sell;
+            
+            // Then convert from VND to target currency
+            const convertedAmount = vndAmount / rates[toCurrency].sell;
+            
+            resultValue.textContent = `${formatNumber(convertedAmount)} ${toCurrency}`;
+            
+            // Calculate and display the exchange rate
+            const directRate = rates[toCurrency].sell / rates[fromCurrency].sell;
+            if (fromCurrency === 'VND') {
+                rateInfo.textContent = `1 ${toCurrency} = ${formatVND(rates[toCurrency].sell)} VND`;
+            } else if (toCurrency === 'VND') {
+                rateInfo.textContent = `1 ${fromCurrency} = ${formatVND(rates[fromCurrency].sell)} VND`;
+            } else {
+                rateInfo.textContent = `1 ${fromCurrency} = ${formatNumber(directRate)} ${toCurrency}`;
+            }
+        }
+
+        amountInput.addEventListener('input', calculate);
+        fromCurrencySelect.addEventListener('change', calculate);
+        toCurrencySelect.addEventListener('change', calculate);
+
+        calculate();
+    </script>
+</body>
+</html>

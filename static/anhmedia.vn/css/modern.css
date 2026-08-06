@@ -1,0 +1,395 @@
+/* ================================================================
+   ANH MEDIA – modern.css
+   Shared override layer for all anhmedia.vn inner pages.
+   Layered on top of existing Bootstrap + style.css.
+================================================================ */
+
+/* ── FONT ── */
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap');
+
+/* ── TOKENS ── */
+:root {
+  --am:      #356ba2;
+  --am-dk:   #1e4a75;
+  --am-lt:   #99ccff;
+  --am-acc:  #2ecc71;
+  --am-dark: #0d1b2a;
+  --am-mid:  #334155;
+  --am-mut:  #64748b;
+  --am-surf: #f0f7ff;
+  --am-bdr:  #dbeafe;
+  --am-wh:   #ffffff;
+  --am-r:    14px;
+  --am-rs:   10px;
+  --am-sh:   0 4px 20px rgba(53,107,162,.13);
+  --am-shd:  0 12px 40px rgba(53,107,162,.2);
+  --am-tr:   .3s cubic-bezier(.4,0,.2,1);
+}
+
+html, body { font-family: 'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif; overflow-x: hidden; }
+
+/* ================================================================
+   SHARED NAV OVERRIDES (anhmedia :: topheader)
+================================================================ */
+#top-header {
+  background: var(--am-dark) !important;
+  border-bottom: 1px solid rgba(153,204,255,.1);
+  padding: 6px 0;
+}
+#top-header a, #top-header li a { color: rgba(255,255,255,.65) !important; font-size: 1.2rem; }
+#top-header a:hover { color: var(--am-lt) !important; }
+#top-header .fa { color: var(--am-lt) !important; }
+
+#header {
+  background: var(--am-dk) !important;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(153,204,255,.12);
+}
+#header .header-search .input-select,
+#header .header-search .input {
+  border: 1px solid rgba(153,204,255,.3);
+  background: rgba(255,255,255,.07);
+  color: white;
+  border-radius: 8px;
+  font-size: .85rem;
+  padding: 8px 12px;
+}
+#header .header-search .input-select option {
+  background-color: #1a1a2e;
+  color: #e8e8ff;
+}
+#header .header-search .input-select option:nth-child(odd) {
+  background-color: #16213e;
+}
+#header .header-search .input-select option:nth-child(even) {
+  background-color: #0f3460;
+}
+#header .header-search .input-select option:checked {
+  background-color: #D10024;
+  color: #fff;
+}
+#header .header-search .search-btn {
+  background: var(--am-acc);
+  border: none;
+  color: white;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--am-tr);
+  font-family: inherit;
+}
+#header .header-search .search-btn:hover { background: #27ae60; }
+#header .header-ctn a { color: rgba(255,255,255,.8) !important; }
+#header .header-ctn .fa { color: var(--am-lt); }
+
+/* Cart dropdown resets — popup sits on white bg, must override the white-text rule above */
+#header .header-ctn .cart-dropdown,
+#header .header-ctn .cart-dropdown p,
+#header .header-ctn .cart-dropdown span:not([style*="color"]) { color: #333 !important; }
+#header .header-ctn .cart-dropdown a { color: #1a56db !important; }
+#header .header-ctn .cart-dropdown a:hover { color: #D10024 !important; }
+#header .header-ctn .cart-dropdown .checkout-btn,
+#header .header-ctn .cart-dropdown .view-cart-btn { color: #fff !important; }
+#header .header-ctn .cart-dropdown .remove-item { color: #e53e3e !important; }
+
+/* Navigation bar */
+#navigation,
+#navigation[style] {
+  background: var(--am) !important;
+  box-shadow: 0 2px 12px rgba(53,107,162,.25);
+  padding: 0;
+}
+.sp-navbar-nav { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 0; }
+.sp-nav-link {
+  display: block;
+  padding: 14px 18px;
+  color: rgba(255,255,255,.88) !important;
+  font-weight: 600;
+  font-size: 1.6rem;
+  transition: var(--am-tr);
+  text-decoration: none;
+}
+.sp-nav-link:hover,
+.sp-nav-link:focus { color: var(--am-lt) !important; background: rgba(255,255,255,.1); }
+.sp-dropdown-menu {
+  background: var(--am-dk);
+  border: 1px solid rgba(153,204,255,.15);
+  border-radius: var(--am-rs);
+  box-shadow: var(--am-shd);
+  min-width: 180px;
+}
+.sp-dropdown-item {
+  color: rgba(255,255,255,.78) !important;
+  padding: 10px 16px;
+  font-size: 1.5rem;
+  display: block;
+}
+.sp-dropdown-item:hover { background: rgba(153,204,255,.1); color: var(--am-lt) !important; }
+
+/* Cart badge in nav */
+.qty {
+  background: var(--am-acc);
+  color: white;
+  border-radius: 50%;
+  font-size: .65rem;
+  font-weight: 800;
+}
+
+/* ================================================================
+   MODERN HERO BANNER (replaces .hero on all inner pages)
+================================================================ */
+.hero {
+  background: linear-gradient(135deg, var(--am-dark) 0%, #0e2a4a 55%, #1a3f6f 100%) !important;
+  padding: 72px 0 56px !important;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 70% 80% at 60% 30%, rgba(153,204,255,.1) 0%, transparent 65%);
+}
+.hero .container { position: relative; z-index: 1; }
+.hero h1, .hero h2, .hero .intro-excerpt h1, .hero .intro-excerpt h2 {
+  font-family: 'Be Vietnam Pro', sans-serif;
+  color: white !important;
+  font-weight: 800;
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.hero p, .hero .intro-excerpt p { color: rgba(255,255,255,.7) !important; font-size: 1.7rem; line-height: 1.7; }
+.hero .btn-secondary, .hero .btn-primary {
+  background: var(--am) !important;
+  border: none !important;
+  color: white !important;
+  padding: 11px 28px !important;
+  border-radius: var(--am-rs) !important;
+  font-weight: 700 !important;
+  font-family: inherit;
+  transition: var(--am-tr);
+}
+.hero .btn-secondary:hover, .hero .btn-primary:hover { background: var(--am-dk) !important; transform: translateY(-2px); }
+
+/* ================================================================
+   BREADCRUMB
+================================================================ */
+#breadcrumb { background: var(--am-surf) !important; border-bottom: 1px solid var(--am-bdr); padding: 10px 0 !important; }
+.breadcrumb-tree { display: flex; gap: 6px; align-items: center; list-style: none; padding: 0; margin: 0; }
+.breadcrumb-tree li { font-size: .82rem; color: var(--am-mut); }
+.breadcrumb-tree li a { color: var(--am); text-decoration: none; font-weight: 600; }
+.breadcrumb-tree li + li::before { content: '/'; margin-right: 6px; color: var(--am-mut); }
+
+/* ================================================================
+   SECTION TITLES
+================================================================ */
+.section-title .title,
+.section .section-title h3,
+.section-title h3 {
+  font-family: 'Be Vietnam Pro', sans-serif !important;
+  font-weight: 800 !important;
+  color: var(--am-dark) !important;
+  letter-spacing: -.01em;
+}
+
+/* ================================================================
+   PRODUCT CARDS  (.product / .product-item on products.html)
+================================================================ */
+.product {
+  background: var(--am-wh);
+  border: 1px solid var(--am-bdr);
+  border-radius: var(--am-r);
+  overflow: hidden;
+  transition: var(--am-tr);
+  box-shadow: var(--am-sh);
+}
+.product:hover { transform: translateY(-5px); box-shadow: var(--am-shd); border-color: var(--am-lt); }
+.product .product-body { padding: 16px; }
+.product .product-name a {
+  font-weight: 700;
+  color: var(--am-dark);
+  font-size: .95rem;
+  text-decoration: none;
+}
+.product .product-name a:hover { color: var(--am); }
+.product .product-price { color: var(--am); font-weight: 800; font-size: 1rem; }
+.product .product-price .product-old-price { color: var(--am-mut); text-decoration: line-through; font-size: .85rem; font-weight: 400; }
+.product .add-to-cart-btn {
+  background: var(--am) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: var(--am-rs) !important;
+  font-weight: 700 !important;
+  font-family: inherit;
+  transition: var(--am-tr);
+}
+.product .add-to-cart-btn:hover { background: var(--am-dk) !important; }
+.product .product-btns .wishlist-btn,
+.product .product-btns .quick-view-btn {
+  background: var(--am-surf);
+  border: 1px solid var(--am-bdr);
+  color: var(--am);
+  border-radius: var(--am-rs);
+  transition: var(--am-tr);
+}
+.product .product-btns .wishlist-btn:hover,
+.product .product-btns .quick-view-btn:hover { background: var(--am); color: white; }
+
+/* ================================================================
+   BLOG CARDS  (blog.html)
+================================================================ */
+.post-entry2 {
+  background: var(--am-wh);
+  border: 1px solid var(--am-bdr);
+  border-radius: var(--am-r);
+  overflow: hidden;
+  box-shadow: var(--am-sh);
+  transition: var(--am-tr);
+}
+.post-entry2:hover { transform: translateY(-5px); box-shadow: var(--am-shd); border-color: var(--am-lt); }
+.post-content-entry { padding: 18px; }
+.post-content-entry h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+.post-content-entry h3 a { color: var(--am-dark); text-decoration: none; }
+.post-content-entry h3 a:hover { color: var(--am); }
+.post-content-entry .meta { font-size: .78rem; color: var(--am-mut); }
+.post-content-entry .meta a { color: var(--am); text-decoration: none; font-weight: 600; }
+.post-thumbnail2 img { object-fit: cover; width: 100%; border-radius: 0; transition: transform .4s; }
+.post-entry2:hover .post-thumbnail2 img { transform: scale(1.04); }
+
+/* Blog single article */
+.blog-section { padding: 56px 0; }
+.blog-section p, .blog-section li { line-height: 1.8; color: var(--am-mid); font-size: 1.7rem; }
+.blog-section h2, .blog-section h3 { font-weight: 800; color: var(--am-dark); margin-top: 32px; }
+.blog-section img { border-radius: var(--am-r); box-shadow: var(--am-sh); }
+
+/* ================================================================
+   SINGLE PRODUCT / ONE-PRODUCT
+================================================================ */
+#product-main-img .product-preview img { border-radius: var(--am-r); box-shadow: var(--am-sh); }
+.product-details .product-name { font-weight: 800; color: var(--am-dark); font-size: 1.4rem; }
+.product-details .product-price { color: var(--am); font-weight: 800; font-size: 1.5rem; }
+.product-details .product-available { color: var(--am-acc); font-weight: 700; }
+.add-to-cart-btn {
+  background: var(--am) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: var(--am-rs) !important;
+  font-weight: 700 !important;
+  padding: 12px 28px !important;
+  font-family: inherit;
+  transition: var(--am-tr);
+  cursor: pointer;
+}
+.add-to-cart-btn:hover { background: var(--am-dk) !important; transform: translateY(-2px); }
+#product-tab .tab-nav li a {
+  border: 2px solid var(--am-bdr);
+  color: var(--am-mid);
+  border-radius: var(--am-rs) var(--am-rs) 0 0;
+  font-weight: 700;
+  font-size: .88rem;
+}
+#product-tab .tab-nav li.active a,
+#product-tab .tab-nav li a.active {
+  background: var(--am);
+  border-color: var(--am);
+  color: white;
+}
+.product-links li a { color: var(--am); }
+
+/* ================================================================
+   CHECKOUT
+================================================================ */
+.billing-details .section-title h3,
+.order-details .section-title h3 {
+  color: var(--am-dark);
+  font-weight: 800;
+  border-bottom: 2px solid var(--am-lt);
+  padding-bottom: 8px;
+}
+.billing-details .input,
+.billing-details select {
+  border: 1px solid var(--am-bdr);
+  border-radius: var(--am-rs);
+  padding: 10px 14px;
+  width: 100%;
+  font-family: inherit;
+  font-size: .9rem;
+  transition: border-color .2s;
+}
+.billing-details .input:focus,
+.billing-details select:focus { outline: none; border-color: var(--am); box-shadow: 0 0 0 3px rgba(53,107,162,.12); }
+.primary-btn,
+.order-btn {
+  background: var(--am) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: var(--am-rs) !important;
+  font-weight: 700 !important;
+  padding: 13px 32px !important;
+  font-family: inherit;
+  font-size: .95rem;
+  cursor: pointer;
+  transition: var(--am-tr);
+  width: 100%;
+}
+.primary-btn:hover, .order-btn:hover { background: var(--am-dk) !important; transform: translateY(-2px); }
+.order-details { background: var(--am-surf); border: 1px solid var(--am-bdr); border-radius: var(--am-r); padding: 24px; }
+.order-col .order-total td { color: var(--am); font-weight: 800; font-size: 1.1rem; }
+.input-checkbox input[type="checkbox"]:checked + label::before { background: var(--am); border-color: var(--am); }
+
+/* ================================================================
+   GENERAL BUTTONS & INPUTS
+================================================================ */
+.primary-btn,
+.add-to-cart-btn,
+.btn-primary,
+.btn-success,
+button[type="submit"]:not(.sp-nav-toggler):not(.search-btn) {
+  font-family: 'Be Vietnam Pro', sans-serif;
+}
+.input {
+  border: 1px solid var(--am-bdr);
+  border-radius: var(--am-rs);
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: .9rem;
+}
+.input:focus { outline: none; border-color: var(--am); box-shadow: 0 0 0 3px rgba(53,107,162,.12); }
+input[type="text"]:focus, input[type="email"]:focus,
+input[type="tel"]:focus, textarea:focus, select:focus {
+  border-color: var(--am) !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(53,107,162,.1) !important;
+}
+
+/* Pagination */
+.pagination-links .page-link,
+.pagination .page-item .page-link {
+  border: 1px solid var(--am-bdr);
+  color: var(--am);
+  border-radius: var(--am-rs);
+  margin: 0 2px;
+  font-weight: 600;
+}
+.pagination .page-item.active .page-link { background: var(--am); border-color: var(--am); color: white; }
+
+/* ================================================================
+   FOOTER OVERRIDES
+================================================================ */
+#footer {
+  background: var(--am-dark) !important;
+  color: rgba(255,255,255,.6);
+  border-top: 1px solid rgba(153,204,255,.08);
+}
+#footer h3, #footer .footer-title { color: white; font-weight: 800; font-size: 1rem; }
+#footer a { color: rgba(255,255,255,.55); transition: color .2s; text-decoration: none; }
+#footer a:hover { color: var(--am-lt); }
+#footer .footer-logo img { border-radius: 8px; }
+.footer-bottom {
+  background: rgba(0,0,0,.2);
+  border-top: 1px solid rgba(255,255,255,.06);
+  padding: 14px 0;
+  font-size: .78rem;
+  color: rgba(255,255,255,.35);
+}
+.footer-bottom a { color: var(--am-lt); }

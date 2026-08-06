@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Website Thương Mại Điện Tử 0 Đồng – AnhMedia.vn</title>
+  <meta name="description" content="Chuyển dữ liệu từ Shopee, Lazada sang website riêng trong vài click. Đăng nhập Google dễ dàng, tích hợp GHTK và ViettelPost ngay lập tức.">
+  <link rel="shortcut icon" href="/anhmedia.vn/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --primary:#356ba2; --primary-dark:#1e4a75; --primary-light:#99ccff;
+  --accent:#2ecc71; --accent-dark:#27ae60;
+  --dark:#0d1b2a; --mid:#334155; --muted:#64748b;
+  --surface:#f0f7ff; --white:#ffffff; --border:#dbeafe;
+  --shadow-sm:0 2px 8px rgba(53,107,162,.12);
+  --shadow-md:0 8px 32px rgba(53,107,162,.16);
+  --shadow-lg:0 20px 60px rgba(53,107,162,.22);
+  --radius:16px; --radius-sm:10px;
+  --transition:.35s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:'Be Vietnam Pro',sans-serif;color:var(--mid);background:var(--white);-webkit-font-smoothing:antialiased}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+.section{padding:80px 0}
+.section-alt{background:var(--surface)}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;font-size:.78rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;background:rgba(53,107,162,.1);color:var(--primary);margin-bottom:14px}
+.section-title{font-size:clamp(1.6rem,2.8vw,2.2rem);font-weight:800;color:var(--dark);line-height:1.22}
+.section-sub{font-size:1rem;color:var(--muted);margin-top:12px;line-height:1.7;max-width:540px}
+.text-center{text-align:center}
+.text-center .section-sub{margin:12px auto 0}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:var(--radius-sm);font-weight:700;font-size:.95rem;cursor:pointer;border:none;transition:var(--transition);letter-spacing:.02em;font-family:inherit}
+.btn-primary{background:var(--primary);color:var(--white)}
+.btn-primary:hover{background:var(--primary-dark);transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.btn-accent{background:var(--accent);color:var(--white)}
+.btn-accent:hover{background:var(--accent-dark);transform:translateY(-2px)}
+.btn-lg{padding:17px 40px;font-size:1.05rem;border-radius:var(--radius)}
+.btn-white{background:white;color:var(--primary)}
+.btn-white:hover{background:var(--surface);transform:translateY(-2px)}
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:none}
+.reveal-left{opacity:0;transform:translateX(-40px);transition:opacity .7s ease,transform .7s ease}
+.reveal-left.visible{opacity:1;transform:none}
+.reveal-right{opacity:0;transform:translateX(40px);transition:opacity .7s ease,transform .7s ease}
+.reveal-right.visible{opacity:1;transform:none}
+
+/* NAVBAR */
+.navbar{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 24px;background:rgba(13,27,42,.92);backdrop-filter:blur(14px);border-bottom:1px solid rgba(153,204,255,.12)}
+.nav-inner{max-width:1100px;margin:0 auto;height:64px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-logo .logo-icon{width:34px;height:34px;border-radius:8px;overflow:hidden}
+.nav-logo .logo-icon img{width:34px;height:34px;object-fit:contain}
+.nav-logo span{font-size:1.2rem;font-weight:800;color:var(--white)}
+.nav-back{display:inline-flex;align-items:center;gap:7px;color:rgba(255,255,255,.75);font-size:.88rem;font-weight:600;transition:color .2s}
+.nav-back:hover{color:var(--white)}
+.nav-cta .btn{padding:10px 22px;font-size:.88rem}
+
+/* HERO */
+.hero{min-height:100vh;background:linear-gradient(135deg,var(--dark) 0%,#0e2a4a 50%,#1a3f6f 100%);display:flex;align-items:center;padding-top:64px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 70% 40%,rgba(153,204,255,.1) 0%,transparent 70%)}
+.hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;position:relative;z-index:1;padding:80px 0}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(46,204,113,.15);border:1px solid rgba(46,204,113,.3);color:#7eeea5;padding:7px 16px;border-radius:999px;font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:20px}
+.hero-title{font-size:clamp(2rem,3.5vw,3rem);font-weight:800;color:var(--white);line-height:1.14;letter-spacing:-.02em}
+.hero-title span{background:linear-gradient(135deg,#7eeea5,#2ecc71);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-desc{color:rgba(255,255,255,.72);font-size:1.05rem;line-height:1.75;margin:20px 0 32px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.hero-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
+.hero-pill{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:999px;font-size:.78rem;font-weight:600;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.75);background:rgba(255,255,255,.07)}
+.hero-pill i{font-size:.75rem}
+.hero-cards{display:flex;flex-direction:column;gap:14px}
+.hc{background:rgba(255,255,255,.06);border:1px solid rgba(153,204,255,.2);border-radius:14px;padding:18px 20px;backdrop-filter:blur(6px);display:flex;align-items:center;gap:16px}
+.hc-icon{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;flex-shrink:0}
+.hc-icon i{font-size:1.2rem}
+.hc-title{font-size:.88rem;font-weight:700;color:var(--white)}
+.hc-sub{font-size:.78rem;color:rgba(255,255,255,.5);margin-top:2px}
+@media(max-width:860px){.hero-inner{grid-template-columns:1fr;gap:32px}.hero-visual{display:none}}
+
+/* STEPS */
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+.step-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;box-shadow:var(--shadow-sm);text-align:center}
+.step-num{width:52px;height:52px;border-radius:50%;margin:0 auto 16px;display:grid;place-items:center;font-size:1.2rem;font-weight:800;color:white}
+.step-card h3{font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:8px}
+.step-card p{font-size:.87rem;color:var(--muted);line-height:1.6}
+@media(max-width:720px){.steps-grid{grid-template-columns:1fr}}
+
+/* FEATURE SPLIT */
+.feature-split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.feature-split.reverse{direction:rtl}
+.feature-split.reverse>*{direction:ltr}
+.fs-visual{background:var(--surface);border-radius:var(--radius);padding:32px;border:1px solid var(--border)}
+.fs-icon-big{width:80px;height:80px;border-radius:var(--radius-sm);display:grid;place-items:center;margin-bottom:20px}
+.fs-icon-big i{font-size:2.4rem;color:white}
+.feature-list{display:flex;flex-direction:column;gap:14px;margin-top:20px}
+.fl-item{display:flex;gap:12px}
+.fl-icon{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;flex-shrink:0}
+.fl-icon i{font-size:.85rem;color:white}
+.fl-item h4{font-size:.92rem;font-weight:700;color:var(--dark);margin-bottom:2px}
+.fl-item p{font-size:.82rem;color:var(--muted);line-height:1.5}
+@media(max-width:760px){.feature-split{grid-template-columns:1fr}.feature-split.reverse{direction:ltr}}
+
+/* SHIPPING */
+.shipping-logos{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px}
+.ship-card{background:var(--white);border:2px solid var(--border);border-radius:var(--radius-sm);padding:20px;text-align:center;transition:var(--transition)}
+.ship-card:hover{border-color:var(--primary-light);transform:translateY(-3px);box-shadow:var(--shadow-sm)}
+.ship-card .ship-icon{font-size:2rem;margin-bottom:8px}
+.ship-card h4{font-size:.9rem;font-weight:700;color:var(--dark)}
+.ship-card p{font-size:.78rem;color:var(--muted);margin-top:4px}
+@media(max-width:560px){.shipping-logos{grid-template-columns:1fr 1fr}}
+
+/* VIDEO PLACEHOLDER */
+.video-placeholder{background:var(--dark);border-radius:var(--radius);aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;border:2px dashed rgba(153,204,255,.25);position:relative;overflow:hidden}
+.video-placeholder::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(53,107,162,.12) 0%,transparent 70%)}
+.video-placeholder i{font-size:3rem;color:rgba(255,255,255,.25);position:relative}
+.video-placeholder .vp-text{font-size:.88rem;color:rgba(255,255,255,.4);font-weight:600;position:relative;text-align:center}
+.video-placeholder .vp-hint{font-size:.72rem;color:rgba(255,255,255,.22);position:relative;font-family:monospace;background:rgba(255,255,255,.05);padding:4px 10px;border-radius:6px}
+.videos-2col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:32px}
+@media(max-width:640px){.videos-2col{grid-template-columns:1fr}}
+
+/* CTA */
+.cta-section{background:linear-gradient(135deg,var(--primary-dark),var(--primary));text-align:center;padding:80px 0;position:relative;overflow:hidden}
+.cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(153,204,255,.1) 0%,transparent 70%)}
+.cta-section h2{font-size:clamp(1.7rem,3vw,2.4rem);font-weight:800;color:white;position:relative}
+.cta-section p{font-size:1rem;color:rgba(255,255,255,.75);margin:14px auto 32px;max-width:500px;line-height:1.7;position:relative}
+.cta-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;position:relative}
+
+/* FOOTER MINI */
+.footer-mini{background:var(--dark);padding:32px 0;text-align:center}
+.footer-mini p{font-size:.85rem;color:rgba(255,255,255,.4)}
+.footer-mini a{color:var(--primary-light)}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <a class="nav-logo" href="/">
+      <div class="logo-icon"><img src="/anhmedia.vn/img/favicon.png" alt="ANH MEDIA"></div>
+      <span>Anh<span style="color:#e65c00">Media</span>.vn</span>
+    </a>
+    <a href="/" class="nav-back"><i class="fas fa-arrow-left"></i> Về Trang Chủ</a>
+    <div class="nav-cta">
+      <a href="#lien-he" class="btn btn-accent">Dùng Thử Miễn Phí</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-eyebrow reveal"><i class="fas fa-store"></i> Thương Mại Điện Tử 0 Đồng</div>
+        <h1 class="hero-title reveal">
+          Bán Hàng Online<br>
+          <span>Không Tốn 1 Đồng</span><br>
+          Chi Phí Setup
+        </h1>
+        <p class="hero-desc reveal">
+          Chuyển toàn bộ sản phẩm từ Shopee, Lazada sang website thương mại điện tử riêng trong vài bước đơn giản. Khách hàng đăng nhập bằng Google, chọn vận chuyển GHTK hoặc ViettelPost ngay lập tức — không cần kỹ thuật.
+        </p>
+        <div class="hero-actions reveal">
+          <a href="#bat-dau" class="btn btn-accent btn-lg"><i class="fas fa-rocket"></i> Bắt Đầu Ngay</a>
+          <a href="#xem-video" class="btn btn-lg" style="background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.2);">
+            <i class="fas fa-play-circle"></i> Xem Video
+          </a>
+        </div>
+        <div class="hero-pills reveal">
+          <span class="hero-pill"><i class="fab fa-google" style="color:#ea4335"></i> Google Login</span>
+          <span class="hero-pill"><i class="fas fa-truck" style="color:#f39c12"></i> GHTK / ViettelPost</span>
+          <span class="hero-pill"><i class="fas fa-download" style="color:#2ecc71"></i> Import từ Shopee</span>
+        </div>
+      </div>
+      <div class="hero-visual reveal-right">
+        <div class="hero-cards">
+          <div class="hc">
+            <div class="hc-icon" style="background:linear-gradient(135deg,#ee4d2d,#ff7337)"><i class="fas fa-cloud-download-alt" style="color:white"></i></div>
+            <div>
+              <div class="hc-title">Import từ Shopee / Lazada</div>
+              <div class="hc-sub">Dán link — sản phẩm tự động điền đầy đủ</div>
+            </div>
+          </div>
+          <div class="hc">
+            <div class="hc-icon" style="background:linear-gradient(135deg,#ea4335,#fbbc05)"><i class="fab fa-google" style="color:white"></i></div>
+            <div>
+              <div class="hc-title">Đăng Nhập Google</div>
+              <div class="hc-sub">Khách hàng không cần tạo tài khoản mới</div>
+            </div>
+          </div>
+          <div class="hc">
+            <div class="hc-icon" style="background:linear-gradient(135deg,#e65c00,#f9d423)"><i class="fas fa-shipping-fast" style="color:white"></i></div>
+            <div>
+              <div class="hc-title">Vận Chuyển Tích Hợp Sẵn</div>
+              <div class="hc-sub">GHTK, ViettelPost, GHN — 1 click tạo đơn</div>
+            </div>
+          </div>
+          <div class="hc">
+            <div class="hc-icon" style="background:linear-gradient(135deg,#2ecc71,#27ae60)"><i class="fas fa-chart-line" style="color:white"></i></div>
+            <div>
+              <div class="hc-title">Tiết Kiệm 80% Chi Phí</div>
+              <div class="hc-sub">So với thuê ngoài hoặc nền tảng trả phí</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEPS -->
+<section class="section section-alt" id="bat-dau">
+  <div class="container">
+    <div class="text-center reveal">
+      <div class="badge"><i class="fas fa-map-signs"></i> Quy Trình</div>
+      <h2 class="section-title">3 Bước Đơn Giản — Bắt Đầu Bán Hàng</h2>
+      <p class="section-sub">Không cần kỹ thuật, không cần thiết kế. Chỉ cần có sản phẩm và dữ liệu từ sàn cũ — chúng tôi lo phần còn lại.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card reveal">
+        <div class="step-num" style="background:linear-gradient(135deg,#356ba2,#99ccff)">1</div>
+        <h3>Kết Nối Shopee / Sàn TMDT</h3>
+        <p>Dán link sản phẩm hoặc tải file Excel từ Shopee, Lazada, Tiki. Hệ thống tự động đọc dữ liệu sản phẩm, hình ảnh và giá cả.</p>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-num" style="background:linear-gradient(135deg,#e65c00,#f9d423)">2</div>
+        <h3>Thiết Lập Cửa Hàng</h3>
+        <p>Chọn giao diện, cấu hình vận chuyển (GHTK, ViettelPost, GHN), bật đăng nhập Google cho khách. Xong trong vài phút.</p>
+      </div>
+      <div class="step-card reveal">
+        <div class="step-num" style="background:linear-gradient(135deg,#2ecc71,#27ae60)">3</div>
+        <h3>Xuất Bản &amp; Bán Hàng</h3>
+        <p>Website live ngay lập tức. Khách hàng truy cập, đăng nhập Google, đặt hàng và chọn vận chuyển — tất cả tự động.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IMPORT FROM SHOPEE -->
+<section class="section">
+  <div class="container">
+    <div class="feature-split">
+      <div class="reveal-left">
+        <div class="fs-visual">
+          <div class="fs-icon-big" style="background:linear-gradient(135deg,#ee4d2d,#ff7337)">
+            <i class="fas fa-cloud-download-alt"></i>
+          </div>
+          <h3 style="font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:8px;">Shopee / Lazada → AnhMedia.vn</h3>
+          <p style="font-size:.85rem;color:var(--muted);line-height:1.6;">Dán URL sản phẩm, AI tự động tải ảnh, mô tả, giá và danh mục về. Nhập hàng loạt không giới hạn.</p>
+          <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
+            <div style="background:rgba(238,77,45,.08);border-left:3px solid #ee4d2d;padding:10px 14px;border-radius:8px;font-size:.82rem;color:var(--mid);">
+              <strong style="color:#ee4d2d;">Shopee</strong> → Import tự động qua link sản phẩm
+            </div>
+            <div style="background:rgba(0,132,255,.08);border-left:3px solid #0084ff;padding:10px 14px;border-radius:8px;font-size:.82rem;color:var(--mid);">
+              <strong style="color:#0084ff;">Lazada</strong> → Upload file Excel từ seller center
+            </div>
+            <div style="background:rgba(0,163,255,.08);border-left:3px solid #00a3ff;padding:10px 14px;border-radius:8px;font-size:.82rem;color:var(--mid);">
+              <strong style="color:#00a3ff;">Tiki</strong> → Import hàng loạt không giới hạn số lượng
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal-right">
+        <div class="badge"><i class="fas fa-download"></i> Import Thông Minh</div>
+        <h2 class="section-title">Chuyển Dữ Liệu Từ Shopee Chỉ Trong Vài Click</h2>
+        <p class="section-sub">Bạn đang có cửa hàng trên Shopee với hàng trăm sản phẩm? Không cần nhập lại từ đầu. AnhMedia.vn giúp bạn chuyển toàn bộ sang website riêng — nhanh, chính xác, không mất dữ liệu.</p>
+        <div class="feature-list">
+          <div class="fl-item">
+            <div class="fl-icon" style="background:linear-gradient(135deg,#356ba2,#99ccff)"><i class="fas fa-link"></i></div>
+            <div>
+              <h4>Import qua link sản phẩm</h4>
+              <p>Dán URL từ Shopee, Lazada, Tiki — hệ thống tự động tải ảnh, mô tả và giá về.</p>
+            </div>
+          </div>
+          <div class="fl-item">
+            <div class="fl-icon" style="background:linear-gradient(135deg,#0d7749,#2ecc71)"><i class="fas fa-file-excel"></i></div>
+            <div>
+              <h4>Upload file Excel hàng loạt</h4>
+              <p>Xuất danh sách từ seller center, upload lên — xong trong vài phút dù có nghìn sản phẩm.</p>
+            </div>
+          </div>
+          <div class="fl-item">
+            <div class="fl-icon" style="background:linear-gradient(135deg,#d35400,#f39c12)"><i class="fas fa-magic"></i></div>
+            <div>
+              <h4>AI điền thông tin tự động</h4>
+              <p>Mô tả sản phẩm, danh mục, từ khóa SEO được AI tối ưu tự động — không cần viết lại.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GOOGLE LOGIN -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="feature-split reverse">
+      <div class="reveal-right">
+        <div class="badge"><i class="fab fa-google"></i> Google Login</div>
+        <h2 class="section-title">Khách Hàng Đăng Nhập Bằng Google — Không Cần Tạo Tài Khoản Mới</h2>
+        <p class="section-sub">Rào cản lớn nhất khiến khách bỏ giỏ hàng là việc phải tạo tài khoản. AnhMedia.vn loại bỏ hoàn toàn bước này — khách chỉ cần nhấn "Tiếp tục với Google" là xong.</p>
+        <div class="feature-list">
+          <div class="fl-item">
+            <div class="fl-icon" style="background:linear-gradient(135deg,#ea4335,#fbbc05)"><i class="fab fa-google"></i></div>
+            <div>
+              <h4>1 click đăng nhập</h4>
+              <p>Không cần nhớ mật khẩu, không cần xác minh email — đăng nhập tức thì với tài khoản Google.</p>
+            </div>
+          </div>
+          <div class="fl-item">
+            <div class="fl-icon" style="background:linear-gradient(135deg,#356ba2,#99ccff)"><i class="fas fa-user-check"></i></div>
+            <div>
+              <h4>Tự động lưu thông tin</h4>
+              <p>Tên, email, địa chỉ giao hàng được lưu tự động. Lần sau đặt hàng không cần điền lại.</p>
+            </div>
+          </div>
+          <div class="fl-item">
+            <div class="fl-icon" style="background:linear-gradient(135deg,#2ecc71,#27ae60)"><i class="fas fa-shield-alt"></i></div>
+            <div>
+              <h4>Bảo mật từ Google</h4>
+              <p>Sử dụng hạ tầng bảo mật của Google — an toàn tuyệt đối cho cả khách hàng lẫn chủ shop.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal-left">
+        <div class="fs-visual" style="text-align:center;">
+          <div class="fs-icon-big" style="background:linear-gradient(135deg,#ea4335,#fbbc05);margin:0 auto 20px;"><i class="fab fa-google"></i></div>
+          <h3 style="font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:16px;">Tăng Tỷ Lệ Chuyển Đổi</h3>
+          <div style="display:flex;justify-content:center;gap:32px;margin:0 0 16px;">
+            <div>
+              <div style="font-size:2rem;font-weight:800;color:var(--primary);">+47%</div>
+              <div style="font-size:.78rem;color:var(--muted);">Tỷ lệ đăng ký</div>
+            </div>
+            <div>
+              <div style="font-size:2rem;font-weight:800;color:var(--accent);">-60%</div>
+              <div style="font-size:.78rem;color:var(--muted);">Bỏ giỏ hàng</div>
+            </div>
+          </div>
+          <p style="font-size:.82rem;color:var(--muted);line-height:1.6;">Shop dùng Google Login trung bình tăng tỷ lệ hoàn thành đơn hàng đáng kể so với form đăng ký truyền thống.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SHIPPING -->
+<section class="section">
+  <div class="container">
+    <div class="text-center reveal">
+      <div class="badge"><i class="fas fa-truck"></i> Vận Chuyển</div>
+      <h2 class="section-title">Tích Hợp Sẵn Các Đơn Vị Vận Chuyển Hàng Đầu</h2>
+      <p class="section-sub">Khách đặt hàng — hệ thống tự động tạo đơn vận chuyển, in label và gửi mã theo dõi. Không cần vào từng app riêng lẻ.</p>
+    </div>
+    <div class="shipping-logos">
+      <div class="ship-card reveal">
+        <div class="ship-icon">🚀</div>
+        <h4>GHTK</h4>
+        <p>Giao Hàng Tiết Kiệm — phủ sóng toàn quốc, phí cạnh tranh</p>
+      </div>
+      <div class="ship-card reveal">
+        <div class="ship-icon">📦</div>
+        <h4>ViettelPost</h4>
+        <p>Viettel Post — hệ thống lớn, giao nhanh, hỗ trợ vùng xa</p>
+      </div>
+      <div class="ship-card reveal">
+        <div class="ship-icon">🚚</div>
+        <h4>GHN</h4>
+        <p>Giao Hàng Nhanh — tích hợp COD, theo dõi real-time</p>
+      </div>
+    </div>
+    <div style="margin-top:32px;background:var(--surface);border-radius:var(--radius);padding:28px;border:1px solid var(--border);" class="reveal">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:center;">
+        <div>
+          <i class="fas fa-file-alt" style="font-size:1.6rem;color:var(--primary);margin-bottom:8px;display:block;"></i>
+          <div style="font-size:.9rem;font-weight:700;color:var(--dark);">Tự động tạo đơn</div>
+          <div style="font-size:.8rem;color:var(--muted);margin-top:2px;">Khi khách xác nhận thanh toán</div>
+        </div>
+        <div>
+          <i class="fas fa-print" style="font-size:1.6rem;color:var(--accent);margin-bottom:8px;display:block;"></i>
+          <div style="font-size:.9rem;font-weight:700;color:var(--dark);">In label tự động</div>
+          <div style="font-size:.8rem;color:var(--muted);margin-top:2px;">Label chuẩn từng đơn vị vận chuyển</div>
+        </div>
+        <div>
+          <i class="fas fa-bell" style="font-size:1.6rem;color:var(--primary);margin-bottom:8px;display:block;"></i>
+          <div style="font-size:.9rem;font-weight:700;color:var(--dark);">Thông báo real-time</div>
+          <div style="font-size:.8rem;color:var(--muted);margin-top:2px;">Cập nhật trạng thái qua Zalo / Email</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEO GALLERY -->
+<section class="section section-alt" id="xem-video">
+  <div class="container">
+    <div class="text-center reveal">
+      <div class="badge"><i class="fas fa-play-circle"></i> Video Hướng Dẫn</div>
+      <h2 class="section-title">Xem Thực Tế — Bắt Đầu Trong 10 Phút</h2>
+      <p class="section-sub">Video hướng dẫn chi tiết từ A đến Z — từ cách import sản phẩm từ Shopee đến cấu hình vận chuyển và Google Login.</p>
+    </div>
+    <div class="videos-2col">
+      <!-- ====================================================
+           ĐẶT LINK YOUTUBE TẠI ĐÂY
+           Thay src dưới bằng: https://www.youtube.com/embed/VIDEO_ID
+           ==================================================== -->
+      <div class="reveal">
+        <div class="video-placeholder">
+          <!-- PUT YOUTUBE EMBED LINK HERE -->
+          <iframe src="https://www.youtube.com/embed/e6ShNrd4AUU?si=NmxcOlls4E9pU4ml" title="Hướng dẫn TMDT 0 đồng" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:none;"></iframe>
+          <i class="fab fa-youtube"></i>
+          <div class="vp-text">Video YouTube sẽ được cập nhật tại đây</div>
+          <div class="vp-hint">▶ Hướng Dẫn Import Sản Phẩm Từ Shopee</div>
+        </div>
+        <div style="margin-top:10px;">
+          <div style="font-size:.75rem;font-weight:700;color:#ff0000;text-transform:uppercase;letter-spacing:.05em;"><i class="fab fa-youtube"></i> YouTube</div>
+          <div style="font-size:.92rem;font-weight:700;color:var(--dark);margin-top:3px;">Hướng Dẫn Import Sản Phẩm Từ Shopee</div>
+          <div style="font-size:.8rem;color:var(--muted);margin-top:2px;">Chuyển 200 sản phẩm sang website riêng trong 10 phút</div>
+        </div>
+      </div>
+      <div class="reveal">
+        <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@anhmedia.vn/video/7542481976813571346" data-video-id="VIDEO_ID" style="max-width:605px;min-width:325px;">
+          <section></section>
+        </blockquote>
+        <script async src="https://www.tiktok.com/embed.js"></script>
+        <div style="margin-top:10px;">
+          <div style="font-size:.75rem;font-weight:700;color:#ee1d52;text-transform:uppercase;letter-spacing:.05em;"><i class="fab fa-tiktok"></i> TikTok</div>
+          <div style="font-size:.92rem;font-weight:700;color:var(--dark);margin-top:3px;">Demo Bán Hàng Online 0 Đồng Chi Phí</div>
+          <div style="font-size:.8rem;color:var(--muted);margin-top:2px;">Xem kết quả thực tế của các shop đang dùng AnhMedia.vn</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="lien-he">
+  <div class="container">
+    <h2 class="reveal">Sẵn Sàng Chuyển Từ Shopee Sang Website Riêng?</h2>
+    <p class="reveal">Liên hệ ngay để được tư vấn miễn phí và hỗ trợ setup trong vòng 24 giờ. Không phí ẩn, không cần kỹ thuật.</p>
+    <div class="cta-actions reveal">
+      <a href="/app/login" class="btn btn-accent btn-lg"><i class="fas fa-rocket"></i> Bắt Đầu Miễn Phí</a>
+      <a th:href="'tel:' + ${client.clientPhone}" class="btn btn-white btn-lg"><i class="fas fa-phone"></i> Gọi Tư Vấn Ngay</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER MINI -->
+<footer class="footer-mini">
+  <div class="container">
+    <p>© 2026 <a href="/">AnhMedia.vn</a> — Nền tảng thương mại điện tử Việt Nam &nbsp;·&nbsp;
+      <a href="/privacy-policy.html">Chính sách bảo mật</a> &nbsp;·&nbsp;
+      <a href="/terms-of-service.html">Điều khoản dịch vụ</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('visible'); });
+  },{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(function(el,i){
+    el.style.transitionDelay=(i%4)*0.07+'s';
+    obs.observe(el);
+  });
+})();
+</script>
+</body>
+</html>

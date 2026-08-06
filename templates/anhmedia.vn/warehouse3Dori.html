@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Warehouse SKU Viewer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            overflow: hidden;
+        }
+        
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 300px;
+        }
+        
+        #search {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+        }
+        
+        #search::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+        }
+        
+        #info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 250px;
+        }
+        
+        #canvas {
+            cursor: grab;
+        }
+        
+        #canvas:active {
+            cursor: grabbing;
+        }
+        
+        .highlight {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        #legend {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="controls">
+            <h3>🏭 Warehouse Control</h3>
+            <input type="text" id="search" placeholder="Search SKU (e.g., ABC123)">
+            
+            <div class="control-group">
+                <label>Line:</label>
+                <select id="lineSelect">
+                    <option value="">All Lines</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Rack:</label>
+                <select id="rackSelect">
+                    <option value="">All Racks</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Stack Level:</label>
+                <select id="stackSelect">
+                    <option value="">All Levels</option>
+                </select>
+            </div>
+            
+            <button onclick="resetView()">🎯 Reset View</button>
+            <button onclick="toggleGrid()">📏 Toggle Grid</button>
+        </div>
+        
+        <div id="legend">
+            <h4>📋 Status Legend</h4>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4CAF50;"></div>
+                <span>Available</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #FF9800;"></div>
+                <span>Reserved</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #F44336;"></div>
+                <span>Occupied</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #9C27B0;"></div>
+                <span>Maintenance</span>
+            </div>
+        </div>
+        
+        <div id="info">
+            <div id="selectedInfo">
+                <strong>🎯 Selected Location:</strong><br>
+                Click on a storage location for details
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let scene, camera, renderer, controls;
+        let warehouse = [];
+        let gridHelper;
+        let selectedObject = null;
+        let highlightMaterial;
+        
+        // Sample warehouse data
+        const warehouseData = [
+            { line: 'A', rack: 1, stack: 1, sku: 'ABC123', status: 'occupied', quantity: 50 },
+            { line: 'A', rack: 1, stack: 2, sku: 'DEF456', status: 'occupied', quantity: 30 },
+            { line: 'A', rack: 1, stack: 3, sku: null, status: 'available', quantity: 0 },
+            { line: 'A', rack: 2, stack: 1, sku: 'GHI789', status: 'reserved', quantity: 25 },
+            { line: 'A', rack: 2, stack: 2, sku: 'JKL012', status: 'occupied', quantity: 40 },
+            { line: 'A', rack: 2, stack: 3, sku: null, status: 'maintenance', quantity: 0 },
+           
+            
+            { line: 'B', rack: 1, stack: 1, sku: 'MNO345', status: 'occupied', quantity: 60 },
+            { line: 'B', rack: 1, stack: 2, sku: null, status: 'available', quantity: 0 },
+            { line: 'B', rack: 1, stack: 3, sku: 'PQR678', status: 'occupied', quantity: 35 },
+            { line: 'B', rack: 2, stack: 1, sku: null, status: 'available', quantity: 0 },
+            { line: 'B', rack: 2, stack: 2, sku: 'STU901', status: 'reserved', quantity: 20 },
+            { line: 'B', rack: 2, stack: 3, sku: 'VWX234', status: 'occupied', quantity: 45 },
+            
+            { line: 'C', rack: 1, stack: 1, sku: 'MNO345', status: 'occupied', quantity: 60 },
+            { line: 'C', rack: 1, stack: 2, sku: null, status: 'available', quantity: 0 },
+            { line: 'C', rack: 1, stack: 3, sku: 'PQR678', status: 'occupied', quantity: 35 },
+            { line: 'C', rack: 2, stack: 1, sku: null, status: 'available', quantity: 0 },
+            { line: 'C', rack: 2, stack: 2, sku: 'STU901', status: 'reserved', quantity: 20 },
+            { line: 'C', rack: 2, stack: 3, sku: 'VWX234', status: 'occupied', quantity: 45 }
+        ];
+        
+        function init() {
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0a0a);
+            
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(10, 8, 10);
+            
+            // Renderer setup
+            renderer = new THREE.WebGLRenderer({ antialias: true, canvas: document.createElement('canvas') });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.id = 'canvas';
+            document.getElementById('container').appendChild(renderer.domElement);
+            
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(20, 20, 20);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            scene.add(directionalLight);
+            
+            // Grid helper
+            gridHelper = new THREE.GridHelper(20, 20, 0x444444, 0x222222);
+            scene.add(gridHelper);
+            
+            // Highlight material
+            highlightMaterial = new THREE.MeshLambertMaterial({ 
+                color: 0xffff00, 
+                transparent: true, 
+                opacity: 0.8 
+            });
+            
+            // Create warehouse
+            createWarehouse();
+            
+            // Mouse controls
+            setupMouseControls();
+            
+            // Initialize UI
+            populateDropdowns();
+            setupEventListeners();
+            
+            // Animation loop
+            animate();
+        }
+        
+        function createWarehouse() {
+            const statusColors = {
+                'available': 0x4CAF50,
+                'reserved': 0xFF9800,
+                'occupied': 0xF44336,
+                'maintenance': 0x9C27B0
+            };
+            
+            warehouseData.forEach((item, index) => {
+                const geometry = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+                const material = new THREE.MeshLambertMaterial({ 
+                    color: statusColors[item.status] 
+                });
+                
+                const cube = new THREE.Mesh(geometry, material);
+                
+                // Position based on line, rack, stack
+                const lineOffset = item.line === 'A' ? 0 : 4;
+                const x = lineOffset + (item.rack - 1) * 2;
+                const y = (item.stack - 1) * 1 + 0.5;
+                const z = 0;
+                
+                cube.position.set(x, y, z);
+                cube.castShadow = true;
+                cube.receiveShadow = true;
+                cube.userData = item;
+                cube.userData.originalMaterial = material;
+                
+                scene.add(cube);
+                warehouse.push(cube);
+            });
+            
+            // Add rack structures
+            createRackStructure();
+        }
+        
+        function createRackStructure() {
+            const rackMaterial = new THREE.MeshLambertMaterial({ color: 0x666666 });
+
+            ['A', 'B', 'C'].forEach((line, lineIdx) => {
+                for (let rack = 1; rack <= 2; rack++) {
+                    // Vertical posts
+                    for (let post = 0; post < 4; post++) {
+                        const postGeometry = new THREE.BoxGeometry(0.1, 4, 0.1);
+                        const postMesh = new THREE.Mesh(postGeometry, rackMaterial);
+
+                        // Swap logic: put lineIdx on Z instead of X
+                        const x = (rack - 1) * 2 + (post % 2) * 0.9 - 0.45;
+                        const z = lineIdx * 4 + Math.floor(post / 2) * 0.9 - 0.45;
+
+                        postMesh.position.set(x, 2, z);
+                        scene.add(postMesh);
+                    }
+
+                    // Horizontal beams
+                    for (let level = 0; level < 3; level++) {
+                        const beamGeometry = new THREE.BoxGeometry(0.9, 0.05, 0.05);
+                        const beamMesh = new THREE.Mesh(beamGeometry, rackMaterial);
+
+                        const x = (rack - 1) * 2;
+                        const y = level + 0.2;
+                        const zOffset = lineIdx * 4;
+
+                        beamMesh.position.set(x, y, zOffset - 0.45);
+                        scene.add(beamMesh);
+
+                        const beamMesh2 = beamMesh.clone();
+                        beamMesh2.position.z = zOffset + 0.45;
+                        scene.add(beamMesh2);
+                    }
+                }
+            });
+        }
+        
+        function setupMouseControls() {
+            let mouseDown = false;
+            let mouseX = 0, mouseY = 0;
+            let targetX = 0, targetY = 0;
+            
+            renderer.domElement.addEventListener('mousedown', onMouseDown);
+            renderer.domElement.addEventListener('mousemove', onMouseMove);
+            renderer.domElement.addEventListener('mouseup', onMouseUp);
+            renderer.domElement.addEventListener('click', onMouseClick);
+            renderer.domElement.addEventListener('wheel', onWheel);
+            
+            function onMouseDown(event) {
+                mouseDown = true;
+                mouseX = event.clientX;
+                mouseY = event.clientY;
+            }
+            
+            function onMouseMove(event) {
+                if (!mouseDown) return;
+                
+                targetX = (event.clientX - mouseX) * 0.01;
+                targetY = (event.clientY - mouseY) * 0.01;
+                
+                camera.position.x = Math.cos(targetX) * 15;
+                camera.position.z = Math.sin(targetX) * 15;
+                camera.position.y = Math.max(2, camera.position.y + targetY);
+                
+                camera.lookAt(2, 1, 0);
+            }
+            
+            function onMouseUp() {
+                mouseDown = false;
+            }
+            
+            function onWheel(event) {
+                const zoom = event.deltaY * 0.01;
+                const distance = camera.position.distanceTo(new THREE.Vector3(2, 1, 0));
+                
+                if (distance > 5 || zoom < 0) {
+                    camera.position.multiplyScalar(1 + zoom);
+                }
+            }
+            
+            function onMouseClick(event) {
+                const mouse = new THREE.Vector2();
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(mouse, camera);
+                
+                const intersects = raycaster.intersectObjects(warehouse);
+                
+                if (intersects.length > 0) {
+                    selectLocation(intersects[0].object);
+                }
+            }
+        }
+        
+        function selectLocation(object) {
+            // Reset previous selection
+            if (selectedObject) {
+                selectedObject.material = selectedObject.userData.originalMaterial;
+                selectedObject.scale.set(1, 1, 1);
+            }
+            
+            // Select new object
+            selectedObject = object;
+            selectedObject.material = highlightMaterial;
+            selectedObject.scale.set(1.2, 1.2, 1.2);
+            
+            // Update info panel
+            const data = object.userData;
+            document.getElementById('selectedInfo').innerHTML = `
+                <strong>📍 Location:</strong> Line ${data.line}, Rack ${data.rack}, Stack ${data.stack}<br>
+                <strong>📦 SKU:</strong> ${data.sku || 'Empty'}<br>
+                <strong>📊 Status:</strong> ${data.status}<br>
+                <strong>🔢 Quantity:</strong> ${data.quantity}
+            `;
+        }
+        
+        function populateDropdowns() {
+            const lines = [...new Set(warehouseData.map(item => item.line))];
+            const racks = [...new Set(warehouseData.map(item => item.rack))];
+            const stacks = [...new Set(warehouseData.map(item => item.stack))];
+            
+            populateSelect('lineSelect', lines);
+            populateSelect('rackSelect', racks);
+            populateSelect('stackSelect', stacks);
+        }
+        
+        function populateSelect(selectId, options) {
+            const select = document.getElementById(selectId);
+            options.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option;
+                optionElement.textContent = option;
+                select.appendChild(optionElement);
+            });
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('search').addEventListener('input', filterBySKU);
+            document.getElementById('lineSelect').addEventListener('change', applyFilters);
+            document.getElementById('rackSelect').addEventListener('change', applyFilters);
+            document.getElementById('stackSelect').addEventListener('change', applyFilters);
+        }
+        
+        function filterBySKU() {
+            const searchTerm = document.getElementById('search').value.toUpperCase();
+            
+            warehouse.forEach(cube => {
+                const isVisible = !searchTerm || 
+                    (cube.userData.sku && cube.userData.sku.toUpperCase().includes(searchTerm));
+                
+                cube.visible = isVisible;
+                
+                if (searchTerm && cube.userData.sku && 
+                    cube.userData.sku.toUpperCase().includes(searchTerm)) {
+                    selectLocation(cube);
+                }
+            });
+        }
+        
+        function applyFilters() {
+            const line = document.getElementById('lineSelect').value;
+            const rack = document.getElementById('rackSelect').value;
+            const stack = document.getElementById('stackSelect').value;
+            
+            warehouse.forEach(cube => {
+                const data = cube.userData;
+                const isVisible = (!line || data.line === line) &&
+                                (!rack || data.rack === parseInt(rack)) &&
+                                (!stack || data.stack === parseInt(stack));
+                
+                cube.visible = isVisible;
+            });
+        }
+        
+        function resetView() {
+            camera.position.set(10, 8, 10);
+            camera.lookAt(2, 1, 0);
+            
+            // Reset all filters
+            document.getElementById('search').value = '';
+            document.getElementById('lineSelect').value = '';
+            document.getElementById('rackSelect').value = '';
+            document.getElementById('stackSelect').value = '';
+            
+            // Show all cubes
+            warehouse.forEach(cube => {
+                cube.visible = true;
+                cube.material = cube.userData.originalMaterial;
+                cube.scale.set(1, 1, 1);
+            });
+            
+            selectedObject = null;
+            document.getElementById('selectedInfo').innerHTML = `
+                <strong>🎯 Selected Location:</strong><br>
+                Click on a storage location for details
+            `;
+        }
+        
+        function toggleGrid() {
+            gridHelper.visible = !gridHelper.visible;
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Rotate camera around warehouse
+            const time = Date.now() * 0.0005;
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Initialize the application
+        init();
+    </script>
+</body>
+</html>

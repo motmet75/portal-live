@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landed Cost & COGS Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .example-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+            border-left: 4px solid #28a745;
+        }
+
+        .example-section h3 {
+            color: #333;
+            margin-bottom: 12px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .collapse-btn {
+            background: none;
+            border: none;
+            color: #667eea;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 8px 0;
+            text-decoration: underline;
+        }
+
+        .collapse-btn:hover {
+            color: #764ba2;
+        }
+
+        .example-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .example-content.expanded {
+            max-height: 1000px;
+        }
+
+        .example-intro {
+            color: #555;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .example-specs {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .example-specs ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .example-specs li {
+            padding: 8px 0;
+            color: #444;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .example-specs li:last-child {
+            border-bottom: none;
+        }
+
+        .example-specs strong {
+            color: #667eea;
+        }
+
+        .calculation-steps {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .calculation-steps h4 {
+            color: #333;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .step {
+            padding: 10px 0;
+            color: #555;
+            line-height: 1.6;
+            border-bottom: 1px dashed #e0e0e0;
+        }
+
+        .step:last-child {
+            border-bottom: none;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .required {
+            color: #e74c3c;
+            margin-left: 4px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .unit {
+            position: absolute;
+            right: 12px;
+            color: #999;
+            font-weight: 600;
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-reset {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-reset:hover {
+            background: #e0e0e0;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 24px;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result h3 {
+            color: #333;
+            margin-bottom: 16px;
+            font-size: 20px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 18px;
+            color: #667eea;
+            margin-top: 8px;
+            padding-top: 16px;
+            border-top: 2px solid #667eea;
+        }
+
+        .result-label {
+            color: #666;
+        }
+
+        .result-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .step-title {
+            font-weight: 700;
+            color: #667eea;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #e0e0e0;
+            margin: 16px 0;
+        }
+
+        .tax-table-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 30px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .tax-table-section h3 {
+            color: #333;
+            margin-bottom: 16px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tax-table-section p {
+            color: #666;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .tax-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 14px;
+            background: white;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .tax-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tax-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .tax-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #444;
+        }
+
+        .tax-table tbody tr:hover {
+            background: #f8f9ff;
+        }
+
+        .tax-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .tax-rate {
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .table-title {
+            font-weight: 600;
+            color: #333;
+            margin: 20px 0 12px 0;
+            font-size: 15px;
+        }
+
+        .references {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .references h4 {
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .references ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .references li {
+            padding: 6px 0;
+            color: #555;
+            font-size: 13px;
+        }
+
+        .references a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .references a:hover {
+            text-decoration: underline;
+        }
+
+        .note-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin: 16px 0;
+            font-size: 13px;
+            color: #856404;
+        }
+
+        @media (max-width: 768px) {
+            .tax-table {
+                font-size: 12px;
+            }
+
+            .tax-table th,
+            .tax-table td {
+                padding: 8px 6px;
+            }
+
+            .tax-table-section {
+                padding: 16px;
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 24px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .example-section {
+                padding: 16px;
+            }
+        }
+    </style>
+<script th:replace="anhmedia :: gtag01"></script>
+<script th:replace="anhmedia :: gtag02"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Landed Cost & COGS Calculator</h1>
+            <p>Form tính tổng chi phí nhập hàng và giá vốn</p>
+        </div>
+
+        <div class="example-section">
+            <h3>📋 Ví dụ tổng hợp</h3>
+            <button class="collapse-btn" onclick="toggleExample()">
+                <span id="toggleText">Xem ví dụ chi tiết</span>
+            </button>
+            <div id="exampleContent" class="example-content">
+                <p class="example-intro">
+                    Giả sử bạn nhập khẩu một chiếc xe với các thông số:
+                </p>
+                <div class="example-specs">
+                    <ul>
+                        <li><strong>Giá CIF:</strong> 700 triệu đồng</li>
+                        <li><strong>Dung tích xi-lanh:</strong> 1.8L → thuế suất TTĐB 40%</li>
+                        <li><strong>Thuế NK:</strong> 0% (ví dụ từ ASEAN có ưu đãi)</li>
+                        <li><strong>VAT:</strong> 10%</li>
+                        <li><strong>Lệ phí trước bạ tại Hà Nội:</strong> 12%</li>
+                    </ul>
+                </div>
+                <div class="calculation-steps">
+                    <h4>Các bước tính toán:</h4>
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <strong>Thuế nhập khẩu</strong> = 700 triệu × 0% = <strong>0 đồng</strong>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        Giá tính thuế TTĐB = 700 triệu + 0 = 700 triệu<br>
+                        → <strong>Thuế TTĐB</strong> = 700 triệu × 40% = <strong>280 triệu</strong>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">3</span>
+                        <strong>VAT</strong> = (700 triệu + 0 + 280 triệu) × 10% = <strong>98 triệu</strong>
+                    </div>
+                    <div class="step">
+                        <span class="step-number">4</span>
+                        Giá tính lệ phí trước bạ = 700 + 0 + 280 + 98 = <strong>1.078 tỷ</strong><br>
+                        → <strong>Lệ phí trước bạ</strong> = 1.078 tỷ × 12% ≈ <strong>129,36 triệu</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form id="landedCostForm">
+            <div class="form-group">
+                <label for="token">Token <span class="required">*</span></label>
+                <input type="text" id="token" name="token" value="abc123" required>
+            </div>
+
+            <div class="form-group">
+                <label for="userId">User ID <span class="required">*</span></label>
+                <input type="text" id="userId" name="userId" value="anhmedia" required>
+            </div>
+        
+            <div class="form-group">
+                <label for="carType">Loại xe <span class="required">*</span></label>
+                <select name="carType" id="carType" required>
+                    <option value="CAR_UNDER_9">Ô tô dưới 9 chỗ</option>
+                    <option value="CAR_10_16">Ô tô 10–16 chỗ</option>
+                    <option value="CAR_16_24">Ô tô 16–24 chỗ</option>
+                    <option value="PICKUP_VAN">Pick-up / VAN</option>
+                    <option value="HYBRID">Xe Hybrid</option>
+                    <option value="BIOFUEL">Xe nhiên liệu sinh học</option>
+                    <option value="EV_9">Xe điện dưới 9 chỗ</option>
+                    <option value="EV_10_16">Xe điện 10–16 chỗ</option>
+                    <option value="EV_16_24">Xe điện 16–24 chỗ</option>
+                    <option value="EV_VAN">Xe điện VAN</option>
+                    <option value="EV_OTHERS">Xe điện khác</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="engine">Dung tích xi-lanh (cm³) <span class="required">*</span></label>
+                <input type="number" id="engine" name="engine" step="0.1" placeholder="1500" value =1500 required>
+            </div>
+
+            <div class="form-group">
+                <label for="year">Năm tính thuế <span class="required">*</span></label>
+                <input type="number" id="year" name="year" value="2026" min="2020" max="2030" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="FOB">
+                    FOB Price
+                    <span class="required">*</span>
+                </label>
+                <div class="input-wrapper">
+                    <input 
+                        type="text" 
+                        id="FOB" 
+                        name="FOB" 
+                        placeholder="Nhập giá FOB" 
+                        required
+                    >
+                    <span class="unit">VND</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="Freight">
+                    Freight / Vận chuyển quốc tế
+                    <span class="required">*</span>
+                </label>
+                <div class="input-wrapper">
+                    <input 
+                        type="text" 
+                        id="Freight" 
+                        name="Freight" 
+                        placeholder="Nhập phí vận chuyển" 
+                        required
+                    >
+                    <span class="unit">VND</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="Insurance">
+                    Insurance / Bảo hiểm
+                    <span class="required">*</span>
+                </label>
+                <div class="input-wrapper">
+                    <input 
+                        type="text" 
+                        id="Insurance" 
+                        name="Insurance" 
+                        placeholder="Nhập phí bảo hiểm"
+                        required
+                    >
+                    <span class="unit">VND</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="ImportRate">
+                    Import Rate / Thuế nhập khẩu (%)
+                    <span class="required">*</span>
+                </label>
+                <input 
+                    type="number" 
+                    id="ImportRate" 
+                    name="ImportRate" 
+                    step="0.1"
+                    placeholder="70.0" 
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label for="ImportRate">
+                   Transport
+                    <span class="required">*</span>
+                </label>
+                <input 
+                    type="number" 
+                    id="domesticTransport" 
+                    name="domesticTransport" 
+                    step="0.1"
+                    placeholder="Phí vận chuyển nội địa" 
+                    required
+                    value=0
+                >
+            </div>
+
+            <div class="buttons">
+                <button type="submit" class="btn-submit">Tính Landed Cost</button>
+                <button type="reset" class="btn-reset">Xóa dữ liệu</button>
+            </div>
+        </form>
+
+        <div id="result" class="result"></div>
+
+        <div class="tax-table-section">
+            <h3>📊 Bảng thuế suất TTĐB ô tô theo Luật 66/2025/QH15</h3>
+            <p>Tham khảo thuế suất Tiêu thụ đặc biệt áp dụng từ 01/01/2026</p>
+
+            <div class="table-title">🚗 Xe ô tô chở người & pick-up (9 chỗ trở xuống)</div>
+            <table class="tax-table">
+                <thead>
+                    <tr>
+                        <th>Dung tích xi-lanh</th>
+                        <th>Thuế suất TTĐB</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>≤ 1.500 cm³</td>
+                        <td class="tax-rate">35%</td>
+                    </tr>
+                    <tr>
+                        <td>> 1.500 – ≤ 2.000 cm³</td>
+                        <td class="tax-rate">40%</td>
+                    </tr>
+                    <tr>
+                        <td>> 2.000 – ≤ 2.500 cm³</td>
+                        <td class="tax-rate">50%</td>
+                    </tr>
+                    <tr>
+                        <td>> 2.500 – ≤ 3.000 cm³</td>
+                        <td class="tax-rate">60%</td>
+                    </tr>
+                    <tr>
+                        <td>> 3.000 – ≤ 4.000 cm³</td>
+                        <td class="tax-rate">90%</td>
+                    </tr>
+                    <tr>
+                        <td>> 4.000 – ≤ 5.000 cm³</td>
+                        <td class="tax-rate">110%</td>
+                    </tr>
+                    <tr>
+                        <td>> 5.000 – ≤ 6.000 cm³</td>
+                        <td class="tax-rate">130%</td>
+                    </tr>
+                    <tr>
+                        <td>> 6.000 cm³</td>
+                        <td class="tax-rate">150%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="table-title">🚙 Xe ô tô chở người (10-24 chỗ) & Xe đặc biệt</div>
+            <table class="tax-table">
+                <thead>
+                    <tr>
+                        <th>Loại xe / Đặc điểm</th>
+                        <th>Thuế suất TTĐB</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Xe ô tô 10 – <16 chỗ</td>
+                        <td class="tax-rate">15%</td>
+                    </tr>
+                    <tr>
+                        <td>Xe ô tô 16 – <24 chỗ</td>
+                        <td class="tax-rate">10%</td>
+                    </tr>
+                    <tr>
+                        <td>Pick-up cabin kép / VAN (≤ 2.500 cm³)</td>
+                        <td class="tax-rate">15% → 24% (2026-2029)</td>
+                    </tr>
+                    <tr>
+                        <td>Pick-up cabin kép / VAN (> 2.500 – ≤ 3.000 cm³)</td>
+                        <td class="tax-rate">20% → 29% (2026-2029)</td>
+                    </tr>
+                    <tr>
+                        <td>Pick-up cabin kép / VAN (> 3.000 cm³)</td>
+                        <td class="tax-rate">25% → 34% (2026-2029)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="table-title">⚡ Xe ô tô năng lượng thay thế</div>
+            <table class="tax-table">
+                <thead>
+                    <tr>
+                        <th>Loại xe</th>
+                        <th>Thuế suất TTĐB</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Xe chạy xăng + điện / xăng + sinh học</td>
+                        <td class="tax-rate">70% của thuế suất xe cùng loại</td>
+                    </tr>
+                    <tr>
+                        <td>Xe chạy năng lượng sinh học</td>
+                        <td class="tax-rate">50% của thuế suất xe cùng loại</td>
+                    </tr>
+                    <tr>
+                        <td>Xe điện pin (9 chỗ / pick-up)</td>
+                        <td class="tax-rate">3% → 11% (2026-2027)</td>
+                    </tr>
+                    <tr>
+                        <td>Xe điện pin (10-16 chỗ)</td>
+                        <td class="tax-rate">2% → 7%</td>
+                    </tr>
+                    <tr>
+                        <td>Xe điện pin (16-24 chỗ)</td>
+                        <td class="tax-rate">1% → 4%</td>
+                    </tr>
+                    <tr>
+                        <td>Xe điện cabin kép / VAN có vách ngăn</td>
+                        <td class="tax-rate">2% → 7%</td>
+                    </tr>
+                    <tr>
+                        <td>Xe điện khác</td>
+                        <td class="tax-rate">15%</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="note-box">
+                <strong>⚠️ Lưu ý:</strong> Thuế suất trên áp dụng từ 01/01/2026 theo Luật 66/2025/QH15. 
+                Một số loại xe có lộ trình tăng dần theo năm. Vui lòng kiểm tra quy định cụ thể cho từng thời điểm.
+            </div>
+
+            <div class="references">
+                <h4>🔗 Nguồn tham khảo</h4>
+                <ul>
+                    <li>• Luật Thuế tiêu thụ đặc biệt số 66/2025/QH15</li>
+                    <li>• Biểu thuế TTĐB chi tiết - <a href="https://xaydungchinhsach.chinhphu.vn" target="_blank">xaydungchinhsach.chinhphu.vn</a></li>
+                    <li>• Thư viện Pháp luật - <a href="https://thuvienphapluat.vn" target="_blank">thuvienphapluat.vn</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let cartTax = {
+    		carType: 'no',
+    		domesticTransport: 0,
+    		engine: 0,
+    		fob: 0,
+    		freight: 0,
+    		importRate: 0,
+    		insurance: 0,
+    		token: 'no',
+    		userId: 'userId',
+    		year: 0
+    };
+    
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch("/api/car-tax/structure")
+            .then(res => res.json())
+            .then(struct => {
+                console.log("Loaded CarTaxRequest structure:", struct);
+
+                // Auto-fill missing form fields if needed
+                Object.keys(struct).forEach(field => {
+                    let el = document.getElementById(field);
+                    if (!el) {
+                        console.warn("HTML missing input for:", field);
+                    }
+                });
+                cartTax = struct;
+            })
+            .catch(err => console.error("Error loading structure:", err));
+    });
+    
+        function toggleExample() {
+            const content = document.getElementById('exampleContent');
+            const toggleText = document.getElementById('toggleText');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                toggleText.textContent = 'Xem ví dụ chi tiết';
+            } else {
+                content.classList.add('expanded');
+                toggleText.textContent = 'Ẩn ví dụ';
+            }
+        }
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat('en-US').format(num);
+        }
+
+        function formatCurrency(value) {
+            return formatNumber(value) + ' VND';
+        }
+
+        function parseFormattedNumber(str) {
+            if (!str) return 0;
+            return parseFloat(str.replace(/,/g, '')) || 0;
+        }
+        
+        function parseNumber(value) {
+            if (!value || value.trim() === "") return 0;
+            return Number(value.replace(/,/g, ""));
+        }
+        
+
+        // Auto-format inputs as user types
+        const inputs = ['FOB', 'Freight', 'Insurance'];
+        
+        inputs.forEach(inputId => {
+            const input = document.getElementById(inputId);
+            
+            input.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/,/g, '');
+                
+                // Allow only numbers and decimal point
+                if (!/^\d*\.?\d*$/.test(value)) {
+                    value = value.replace(/[^\d.]/g, '');
+                }
+                
+                // Format with commas
+                if (value) {
+                    const parts = value.split('.');
+                    parts[0] = formatNumber(parseFloat(parts[0]) || 0);
+                    e.target.value = parts.join('.');
+                }
+            });
+
+            // Remove formatting on focus for easier editing
+            input.addEventListener('focus', function(e) {
+                let value = e.target.value.replace(/,/g, '');
+                if (value && value !== '0') {
+                    e.target.value = value;
+                }
+            });
+
+            // Reformat on blur
+            input.addEventListener('blur', function(e) {
+                let value = parseFormattedNumber(e.target.value);
+                if (value > 0) {
+                    e.target.value = formatNumber(value);
+                }
+            });
+        });
+        
+        document.getElementById("landedCostForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            // Collect all form data matching the bean structure
+            	cartTax.token = document.getElementById("token").value,
+            	cartTax.userId = document.getElementById("userId").value,
+			
+            	cartTax.fob = parseNumber(document.getElementById("FOB").value),
+            	cartTax.freight = parseNumber(document.getElementById("Freight").value),
+            	cartTax.insurance = parseNumber(document.getElementById("Insurance").value),
+			
+            	cartTax.importRate = parseNumber(document.getElementById("ImportRate").value),
+			
+            	cartTax.carType = document.getElementById("carType").value,
+			
+            	cartTax.engine = parseNumber(document.getElementById("engine").value),
+			
+            	cartTax.year = Number(document.getElementById("year").value),
+			
+            	cartTax.domesticTransport = parseNumber(document.getElementById("domesticTransport").value)
+
+            console.log("Submitting data:", cartTax);
+
+            try {
+                const res = await fetch("/api/car-tax/calc", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(cartTax)
+                });
+
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+
+                const data = await res.json();
+                
+                console.log("Response data:", data);
+
+                // Format currency helper
+                function f(n) { 
+                    return new Intl.NumberFormat('vi-VN').format(n) + " VND"; 
+                }
+
+                // Build result HTML with all response data
+                let html = `
+                    <h3>📊 Kết quả tính toán</h3>
+
+                    <div class="step-title">1️⃣ CIF (Cost, Insurance, Freight)</div>
+                    <div><b>CIF:</b> ${f(data.CIF || 0)}</div>
+                    <div style="font-size:13px; color:#666; margin-top:4px;">
+                        FOB + Freight + Insurance = ${f(cartTax.fob)} + ${f(cartTax.freight)} + ${f(cartTax.insurance)}
+                    </div>
+                    <hr>
+
+                    <div class="step-title">2️⃣ Thuế nhập khẩu (Import Tax)</div>
+                    <div><b>Import Tax:</b> ${f(data.ImportTax || 0)}</div>
+                    <div style="font-size:13px; color:#666; margin-top:4px;">
+                        CIF × ${cartTax.importRate}% = ${f(data.CIF || 0)} × ${cartTax.importRate}%
+                    </div>
+                    <hr>
+
+                    <div class="step-title">3️⃣ Thuế tiêu thụ đặc biệt (Excise Tax / TTĐB)</div>
+                    <div><b>Excise Tax:</b> ${f(data.ExciseTax || 0)}</div>
+                    <div style="font-size:13px; color:#666; margin-top:4px;">
+                        Loại xe: ${cartTax.carType} | Dung tích: ${cartTax.engine} cm³
+                    </div>
+                    ${data.ExciseTaxRate ? `<div style="font-size:13px; color:#667eea; margin-top:4px;">
+                        Thuế suất áp dụng: ${data.ExciseTaxRate}%
+                    </div>` : ''}
+                    <hr>
+
+                    <div class="step-title">4️⃣ VAT 10%</div>
+                    <div><b>VAT:</b> ${f(data.VAT || 0)}</div>
+                    <div style="font-size:13px; color:#666; margin-top:4px;">
+                        (CIF + Import Tax + Excise Tax) × 10%
+                    </div>
+                    <hr>
+
+                    <div class="step-title" style="font-size:20px; color:#667eea;">
+                        💰 <b>Tổng chi phí (Total Landed Cost):</b> ${f(data.Total  + cartTax.domesticTransport || 0)}
+                    </div>
+                    
+                    ${data.RegistrationFee ? `
+                    <hr>
+                    <div class="step-title">5️⃣ Lệ phí trước bạ (Registration Fee)</div>
+                    <div><b>Registration Fee:</b> ${f(data.RegistrationFee)}</div>
+                    ` : ''}
+                    
+                    ${data.GrandTotal ? `
+                    <div class="step-title" style="font-size:18px; color:#764ba2; margin-top:12px;">
+                        🏁 <b>Tổng cộng toàn bộ:</b> ${f(data.GrandTotal)}
+                    </div>
+                    ` : ''}
+                `;
+
+                let resultDiv = document.getElementById("result");
+                resultDiv.innerHTML = html;
+                resultDiv.classList.add("show");
+                resultDiv.style.display = "block";
+
+                // Smooth scroll to result
+                resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            } catch (error) {
+                console.error("Error:", error);
+                
+                let resultDiv = document.getElementById("result");
+                resultDiv.innerHTML = `
+                    <h3 style="color:#e74c3c;">❌ Lỗi khi tính toán</h3>
+                    <p style="color:#666; margin-top:12px;">
+                        Không thể kết nối đến server hoặc có lỗi xảy ra. Vui lòng kiểm tra:
+                    </p>
+                    <ul style="margin-top:12px; padding-left:20px; color:#666;">
+                        <li>Kết nối mạng</li>
+                        <li>API endpoint có đang hoạt động</li>
+                        <li>Dữ liệu nhập vào có đúng định dạng</li>
+                    </ul>
+                    <p style="margin-top:12px; font-size:13px; color:#999;">
+                        Chi tiết lỗi: ${error.message}
+                    </p>
+                `;
+                resultDiv.classList.add("show");
+                resultDiv.style.display = "block";
+            }
+        });
+    </script>
+</body>
+</html>

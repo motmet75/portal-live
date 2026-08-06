@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - E-Commerce Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .language-selector {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .language-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .language-option:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .language-option.active {
+            background: white;
+            border: 2px solid rgba(118, 75, 162, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .language-option .flag {
+            font-size: 1.5em;
+        }
+
+        .language-option .lang-text {
+            color: white;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .language-option.active .lang-text {
+            color: #764ba2;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .pricing-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .plan-name {
+            font-size: 1.8em;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .price {
+            font-size: 3em;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .price span {
+            font-size: 0.4em;
+            color: #666;
+            font-weight: normal;
+        }
+
+        .features-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: #764ba2;
+            margin-bottom: 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+
+        .feature-list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .feature-link {
+            color: inherit;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .feature-link:hover {
+            color: #667eea;
+        }
+
+        .feature-link strong {
+            color: #764ba2;
+            transition: color 0.3s;
+        }
+
+        .feature-link:hover strong {
+            color: #667eea;
+            text-decoration: underline;
+        }
+
+        .bonus-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cta-button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 20px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .note {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        /* Popup Styles */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.3s;
+        }
+
+        .popup-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .popup-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.3s;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 2em;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s, transform 0.3s;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-btn:hover {
+            color: #667eea;
+            background: #f0f0f0;
+            transform: rotate(90deg);
+        }
+
+        .popup-title {
+            font-size: 2em;
+            color: #764ba2;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .popup-subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .contact-item {
+            background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .contact-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .contact-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .contact-item h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .contact-link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .contact-link:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .qr-item {
+            grid-column: span 1;
+        }
+
+        .qr-code {
+            margin: 15px auto;
+            width: 120px;
+            height: 120px;
+            border: 3px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .qr-instruction {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .pricing-card {
+                padding: 30px 20px;
+            }
+
+            .price {
+                font-size: 2.5em;
+            }
+
+            .popup-content {
+                padding: 30px 20px;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .qr-item {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="language-selector">
+            <div class="language-option active" data-lang="en" onclick="switchLanguage('en')">
+                <span class="flag">🇬🇧</span>
+                <span class="lang-text">English</span>
+            </div>
+            <div class="language-option" data-lang="vi" onclick="switchLanguage('vi')">
+                <span class="flag">🇻🇳</span>
+                <span class="lang-text">Tiếng Việt</span>
+            </div>
+        </div>
+
+        <div class="header">
+            <h1 data-en="Simple, Transparent Pricing" data-vi="Bảng Giá Rõ Ràng, Minh Bạch">Simple, Transparent Pricing</h1>
+            <p data-en="Everything you need to grow your online business" data-vi="Mọi thứ bạn cần để phát triển kinh doanh trực tuyến">Everything you need to grow your online business</p>
+        </div>
+
+			<div class="features-section" style="color:white;"> 
+                    <li><a style="color:white;" href="/home" class="feature-link"><strong data-en="Home" data-vi="Trang Chủ">Home</strong></a> <span data-en="- Auto transfer products from e-commerce platforms with free template usage" data-vi="- Tự động chuyển sản phẩm từ các nền tảng thương mại điện tử với mẫu miễn phí">- Auto transfer products from e-commerce platforms with free template usage</span></li>
+            </div>
+        <div class="pricing-card">
+            <div class="plan-name" data-en="Advanced Plan" data-vi="Gói cơ bản">Basic Plan</div>
+            <div class="price"><span data-en="/month" data-vi="/tháng"></span></div>
+
+            <div class="features-section">
+                <div class="section-title" data-en="Core Features" data-vi="Tính Năng Cốt Lõi">Core Features</div>
+                <ul class="feature-list">
+                    <li><a href="#ecommerce" class="feature-link"><strong data-en="E-Commerce Shopping Platform" data-vi="Nền Tảng Thương Mại Điện Tử">E-Commerce Shopping Platform</strong></a> <span data-en="- Auto transfer products from e-commerce platforms with free template usage" data-vi="- Tự động chuyển sản phẩm từ các nền tảng thương mại điện tử với mẫu miễn phí">- Auto transfer products from e-commerce platforms with free template usage</span></li>
+                    <li><a href="#seo" class="feature-link"><strong data-en="SEO Article Generation" data-vi="Tạo Bài Viết SEO">SEO Article Generation</strong></a> <span data-en="- AI-powered content creation with remote publishing and scheduled Facebook posting" data-vi="- Tạo nội dung AI với đăng bài từ xa và lên lịch Facebook">- AI-powered content creation with remote publishing and scheduled Facebook posting</span></li>
+                    <li><a href="#warehouse" class="feature-link"><strong data-en="Simple Warehouse Management" data-vi="Quản Lý Kho Đơn Giản">Simple Warehouse Management</strong></a> <span data-en="- Track inventory with QR code scanning and management" data-vi="- Theo dõi hàng tồn kho với quét mã QR và quản lý">- Track inventory with QR code scanning and management</span></li>
+                </ul>
+            </div>
+
+            <div class="features-section">
+                <div class="section-title">
+                    <span data-en="Advanced Bonus Features" data-vi="Tính Năng Nâng Cao Thêm">Advanced Bonus Features</span>
+                    <span class="bonus-badge" data-en="Included" data-vi="Bao Gồm">Included</span>
+                </div>
+                <ul class="feature-list">
+                    <li><a href="#email-marketing" class="feature-link"><strong data-en="Email Marketing" data-vi="Tiếp Thị Email">Email Marketing</strong></a> <span data-en="- Send up to 500 emails per day at no additional cost" data-vi="- Gửi tới 500 email mỗi ngày miễn phí">- Send up to 500 emails per day at no additional cost</span></li>
+                    <li><a href="#workflow" class="feature-link"><strong data-en="Workflow Management" data-vi="Quản Lý Quy Trình">Workflow Management</strong></a> <span data-en="- Collaborate with team members and customers with automated email reminders" data-vi="- Workflow làm việc với thành viên trong công ty và khách hàng với nhắc nhở email tự động">- Collaborate with team members and customers with automated email reminders</span></li>
+                    <li><a href="#hosting" class="feature-link"><strong data-en="Free Hosting" data-vi="Lưu Trữ Miễn Phí">Free Hosting</strong></a> <span data-en="- Up to 1.5GB of storage (approximately 3,000 product images)" data-vi="- Lên tới 1.5GB dung lượng (khoảng 3,000 hình ảnh sản phẩm)">- Up to 1.5GB of storage (approximately 3,000 product images)</span></li>
+                    <li><a href="#backup" class="feature-link"><strong data-en="Automated Backups" data-vi="Sao Lưu Tự Động">Automated Backups</strong></a> <span data-en="- Weekly data backups and special update backups for peace of mind" data-vi="- Sao lưu dữ liệu hàng tuần và sao lưu cập nhật đặc biệt an tâm an toàn dữ liệu">- Weekly data backups and special update backups for peace of mind</span></li>
+                </ul>
+            </div>
+
+            <button class="cta-button" onclick="openContactPopup()" data-en="Get Started Now" data-vi="Bắt Đầu Ngay">Get Started Now</button>
+        </div>
+
+        <div class="note" data-en="No hidden fees • Cancel anytime • 30-day money-back guarantee" data-vi="Không phí ẩn • Hủy bất cứ lúc nào • Đảm bảo hoàn tiền trong 30 ngày">
+            No hidden fees • Cancel anytime • 30-day money-back guarantee
+        </div>
+    </div>
+
+    <!-- Contact Popup -->
+    <div id="contactPopup" class="popup-overlay">
+        <div class="popup-content">
+            <button class="close-btn" onclick="closeContactPopup()">&times;</button>
+            <h2 class="popup-title" data-en="Contact Us" data-vi="Liên Hệ Chúng Tôi">Contact Us</h2>
+            <p class="popup-subtitle" data-en="Choose your preferred way to get in touch" data-vi="Chọn cách thức liên hệ bạn ưa thích">Choose your preferred way to get in touch</p>
+            
+            <div class="contact-grid">
+                <!-- Phone -->
+                <div class="contact-item">
+                    <div class="contact-icon">📞</div>
+                    <h3 data-en="Phone" data-vi="Điện Thoại">Phone</h3>
+                    <a href="tel:+84123456789" class="contact-link">+84 909 970 318</a>
+                </div>
+
+                <!-- Email -->
+                <div class="contact-item">
+                    <div class="contact-icon">📧</div>
+                    <h3 data-en="Email" data-vi="Email">Email</h3>
+                    <a href="mailto:services@anhmedia.vn" class="contact-link">services@anhmedia.vn</a>
+                </div>
+
+                <!-- Ticket Center -->
+                <div class="contact-item">
+                    <div class="contact-icon">🎫</div>
+                    <h3 data-en="Ticket Center" data-vi="Trung Tâm Hỗ Trợ">Ticket Center</h3>
+                    <a href="https://anhmedia.vn/app/ticketcenter" target="_blank" class="contact-link" data-en="Open Ticket" data-vi="Mở Ticket">Open Ticket</a>
+                </div>
+
+                <!-- LinkedIn -->
+                <div class="contact-item">
+                    <div class="contact-icon">💼</div>
+                    <h3>LinkedIn</h3>
+                    <a href="https://www.linkedin.com/in/jasonatanhmedia/" target="_blank" class="contact-link" data-en="Connect" data-vi="Kết Nối">Connect</a>
+                </div>
+
+ 				<!-- WhatsApp -->
+                <div class=""  style="width: 260px; height: 300px; border: 2px solid #e0e0e0;
+  border-radius: 15px;
+  text-align: center;" >
+                    <div class="contact-icon">💬</div>
+                    <h3>WhatsApp</h3>
+                    <div class=""  style="width: 245px; height: 245px;border: 2px solid #e0e0e0;
+  border-radius: 15px;
+  text-align: center;">
+                        <img src="https://anhmedia.vn/image/1FL3kqXlguRDbWfkIPyIJDAXRpsT2wCbiot8WqccpMLk3DuFwBg.jpeg" alt="WhatsApp QR Code" style="width: 245px; height: 245px;">
+                    </div>
+                    <p class="qr-instruction" data-en="Scan to add" data-vi="Quét để thêm">Scan to add</p>
+                </div>
+                
+                <!-- Line QR -->
+                 <div class=""  style="width: 260px; height: 300px;border: 2px solid #e0e0e0;
+  border-radius: 15px;
+  text-align: center;" >
+                    <div class="contact-icon">💬</div>
+                    <h3>LINE</h3>
+                    <div class=""  style="width: 245px; height: 245px;">
+                        <img src="https://anhmedia.vn/image/1xXq4oAK_EWS3FG2fcwX7Jtw4zh8vEaPMIc-kquh0lXTSxd3nmA.jpeg" alt="Line QR Code"  style="width: 245px; height: 245px;">
+                    </div>
+                    <p class="qr-instruction" data-en="Scan to add" data-vi="Quét để thêm">Scan to add</p>
+                </div>
+
+                <!-- WeChat QR -->
+                  <div class=""  style="width: 260px; height: 300px;border: 2px solid #e0e0e0;
+  border-radius: 15px;
+  text-align: center;" >
+                    <div class="contact-icon">💬</div>
+                    <h3>WeChat</h3>
+                    <div class=""  style="width: 260px; height: 250px;">
+                        <img src="https://anhmedia.vn/image/1rBuFXH8qKjbt5pvo0Y-WJN-hHq0GdMxzCKLisP-LRKyvK-Rxmw.jpeg" alt="WeChat QR Code"  style="width: 245px; height: 245px;">
+                    </div>
+                    <p class="qr-instruction" data-en="Scan to add" data-vi="Quét để thêm">Scan to add</p>
+                </div>
+
+                <!-- Zalo QR -->
+                  <div class=""  style="width: 260px; height: 300px;" >
+                    <div class="contact-icon">💬</div>
+                    <h3>Zalo</h3>
+                    <div class=""  style="width: 245px; height: 245px;">
+                        <img src="https://anhmedia.vn/image/1M7T3yzW3AewJM7KFnIXCbSK8zc3-DasP1w3OT39pqBDiCXvZ3g.jpeg" alt="Zalo QR Code"  style="width: 245px; height: 245px;">
+                    </div>
+                    <p class="qr-instruction" data-en="Scan to add" data-vi="Quét để thêm">Scan to add</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchLanguage(lang) {
+            // Update active state
+            document.querySelectorAll('.language-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
+
+            // Update all translatable elements
+            document.querySelectorAll('[data-en]').forEach(element => {
+                const text = element.getAttribute(`data-${lang}`);
+                if (text) {
+                    element.textContent = text;
+                }
+            });
+        }
+
+        function openContactPopup() {
+            document.getElementById('contactPopup').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeContactPopup() {
+            document.getElementById('contactPopup').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close popup when clicking outside
+        document.addEventListener('click', function(event) {
+            const popup = document.getElementById('contactPopup');
+            if (event.target === popup) {
+                closeContactPopup();
+            }
+        });
+
+        // Close popup with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeContactPopup();
+            }
+        });
+
+        // Load saved language preference on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('preferredLanguage');
+            if (savedLang) {
+                switchLanguage(savedLang);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="anhmedia :: head"></head>
+<body>
+<link rel="stylesheet" th:href="'/' + ${domain} + '/css/modern.css'">
+<style>
+  .am-blog { --blue:#356ba2; --dark:#0d1b2a; --muted:#64748b; --line:#dbeafe; --surface:#f0f7ff; font-family:Montserrat,Arial,sans-serif; }
+  .am-blog-hero { padding:72px 0; color:#fff; background:linear-gradient(135deg,#0d1b2a,#1e4a75); }
+  .am-blog-hero-inner { max-width:760px; }
+  .am-blog-kicker { display:inline-flex; align-items:center; gap:8px; padding:7px 14px; border:1px solid rgba(153,204,255,.35); border-radius:999px; color:#99ccff; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+  .am-blog-hero h1 { margin:16px 0 10px; color:#fff; font-size:clamp(32px,5vw,54px); line-height:1.12; font-weight:800; }
+  .am-blog-hero p { max-width:650px; margin:0; color:rgba(255,255,255,.7); font-size:16px; line-height:1.75; }
+  .am-blog-main { padding:64px 0 82px; background:#f8fbff; }
+  .am-blog-toolbar { display:flex; align-items:end; justify-content:space-between; gap:20px; margin-bottom:28px; }
+  .am-blog-toolbar h2 { margin:0; color:var(--dark); font-size:26px; font-weight:800; }
+  .am-blog-toolbar p { margin:6px 0 0; color:var(--muted); }
+  .am-blog-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:26px; }
+  .am-post { height:100%; overflow:hidden; border:1px solid var(--line); border-radius:18px; background:#fff; box-shadow:0 6px 24px rgba(53,107,162,.1); transition:.3s ease; }
+  .am-post:hover { transform:translateY(-6px); box-shadow:0 16px 40px rgba(53,107,162,.18); }
+  .am-post-image { display:block; aspect-ratio:16/10; overflow:hidden; background:var(--surface); }
+  .am-post-image img { width:100%; height:100%; object-fit:cover; transition:transform .5s ease; }
+  .am-post:hover .am-post-image img { transform:scale(1.045); }
+  .am-post-body { padding:22px; }
+  .am-post-meta { display:flex; align-items:center; gap:12px; color:var(--muted); font-size:12px; }
+  .am-post-meta i { color:var(--blue); margin-right:4px; }
+  .am-post h3 { margin:13px 0 10px; font-size:18px; line-height:1.45; font-weight:700; }
+  .am-post h3 a { color:var(--dark); text-decoration:none; }
+  .am-post-link { display:inline-flex; align-items:center; gap:7px; margin-top:8px; color:var(--blue); font-size:13px; font-weight:700; text-decoration:none; }
+  .am-blog-empty { grid-column:1/-1; padding:60px 24px; border:1px dashed #99ccff; border-radius:18px; background:#fff; color:var(--muted); text-align:center; }
+  .am-pagination { margin:28px 0; display:flex; justify-content:center; }
+  @media(max-width:900px){.am-blog-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  @media(max-width:600px){.am-blog-hero{padding:52px 0}.am-blog-main{padding:42px 0 64px}.am-blog-grid{grid-template-columns:1fr}.am-blog-toolbar{display:block}}
+</style>
+
+<header th:replace="anhmedia :: topheader"></header>
+
+<main class="am-blog">
+  <section class="am-blog-hero">
+    <div class="container">
+      <div class="am-blog-hero-inner">
+        <div class="am-blog-kicker"><i class="fa fa-lightbulb-o"></i> AnhMedia Insights</div>
+        <h1 th:text="${page != null and page.articleTitle != null ? page.articleTitle : 'Bài viết & kiến thức'}">Bài viết &amp; kiến thức</h1>
+        <p>Ý tưởng thực tế về thương mại điện tử, tự động hóa nội dung và cách phát triển doanh nghiệp hiệu quả hơn.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="am-blog-main">
+    <div class="container">
+      <div class="am-blog-toolbar">
+        <div><h2>Bài viết mới nhất</h2><p>Khám phá hướng dẫn, xu hướng và câu chuyện từ AnhMedia.vn.</p></div>
+      </div>
+      <div class="am-pagination"><div th:replace="fragments :: pageable"></div></div>
+      <div class="am-blog-grid">
+        <article class="am-post" th:each="article : ${articles}">
+          <a class="am-post-image" th:href="${midpath} + '/' + ${article.articleLink}">
+            <img th:src="${article.articleThumnailURLWithHost2}" th:alt="${article.articleTitle}" loading="lazy">
+          </a>
+          <div class="am-post-body">
+            <div class="am-post-meta">
+              <span><i class="fa fa-user"></i><span th:text="${article.username}">AnhMedia</span></span>
+              <span><i class="fa fa-calendar"></i><span th:text="${#temporals.format(article.articleTime, 'dd-MM-yyyy')}">01-01-2026</span></span>
+            </div>
+            <h3><a th:href="${midpath} + '/' + ${article.articleLink}" th:text="${article.articleTitle}">Article title</a></h3>
+            <a class="am-post-link" th:href="${midpath} + '/' + ${article.articleLink}">Đọc bài viết <i class="fa fa-arrow-right"></i></a>
+          </div>
+        </article>
+        <div class="am-blog-empty" th:if="${articles == null or articles.isEmpty()}"><i class="fa fa-file-text-o"></i><br>Chưa có bài viết để hiển thị.</div>
+      </div>
+      <div class="am-pagination"><div th:replace="fragments :: pageable"></div></div>
+    </div>
+  </section>
+</main>
+
+<div th:replace="anhmedia :: footer"></div>
+<script th:src="'/' + ${domain} + '/js/jquery.min.js'"></script>
+<script th:src="'/' + ${domain} + '/js/bootstrap.min.js'"></script>
+<script th:src="'/' + ${domain} + '/js/main.js'"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+.anhmedia-main-banner {
+  width: 100%;
+  padding-top: 76px;
+  background: #f4f8fb;
+}
+
+.anhmedia-main-banner__link,
+.anhmedia-main-banner__image {
+  display: block;
+  width: 100%;
+}
+
+.anhmedia-main-banner__image {
+  height: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 760px) {
+  .anhmedia-main-banner {
+    padding-top: 64px;
+  }
+}

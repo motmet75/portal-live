@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV - Từ Huỳnh Anh</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* LEFT SIDEBAR */
+        .sidebar {
+            background-color: #1a3a52;
+            color: white;
+            padding: 40px 25px;
+        }
+
+        .avatar-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4a7ba7 0%, #6fa3c1 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            color: white;
+            font-weight: bold;
+            border: 4px solid white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar-section {
+            margin-bottom: 35px;
+        }
+
+        .sidebar-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .contact-item {
+            font-size: 0.9em;
+            margin-bottom: 12px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .contact-item strong {
+            display: block;
+            margin-bottom: 3px;
+            font-weight: 600;
+            color: #a8d8ff;
+        }
+
+        .contact-item a {
+            color: white;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            transition: border-color 0.3s;
+        }
+
+        .contact-item a:hover {
+            border-bottom-color: white;
+        }
+
+        .education-item {
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .education-degree {
+            font-weight: 600;
+            color: #a8d8ff;
+            margin-bottom: 3px;
+        }
+
+        .education-year {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .skill-category {
+            margin-bottom: 15px;
+        }
+
+        .skill-category-title {
+            font-weight: 600;
+            color: #a8d8ff;
+            font-size: 0.9em;
+            margin-bottom: 6px;
+        }
+
+        .skill-item {
+            font-size: 0.85em;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 4px;
+            padding-left: 10px;
+        }
+
+        /* RIGHT MAIN CONTENT */
+        .main-content {
+            padding: 40px;
+        }
+
+        .header-section {
+            margin-bottom: 30px;
+            border-bottom: 3px solid #1a3a52;
+            padding-bottom: 25px;
+        }
+
+        .name {
+            font-size: 2.8em;
+            font-weight: 700;
+            color: #1a3a52;
+            margin-bottom: 5px;
+        }
+
+        .job-title-header {
+            font-size: 1.3em;
+            color: #2d5a7b;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .professional-summary {
+            color: #555;
+            line-height: 1.8;
+            font-size: 0.95em;
+            margin-top: 20px;
+        }
+
+        section {
+            margin-bottom: 35px;
+        }
+
+        .section-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #1a3a52;
+            border-bottom: 3px solid #1a3a52;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .subsection {
+            margin-bottom: 25px;
+        }
+
+        .job-title {
+            font-weight: 700;
+            color: #1a3a52;
+            font-size: 1.1em;
+        }
+
+        .company-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .job-period {
+            color: #666;
+            font-style: italic;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+        }
+
+        .job-description {
+            color: #555;
+            margin-left: 0;
+            line-height: 1.7;
+        }
+
+        .job-description li {
+            margin-bottom: 8px;
+            margin-left: 20px;
+        }
+
+        .info-item {
+            margin-bottom: 15px;
+        }
+
+        .info-item strong {
+            color: #1a3a52;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .info-item p {
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        @media (max-width: 968px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                padding: 30px 25px;
+                display: grid;
+                grid-template-columns: auto 1fr;
+                gap: 30px;
+            }
+
+            .avatar-container {
+                margin-bottom: 0;
+            }
+
+            .sidebar-content {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 30px;
+            }
+
+            .sidebar-section {
+                margin-bottom: 0;
+                flex: 1;
+                min-width: 200px;
+            }
+
+            .name {
+                font-size: 2em;
+            }
+
+            .main-content {
+                padding: 30px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                padding: 25px;
+                display: block;
+            }
+
+            .avatar-container {
+                margin-bottom: 25px;
+            }
+
+            .avatar {
+                width: 120px;
+                height: 120px;
+                font-size: 48px;
+            }
+
+            .name {
+                font-size: 1.6em;
+            }
+
+            .job-title-header {
+                font-size: 1.1em;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- LEFT SIDEBAR -->
+        <div class="sidebar">
+            <div class="avatar-container">
+                <div class="avatar">TH</div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">Contact</div>
+                <div class="contact-item">
+                    <strong>Phone</strong>
+                    0968765196
+                </div>
+                <div class="contact-item">
+                    <strong>Email</strong>
+                    <a href="mailto:business@anhmedia.vn">business@anhmedia.vn</a>
+                </div>
+                <div class="contact-item">
+                    <strong>LinkedIn</strong>
+                    <a href="https://www.linkedin.com/in/huynhanh-jason">huynhanh-jason</a>
+                </div>
+                <div class="contact-item">
+                    <strong>Website</strong>
+                    <a href="https://anhmedia.vn">anhmedia.vn</a>
+                </div>
+            </div>
+
+            <!-- Education -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">Education</div>
+                <div class="education-item">
+                    <div class="education-degree">Bachelor's Degree</div>
+                    <div>Software Engineering</div>
+                    <div class="education-year">Saigon University</div>
+                    <div class="education-year">2008 – 2012</div>
+                </div>
+            </div>
+
+            <!-- Languages -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">Languages</div>
+                <div class="contact-item">
+                    <strong>English</strong>
+                    Strong communication for user support & business interaction
+                </div>
+            </div>
+
+            <!-- Skills -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">Skills</div>
+                
+                <div class="skill-category">
+                    <div class="skill-category-title">Operating Systems</div>
+                    <div class="skill-item">• Windows</div>
+                    <div class="skill-item">• Linux</div>
+                    <div class="skill-item">• Mac OS</div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-category-title">Cloud & Database</div>
+                    <div class="skill-item">• AWS</div>
+                    <div class="skill-item">• Google Cloud</div>
+                    <div class="skill-item">• PostgreSQL</div>
+                    <div class="skill-item">• MySQL</div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-category-title">Programming</div>
+                    <div class="skill-item">• Java</div>
+                    <div class="skill-item">• JavaScript</div>
+                    <div class="skill-item">• SQL</div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-category-title">Applications</div>
+                    <div class="skill-item">• ERP & CRM</div>
+                    <div class="skill-item">• Office 365</div>
+                    <div class="skill-item">• Google Suite</div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-category-title">Soft Skills</div>
+                    <div class="skill-item">• Problem-Solving</div>
+                    <div class="skill-item">• Communication</div>
+                    <div class="skill-item">• Team Collaboration</div>
+                </div>
+            </div>
+
+            <!-- Interests -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">Interests</div>
+                <div class="contact-item" style="font-size: 0.9em;">
+                    Jogging, technology, business process optimization, helping others solve IT challenges
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT MAIN CONTENT -->
+        <div class="main-content">
+            <!-- Header with Name and Job Title -->
+            <div class="header-section">
+                <div class="name">TỪ HUỲNH ANH</div>
+                <div class="job-title-header">Sales Manager | IT System Developer</div>
+                <div class="professional-summary">
+                    Dedicated IT professional with strong experience in system administration, end-user support, and IT solutions. Skilled in troubleshooting hardware/software issues, managing business applications, and delivering reliable technical assistance in fast-paced environments. Proven ability to communicate effectively with users, resolve incidents promptly, and implement IT solutions that improve efficiency.
+                </div>
+            </div>
+
+            <!-- Work Experience -->
+            <section>
+                <div class="section-title">Work Experience</div>
+
+                <div class="subsection">
+                    <div class="company-name">Tuong Hoa Import Export Company</div>
+                    <div class="job-title">Sales Manager | IT System Developer</div>
+                    <div class="job-period">2020 – Present</div>
+                    <ul class="job-description">
+                        <li>Provided IT support for internal teams, resolving system, database, and application issues</li>
+                        <li>Built and maintained a customer service website and business management system</li>
+                        <li>Supported multi-database architecture on AWS & Google Cloud for data storage and recovery</li>
+                        <li>Delivered user training and documentation for business applications</li>
+                    </ul>
+                </div>
+
+                <div class="subsection">
+                    <div class="company-name">Pouyuen Vietnam</div>
+                    <div class="job-title">Ordering Team Lead</div>
+                    <div class="job-period">2017 – 2020</div>
+                    <ul class="job-description">
+                        <li>Led a team handling ERP order systems (Adidas, Reebok brands)</li>
+                        <li>Troubleshot ERP issues, supported team members with IT-related problems</li>
+                        <li>Coordinated with IT to implement system improvements and reporting tools</li>
+                        <li>Ensured business users received accurate data and smooth IT process support</li>
+                    </ul>
+                </div>
+
+                <div class="subsection">
+                    <div class="job-title">Ordering Team Member</div>
+                    <div class="job-period">2013 – 2016</div>
+                    <ul class="job-description">
+                        <li>Gained experience in ERP systems and reporting</li>
+                        <li>Supported daily IT-related operations within the ordering department</li>
+                    </ul>
+                </div>
+
+                <div class="subsection">
+                    <div class="company-name">Success Software Services</div>
+                    <div class="job-title">Software Engineer</div>
+                    <div class="job-period">2012 – 2013</div>
+                    <ul class="job-description">
+                        <li>Provided technical support for business clients during software delivery</li>
+                        <li>Assisted in troubleshooting issues between Vietnam and Netherlands teams</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Learning Interests -->
+            <section>
+                <div class="section-title">Learning Interests & Goals</div>
+                <div class="info-item">
+                    <p>IT Service Management, Cloud Support, Continuous Improvement (Lean/Agile mindset)</p>
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+</html>

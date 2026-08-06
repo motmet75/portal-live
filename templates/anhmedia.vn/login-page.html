@@ -1,0 +1,212 @@
+<html lang="en" class="nivo-lightbox-notouch"
+	xmlns:th="https://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<link th:href="'/' + ${domain} + '/css/login.css'" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            font-family: 'Be Vietnam Pro', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #0d1b2a 0%, #1e4a75 60%, #356ba2 100%);
+        }
+        .login-container {
+            background: white;
+            padding: 48px 44px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(13,27,42,.35);
+            text-align: center;
+            width: 100%;
+            max-width: 420px;
+        }
+        .login-container h2, .login-container .title {
+            font-weight: 800;
+            color: #0d1b2a;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+        .login-container p { color: #64748b; font-size: .9rem; margin-bottom: 28px; }
+        .google-btn, .social-login-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background-color: white;
+            border: 1px solid #dadce0;
+            border-radius: 10px;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            font-size: .9rem;
+            color: #3c4043;
+            font-weight: 600;
+            transition: all .25s;
+            width: 100%;
+            text-decoration: none;
+        }
+        .google-btn:hover, .social-login-btn:hover {
+            background-color: #f0f7ff;
+            border-color: #356ba2;
+            box-shadow: 0 4px 16px rgba(53,107,162,.18);
+        }
+        .google-btn img { width: 20px; height: 20px; }
+        .social-login-stack { display: grid; gap: 10px; }
+        .social-login-btn.facebook-btn { background: #1877f2; border-color: #1877f2; color: #fff; }
+        .social-login-btn.facebook-btn:hover { background: #166fe5; border-color: #166fe5; box-shadow: 0 4px 16px rgba(24,119,242,.24); }
+        .social-login-btn.tiktok-btn { background: #111; border-color: #111; color: #fff; }
+        .social-login-btn.tiktok-btn:hover { background: #000; border-color: #000; box-shadow: 0 4px 16px rgba(0,0,0,.24); }
+        .social-login-btn.linkedin-btn { background: #0a66c2; border-color: #0a66c2; color: #fff; }
+        .social-login-btn.linkedin-btn:hover { background: #004182; border-color: #004182; box-shadow: 0 4px 16px rgba(10,102,194,.24); }
+        .social-icon {
+            width: 20px; height: 20px; display: inline-flex;
+            align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1rem; line-height: 1;
+        }
+        .am-login-logo {
+            width: 60px; height: 60px; border-radius: 14px;
+            background: linear-gradient(135deg, #356ba2, #99ccff);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+        }
+        .am-login-logo img { width: 38px; height: 38px; object-fit: contain; }
+        .login-divider {
+            display: flex; align-items: center; gap: 12px;
+            color: #94a3b8; font-size: .78rem; margin: 20px 0;
+        }
+        .login-divider::before, .login-divider::after {
+            content: ''; flex: 1; height: 1px; background: #e2e8f0;
+        }
+        .social-login-error {
+            margin: 0 0 14px;
+            padding: 10px 12px;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+    </style>
+</head>
+
+<body>
+
+
+	<!-- Start Hero Section -->
+	<div  >
+	  <div class="wrapper" th:if="${session.username == null}">
+      <div class="title-text">
+        <div class="title login">Đăng nhập</div>
+        <div class="title signup">Tạo tài khoản</div>
+      </div>
+      <div class="form-container">
+        <div class="slide-controls">
+          <input type="radio" name="slide" id="login" checked>
+          <input type="radio" name="slide" id="signup">
+          <label for="login" class="slide login">Đăng nhập</label>
+          <label for="signup" class="slide signup">Đăng ký nhanh</label>
+          <div class="slider-tab"></div>
+        </div>
+        <div class="form-inner">
+          <form id="loginForm" class="login">
+            <div class="field">
+              <input type="text" name="email" placeholder="Tên đăng nhập hoặc Email" required>
+            </div>
+            <div class="field">
+              <input type="password" name="password" placeholder="Mật khẩu" required>
+            </div>
+             <span class="error-message1" style="color: red; display: none;"></span>
+            <div class="pass-link"><a href="/forgotpassword">Quên mật khẩu?</a></div>
+            <div class="field btn">
+              <input type="button" class="btn-layer-login" value="Đăng nhập">
+            </div>
+            <div class="signup-link">Chưa là thành viên? <a href="">Đăng ký nhanh bằng email</a></div>
+          </form>
+          
+          <form id="sinupForm" class="signup">
+          <a href="/register"> Đăng ký với username tự chọn</a>
+            <div class="field">
+              <input type="text"  name="email" placeholder="Email" required>
+            </div>
+              <input type="hidden"  name="loginform" value="simple">
+            <div class="field">
+              <input type="password"  name="password" placeholder="Password" required>
+            </div>
+            <div class="field">
+              <input type="password"  name="repassword" placeholder="Confirm password" required>
+            </div>
+             <span class="error-message" style="color: red; display: none;"></span>
+            <div class="field btn">
+              <div class="btn-layer"></div>
+              <input type="submit" class="btn-layer-signup" value="Đăng ký">
+            </div>
+           
+            
+          </form>
+          
+        
+			
+        </div>
+      </div>
+       <div class="login-container">
+        <p>Social login</p>
+        <div class="social-login-error" role="alert"
+             th:if="${param.social != null and param.error != null}">
+          Facebook sign-in could not be completed. Please try again or contact support.
+        </div>
+        <div class="social-login-stack">
+          <a href="/oauth2/authorization/google" class="google-btn social-login-btn">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo">
+              Sign in with Google
+          </a>
+          <a href="/oauth2/authorization/facebook" class="social-login-btn facebook-btn">
+              <span class="social-icon">f</span>
+              Sign in with Facebook
+          </a>
+          <a href="/dang-nhap/oauth2/authorization/tiktok?tenant=anhmedia.vn" class="social-login-btn tiktok-btn">
+              <span class="social-icon">TT</span>
+              Sign in with TikTok
+          </a>
+          <a href="/oauth2/authorization/linkedin" class="social-login-btn linkedin-btn">
+              <span class="social-icon">in</span>
+              Sign in with LinkedIn
+          </a>
+        </div>
+    </div>
+    </div>
+    
+    <!-- Include MFA Setup Fragment -->
+	<div th:replace="mfa-setup :: mfaSetup"></div>
+
+	<!-- Include MFA Verify Fragment -->
+	<div th:replace="mfa-verify :: mfaVerify"></div>
+    </div>
+
+	
+
+
+
+	<!-- End Hero Section -->
+
+
+	
+
+	<!-- Start Blog Section -->
+	<!-- End Blog Section -->
+
+
+
+
+	<!-- Start Footer Section -->
+	
+	<!-- End Footer Section -->
+
+
+	<script th:src="'/' + ${domain} + '/js/login.js'"></script>
+</body>
+
+</html>

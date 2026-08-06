@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBM Calculator - Air Freight</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .lang-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .lang-btn {
+            padding: 10px 25px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .lang-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .dimension-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .results {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .result-value {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .info-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 5px;
+        }
+
+        .info-box p {
+            color: #856404;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    </style>
+    <script th:replace="anhmedia :: gtag01"></script>
+	<script th:replace="anhmedia :: gtag02"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="title">CBM Calculator</h1>
+            <p id="subtitle">Air Freight Volumetric Weight Calculator</p>
+        </div>
+
+        <div class="lang-toggle">
+            <button class="lang-btn active" onclick="setLanguage('en')">English</button>
+            <button class="lang-btn" onclick="setLanguage('vi')">Tiếng Việt</button>
+        </div>
+
+        <div class="input-group">
+            <label id="label-unit" for="unit">Unit of Measurement:</label>
+            <select id="unit">
+                <option value="cm">Centimeters (cm)</option>
+                <option value="m">Meters (m)</option>
+                <option value="in">Inches (in)</option>
+            </select>
+        </div>
+
+        <div class="dimension-grid">
+            <div class="input-group">
+                <label id="label-length" for="length">Length:</label>
+                <input type="number" id="length" step="0.01" min="0">
+            </div>
+            <div class="input-group">
+                <label id="label-width" for="width">Width:</label>
+                <input type="number" id="width" step="0.01" min="0">
+            </div>
+            <div class="input-group">
+                <label id="label-height" for="height">Height:</label>
+                <input type="number" id="height" step="0.01" min="0">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label id="label-quantity" for="quantity">Quantity (Pieces):</label>
+            <input type="number" id="quantity" value="1" min="1">
+        </div>
+
+        <div class="input-group">
+            <label id="label-actual-weight" for="actual-weight">Actual Weight (kg):</label>
+            <input type="number" id="actual-weight" step="0.01" min="0" placeholder="Optional">
+        </div>
+
+        <div class="input-group">
+            <label id="label-freight-rate" for="freight-rate">Freight Rate (per kg):</label>
+            <input type="number" id="freight-rate" step="0.01" min="0" placeholder="Optional">
+        </div>
+
+        <button class="calculate-btn" onclick="calculate()" id="calc-btn">Calculate</button>
+
+        <div class="results" id="results">
+            <div class="result-item">
+                <span class="result-label" id="label-cbm">Total CBM:</span>
+                <span class="result-value" id="result-cbm">0 m³</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label" id="label-vol-weight-kg">Volumetric Weight (KG):</span>
+                <span class="result-value" id="result-vol-kg">0 kg</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label" id="label-vol-weight-lbs">Volumetric Weight (LBS):</span>
+                <span class="result-value" id="result-vol-lbs">0 lbs</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label" id="label-vol-weight-us">US Tons:</span>
+                <span class="result-value" id="result-vol-us">0 tons</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label" id="label-vol-weight-uk">UK Tons (Imperial):</span>
+                <span class="result-value" id="result-vol-uk">0 tons</span>
+            </div>
+            <div class="result-item" id="chargeable-weight-row" style="display:none;">
+                <span class="result-label" id="label-chargeable-weight">Chargeable Weight:</span>
+                <span class="result-value" id="result-chargeable-weight">0 kg</span>
+            </div>
+            <div class="result-item" id="total-cost-row" style="display:none;">
+                <span class="result-label" id="label-total-cost">Total Freight Cost:</span>
+                <span class="result-value" id="result-total-cost">0.00</span>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <p id="info-text">Air freight volumetric weight is calculated using the formula: (L × W × H in cm) ÷ 6000. Airlines charge based on whichever is greater: actual weight or volumetric weight.</p>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            en: {
+                title: "CBM Calculator",
+                subtitle: "Air Freight Volumetric Weight Calculator",
+                labelUnit: "Unit of Measurement:",
+                labelLength: "Length:",
+                labelWidth: "Width:",
+                labelHeight: "Height:",
+                labelQuantity: "Quantity (Pieces):",
+                calcBtn: "Calculate",
+                labelCbm: "Total CBM:",
+                labelVolKg: "Volumetric Weight (KG):",
+                labelVolLbs: "Volumetric Weight (LBS):",
+                labelVolUs: "US Tons:",
+                labelVolUk: "UK Tons (Imperial):",
+                labelActualWeight: "Actual Weight (kg):",
+                labelFreightRate: "Freight Rate (per kg):",
+                labelChargeableWeight: "Chargeable Weight:",
+                labelTotalCost: "Total Freight Cost:",
+                infoText: "Air freight volumetric weight is calculated using the formula: (L × W × H in cm) ÷ 6000. Airlines charge based on whichever is greater: actual weight or volumetric weight."
+            },
+            vi: {
+                title: "Máy Tính CBM",
+                subtitle: "Tính Trọng Lượng Thể Tích Hàng Không",
+                labelUnit: "Đơn Vị Đo:",
+                labelLength: "Chiều Dài:",
+                labelWidth: "Chiều Rộng:",
+                labelHeight: "Chiều Cao:",
+                labelQuantity: "Số Lượng (Kiện):",
+                calcBtn: "Tính Toán",
+                labelCbm: "Tổng CBM:",
+                labelVolKg: "Trọng Lượng Thể Tích (KG):",
+                labelVolLbs: "Trọng Lượng Thể Tích (LBS):",
+                labelVolUs: "Tấn Mỹ:",
+                labelVolUk: "Tấn Anh:",
+                labelActualWeight: "Trọng Lượng Thực (kg):",
+                labelFreightRate: "Giá Cước (mỗi kg):",
+                labelChargeableWeight: "Trọng Lượng Tính Cước:",
+                labelTotalCost: "Tổng Cước Phí:",
+                infoText: "Trọng lượng thể tích hàng không được tính theo công thức: (D × R × C tính bằng cm) ÷ 6000. Hãng hàng không tính phí dựa trên giá trị lớn hơn giữa trọng lượng thực tế hoặc trọng lượng thể tích."
+            }
+        };
+
+        let currentLang = 'en';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang];
+            
+            document.getElementById('title').textContent = t.title;
+            document.getElementById('subtitle').textContent = t.subtitle;
+            document.getElementById('label-unit').textContent = t.labelUnit;
+            document.getElementById('label-length').textContent = t.labelLength;
+            document.getElementById('label-width').textContent = t.labelWidth;
+            document.getElementById('label-height').textContent = t.labelHeight;
+            document.getElementById('label-quantity').textContent = t.labelQuantity;
+            document.getElementById('calc-btn').textContent = t.calcBtn;
+            document.getElementById('label-cbm').textContent = t.labelCbm;
+            document.getElementById('label-vol-weight-kg').textContent = t.labelVolKg;
+            document.getElementById('label-vol-weight-lbs').textContent = t.labelVolLbs;
+            document.getElementById('label-vol-weight-us').textContent = t.labelVolUs;
+            document.getElementById('label-vol-weight-uk').textContent = t.labelVolUk;
+            document.getElementById('label-actual-weight').textContent = t.labelActualWeight;
+            document.getElementById('label-freight-rate').textContent = t.labelFreightRate;
+            document.getElementById('label-chargeable-weight').textContent = t.labelChargeableWeight;
+            document.getElementById('label-total-cost').textContent = t.labelTotalCost;
+            document.getElementById('info-text').textContent = t.infoText;
+
+            // Update button active state
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function calculate() {
+            const length = parseFloat(document.getElementById('length').value);
+            const width = parseFloat(document.getElementById('width').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const quantity = parseInt(document.getElementById('quantity').value) || 1;
+            const unit = document.getElementById('unit').value;
+
+            if (!length || !width || !height) {
+                alert(currentLang === 'en' ? 'Please enter all dimensions' : 'Vui lòng nhập đầy đủ kích thước');
+                return;
+            }
+
+            // Convert to centimeters
+            let lengthCm, widthCm, heightCm;
+            switch(unit) {
+                case 'm':
+                    lengthCm = length * 100;
+                    widthCm = width * 100;
+                    heightCm = height * 100;
+                    break;
+                case 'in':
+                    lengthCm = length * 2.54;
+                    widthCm = width * 2.54;
+                    heightCm = height * 2.54;
+                    break;
+                default: // cm
+                    lengthCm = length;
+                    widthCm = width;
+                    heightCm = height;
+            }
+
+            // Calculate CBM (cubic meters)
+            const cbmPerPiece = (lengthCm * widthCm * heightCm) / 1000000;
+            const totalCbm = cbmPerPiece * quantity;
+
+            // Calculate volumetric weight (kg) - Air freight standard: divide by 6000
+            const volWeightKgPerPiece = (lengthCm * widthCm * heightCm) / 6000;
+            const totalVolWeightKg = volWeightKgPerPiece * quantity;
+
+            // Convert to other units
+            const volWeightLbs = totalVolWeightKg * 2.20462;
+            const volWeightUsTons = totalVolWeightKg / 907.185; // US short ton
+            const volWeightUkTons = totalVolWeightKg / 1016.05; // UK long ton
+
+            // Calculate chargeable weight and total cost
+            const actualWeight = parseFloat(document.getElementById('actual-weight').value) || 0;
+            const freightRate = parseFloat(document.getElementById('freight-rate').value) || 0;
+            
+            let chargeableWeight = totalVolWeightKg;
+            if (actualWeight > 0) {
+                chargeableWeight = Math.max(actualWeight, totalVolWeightKg);
+            }
+            
+            const totalCost = freightRate > 0 ? chargeableWeight * freightRate : 0;
+
+            // Display results
+            document.getElementById('result-cbm').textContent = totalCbm.toFixed(4) + ' m³';
+            document.getElementById('result-vol-kg').textContent = totalVolWeightKg.toFixed(2) + ' kg';
+            document.getElementById('result-vol-lbs').textContent = volWeightLbs.toFixed(2) + ' lbs';
+            document.getElementById('result-vol-us').textContent = volWeightUsTons.toFixed(4) + ' tons';
+            document.getElementById('result-vol-uk').textContent = volWeightUkTons.toFixed(4) + ' tons';
+
+            // Show/hide chargeable weight and cost
+            if (actualWeight > 0) {
+                document.getElementById('result-chargeable-weight').textContent = chargeableWeight.toFixed(2) + ' kg';
+                document.getElementById('chargeable-weight-row').style.display = 'flex';
+            } else {
+                document.getElementById('chargeable-weight-row').style.display = 'none';
+            }
+
+            if (freightRate > 0) {
+                document.getElementById('result-total-cost').textContent = totalCost.toFixed(2);
+                document.getElementById('total-cost-row').style.display = 'flex';
+            } else {
+                document.getElementById('total-cost-row').style.display = 'none';
+            }
+
+            document.getElementById('results').classList.add('show');
+        }
+
+        // Allow Enter key to calculate
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') calculate();
+            });
+        });
+    </script>
+</body>
+</html>

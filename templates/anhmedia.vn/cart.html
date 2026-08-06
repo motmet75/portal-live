@@ -1,0 +1,297 @@
+
+<!doctype html>
+<html lang="en">
+<head th:replace="anhmedia :: head"> </head>
+
+<body>
+
+	<!-- Start Header/Navigation -->
+	<header th:fragment="topheader">
+		<!-- TOP HEADER -->
+		<div id="top-header">
+			<div class="container">
+				<ul class="header-links pull-left">
+					<li><i class="fa fa-phone"></i> <a href="#"
+						th:text="${client.clientPhone}"> </a></li>
+					<li><i class="fa fa-envelope-o"></i> <a href="#"
+						th:text="${client.clientMail}"> email@email.com</a></li>
+					<li><i class="fa fa-map-marker"></i><a href="#"
+						th:text="${client.clientAddress}"> 1734 Stonecoal Road</a></li>
+				</ul>
+				<ul class="header-links pull-right">
+					<li><a><i class="fa fa-user-o"></i> Language:</a></li>
+					<li>
+						<form action="#" th:action="@{/setLanguage}" method="get">
+							<select th:each="language : ${languages}" name="lang"
+								id="language" onchange="this.form.submit()">
+								<option th:value="${language.langId}"
+									th:selected="${language.seleted}"
+									th:text="${language.langName}">Tiếng Việt</option>
+								<!-- Add more language options here if needed -->
+							</select>
+						</form>
+					</li>
+					<li><a href="#"><i class="fa fa-dollar"></i> USD</a></li>
+					<li><a href="#"><i class="fa fa-user-o"></i> My Account</a></li>
+				</ul>
+			</div>
+		</div>
+		<!-- /TOP HEADER -->
+
+		<!-- MAIN HEADER -->
+		<div id="header">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<!-- LOGO -->
+
+					<!-- /LOGO -->
+
+					<!-- SEARCH BAR -->
+					<div class="col-md-8">
+						<div class="header-search">
+							<form>
+								<span style="white-space: nowrap;"> <select
+									class="input-select" style="">
+										<option value="0">All Categories</option>
+										<option th:each="catalog : ${catalogs}"
+											th:value="${catalog.catalogCode}"
+											th:text="${catalog.catalogName}">Category 01</option>
+								</select> <input class="input" placeholder="Search here">
+									<button class="search-btn">Search</button>
+								</span>
+							</form>
+						</div>
+					</div>
+					<!-- /SEARCH BAR -->
+
+					<!-- ACCOUNT -->
+					<div class="col-md-4 clearfix">
+						<div class="header-ctn">
+							<!-- Wishlist -->
+							<!--div>
+								<a href="#"> <i class="fa fa-heart-o"></i> <span>Your
+										Wishlist</span>
+									<div class="qty">2</div>
+								</a>
+							</div>
+							<!-- /Wishlist -->
+
+							<!-- Cart -->
+							<div class="shopping-cart" >
+								<a class="dropdown-toggle" data-toggle="dropdown"
+									aria-expanded="true"> 
+									
+								</div>
+									
+								</a>
+							</div>
+							<!-- /Cart -->
+
+							<!-- Menu Toogle -->
+							<div class="menu-toggle">
+								<a href="#"> <i class="fa fa-bars"></i> <span>Menu</span>
+								</a>
+							</div>
+							<!-- /Menu Toogle -->
+						</div>
+					</div>
+					<!-- /ACCOUNT -->
+				</div>
+				<!-- row -->
+			</div>
+			<!-- container -->
+		</div>
+		<!-- /MAIN HEADER -->
+		<!-- NAVIGATION -->
+	<nav id="navigation">
+		<!-- container -->
+		<div class="container">
+			<!-- responsive-nav -->
+			<div id="responsive-nav">
+				<!-- NAV -->
+				<ul class="main-nav nav navbar-nav">
+
+					<li><a th:href="'/trang-chu.html'"  class="main-menu">Trang chủ</a></li>
+					<li><a th:href="'/san-pham.html'"  class="main-menu">Sản phẩm</a></li>
+					<li><a th:href="'/bai-viet.html'"  class="main-menu">Bài viết</a></li>
+					<li><a th:href="'/lien-he.html'"  class="main-menu">Liên hệ</a></li>
+					<li><a th:href="'/gioi-thieu.html'"  class="main-menu">Giới thiệu</a></li>
+
+				</ul>
+				<!-- /NAV -->
+			</div>
+			<!-- /responsive-nav -->
+		</div>
+		<!-- /container -->
+	</nav>
+	<!-- /NAVIGATION -->
+	</header>
+	
+	
+	<script th:src="'/' + ${domain} + '/js/checkout.js'"></script>
+	</header>
+
+	<!-- End Header/Navigation -->
+
+	<!-- Start Hero Section -->
+	<div class="hero" style="padding-top: 5px; padding-bottom:5px;">
+		<div class="container">
+			<div class="row justify-content-between"  >
+				<div class="col-lg-5">
+					<div class="intro-excerpt">
+						<h1>Giỏ hàng</h1>
+					</div>
+				</div>
+				<div class="col-lg-7"></div>
+			</div>
+		</div>
+	</div>
+	<!-- End Hero Section -->
+
+
+
+	<div class="untree_co-section " style="padding-top:0rem; ">
+		<div class="container" >
+		<div class="row " style="padding-top:3rem; ">
+				<div class="col-md-6">
+					<div class="row mb-5">
+						
+						<div class="col-md-6">
+							<a href="/home" class="btn btn-shop" style=" background-color:silver;">Tiếp tục mua hàng</a>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<label class="text-black h4" for="coupon">Mã giảm giá</label>
+							<p>Nhập mã giám giá nếu bạn có.</p>
+						</div>
+						<div class="col-md-8 mb-3 mb-md-0">
+							<input type="text" class="form-control py-3" id="coupon"
+								placeholder="Mã giám giá">
+						</div>
+						<div class="col-md-4">
+							<button class="btn btn-black">Kiểm tra</button>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6 pl-5">
+					<div class="row justify-content-end">
+						<div class="col-md-7">
+							<div class="row">
+								<div class="col-md-12 text-right border-bottom mb-5">
+									<h3 class="text-black h4 text-uppercase">Giỏ hàng tổng</h3>
+								</div>
+							</div>
+							<div class="row mb-3" style="text-align: right;">
+								<div class="col-md-3">
+									<span class="text-black" style="font-weight:bold;color:black;  font-size:25px;">Tổng:</span>
+								</div>
+								<div class="col-md-9 " style="text-align: right;">
+									<strong id="cart-total-price-page" class="text-black small product-price small" style="font-weight:bold;color:black;  font-size:25px;" th:text="${cart.formatedPrice} + ${cart.currency}"  >$230.00</strong>
+								</div>
+							</div>
+							<div class="row mb-3 floating" >
+								<div class="col-md-3" >
+									<span class="text-black" style="font-weight:bold;color:black;  font-size:25px; margin-right:75px; ">Tổng: </span>
+								</div>
+								<div class="col-md-3 text-right">
+									<strong  id="cart-total-price-page-floating" class="product-price small" style="font-weight:bold;color:black;  font-size:25px; " th:text="${cart.formatedPrice} + ${cart.currency}"  >$230.00</strong>
+								</div>
+								
+							</div>
+							
+							<div class="row">
+								<div class="col-md-12" style="text-align: right;">
+									<button class="btn btn-black btn-lg py-3 btn-block "
+										onclick="window.location='/dat-hang'">Đặt hàng</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row mb-5">
+				<form class="col-md-12" method="post">
+					<div class="site-blocks-table2">
+						<table class="table">
+							<thead>
+								<tr>
+									<th class="product-price">STT</th>
+									<th class="product-thumbnail">Hình ảnh</th>
+									<th class="product-name">Tên</th>
+									<th class="product-price">Màu/Kích cỡ</th>
+									<th class="product-price">Giá</th>
+									<th class="product-price">Số Lượng</th>
+									<th class="product-quantity">Chỉnh sửa</th>
+									<th class="product-remove">Tổng</th>
+									<th class="product-remove">Xóa</th>
+								</tr>
+							</thead>
+							<tbody class="cart-items-body">
+								<tr th:each="item : ${cart.items}" >
+								<td th:text="${item.id}"  style="font-weight:bold;color:black;  font-size:18px;">$49.00</td>
+									<td class="product-thumbnail">
+									<img th:src="${item.imageUrl}" alt="Image" style="width:100%" class="img-fluid">
+									</td>
+									<td class="product-name">
+										<h2 class="h5 text-black" th:text="${item.name}" >Product 1</h2>
+									</td>
+									<td class="product-name">
+										<h2 class="h5 text-black" th:text="${item.colorCode}+': '+${item.sizeCode}" >Product 1</h2>
+									</td>
+									<td class="product-price small" th:text="${item.formatedPrice} "  style="font-weight:bold;color:red;  font-size:18px;">$49.00</td>
+									<td th:text="${item.quantity}"  style="font-weight:bold;color:red;  font-size:18px;">$49.00</td>
+									
+									<td>
+										<div
+											class="input-group mb-3 d-flex align-items-center quantity-container"
+											style="max-width: 120px;">
+											<div class="input-group-prepend">
+												<button class="btn btn-outline-black decrease" type="button" th:onclick="'decreaseQty(event,' + ${item.quantity} + ' )'" >&minus;</button>
+											</div>
+											<input type="text" th:value="${item.quantity}" th:data-item-id="${item.id}"
+												class="form-control text-center quantity-amount" 
+												placeholder="" aria-label="Example text with button addon"
+												aria-describedby="button-addon1">
+											<div class="input-group-append">
+												<button class="btn btn-outline-black increase" type="button" th:onclick="'increaseQty(event,' + ${item.quantity} + ' )'" >&plus;</button>
+											</div>
+										</div>
+
+									</td>
+									<td class="product-price small" th:text="${item.totalPrice} + ${cart.currency}"  style="font-weight:bold;color:red;  font-size:18px;">$49.00</td>
+									<td><a class="btn btn-black btn-sm" th:onclick="'removeFromCart2(' + ${item.id} + ')'" >Xóa</a></td>
+								</tr>
+
+								
+							</tbody>
+						</table>
+						 <div id="notification" class="hidden"></div>
+					</div>
+				</form>
+			</div>
+
+			
+		</div>
+	</div>
+
+
+	<!-- Start Footer Section -->
+	<div th:replace="anhmedia :: footer"> </div>
+	<!-- End Footer Section -->
+
+
+	<script th:src="'/' + ${domain} + '/js/jquery.min.js'"></script>
+	<script th:src="'/' + ${domain} + '/js/bootstrap.min.js'"></script>
+	<script th:src="'/' + ${domain} + '/js/slick.min.js'"></script>
+	<script th:src="'/' + ${domain} + '/js/nouislider.min.js'"></script>
+	<script  th:src="'/' + ${domain} + '/js/custom.js'"></script>
+	<script th:src="'/' + ${domain} + '/js/main.js'"></script>
+	
+	
+	
+</body>
+
+</html>

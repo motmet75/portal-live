@@ -1,0 +1,62 @@
+
+<html lang="en" class="nivo-lightbox-notouch"
+	xmlns:th="https://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="anhmedia :: head"> 
+<script th:src="'/' + ${domain} + '/js/checkout.js'"></script>
+<link type="text/css" rel="stylesheet"	th:href="'/' + ${domain} + '/css/checkout.css'" />
+
+<style>
+
+.btn-shop {
+    background-color: blue;
+    color: #2c3e50;
+    border: 2px solid #2c3e50;
+}
+</style>
+</head>
+<body>
+	<!-- HEADER -->
+
+		<header th:replace="anhmedia :: topheader"> </header>
+	<!-- /HEADER -->
+	<!-- End Header/Navigation -->
+
+	<!-- Start Hero Section -->
+	<div class="hero" style="padding-top: 2rem; padding-bottom: 1rem;">
+		<div class="container">
+			<div class="row justify-content-between">
+				<div class="col-lg-5">
+					<div class="intro-excerpt">
+						<h1>Đặt hàng</h1>
+						<div class="action-links">
+							<a href="/home" class="btn btn-shop" style =" background-color:silver;">Tiếp tục mua hàng</a> <a
+								href="/trang-thai-don-hang" class="btn btn-orders" style =" background-color:silver;">Đơn hàng
+								của tôi</a>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-7"></div>
+			</div>
+		</div>
+	</div>
+	<!-- End Hero Section -->
+
+	<div th:replace="fcheckout :: body"> </div>
+
+	<!-- Start Footer Section -->
+	<div th:replace="anhmedia :: footer"> </div>
+	<!-- End Footer Section -->
+
+
+	<script th:src="'/' + ${domain} + '/js/jquery.min.js'"></script>
+	<script th:src="'/' + ${domain} + '/js/bootstrap.min.js'"></script>
+	<script th:src="'/' + ${domain} + '/js/slick.min.js'"></script>
+	<script th:src="'/' + ${domain} + '/js/nouislider.min.js'"></script>
+	<script th:src="'/' + ${domain} + '/js/jquery.zoom.min.js'"></script>
+	<script th:src="'/' + ${domain} + '/js/main.js'"></script>
+	<script th:src="'/' + ${domain} + '/js/checkout.js'"></script>
+	
+</body>
+
+</html>

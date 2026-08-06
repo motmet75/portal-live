@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="anhmedia :: head"></head>
+<body>
+<link rel="stylesheet" th:href="'/' + ${domain} + '/css/modern.css'">
+<style>
+  .am-about { --blue:#356ba2; --dark:#0d1b2a; --muted:#64748b; --line:#dbeafe; --surface:#f0f7ff; font-family:Montserrat,Arial,sans-serif; }
+  .am-about-hero { position:relative; overflow:hidden; padding:82px 0; color:#fff; background:linear-gradient(135deg,#0d1b2a,#1e4a75); }
+  .am-about-hero::after { content:''; position:absolute; width:440px; height:440px; right:-130px; top:-180px; border-radius:50%; background:rgba(153,204,255,.1); }
+  .am-about-hero-grid { position:relative; z-index:1; display:grid; grid-template-columns:1.15fr .85fr; gap:60px; align-items:center; }
+  .am-about-kicker { display:inline-flex; align-items:center; gap:8px; padding:7px 15px; border:1px solid rgba(153,204,255,.35); border-radius:999px; color:#99ccff; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; }
+  .am-about-hero h1 { margin:18px 0 16px; color:#fff; font-size:clamp(34px,5vw,56px); line-height:1.12; font-weight:800; }
+  .am-about-hero p { color:rgba(255,255,255,.72); font-size:16px; line-height:1.8; }
+  .am-about-stats { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+  .am-about-stat { padding:25px; border:1px solid rgba(153,204,255,.22); border-radius:16px; background:rgba(255,255,255,.07); backdrop-filter:blur(8px); }
+  .am-about-stat strong { display:block; color:#99ccff; font-size:28px; }
+  .am-about-stat span { color:rgba(255,255,255,.68); font-size:13px; }
+  .am-about-values { padding:76px 0; background:#fff; }
+  .am-section-head { max-width:680px; margin:0 auto 38px; text-align:center; }
+  .am-section-head h2 { margin:0 0 10px; color:var(--dark); font-size:32px; font-weight:800; }
+  .am-section-head p { color:var(--muted); line-height:1.7; }
+  .am-value-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+  .am-value-card { padding:30px; border:1px solid var(--line); border-radius:18px; box-shadow:0 7px 25px rgba(53,107,162,.09); }
+  .am-value-icon { width:52px; height:52px; display:grid; place-items:center; border-radius:14px; background:var(--surface); color:var(--blue); font-size:21px; }
+  .am-value-card h3 { margin:18px 0 9px; color:var(--dark); font-size:18px; font-weight:700; }
+  .am-value-card p { margin:0; color:var(--muted); line-height:1.7; font-size:14px; }
+  .am-about-content { padding:72px 0; background:var(--surface); }
+  .am-about-content-card { max-width:920px; margin:auto; padding:clamp(25px,5vw,55px); border:1px solid var(--line); border-radius:20px; background:#fff; box-shadow:0 12px 40px rgba(53,107,162,.12); color:#334155; line-height:1.85; }
+  .am-about-content-card img { max-width:100%; height:auto!important; border-radius:14px; }
+  .am-about-cta { padding:55px 0; color:#fff; background:#0d1b2a; text-align:center; }
+  .am-about-cta h2 { margin:0 0 10px; color:#fff; font-weight:800; }
+  .am-about-cta p { margin:0 0 22px; color:rgba(255,255,255,.65); }
+  .am-about-btn { display:inline-flex; align-items:center; gap:8px; padding:13px 24px; border-radius:10px; background:#2ecc71; color:#fff; font-weight:700; text-decoration:none; }
+  @media(max-width:800px){.am-about-hero-grid{grid-template-columns:1fr}.am-value-grid{grid-template-columns:1fr}.am-about-hero{padding:58px 0}}
+</style>
+<header th:replace="anhmedia :: topheader"></header>
+<main class="am-about">
+  <section class="am-about-hero">
+    <div class="container am-about-hero-grid">
+      <div>
+        <div class="am-about-kicker"><i class="fa fa-bolt"></i> Về AnhMedia.vn</div>
+        <h1>Công nghệ thực tế cho doanh nghiệp đang phát triển</h1>
+        <p>Chúng tôi xây dựng các công cụ thương mại điện tử và tự động hóa dễ triển khai, dễ vận hành và phù hợp với doanh nghiệp Việt Nam.</p>
+      </div>
+      <div class="am-about-stats">
+        <div class="am-about-stat"><strong>24h</strong><span>Triển khai nhanh</span></div>
+        <div class="am-about-stat"><strong>24/7</strong><span>Hỗ trợ vận hành</span></div>
+        <div class="am-about-stat"><strong>1</strong><span>Nền tảng tập trung</span></div>
+        <div class="am-about-stat"><strong>∞</strong><span>Khả năng mở rộng</span></div>
+      </div>
+    </div>
+  </section>
+  <section class="am-about-values">
+    <div class="container">
+      <div class="am-section-head"><h2>Cách chúng tôi tạo giá trị</h2><p>Tập trung vào kết quả kinh doanh, trải nghiệm người dùng và khả năng vận hành lâu dài.</p></div>
+      <div class="am-value-grid">
+        <article class="am-value-card"><div class="am-value-icon"><i class="fa fa-rocket"></i></div><h3>Triển khai nhanh</h3><p>Rút ngắn thời gian từ ý tưởng đến một hệ thống có thể sử dụng và tạo doanh thu.</p></article>
+        <article class="am-value-card"><div class="am-value-icon"><i class="fa fa-cogs"></i></div><h3>Tự động hóa thông minh</h3><p>Giảm thao tác lặp lại trong quản lý sản phẩm, nội dung, đơn hàng và kênh bán.</p></article>
+        <article class="am-value-card"><div class="am-value-icon"><i class="fa fa-line-chart"></i></div><h3>Phát triển bền vững</h3><p>Xây dựng trên nền tảng có thể mở rộng cùng dữ liệu, khách hàng và đội ngũ của bạn.</p></article>
+      </div>
+    </div>
+  </section>
+  <section class="am-about-content" th:if="${page != null and page.articleContent != null}">
+    <div class="container"><div class="am-about-content-card" th:utext="${page.articleContent}"></div></div>
+  </section>
+  <section class="am-about-cta">
+    <div class="container"><h2>Sẵn sàng bắt đầu?</h2><p>Hãy chia sẻ mục tiêu của bạn để đội ngũ AnhMedia đề xuất giải pháp phù hợp.</p><a class="am-about-btn" th:href="'/lien-he.html'"><i class="fa fa-paper-plane"></i> Liên hệ tư vấn</a></div>
+  </section>
+</main>
+<div th:replace="anhmedia :: footer"></div>
+<script th:src="'/' + ${domain} + '/js/jquery.min.js'"></script>
+<script th:src="'/' + ${domain} + '/js/bootstrap.min.js'"></script>
+<script th:src="'/' + ${domain} + '/js/main.js'"></script>
+</body>
+</html>

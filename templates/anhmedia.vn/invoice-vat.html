@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 18px;
+            color: #667eea;
+        }
+
+        .result-label {
+            color: #666;
+        }
+
+        .result-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    <script th:replace="anhmedia :: gtag01"></script>
+<script th:replace="anhmedia :: gtag02"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Invoice Calculator</h1>
+        <p class="subtitle">Calculate unit price, VAT, and total invoice amount</p>
+        
+        <form id="invoiceForm">
+            <div class="form-group">
+                <label for="token">API Token</label>
+                <input type="text" id="token" value="abc123" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input type="text" id="quantity" placeholder="Enter quantity" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="invoiceAmount">Invoice Amount</label>
+                <input type="text" id="invoiceAmount" placeholder="Enter invoice amount" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="vatPercent">VAT Percent (%)</label>
+                <input type="text" id="vatPercent" placeholder="Enter VAT percentage" required>
+            </div>
+            
+            <button type="submit" id="submitBtn">Calculate Invoice</button>
+        </form>
+
+        <div id="error" class="error"></div>
+        
+        <div id="result" class="result">
+            <h2>📋 Calculation Results</h2>
+            <div class="result-item">
+                <span class="result-label">Unit Price:</span>
+                <span class="result-value" id="unitPrice">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">VAT Amount:</span>
+                <span class="result-value" id="vatAmount">-</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Total Invoice:</span>
+                <span class="result-value" id="totalInvoice">-</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('invoiceForm');
+        const resultDiv = document.getElementById('result');
+        const errorDiv = document.getElementById('error');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Format number with commas as thousand separators
+        function formatNumberInput(value) {
+            // Remove all non-digit and non-decimal characters
+            let cleaned = value.replace(/[^\d.]/g, '');
+            
+            // Split by decimal point
+            let parts = cleaned.split('.');
+            
+            // Format the integer part with commas
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            
+            // Join back with decimal (limit to 2 decimal places)
+            if (parts.length > 1) {
+                return parts[0] + '.' + parts[1].slice(0, 2);
+            }
+            return parts[0];
+        }
+
+        // Remove formatting to get raw number
+        function parseFormattedNumber(value) {
+            return value.replace(/,/g, '');
+        }
+
+        // Add formatting to inputs
+        const quantityInput = document.getElementById('quantity');
+        const invoiceAmountInput = document.getElementById('invoiceAmount');
+        const vatPercentInput = document.getElementById('vatPercent');
+
+        [quantityInput, invoiceAmountInput, vatPercentInput].forEach(input => {
+            input.addEventListener('input', (e) => {
+                const cursorPosition = e.target.selectionStart;
+                const oldLength = e.target.value.length;
+                const oldValue = e.target.value;
+                
+                e.target.value = formatNumberInput(e.target.value);
+                
+                // Adjust cursor position after formatting
+                const newLength = e.target.value.length;
+                const lengthDiff = newLength - oldLength;
+                e.target.setSelectionRange(cursorPosition + lengthDiff, cursorPosition + lengthDiff);
+            });
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Hide previous results and errors
+            resultDiv.classList.remove('show');
+            errorDiv.classList.remove('show');
+            
+            // Get form values and parse formatted numbers
+            const token = document.getElementById('token').value;
+            const quantity = parseFormattedNumber(quantityInput.value);
+            const invoiceAmount = parseFormattedNumber(invoiceAmountInput.value);
+            const vatPercent = parseFormattedNumber(vatPercentInput.value);
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span>Calculating...';
+            
+            try {
+                const response = await fetch('/api/v1/invoice/calc', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Client-Token': token
+                    },
+                    body: JSON.stringify({
+                        quantity: parseInt(quantity),
+                        invoiceAmount: invoiceAmount,
+                        vatPercent: vatPercent
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Display results
+                document.getElementById('unitPrice').textContent = formatCurrency(data.unitPrice);
+                document.getElementById('vatAmount').textContent = formatCurrency(data.vatAmount);
+                document.getElementById('totalInvoice').textContent = formatCurrency(data.totalInvoice);
+                
+                resultDiv.classList.add('show');
+                
+            } catch (error) {
+                errorDiv.textContent = `Error: ${error.message}. Please check your API endpoint and try again.`;
+                errorDiv.classList.add('show');
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Calculate Invoice';
+            }
+        });
+        
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'decimal',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+    </script>
+</body>
+</html>

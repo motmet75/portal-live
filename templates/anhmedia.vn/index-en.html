@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AnhMedia.vn - Business Websites, ShopQR and Automation Services</title>
+  <meta name="description" content="AnhMedia.vn sells ShopQR, e-commerce websites, business websites, data automation, ETL, and practical DEV/IT support services.">
+  <link rel="shortcut icon" href="/anhmedia.vn/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/anhmedia.vn/css/main-banner.css">
+
+<style>
+:root {
+  --ink: #172033;
+  --muted: #647084;
+  --line: #dbe4ee;
+  --paper: #ffffff;
+  --soft: #f4f8fb;
+  --blue: #2868a8;
+  --green: #16835f;
+  --orange: #e65c00;
+  --gold: #c58b1c;
+  --dark: #0e1a26;
+  --shadow: 0 16px 40px rgba(23,32,51,.12);
+  --radius: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body { font-family: 'Be Vietnam Pro', Arial, sans-serif; color: var(--ink); background: var(--paper); line-height: 1.6; }
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+ul { list-style: none; }
+.container { width: min(1160px, calc(100% - 40px)); margin: 0 auto; }
+.section { padding: 76px 0; }
+.section.soft { background: var(--soft); }
+.kicker { display: inline-flex; align-items: center; gap: 8px; color: var(--green); font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+.section-head { display: flex; align-items: end; justify-content: space-between; gap: 28px; margin-bottom: 30px; }
+.section-head h2, .section-title { font-size: 2.2rem; line-height: 1.18; margin-top: 8px; }
+.section-head p, .section-sub { max-width: 560px; color: var(--muted); }
+.section-sub { margin-top: 12px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 44px; padding: 11px 18px; border: 1px solid transparent; border-radius: var(--radius); font-weight: 800; font-size: .92rem; transition: transform .18s ease, background .18s ease, border .18s ease; }
+.btn:hover { transform: translateY(-1px); }
+.btn.primary { background: var(--orange); color: white; }
+.btn.secondary { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.55); color: white; }
+.btn.dark { background: var(--dark); color: white; }
+.btn.line { border-color: var(--line); color: var(--blue); background: white; }
+
+.navbar { position: fixed; inset: 0 0 auto 0; z-index: 1000; background: rgba(14,26,38,.94); border-bottom: 1px solid rgba(255,255,255,.12); backdrop-filter: blur(12px); }
+.nav-inner { height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.nav-logo { display: inline-flex; align-items: center; gap: 10px; color: white; font-weight: 900; font-size: 1.15rem; }
+.nav-logo img { width: 36px; height: 36px; border-radius: 8px; }
+.nav-logo small { color: var(--orange); font-size: 1.15rem; }
+.nav-links { display: flex; align-items: center; gap: 16px; color: rgba(255,255,255,.78); font-size: .84rem; font-weight: 700; }
+.nav-links a:hover { color: white; }
+.nav-cta { display: flex; align-items: center; gap: 10px; }
+.nav-toggle { display: none; width: 42px; height: 42px; border: 1px solid rgba(255,255,255,.18); border-radius: var(--radius); color: white; background: rgba(255,255,255,.06); }
+.language-selector { position: relative; display: flex; align-items: center; }
+.lang-flag-current { display: inline-flex; align-items: center; gap: 7px; height: 36px; min-width: 56px; padding: 0 10px; border: 1px solid rgba(255,255,255,.18); border-radius: 999px; background: rgba(255,255,255,.08); color: white; cursor: pointer; }
+.lang-flag-current img, .lang-flag-option img { width: 24px; height: 16px; border-radius: 2px; object-fit: cover; }
+.lang-flag-menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 1100; display: none; grid-template-columns: repeat(3, 36px); gap: 5px; padding: 8px; background: #152638; border: 1px solid rgba(255,255,255,.16); border-radius: 8px; box-shadow: var(--shadow); }
+.language-selector.open .lang-flag-menu { display: grid; }
+.lang-flag-option { width: 36px; height: 30px; display: grid; place-items: center; border: 0; border-radius: 6px; background: transparent; cursor: pointer; }
+.lang-flag-option:hover, .lang-flag-option.active { background: rgba(255,255,255,.12); }
+
+.hero { position: relative; min-height: 86vh; padding: 126px 0 84px; display: flex; align-items: center; overflow: hidden; color: white; }
+.hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(14,26,38,.92), rgba(14,26,38,.72) 46%, rgba(14,26,38,.36)); }
+.hero-content { position: relative; z-index: 1; max-width: 720px; }
+.hero h1 { font-size: 3.25rem; line-height: 1.08; margin: 14px 0 18px; }
+.hero p { max-width: 650px; color: rgba(255,255,255,.82); font-size: 1.05rem; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.hero-proof { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 34px; max-width: 650px; }
+.hero-proof div { border-left: 3px solid var(--orange); padding: 10px 14px; background: rgba(255,255,255,.08); border-radius: var(--radius); backdrop-filter: blur(8px); }
+.hero-proof strong { display: block; font-size: 1.35rem; color: white; }
+.hero-proof span { color: rgba(255,255,255,.72); font-size: .8rem; }
+
+.product-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.product-card { display: flex; flex-direction: column; min-height: 100%; background: white; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: 0 8px 22px rgba(23,32,51,.08); }
+.product-media { height: 190px; background: #e9eef4; overflow: hidden; }
+.product-media img { width: 100%; height: 100%; object-fit: cover; }
+.product-body { display: flex; flex-direction: column; gap: 12px; flex: 1; padding: 20px; }
+.product-tag { width: fit-content; padding: 4px 9px; border-radius: 999px; font-size: .72rem; font-weight: 900; background: #ecf5ef; color: var(--green); }
+.product-card:nth-child(2) .product-tag { background: #edf3fb; color: var(--blue); }
+.product-card:nth-child(3) .product-tag { background: #fff3e7; color: var(--orange); }
+.product-body h3 { font-size: 1.18rem; line-height: 1.25; }
+.product-body p { color: var(--muted); font-size: .92rem; }
+.product-list { display: grid; gap: 7px; margin: 3px 0 5px; }
+.product-list li { display: flex; gap: 8px; color: var(--ink); font-size: .85rem; }
+.product-list i { color: var(--green); margin-top: 4px; }
+.card-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: auto; }
+
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 34px; align-items: center; }
+.media-panel { border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow); background: white; }
+.media-panel img { width: 100%; height: 420px; object-fit: cover; }
+.media-caption { padding: 14px 16px; color: var(--muted); font-size: .86rem; }
+.capability-list { display: grid; gap: 12px; margin-top: 22px; }
+.capability-list li { display: grid; grid-template-columns: 42px 1fr; gap: 12px; align-items: start; padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); background: white; }
+.capability-list i { width: 42px; height: 42px; display: grid; place-items: center; border-radius: var(--radius); background: #e9f6f1; color: var(--green); }
+.capability-list strong { display: block; }
+.capability-list span { display: block; color: var(--muted); font-size: .88rem; margin-top: 2px; }
+
+.dev-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.dev-item { min-height: 142px; padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: white; }
+.dev-item i { width: 38px; height: 38px; display: grid; place-items: center; border-radius: var(--radius); color: white; background: var(--blue); margin-bottom: 12px; }
+.dev-item:nth-child(2n) i { background: var(--green); }
+.dev-item:nth-child(3n) i { background: var(--orange); }
+.dev-item h3 { font-size: .98rem; line-height: 1.28; }
+.dev-item p { color: var(--muted); font-size: .82rem; margin-top: 6px; }
+
+.tool-strip { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; align-items: stretch; }
+.tool-box { padding: 24px; border-radius: var(--radius); border: 1px solid var(--line); background: white; box-shadow: 0 8px 24px rgba(23,32,51,.08); }
+.tool-box h3 { font-size: 1.3rem; margin-bottom: 10px; }
+.tool-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.tool-links a { display: inline-flex; align-items: center; gap: 8px; padding: 9px 12px; border: 1px solid var(--line); border-radius: var(--radius); color: var(--blue); font-weight: 800; font-size: .85rem; }
+.process-list { display: grid; gap: 10px; }
+.process-list li { display: flex; gap: 10px; align-items: start; padding-bottom: 10px; border-bottom: 1px solid var(--line); color: var(--muted); }
+.process-list li:last-child { border-bottom: 0; padding-bottom: 0; }
+.process-list i { color: var(--gold); margin-top: 4px; }
+
+.pricing-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.price-card { border: 1px solid var(--line); border-radius: var(--radius); background: white; padding: 22px; }
+.price-card.featured { border-color: var(--orange); box-shadow: var(--shadow); }
+.price-card h3 { font-size: 1.12rem; }
+.price-card p { color: var(--muted); font-size: .88rem; margin: 8px 0 18px; }
+.price-card ul { display: grid; gap: 8px; margin-bottom: 20px; }
+.price-card li { display: flex; gap: 8px; font-size: .85rem; }
+.price-card i { color: var(--green); margin-top: 4px; }
+
+.contact { background: var(--dark); color: white; }
+.contact .section-head h2, .contact .section-head p { color: white; }
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.contact-card { border: 1px solid rgba(255,255,255,.14); border-radius: var(--radius); padding: 22px; background: rgba(255,255,255,.06); }
+.contact-card h3 { margin-bottom: 12px; }
+.contact-line { display: flex; gap: 12px; align-items: center; color: rgba(255,255,255,.82); padding: 8px 0; }
+.contact-line i { width: 28px; color: var(--orange); }
+.footer { background: #08111a; color: rgba(255,255,255,.62); padding: 26px 0; font-size: .84rem; }
+.footer-row { display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+.footer a { color: white; }
+
+@media (max-width: 980px) {
+  .nav-links { display: none; }
+  .nav-links.open { display: flex; position: absolute; top: 68px; left: 0; right: 0; flex-direction: column; align-items: flex-start; padding: 18px 24px; background: rgba(14,26,38,.98); border-bottom: 1px solid rgba(255,255,255,.12); }
+  .nav-toggle { display: inline-grid; place-items: center; }
+  .nav-cta .btn { display: none; }
+  .product-grid, .pricing-grid { grid-template-columns: 1fr; }
+  .split, .tool-strip, .contact-grid { grid-template-columns: 1fr; }
+  .dev-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .section-head { display: block; }
+  .section-head p { margin-top: 10px; }
+}
+@media (max-width: 620px) {
+  .container { width: min(100% - 28px, 1160px); }
+  .section { padding: 56px 0; }
+  .hero { min-height: 88vh; padding: 108px 0 64px; }
+  .hero h1 { font-size: 2.22rem; }
+  .hero-proof { grid-template-columns: 1fr; }
+  .dev-grid { grid-template-columns: 1fr; }
+  .section-head h2, .section-title { font-size: 1.75rem; }
+  .media-panel img { height: 280px; }
+}
+</style>
+  <link rel="stylesheet" href="/anhmedia.vn/css/anhmedia-live-2026.css?v=20260806">
+</head>
+<body>
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a class="nav-logo" href="#top" aria-label="AnhMedia home">
+      <img src="/anhmedia.vn/img/favicon.png" alt="AnhMedia">
+      <span>Anh<small>Media</small></span>
+    </a>
+    <ul class="nav-links" id="mainNav">
+      <li><a href="/instruction-gallery.html?lang=en&amp;pageKey=shopqr">ShopQR</a></li>
+      <li><a href="/instruction-gallery.html?lang=en&amp;pageKey=e-commerce-website">E-commerce Website</a></li>
+      <li><a href="/instruction-gallery.html?lang=en&amp;pageKey=business-website">Business Website</a></li>
+      <li><a href="#dev-services">DEV Services</a></li>
+      <li><a href="#tools">Tools</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-cta">
+      <div class="language-selector" data-language-switcher>
+        <button class="lang-flag-current" type="button" aria-label="Change language" aria-expanded="false">
+          <img th:src="${selectedLanguageFlagUrl}" src="/img/languageflags/en.png" th:alt="${selectedLanguageName}" alt="English">
+          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </button>
+        <div class="lang-flag-menu" role="listbox">
+          <button type="button" class="lang-flag-option" th:each="lang : ${languageOptions}"
+                  th:classappend="${lang.selected} ? ' active'"
+                  th:attr="data-lang=${lang.code}, aria-label=${lang.name}, aria-selected=${lang.selected}"
+                  data-lang="en" aria-label="English">
+            <img th:src="${lang.flagUrl}" src="/img/languageflags/en.png" th:alt="${lang.name}" alt="English">
+          </button>
+        </div>
+      </div>
+      <a class="btn primary" href="#contact"><i class="fas fa-paper-plane"></i> Request quote</a>
+      <button class="nav-toggle" type="button" aria-label="Open menu" aria-controls="mainNav" aria-expanded="false"><i class="fas fa-bars"></i></button>
+    </div>
+  </div>
+</nav>
+
+<section class="anhmedia-main-banner" aria-label="AnhMedia featured banner">
+  <a class="anhmedia-main-banner__link" href="#top">
+    <img class="anhmedia-main-banner__image" src="/anhmedia.vn/img/mainbanner.jpg" alt="AnhMedia featured services" width="1402" height="1122">
+  </a>
+</section>
+
+<section class="hero" id="top" th:with="slot=${templateImageMap != null ? templateImageMap['image001'] : null}">
+  <img class="hero-bg" th:if="${slot != null and slot.hasImageUrl()}" th:src="${slot.imageUrl}" src="/anhmedia.vn/img/section-1-bg.jpg" alt="AnhMedia business automation preview">
+  <img class="hero-bg" th:unless="${slot != null and slot.hasImageUrl()}" src="/anhmedia.vn/img/section-1-bg.jpg" alt="AnhMedia business automation preview">
+  <div class="container hero-content">
+    <div class="kicker"><i class="fas fa-briefcase"></i> Products and practical IT delivery</div>
+    <h1>AnhMedia.vn business websites, ShopQR and automation services</h1>
+    <p>Launch a selling website, QR ordering flow, business profile site, or data automation workflow with one technical partner who can build, configure, and support the stack.</p>
+    <div class="hero-actions">
+      <a class="btn primary" href="#products"><i class="fas fa-layer-group"></i> View products</a>
+      <a class="btn secondary" href="/instruction-gallery.html?lang=en"><i class="fas fa-images"></i> Instruction gallery</a>
+    </div>
+    <div class="hero-proof">
+      <div><strong>3</strong><span>main products</span></div>
+      <div><strong>DEV</strong><span>server, cloud and automation support</span></div>
+      <div><strong>ETL</strong><span>data processing and model workflows</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="products">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="kicker"><i class="fas fa-cubes"></i> Main products</div>
+        <h2>Three offers in the main menu</h2>
+      </div>
+      <p>Each product links to an instruction-gallery page. Set page sort in the admin gallery to control which product appears first and how the gallery tabs are sequenced.</p>
+    </div>
+    <div class="product-grid">
+      <article class="product-card">
+        <div class="product-media"><img src="/anhmedia.vn/img/gallery-img-01.jpg" alt="ShopQR ordering demo"></div>
+        <div class="product-body">
+          <span class="product-tag">QR ordering</span>
+          <h3>ShopQR</h3>
+          <p>QR menu and order flow for cafes, restaurants, services, and local stores. Customers scan, choose, and send orders without installing an app.</p>
+          <ul class="product-list">
+            <li><i class="fas fa-check"></i><span>QR menu and product catalog</span></li>
+            <li><i class="fas fa-check"></i><span>Order tracking and customer history</span></li>
+            <li><i class="fas fa-check"></i><span>Video or image instruction gallery</span></li>
+          </ul>
+          <div class="card-actions">
+            <a class="btn dark" href="/instruction-gallery.html?lang=en&amp;pageKey=shopqr"><i class="fas fa-images"></i> Gallery</a>
+            <a class="btn line" href="https://anhmedia.vn/shopqr"><i class="fas fa-qrcode"></i> Open ShopQR</a>
+          </div>
+        </div>
+      </article>
+      <article class="product-card">
+        <div class="product-media"><img src="/anhmedia.vn/img/gallery-img-03.jpg" alt="E-commerce website demo"></div>
+        <div class="product-body">
+          <span class="product-tag">Online selling</span>
+          <h3>E-commerce Website</h3>
+          <p>Product website for merchants who need import, catalog, checkout, shipping, reports, and social selling support.</p>
+          <ul class="product-list">
+            <li><i class="fas fa-check"></i><span>Product import from Excel and marketplaces</span></li>
+            <li><i class="fas fa-check"></i><span>Checkout, customer records, shipping labels</span></li>
+            <li><i class="fas fa-check"></i><span>Facebook, TikTok, Zalo and content scheduling</span></li>
+          </ul>
+          <div class="card-actions">
+            <a class="btn dark" href="/instruction-gallery.html?lang=en&amp;pageKey=e-commerce-website"><i class="fas fa-images"></i> Gallery</a>
+            <a class="btn line" href="/thuong-mai-dien-tu-0-dong.html"><i class="fas fa-store"></i> Details</a>
+          </div>
+        </div>
+      </article>
+      <article class="product-card">
+        <div class="product-media"><img src="/anhmedia.vn/img/gallery-img-06.jpg" alt="Business website demo"></div>
+        <div class="product-body">
+          <span class="product-tag">Business presence</span>
+          <h3>Business Website</h3>
+          <p>Fast company website for services, portfolios, product introductions, lead capture, and localized marketing pages.</p>
+          <ul class="product-list">
+            <li><i class="fas fa-check"></i><span>Business profile, pages, articles and contact</span></li>
+            <li><i class="fas fa-check"></i><span>Configurable images through /template-images</span></li>
+            <li><i class="fas fa-check"></i><span>Multilingual pages after English approval</span></li>
+          </ul>
+          <div class="card-actions">
+            <a class="btn dark" href="/instruction-gallery.html?lang=en&amp;pageKey=business-website"><i class="fas fa-images"></i> Gallery</a>
+            <a class="btn line" href="#contact"><i class="fas fa-message"></i> Request scope</a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section soft" id="data-etl">
+  <div class="container split">
+    <div th:with="slot=${templateImageMap != null ? templateImageMap['image002'] : null}">
+      <div class="media-panel">
+        <img th:if="${slot != null and slot.hasImageUrl()}" th:src="${slot.imageUrl}" src="/anhmedia.vn/img/section-3-bg.jpg" alt="Data automation and ETL workflow">
+        <img th:unless="${slot != null and slot.hasImageUrl()}" src="/anhmedia.vn/img/section-3-bg.jpg" alt="Data automation and ETL workflow">
+        <div class="media-caption">Configurable media slot: image002 in /template-images.</div>
+      </div>
+    </div>
+    <div>
+      <div class="kicker"><i class="fas fa-database"></i> Data and model work</div>
+      <h2 class="section-title">Big data processing, ETL and model workflows</h2>
+      <p class="section-sub">For teams with messy files, repeated reporting, or manual browser work, I can build the processing steps, clean data model, and automation around the final output.</p>
+      <ul class="capability-list">
+        <li><i class="fas fa-file-excel"></i><div><strong>Excel expert data and reporting</strong><span>Clean files, formulas, data validation, repeatable reports and exports.</span></div></li>
+        <li><i class="fas fa-diagram-project"></i><div><strong>ETL model setup</strong><span>Extract, transform, load, normalize, and schedule repeat jobs.</span></div></li>
+        <li><i class="fas fa-robot"></i><div><strong>Browser and desktop automation</strong><span>Reduce repeated clicks, uploads, checks, screenshots, and admin tasks.</span></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="dev-services">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="kicker"><i class="fas fa-screwdriver-wrench"></i> DEV services</div>
+        <h2>One service menu for build, setup and support</h2>
+      </div>
+      <p>Focused technical help for small businesses that need practical results: server setup, cloud deployment, automation tools, and Windows/Java troubleshooting.</p>
+    </div>
+    <div class="dev-grid">
+      <div class="dev-item"><i class="fab fa-aws"></i><h3>AWS machine install</h3><p>EC2, domain, SSL, firewall, backup and deployment basics.</p></div>
+      <div class="dev-item"><i class="fas fa-server"></i><h3>Server setup</h3><p>Linux or Windows server configuration, monitoring and recovery.</p></div>
+      <div class="dev-item"><i class="fas fa-network-wired"></i><h3>Kubernetes and load balancer</h3><p>Container routing, scaling path, reverse proxy and uptime planning.</p></div>
+      <div class="dev-item"><i class="fas fa-envelope-open-text"></i><h3>Email marketing</h3><p>Campaign setup, list import, templates, domain records and deliverability checks.</p></div>
+      <div class="dev-item"><i class="fab fa-docker"></i><h3>Docker and Java environment</h3><p>Docker files, Java runtime, Maven build, services and deployment scripts.</p></div>
+      <div class="dev-item"><i class="fab fa-windows"></i><h3>Windows 7, 10, 11 expertise</h3><p>Office, drivers, network, browser, automation and legacy workflow support.</p></div>
+      <div class="dev-item"><i class="fas fa-puzzle-piece"></i><h3>Chrome add-on automation</h3><p>Custom browser extensions and support add-ons per request.</p></div>
+      <div class="dev-item"><i class="fas fa-desktop"></i><h3>Desktop automation tool</h3><p>Click automation, image matching, media open tasks and batch operations.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section soft" id="tools">
+  <div class="container tool-strip">
+    <div class="tool-box">
+      <div class="kicker"><i class="fas fa-toolbox"></i> Tools and downloads</div>
+      <h3>Business utilities and automation support</h3>
+      <p class="section-sub">Use public tools for quick work, or request a configured automation package for your own workflow.</p>
+      <div class="tool-links">
+        <a href="/utilities-dashboard.html"><i class="fas fa-table-cells"></i> Utilities dashboard</a>
+        <a href="/create-qr.html"><i class="fas fa-qrcode"></i> QR creator</a>
+        <a href="/extract-text.html"><i class="fas fa-file-lines"></i> OCR extractor</a>
+        <a href="/app/login"><i class="fas fa-download"></i> Chrome add-on request</a>
+        <a href="/app/login"><i class="fas fa-download"></i> Desktop tool request</a>
+      </div>
+    </div>
+    <div class="tool-box">
+      <h3>How projects usually run</h3>
+      <ul class="process-list">
+        <li><i class="fas fa-1"></i><span>Review the business goal, current files, website, server or repeated task.</span></li>
+        <li><i class="fas fa-2"></i><span>Create a small working version first, then connect data, media and account access.</span></li>
+        <li><i class="fas fa-3"></i><span>Deploy, document, train, and provide support for fixes or new automation requests.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="kicker"><i class="fas fa-tags"></i> Pricing direction</div>
+        <h2>Choose a starting scope</h2>
+      </div>
+      <p>Final price depends on media count, integrations, automation complexity, and support level. These blocks make the offer easier to review.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <h3>Product Landing</h3>
+        <p>For one service or business page.</p>
+        <ul>
+          <li><i class="fas fa-check"></i><span>Business website section</span></li>
+          <li><i class="fas fa-check"></i><span>Template image configuration</span></li>
+          <li><i class="fas fa-check"></i><span>Contact and lead flow</span></li>
+        </ul>
+        <a class="btn line" href="#contact">Ask for quote</a>
+      </div>
+      <div class="price-card featured">
+        <h3>Commerce or ShopQR</h3>
+        <p>For stores, restaurants and product catalogs.</p>
+        <ul>
+          <li><i class="fas fa-check"></i><span>Catalog, QR or checkout flow</span></li>
+          <li><i class="fas fa-check"></i><span>Instruction gallery thumbnails</span></li>
+          <li><i class="fas fa-check"></i><span>Admin setup and support</span></li>
+        </ul>
+        <a class="btn primary" href="#contact">Start discussion</a>
+      </div>
+      <div class="price-card">
+        <h3>DEV / Automation</h3>
+        <p>For server, data, ETL, or tool work.</p>
+        <ul>
+          <li><i class="fas fa-check"></i><span>AWS, Docker, Java, Windows</span></li>
+          <li><i class="fas fa-check"></i><span>Excel and reporting workflows</span></li>
+          <li><i class="fas fa-check"></i><span>Chrome or desktop automation</span></li>
+        </ul>
+        <a class="btn line" href="#contact">Request support</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section contact" id="contact">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="kicker"><i class="fas fa-headset"></i> Contact</div>
+        <h2>Send the product, website or automation target</h2>
+      </div>
+      <p>Share your current website, sample files, target workflow, and deadline. I will suggest the smallest useful scope first.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <h3>Direct contact</h3>
+        <a class="contact-line" th:href="${client != null and !#strings.isEmpty(client.clientPhone) ? 'tel:' + client.clientPhone : '#contact'}" href="#contact"><i class="fas fa-phone"></i><span th:text="${client != null and !#strings.isEmpty(client.clientPhone) ? client.clientPhone : '+84 908 527 376'}">+84 908 527 376</span></a>
+        <a class="contact-line" th:href="${client != null and !#strings.isEmpty(client.clientMail) ? 'mailto:' + client.clientMail : 'mailto:business@anhmedia.vn'}" href="mailto:business@anhmedia.vn"><i class="fas fa-envelope"></i><span th:text="${client != null and !#strings.isEmpty(client.clientMail) ? client.clientMail : 'business@anhmedia.vn'}">business@anhmedia.vn</span></a>
+        <a class="contact-line" href="https://www.facebook.com/anhmediaservices" target="_blank" rel="noopener"><i class="fab fa-facebook"></i><span>facebook.com/anhmediaservices</span></a>
+      </div>
+      <div class="contact-card">
+        <h3>Useful links</h3>
+        <a class="contact-line" href="/instruction-gallery.html?lang=en"><i class="fas fa-images"></i><span>Instruction gallery</span></a>
+        <a class="contact-line" href="/template-images"><i class="fas fa-image"></i><span>Template image configuration</span></a>
+        <a class="contact-line" href="/app/login"><i class="fas fa-ticket"></i><span>Login / support ticket</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container footer-row">
+    <p>&copy; 2026 AnhMedia.vn. Business websites, ShopQR, automation and DEV support.</p>
+    <p><a href="/privacy-policy.html">Privacy Policy</a> &middot; <a href="/terms-of-service.html">Terms of Service</a></p>
+  </div>
+</footer>
+
+<script>
+(function() {
+  var switcher = document.querySelector('[data-language-switcher]');
+  if (switcher) {
+    var current = switcher.querySelector('.lang-flag-current');
+    var menu = switcher.querySelector('.lang-flag-menu');
+    current.addEventListener('click', function(event) {
+      event.stopPropagation();
+      var open = switcher.classList.toggle('open');
+      current.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    menu.addEventListener('click', function(event) {
+      var button = event.target.closest('.lang-flag-option');
+      if (!button) return;
+      var lang = button.getAttribute('data-lang') || 'en';
+      var map = {
+        vi: '/trang-chu.html', en: '/index-en.html', cn: '/index-cn.html', tw: '/index-tw.html',
+        ja: '/index-ja.html', ko: '/index-ko.html', es: '/index-es.html', dv: '/index-dv.html',
+        ms: '/index-ms.html', id: '/index-id.html', fil: '/index-fil.html'
+      };
+      window.location.href = (map[lang] || '/index-en.html') + '?lang=' + encodeURIComponent(lang);
+    });
+    document.addEventListener('click', function() {
+      switcher.classList.remove('open');
+      current.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  var toggle = document.querySelector('.nav-toggle');
+  var nav = document.getElementById('mainNav');
+  if (toggle && nav) {
+    toggle.addEventListener('click', function() {
+      var open = nav.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    nav.querySelectorAll('a').forEach(function(link) {
+      link.addEventListener('click', function() {
+        nav.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+})();
+</script>
+<script defer src="/anhmedia.vn/js/anhmedia-live-2026.js?v=20260806"></script>
+</body>
+</html>

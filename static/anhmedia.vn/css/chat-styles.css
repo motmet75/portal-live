@@ -1,0 +1,76 @@
+/*
+   CSS styling examples for the Vaadin app.
+   Visit https://vaadin.com/docs/flow/theme/theming-overview.html and
+   https://vaadin.com/themes/lumo for more information.
+*/
+
+/* Example: CSS class name to center align the content . */
+.centered-content {
+	margin: 0 auto;
+	max-width: 250px;
+}
+
+.highlighted {
+	border-width: 2px;
+	border-style: dotted;
+	border-color: Gainsboro;
+}
+
+.yourgrid .v-grid-tablewrapper {
+	border: none
+}
+
+.anchor-navy {
+	color: navy;
+}
+
+.anchor-black {
+	color: black;
+	font-weight: bold;
+}
+
+label.wrapLine {
+	word-wrap: break-word; /* IE  */
+	white-space: -moz-pre-wrap; /* Firefox */
+}
+
+/* [part="vaadin-horizontal-layout"].highlighted {
+    background-color: yellow;
+    border: 2px solid red;
+} */
+.v-loading-indicator {
+	display: none;
+}
+
+.item-level-zero {
+	color: navy;
+	font-weight: bold;
+}
+
+.item-level-one {
+	color: blue;
+}
+
+.item-level-two {
+	color: maroon;
+}
+
+.item-level-three {
+	color: green;
+}
+
+.item-level-four {
+	color: purple;
+}
+
+.item-level-five {
+	color: saddlebrown;
+}
+
+.item-level-six {
+	color: GoldenRod;
+}
+
+.item-level-critical {
+	background-color: #F5B7B1;
+}
