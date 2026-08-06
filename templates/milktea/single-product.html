@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{milktea :: head(${product != null ? product.productName + ' — Đại Lộ Coffee' : 'Chi tiết món — Đại Lộ Coffee'}, ${product != null ? product.productShortDes : 'Chi tiết thức uống tại Đại Lộ Coffee.'})}"></head>
+<body>
+<nav th:replace="~{milktea :: nav('products')}"></nav>
+<main class="fh5co-section single-wrap"><div class="container"><p class="breadcrumb"><a href="/home">Trang chủ</a> / <a href="/products.html">Thực đơn</a> / <span th:text="${product.productName}">Tên món</span></p><div class="row single-product">
+  <div class="col-md-6"><div class="single-product__image"><img class="img-responsive" th:src="${product.productImageDesUrl}" th:alt="${product.productName}"></div></div>
+  <div class="col-md-5 col-md-push-1"><small class="product-label" th:text="${product.productCatalog}">Cà phê</small><h1 th:text="${product.productName}">Cà phê sữa đá</h1><p class="single-price" th:text="${product.formatedPriceAfterDiscount} + ' ₫'">29.000 ₫</p><p class="lead" th:text="${product.productShortDes}">Mô tả món</p><div class="product-description" th:utext="${product.productLongDes}"></div><a class="btn btn-primary" href="/products.html">← Trở lại thực đơn</a><p class="demo-note">Giá và món dùng cho bản demo, vui lòng xác nhận tại quán.</p></div>
+</div></div></main>
+<footer th:replace="~{milktea :: footer}"></footer>
+</body></html>

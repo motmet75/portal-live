@@ -1,0 +1,5 @@
+ history/
+  template-backups/
+  database-backups/
+  *.log
+  *.dump

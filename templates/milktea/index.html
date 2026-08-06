@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{milktea :: head('Đại Lộ Coffee — Bình Phú, Quận 6', 'Cà phê và thức uống mỗi ngày tại 157–159 Bình Phú, Quận 6, TP.HCM.')}"></head>
+<body>
+<nav th:replace="~{milktea :: nav('home')}"></nav>
+<header class="fh5co-cover js-fullheight dailo-hero" role="banner" style="background-image:url('/milktea/images/hero_1.jpeg')">
+  <div class="overlay"></div><div class="container"><div class="row"><div class="col-md-12 text-center"><div class="display-t js-fullheight"><div class="display-tc js-fullheight">
+    <p class="hero-kicker">157–159 Bình Phú · Quận 6</p><h1>Chậm một nhịp.<br><em>Thưởng một ly.</em></h1><h2>Cà phê ngon, góc ngồi thân quen, mở cửa từ 06:00 mỗi ngày.</h2>
+    <p><a href="/products.html" class="btn btn-primary btn-outline">Xem thực đơn</a></p>
+  </div></div></div></div></div>
+</header>
+<section id="fh5co-about" class="fh5co-section"><div class="container"><div class="row">
+  <div class="col-md-6 img-wrap"><img src="/milktea/images/img_1.jpeg" alt="Không gian cà phê ấm cúng"></div>
+  <div class="col-md-5 col-md-push-1"><div class="section-heading"><span class="dailo-script">Hẹn nhau ở</span><h2>Đại Lộ Coffee</h2><p>Một quán café/dessert giản dị trên đường Bình Phú. Ghé cho ly cà phê sáng, một buổi trò chuyện hoặc khoảng lặng cuối ngày.</p><p><a href="#visit" class="btn btn-primary btn-outline">Chỉ đường đến quán</a></p></div></div>
+</div></div></section>
+<section id="fh5co-featured-menu" class="fh5co-section"><div class="container"><div class="row"><div class="col-md-12 fh5co-heading"><h2>Món được yêu thích</h2><p>Menu demo với những lựa chọn quen thuộc cho mọi thời điểm trong ngày.</p></div>
+  <div class="col-md-3 col-sm-6 product-card" th:each="product, stat : ${products}" th:if="${stat.index &lt; 4}"><a th:href="'/product/' + ${product.path}"><img class="img-responsive" th:src="${product.productImageDesUrl}" th:alt="${product.productName}"><h3 th:text="${product.productName}">Cà phê sữa đá</h3></a><span class="fh5co-price" th:text="${product.formatedPriceAfterDiscount} + ' ₫'">29.000 ₫</span><p th:text="${product.productShortDes}">Mô tả món</p></div>
+  <div class="col-md-3 col-sm-6 product-card" th:if="${products == null or #lists.isEmpty(products)}"><img class="img-responsive" src="/milktea/images/gallery_9.jpeg" alt="Cà phê sữa đá"><h3>Cà phê sữa đá</h3><span class="fh5co-price">29.000 ₫</span><p>Đậm vị cà phê Việt, cân bằng cùng sữa đặc.</p></div>
+</div><div class="text-center"><a class="btn btn-primary btn-outline" href="/products.html">Xem toàn bộ thực đơn</a></div></div></section>
+<footer th:replace="~{milktea :: footer}"></footer>
+</body></html>
