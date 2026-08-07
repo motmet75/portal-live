@@ -1,0 +1,8 @@
+.footer-bottom{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.mare-powered-by{display:inline-flex;align-items:center;gap:7px;color:#b8c9c3;transition:color .2s ease,transform .2s ease}
+.mare-powered-by span{font-weight:400}
+.mare-powered-by strong{color:var(--mint);font-size:12px;letter-spacing:.04em}
+.mare-powered-by i{display:grid;place-items:center;width:20px;height:20px;border:1px solid rgba(185,215,197,.35);border-radius:50%;font-style:normal;transition:background .2s ease,color .2s ease}
+.mare-powered-by:hover{color:#fff;transform:translateY(-1px)}
+.mare-powered-by:hover i{background:var(--mint);color:var(--forest)}
+@media(max-width:480px){.footer-bottom{align-items:flex-start;flex-direction:column}.mare-powered-by{padding-top:4px}}

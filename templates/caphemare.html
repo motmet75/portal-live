@@ -7,8 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&amp;family=Fraunces:opsz,wght@9..144,500;9..144,650&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/caphemare/css/mare.css">
+  <link rel="stylesheet" href="/caphemare/css/attribution.css">
 </head>
 <body>
 <nav th:fragment="nav(active)" class="mare-nav"><a class="brand" href="/home"><span>M</span> mare</a><div class="nav-links"><a href="/home" th:classappend="${active == 'home'} ? ' active'">Tiệm</a><a href="/products.html" th:classappend="${active == 'products'} ? ' active'">Thực đơn</a><a href="#visit">Ghé Mare</a></div><a class="nav-order" href="/products.html">Chọn món</a></nav>
-<footer th:fragment="footer" id="visit" class="mare-footer"><div><a class="brand brand-light" href="/home"><span>M</span> mare</a><p>Một góc cà phê nhỏ cho những ngày cần chậm lại.</p></div><div><small>ĐỊA CHỈ</small><p>60 Đường 23, Phường 10<br>Quận 6, TP. Hồ Chí Minh</p></div><div><small>GIỜ MỞ CỬA</small><p>Mỗi ngày<br>06:00 — 22:00</p></div><div class="footer-bottom">© 2026 Tiệm Cà Phê Mare</div></footer>
+<footer th:fragment="footer" id="visit" class="mare-footer"><div><a class="brand brand-light" href="/home"><span>M</span> mare</a><p>Một góc cà phê nhỏ cho những ngày cần chậm lại.</p></div><div><small>ĐỊA CHỈ</small><p>60 Đường 23, Phường 10<br>Quận 6, TP. Hồ Chí Minh</p></div><div><small>GIỜ MỞ CỬA</small><p>Mỗi ngày<br>06:00 — 22:00</p></div><div class="footer-bottom"><span>© 2026 Tiệm Cà Phê Mare</span><a class="mare-powered-by" href="https://anhmedia.vn" target="_blank" rel="noopener" title="AnhMedia.vn — Giải pháp website và thương mại điện tử"><span>Thiết kế &amp; vận hành bởi</span><strong>AnhMedia.vn</strong><i aria-hidden="true">↗</i></a></div></footer>
 </body></html>
