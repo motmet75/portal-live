@@ -463,9 +463,10 @@ document.addEventListener("DOMContentLoaded", function() {
 		        return re.test(String(password));
 		    }
 		    
-		    function populateShippingAddresses(addresses) {
-        const container = document.getElementById("shippingAddressContainer");
-        container.innerHTML = ""; // Clear existing addresses
+			    function populateShippingAddresses(addresses) {
+	        const container = document.getElementById("shippingAddressContainer");
+	        if (!container) return;
+	        container.innerHTML = ""; // Clear existing addresses
         
         if (!Array.isArray(addresses) || addresses.length === 0) {
             container.innerHTML = "<p class='text-center'>Không có địa chỉ giao hàng nào.</p>";

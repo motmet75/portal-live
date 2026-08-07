@@ -200,6 +200,7 @@ function updateCartUIPage() {
 
     // Update cart items list
     const cartItemsContainer = document.querySelector('.cart-items-body');
+	if (!cartItemsContainer) return;
     cartItemsContainer.innerHTML = ''; // Clear existing items
 
     cart.items.forEach(item => {
@@ -409,10 +410,12 @@ function removeFromCart2(productId) {
 
 function updateCartUI(updatedCart) {
     // Select the cart container
-    document.querySelector('.cart-count').textContent = cart.totalItems;
+	const cartCount = document.querySelector('.cart-count');
+	if (cartCount) cartCount.textContent = cart.totalItems;
 
     // Update cart items list
     const cartItemsContainer = document.querySelector('.cart-items');
+	if (!cartItemsContainer) return;
     cartItemsContainer.innerHTML = ''; // Clear existing items
 
     updatedCart.items.forEach(item => {
@@ -470,7 +473,11 @@ document.querySelectorAll('.add-to-cart-btn').forEach(button => {
 
 
 function showNotification(type, message) {
-  const notification = document.getElementById('notification');
+	  const notification = document.getElementById('notification');
+	  if (!notification) {
+	    console.info(message);
+	    return;
+	  }
 
   // Set the notification message and style
   notification.textContent = message;
@@ -483,8 +490,9 @@ function showNotification(type, message) {
 }
 
 document.addEventListener('scroll', function () {
-    const row = document.querySelector('.floating');
-    const scrollY = window.scrollY || document.documentElement.scrollTop;
+	    const row = document.querySelector('.floating');
+	    if (!row) return;
+	    const scrollY = window.scrollY || document.documentElement.scrollTop;
 
     if (scrollY > 100) { // Show when scrolling down more than 100px
         row.classList.add('show'); 
@@ -511,6 +519,7 @@ function createBindings(quantityContainer) {
 	var quantityAmount = quantityContainer.getElementsByClassName('quantity-amount')[0];
 	var increase = quantityContainer.getElementsByClassName('increase')[0];
 	var decrease = quantityContainer.getElementsByClassName('decrease')[0];
+	if (!quantityAmount || !increase || !decrease) return;
 	increase.addEventListener('click', function(e) { increaseValue(e, quantityAmount); });
 	decrease.addEventListener('click', function(e) { decreaseValue(e, quantityAmount); });
 }
