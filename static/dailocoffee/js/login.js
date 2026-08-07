@@ -125,13 +125,26 @@ document.addEventListener("DOMContentLoaded", function() {
 					}
 					return response.json();
 				})
-				.then(userClient => {
+			.then(userClient => {
 					console.log('User data received:', userClient);
 					userDetails = userClient;
-
-					if (window.location.pathname !== "/validation") {
-						window.location.href = "/validation?username=" + userDetails['user'] + "&status=" + userDetails['note'];
+					const note = userDetails?.note || '';
+					const username = userDetails?.user || '';
+					if (!username) {
+						throw new Error('The registration response did not include a username.');
 					}
+					if (note === 'validation-email-failed') {
+						errorSpan.textContent = 'Tài khoản đã được tạo nhưng chưa gửi được email xác thực. Vui lòng thử đăng ký lại để gửi lại mã.';
+						errorSpan.style.display = 'inline';
+						return;
+					}
+					if (note === 'existeduser') {
+						errorSpan.textContent = 'Email này đã có tài khoản. Vui lòng đăng nhập.';
+						errorSpan.style.display = 'inline';
+						return;
+					}
+					window.location.href = '/validate?username=' + encodeURIComponent(username)
+						+ '&loginform=simple&lang=vi';
 				})
 				.catch(error => {
 					console.error('Error fetching user data:', error);

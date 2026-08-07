@@ -51,6 +51,14 @@ The NLS checkout implementation uses a shared `fcheckout.html`, `cart.js`, `chec
 
 The cloned login JavaScript calls `/api/login-act` and `/api/simple-register`. Google OAuth uses `/oauth2/authorization/google` unless the current backend explicitly changes it.
 
+## Validation page contract
+
+`/validate` displays the code-entry page; `/validation` submits and verifies the code. Never redirect a new registration directly to `/validation` without a `validationcode`.
+
+The backend resolves `templates/<template>/validation.html` when it exists and otherwise falls back to packaged `Validation.html`. A tenant validation template should use the supplied `imgURL`, `companynameshort`, `companywelcometext`, `username`, `message`, `loginform`, `loginPath`, and `validationLanguage` model values. Default public language to Vietnamese and retain a visible language selector.
+
+For simple registration, treat `validation-email-sent`, `validation-email-failed`, and `existeduser` as distinct results. Do not expose the validation code in the registration API response. An inactive existing account may retry registration to resend its stored validation code.
+
 ## Live Git hygiene
 
 The repository may contain user-owned staged files such as `.idea/.gitignore`. Never unstage, delete, or commit these incidentally. Use path-limited `git add` and `git commit -- <paths>`.
