@@ -394,9 +394,26 @@
     }
   }
 
-  function youtubeEmbedUrl(url) {
-    var id = youtubeVideoId(url);
-    return id ? 'https://www.youtube.com/embed/' + id : '';
+  function externalVideoEmbedUrl(url) {
+    var youtubeId = youtubeVideoId(url);
+    if (youtubeId) return 'https://www.youtube.com/embed/' + youtubeId + '?autoplay=1&mute=1&playsinline=1&rel=0';
+    try {
+      var parsed = new URL(clean(url), window.location.origin);
+      var host = parsed.hostname.replace(/^www\./i, '').replace(/^m\./i, '').toLowerCase();
+      var parts = parsed.pathname.split('/').filter(Boolean);
+      if (host === 'dai.ly' || host === 'dailymotion.com' || host.endsWith('.dailymotion.com')) {
+        var dmId = host === 'dai.ly' ? (parts[0] || '') : (parts[0] === 'video' ? (parts[1] || '') : (parsed.searchParams.get('video') || ''));
+        dmId = dmId.replace(/[^a-z0-9]/ig, '');
+        return dmId ? 'https://geo.dailymotion.com/player.html?video=' + dmId + '&autoplay=1&mute=1&queue-enable=false' : '';
+      }
+      if (host === 'tiktok.com' || host.endsWith('.tiktok.com')) {
+        var videoAt = parts.indexOf('video');
+        var tikTokId = videoAt >= 0 ? (parts[videoAt + 1] || '') : '';
+        tikTokId = tikTokId.replace(/\D/g, '');
+        return tikTokId ? 'https://www.tiktok.com/player/v1/' + tikTokId + '?autoplay=1&loop=1&music_info=1&description=1' : '';
+      }
+    } catch (ignore) {}
+    return '';
   }
 
   function youtubeThumbnailUrl(url) {
@@ -630,7 +647,7 @@
     var poster = item.thumbs[0] || youtubeThumbnailUrl(item.media[0]) || item.media[0];
     var posterImg = card.querySelector('.am-card-poster');
     var count = card.querySelector('.am-card-count');
-    if (posterImg && poster && !isVideoUrl(poster) && !youtubeEmbedUrl(poster)) posterImg.src = assetUrl(poster);
+    if (posterImg && poster && !isVideoUrl(poster) && !externalVideoEmbedUrl(poster)) posterImg.src = assetUrl(poster);
     if (posterImg) markImageReady(posterImg);
     if (count) count.textContent = Math.max(item.media.length, 1);
     card.querySelector('.am-card-button').addEventListener('click', function() { openViewer(index, 0); });
@@ -812,7 +829,7 @@
       button.type = 'button';
       button.className = index === slideIndex ? 'active' : '';
       var thumb = item.thumbs[index] || item.thumbs[0] || youtubeThumbnailUrl(url) || url;
-      if (thumb && !isVideoUrl(thumb) && !youtubeEmbedUrl(thumb)) {
+      if (thumb && !isVideoUrl(thumb) && !externalVideoEmbedUrl(thumb)) {
         var img = document.createElement('img');
         img.src = assetUrl(thumb);
         img.alt = '';
@@ -913,7 +930,7 @@
     var mediaKey = item.index + ':' + slideIndex + ':' + mediaUrl;
     var mediaChanged = mediaKey !== currentMediaKey;
     currentMediaKey = mediaKey;
-    var embedSrc = youtubeEmbedUrl(mediaUrl);
+    var embedSrc = externalVideoEmbedUrl(mediaUrl);
     if (!clean(mediaUrl)) {
       setMediaMode('empty');
     } else if (embedSrc) {
@@ -928,8 +945,12 @@
       } else if (videoMode) {
         setMediaMode('video');
         videoEl.src = src;
+        videoEl.muted = true;
+        videoEl.loop = true;
+        videoEl.setAttribute('playsinline', '');
         videoEl.poster = assetUrl(item.thumbs[slideIndex] || item.thumbs[0] || youtubeThumbnailUrl(mediaUrl) || '');
         videoEl.load();
+        videoEl.play().catch(function() {});
       } else {
         setMediaMode('image');
         imageEl.src = src;
@@ -1098,8 +1119,8 @@
   }
 })();
 </script>
-<link rel="stylesheet" th:href="'/' + ${domain} + '/css/instruction-reel-2026.css?v=20260806'">
+<link rel="stylesheet" th:href="'/' + ${domain} + '/css/instruction-reel-2026.css?v=20260808'">
 <script defer th:src="'/' + ${domain} + '/js/anhmedia-live-2026.js?v=20260806'"></script>
-<script defer th:src="'/' + ${domain} + '/js/instruction-reel-2026.js?v=20260806'"></script>
+<script defer th:src="'/' + ${domain} + '/js/instruction-reel-2026.js?v=20260808'"></script>
 </body>
 </html>
