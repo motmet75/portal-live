@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/dailocoffee/css/style.css">
   <link rel="stylesheet" href="/dailocoffee/css/dailo.css">
   <link rel="stylesheet" href="/dailocoffee/css/navigation-banner.css">
+  <link rel="stylesheet" href="/dailocoffee/css/cart-feature.css">
 </head>
 <body>
 <nav th:fragment="nav(active)" class="fh5co-nav dailo-nav" role="navigation">
@@ -24,16 +25,31 @@
         <li th:classappend="${active == 'home'} ? 'active'"><a href="/home">Trang chủ</a></li>
         <li th:classappend="${active == 'products'} ? 'active'"><a href="/products.html">Thực đơn</a></li>
         <li><a href="#visit">Ghé quán</a></li>
+        <li class="dailo-cart-nav"><button type="button" data-dailo-cart-open aria-label="Mở giỏ hàng"><span aria-hidden="true">🛒</span> Giỏ hàng <b th:text="${cart != null ? cart.totalItems : 0}">0</b></button></li>
       </ul></div>
     </div>
   </div>
 </nav>
 <footer th:fragment="footer" id="fh5co-footer" role="contentinfo">
+  <aside class="dailo-cart" data-dailo-cart aria-hidden="true" aria-labelledby="dailo-cart-title">
+    <button class="dailo-cart__backdrop" type="button" data-dailo-cart-close aria-label="Đóng giỏ hàng"></button>
+    <section class="dailo-cart__panel">
+      <header><div><small>ĐƠN CỦA BẠN</small><h2 id="dailo-cart-title">Giỏ hàng</h2></div><button type="button" data-dailo-cart-close aria-label="Đóng">×</button></header>
+      <div class="dailo-cart__body">
+        <div class="dailo-cart__empty" th:if="${cart == null or cart.totalItems == 0}"><strong>Chưa có món nào</strong><p>Chọn thức uống yêu thích từ thực đơn Đại Lộ.</p><a href="/products.html">Xem thực đơn →</a></div>
+        <article class="dailo-cart__item" th:each="item : ${cart != null ? cart.items : {}}">
+          <img th:src="${item.imageUrl}" th:alt="${item.name}"><div><strong th:text="${item.name}">Tên món</strong><span th:text="${item.formatedPrice} + ' ' + ${cart.currency}">0 ₫</span><div class="dailo-cart__qty"><button type="button" th:data-cart-item-id="${item.id}" data-cart-delta="-1">−</button><b th:text="${item.quantity}">1</b><button type="button" th:data-cart-item-id="${item.id}" data-cart-delta="1">+</button></div></div><button class="dailo-cart__remove" type="button" th:data-cart-remove-id="${item.id}" aria-label="Xóa món">×</button>
+        </article>
+      </div>
+      <div class="dailo-cart__footer"><div><span>Tạm tính</span><strong th:text="${cart != null ? cart.formatedPrice + ' ' + cart.currency : '0 ₫'}">0 ₫</strong></div><a href="/dat-hang">Đặt hàng →</a><a class="dailo-cart__view" href="/gio-hang">Xem giỏ hàng chi tiết</a></div>
+    </section>
+  </aside>
   <div class="container"><div class="row row-pb-md">
     <div class="col-md-5"><h4>Đại Lộ Coffee</h4><p>Một điểm dừng dễ chịu giữa nhịp sống Quận 6.</p></div>
     <div class="col-md-4" id="visit"><h4>Địa chỉ</h4><p>157–159 Bình Phú, Phường 11<br>Quận 6, TP. Hồ Chí Minh</p></div>
     <div class="col-md-3"><h4>Giờ mở cửa</h4><p>Hằng ngày<br>06:00 – 23:00</p></div>
   </div><div class="row copyright"><div class="col-md-12 text-center"><p>© 2026 Đại Lộ Coffee · Demo storefront</p></div></div></div>
+  <script src="/dailocoffee/js/cart-feature.js"></script>
 </footer>
 <script src="/dailocoffee/js/jquery.min.js"></script>
 <script src="/dailocoffee/js/bootstrap.min.js"></script>
