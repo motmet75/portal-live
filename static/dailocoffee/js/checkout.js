@@ -1,3 +1,64 @@
+let pendingOrderDetails = null;
+
+async function readOrderResponse(response) {
+    let payload = {};
+    try { payload = await response.json(); } catch (ignored) {}
+    if (!response.ok) throw new Error(payload.error || payload.message || 'Yêu cầu không thành công.');
+    return payload;
+}
+
+async function requestOrderOtp(orderDetails) {
+    pendingOrderDetails = orderDetails;
+    const email = (orderDetails.email || '').trim();
+    const panel = document.getElementById('orderOtpPanel');
+    const error = document.getElementById('orderOtpError');
+    if (error) error.textContent = '';
+    await fetch('/api/order/send-code', {
+        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({email})
+    }).then(readOrderResponse);
+    const message = document.getElementById('orderOtpMessage');
+    if (message) message.textContent = 'Mã gồm 6 chữ số đã gửi đến ' + email + '. Mã có hiệu lực trong 10 phút.';
+    if (panel) { panel.hidden = false; panel.scrollIntoView({behavior: 'smooth', block: 'center'}); }
+    document.getElementById('orderOtpCode')?.focus();
+}
+
+async function createVerifiedOrder() {
+    if (!pendingOrderDetails) throw new Error('Vui lòng bấm Đặt hàng để chuẩn bị đơn trước.');
+    const order = await fetch('/api/createorder', {
+        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(pendingOrderDetails)
+    }).then(readOrderResponse);
+    const clientusername = document.getElementById('clientusername');
+    let target = '/dat-hang-thanh-cong?';
+    if (clientusername) target += 'username=' + encodeURIComponent(clientusername.value);
+    else if (pendingOrderDetails.id > 0) target += 'username=' + encodeURIComponent(pendingOrderDetails.user || '');
+    else target += 'newcustomer=true&username=' + encodeURIComponent(pendingOrderDetails.user || '');
+    window.location.href = target + '&order=' + encodeURIComponent(order.stringId);
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('verifyOrderOtp')?.addEventListener('click', async function () {
+        const code = (document.getElementById('orderOtpCode')?.value || '').trim();
+        const error = document.getElementById('orderOtpError');
+        if (!/^\d{6}$/.test(code)) { if (error) error.textContent = 'Vui lòng nhập đúng mã gồm 6 chữ số.'; return; }
+        this.disabled = true;
+        try {
+            await fetch('/api/order/verify-code', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email: pendingOrderDetails.email, code})
+            }).then(readOrderResponse);
+            await createVerifiedOrder();
+        } catch (e) {
+            if (error) error.textContent = e.message;
+            this.disabled = false;
+        }
+    });
+    document.getElementById('resendOrderOtp')?.addEventListener('click', function () {
+        if (pendingOrderDetails) requestOrderOtp(pendingOrderDetails).catch(e => {
+            const error = document.getElementById('orderOtpError'); if (error) error.textContent = e.message;
+        });
+    });
+});
+
 document.addEventListener("DOMContentLoaded", function() {
    
      fetch('/api/login', { // Adjust the endpoint as needed
@@ -353,50 +414,13 @@ document.addEventListener("DOMContentLoaded", function() {
 										throw err;
 									}
 									
-									fetch('/api/createorder', { // Adjust the endpoint as needed
-										method: 'POST', // Use POST to send data
-										headers: {
-											'Content-Type': 'application/json'
-										},
-										body: JSON.stringify(userDetails)  // Send user details as JSON
-									})
-										.then(response => {
-											if (!response.ok) {
-												throw new Error('Failed to fetch user data.');
-											}
-											return response.json();
-										})
-										.then(order => {
-											console.log('User data received:', order);
-											
-											
-											let clientusername = document.getElementById("clientusername");
-											if (clientusername) {//logged
-												 
-												if (window.location.pathname !== "/dat-hang-thanh-cong") {
-													window.location.href = "/dat-hang-thanh-cong?username=" +clientusername.value + "&order=" + order.stringId;
-												}
-	
-											} else { // not log
-												
-												if (userDetails['id'] > 0) {//existed user
-													
-													if (window.location.pathname !== "/dat-hang-thanh-cong") {
-														window.location.href = "/dat-hang-thanh-cong?username=" +userDetails['user'] + "&order=" + order.stringId;
-													}
-	
-												} else { // new user
-	
-													if (window.location.pathname !== "/dat-hang-thanh-cong") {
-														window.location.href = "/dat-hang-thanh-cong?newcustomer=true&username="  +userDetails['user'] + "&order=" + order.stringId;
-													}
-	
-												}
-											}
-										})
-										.catch(error => {
-											console.error('Error fetching user data:', error);
-										});
+									requestOrderOtp(userDetails).catch(error => {
+										console.error('Error sending order OTP:', error);
+										const otpPanel = document.getElementById('orderOtpPanel');
+										const otpError = document.getElementById('orderOtpError');
+										if (otpPanel) otpPanel.hidden = false;
+										if (otpError) otpError.textContent = error.message;
+									});
 								}
 						})
 							.catch(error => {

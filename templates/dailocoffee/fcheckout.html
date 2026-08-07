@@ -529,6 +529,16 @@
 								
 
 								<div class="form-group">
+									<div id="orderOtpPanel" class="border rounded p-3 mb-3 bg-light" hidden>
+										<label for="orderOtpCode" class="text-black"><strong>Xác nhận email trước khi đặt hàng</strong></label>
+										<p id="orderOtpMessage" class="small text-muted mb-2">Mã gồm 6 chữ số đã được gửi đến email của bạn.</p>
+										<div class="input-group">
+											<input id="orderOtpCode" class="form-control text-black" type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="Nhập mã xác nhận">
+											<button id="verifyOrderOtp" class="btn btn-dark" type="button">Xác nhận &amp; đặt hàng</button>
+										</div>
+										<div id="orderOtpError" class="text-danger small mt-2" role="alert"></div>
+										<button id="resendOrderOtp" class="btn btn-link px-0 mt-1" type="button">Gửi lại mã</button>
+									</div>
 								<p> <label for="c_address" class="text-black"><span class="text-danger" ></span> </label> </p>
 									<button class="btn btn-black btn-lg py-3 btn-block" id="process"
 										>Đặt hàng</button>
