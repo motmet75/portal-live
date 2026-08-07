@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{dailocoffee :: head('Giỏ hàng — Đại Lộ Coffee', 'Kiểm tra các món đã chọn tại Đại Lộ Coffee.')}"></head>
+<body>
+<nav th:replace="~{dailocoffee :: nav('cart')}"></nav>
+<header class="fh5co-cover dailo-page-hero dailo-order-hero" style="background-image:url('/dailocoffee/images/gallery_3.jpeg')"><div class="overlay"></div><div class="container"><div class="display-t"><div class="display-tc text-center"><p class="hero-kicker">Những món bạn đã chọn</p><h1>Giỏ hàng</h1></div></div></div></header>
+<main class="dailo-cart-page"><div class="container">
+  <div class="dailo-cart-page__empty" th:if="${cart == null or cart.totalItems == 0}"><h2>Giỏ hàng đang trống</h2><p>Thực đơn Đại Lộ vẫn đang chờ bạn khám phá.</p><a class="btn btn-primary" href="/products.html">Xem thực đơn</a></div>
+  <div th:if="${cart != null and cart.totalItems > 0}">
+    <div class="table-responsive"><table class="table"><thead><tr><th>Món</th><th>Đơn giá</th><th>Số lượng</th><th>Thành tiền</th><th></th></tr></thead><tbody>
+      <tr th:each="item : ${cart.items}"><td><div class="dailo-cart-product"><img th:src="${item.imageUrl}" th:alt="${item.name}"><strong th:text="${item.name}">Tên món</strong></div></td><td th:text="${item.formatedPrice} + ' ' + ${cart.currency}">0 ₫</td><td><div class="dailo-cart__qty"><button type="button" th:data-cart-item-id="${item.id}" data-cart-delta="-1">−</button><b th:text="${item.quantity}">1</b><button type="button" th:data-cart-item-id="${item.id}" data-cart-delta="1">+</button></div></td><td th:text="${item.totalPrice} + ' ' + ${cart.currency}">0 ₫</td><td><button class="dailo-cart__remove" type="button" th:data-cart-remove-id="${item.id}" aria-label="Xóa món">×</button></td></tr>
+    </tbody></table></div>
+    <section class="dailo-cart-summary"><span>Tổng cộng</span><strong th:text="${cart.formatedPrice} + ' ' + ${cart.currency}">0 ₫</strong><a href="/dat-hang">Tiến hành đặt hàng →</a></section>
+  </div>
+</div></main>
+<footer th:replace="~{dailocoffee :: footer}"></footer>
+<script src="/dailocoffee/js/cart.js"></script>
+</body>
+</html>

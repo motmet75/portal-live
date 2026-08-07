@@ -1,0 +1,1232 @@
+<div  th:fragment="body" class="untree_co-section"  style="padding-top: 1rem;" >
+	<style>
+		.login-callout {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 16px;
+			background: linear-gradient(135deg, #fff7df, #ffffff);
+			border: 2px solid #f4a301 !important;
+			box-shadow: 0 12px 30px rgba(244, 163, 1, 0.18);
+		}
+
+		.login-callout-text {
+			font-size: 1.1rem;
+			font-weight: 700;
+			color: #1f2d3d;
+		}
+
+		.login-callout-btn {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-height: 50px;
+			padding: 0 28px;
+			border-radius: 999px;
+			background: #f4a301;
+			color: #111 !important;
+			font-size: 1.08rem;
+			font-weight: 800;
+			text-decoration: none !important;
+			box-shadow: 0 8px 18px rgba(244, 163, 1, 0.32);
+			transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+		}
+
+		.login-callout-btn:hover {
+			background: #ffbc2e;
+			color: #111 !important;
+			box-shadow: 0 10px 22px rgba(244, 163, 1, 0.4);
+			transform: translateY(-1px);
+		}
+
+		@media (max-width: 576px) {
+			.login-callout {
+				flex-direction: column;
+				align-items: stretch;
+				text-align: center;
+			}
+
+			.login-callout-btn {
+				width: 100%;
+			}
+		}
+	</style>
+		<div class="container">
+			<div class="row mb-5" th:if="${session.SPRING_SECURITY_CONTEXT == null}">
+				<div class="col-md-12">
+					<div class="border p-4 rounded login-callout" role="alert">
+						<div class="login-callout-text">Đã có tài khoản?</div>
+						<a class="login-callout-btn" th:href="'/dang-nhap'">Ấn để đăng nhập</a>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6 mb-5 mb-md-0">
+					<h2 class="h3 mb-3 text-black">Chi tiết đơn hàng</h2>
+					<div class="p-3 p-lg-5 border bg-white">
+						<div class="form-group">
+							
+						</div>
+						<div class="form-group row">
+							<div class="col-md-5"> 
+								<label for="c_fname" class="text-black"><span class="h3 mb-3 text-black">Họ </span> <span
+									class="text-danger">*</span></label> <input type="text" placeholder="Họ" 
+									class="form-control" id="c_lname" name="c_lname" th:value="${session.SPRING_SECURITY_CONTEXT != null} ? ${session.SPRING_SECURITY_CONTEXT.authentication.principal.lastName} : ''" >
+							</div>
+							<div class="col-md-7">
+								<label for="c_fname" class="text-black"><span class="h3 mb-3 text-black">Tên </span> <span
+									class="text-danger">*</span></label> <input type="text" placeholder="Tên" 
+									class="form-control" id="c_fname" name="c_fname" th:value="${session.SPRING_SECURITY_CONTEXT != null} ? ${session.SPRING_SECURITY_CONTEXT.authentication.principal.firstName} : ''">
+							</div>
+							
+						</div>
+					<div class="form-group row mb-5">
+
+						<div class="col-md-7">
+							<label for="c_email_address" class="text-black">Email <span
+								class="text-danger">*</span>
+							</label> <input type="text" class="form-control" placeholder="Email"
+								id="c_email_address" name="c_email_address"  th:readonly="${session.SPRING_SECURITY_CONTEXT != null}" 
+								 th:value="${session.SPRING_SECURITY_CONTEXT != null} ? ${session.SPRING_SECURITY_CONTEXT.authentication.principal.email} : ''">
+						</div>
+
+						<label class="text-black"> <span class="text-danger">*Vui
+								lòng điền số điện thoại và email chính xác để chúng tôi có thể
+								xác nhận với quý khách trước khi giao hàng.</span>
+						</label>
+					</div>
+					<div>
+						<p></p>
+					</div>
+					<div>
+						<h2 class="h3 mb-3 text-black">
+							Địa chỉ nhận hàng<span class="text-danger">*</span>
+						</h2>
+					</div>
+
+					
+					
+					<!-- Carrier selector -->
+                    <div class="mb-3">
+                        <label class="text-black"><strong>Hình thức giao hàng</strong></label>
+                        <div>
+                            <label class="me-3"><input type="radio" name="shippingCarrier" value="standard" checked onchange="toggleCarrier(this.value)"> Tiêu chuẩn</label>
+                            <label class="me-3"><input type="radio" name="shippingCarrier" value="viettel" onchange="toggleCarrier(this.value)"> Viettel Post</label>
+                            <label class="me-3"><input type="radio" name="shippingCarrier" value="ghtk" onchange="toggleCarrier(this.value)"> GHTK</label>
+                            <label><input type="radio" name="shippingCarrier" value="spx" onchange="toggleCarrier(this.value)"> SPX Shopee Express</label>
+                        </div>
+                    </div>
+
+                    <!-- Existing generic address fields (wrapped for easy toggle) -->
+                    <div id="standardAddressFields">
+                    <input type="hidden" id="selectedAddressId"> <select
+                        th:if="${session.SPRING_SECURITY_CONTEXT != null}"
+                        id="shippingAddressList" style="opacity: 1; margin-bottom: 1rem;"
+                        onchange="updateAddressFields(this)">
+                        <option data-id="00">Mới</option>
+                    </select>
+
+
+                    <div class="form-group row">
+                        <div class="col-md-5">
+                                <label for="c_phone" class="text-black">Điện thoại nhận hàng <span    class="text-danger">*</span></label> <input type="text"
+                                    class="form-control" id="c_phone" name="c_phone"
+                                    placeholder="Phone Number">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="c_state_country" class="text-black">Tỉnh/ Thành Phố: <span class="text-danger">*</span>
+                                </label> 
+                                <input type="text" class="form-control" id="c_state_country"
+                                    name="c_state_country" placeholder="Tỉnh/ Thành Phố"   list="provinceList" onkeyup="fetchProvinces()">
+                                    <div id="provinceList" class="suggestions"></div> 
+                            </div>
+
+                              
+							
+                        </div>
+                        <div class="form-group mt-3">
+                           <div class="col-md-12">
+                            <label id="districtLabel" data-provinceid="01" for="c_address" class="text-black">Quận/Huyện: <span class="text-danger">*</span> </label> 
+                            <input type="text" class="form-control"     id="c_district"    placeholder="Quận/Huyện" onkeyup="fetchDistricts()">
+                            <div id="districtList" class="suggestions"></div> 
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <label for="c_address" class="text-black">Tên đường, khu phố: <span class="text-danger" >*</span> </label> 
+                                 <input type="text"
+                                    class="form-control" id="c_address" name="c_address"
+                                    placeholder="Tên đường, khu phố">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="c_postal_zip" class="text-black">Zip code
+                                    
+                                </label> <input type="text" class="form-control" id="c_postal_zip"
+                                    name="c_postal_zip">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shared warehouse selector (shown for Viettel Post, GHTK, and SPX) -->
+                    <div id="sharedWarehouseSection" style="display:none;" class="mb-2">
+                        <div class="border rounded p-2 bg-light" id="warehouseSelectorBox">
+                            <strong class="small">🏭 Chọn kho gửi hàng</strong>
+                            <div id="warehouseList" class="mt-2">
+                                <p class="text-muted small">Đang tải danh sách kho...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="spxShippingNote" style="display:none;" class="border rounded p-2 mb-3 bg-light">
+                        <strong class="small">SPX Shopee Express</strong>
+                        <p class="text-muted small mb-0">Chon kho gui hang va dien dia chi nhan hang ben duoi.</p>
+                    </div>
+
+                    <!-- Viettel-specific address fields (hidden until selected) -->
+                    <div id="viettelAddressFields" style="display:none;" class="mb-3">
+
+                        <!-- Sender (From) — collapsible, auto-set by warehouse selection but overridable -->
+                        <div class="border rounded p-2 mb-2 bg-light">
+                            <div class="d-flex justify-content-between align-items-center" style="cursor:pointer;" onclick="toggleSenderDetails()">
+                                <strong class="small">📦 Địa chỉ gửi hàng (tỉnh/quận VP)</strong>
+                                <span id="senderSummary" class="text-muted small mx-2">Đang tải...</span>
+                                <span id="senderToggleIcon" class="small">▼</span>
+                            </div>
+                            <div id="senderDetails" style="display:none;" class="mt-2">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="text-black small">Tỉnh/Thành gửi</label>
+                                        <select id="viettel_sender_province_sel" class="form-control form-control-sm" onchange="onSenderProvinceChange()">
+                                            <option value="">-- Chọn --</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="text-black small">Quận/Huyện gửi</label>
+                                        <select id="viettel_sender_district_sel" class="form-control form-control-sm" onchange="updateSenderSummary()">
+                                            <option value="">-- Chọn --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Receiver (To) -->
+                        <div class="border rounded p-2 mb-2">
+                            <div class="mb-2"><strong class="small">📍 Địa chỉ nhận hàng</strong></div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label class="text-black small">Tỉnh/Thành <span class="text-danger">*</span></label>
+                                    <select id="viettel_receiver_province" class="form-control" onchange="onViettelProvinceChange()">
+                                        <option value="">-- Chọn Tỉnh --</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="text-black small">Quận/Huyện <span class="text-danger">*</span></label>
+                                    <select id="viettel_receiver_district" class="form-control" onchange="onViettelDistrictChange()">
+                                        <option value="">-- Chọn Quận/Huyện --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label class="text-black small">Phường/Xã</label>
+                                    <select id="viettel_receiver_ward" class="form-control">
+                                        <option value="">-- Chọn Phường/Xã --</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="text-black small">Tên đường, khu phố</label>
+                                    <input type="text" id="viettel_receiver_street" class="form-control" placeholder="Số nhà, tên đường">
+                                </div>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <label class="text-black small">Số điện thoại nhận hàng <span class="text-danger">*</span></label>
+                                    <input type="text" id="viettel_receiver_phone" class="form-control" placeholder="Số điện thoại nhận hàng">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- GHTK address fields (hidden until selected) -->
+                    <div id="ghtkAddressFields" style="display:none;" class="mb-3">
+
+                        <!-- Sender (From) — pre-filled from shared warehouse selector -->
+                        <div class="border rounded p-2 mb-2 bg-light">
+                            <div class="d-flex justify-content-between align-items-center" style="cursor:pointer;" onclick="toggleGhtkSenderDetails()">
+                                <strong class="small">📦 Địa chỉ gửi hàng (GHTK)</strong>
+                                <span id="ghtkSenderSummary" class="text-muted small mx-2">Chưa chọn kho</span>
+                                <span id="ghtkSenderToggleIcon" class="small">▼</span>
+                            </div>
+                            <div id="ghtkSenderDetails" style="display:none;" class="mt-2">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <label class="text-black small">Tỉnh/Thành gửi <span class="text-danger">*</span></label>
+                                        <input type="text" id="ghtk_sender_province" class="form-control form-control-sm" placeholder="VD: Hà Nội" oninput="updateGhtkSenderSummary()">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="text-black small">Quận/Huyện gửi <span class="text-danger">*</span></label>
+                                        <input type="text" id="ghtk_sender_district" class="form-control form-control-sm" placeholder="VD: Quận Hoàn Kiếm" oninput="updateGhtkSenderSummary()">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Receiver (To) -->
+                        <div class="border rounded p-2 mb-2">
+                            <div class="mb-2"><strong class="small">📍 Địa chỉ nhận hàng (GHTK)</strong></div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label class="text-black small">Tỉnh/Thành <span class="text-danger">*</span></label>
+                                    <input type="text" id="ghtk_receiver_province" class="form-control" placeholder="VD: Hồ Chí Minh" oninput="ghtkAutoEstimate()">
+                                </div>
+                                <div class="col-6">
+                                    <label class="text-black small">Quận/Huyện <span class="text-danger">*</span></label>
+                                    <input type="text" id="ghtk_receiver_district" class="form-control" placeholder="VD: Quận 1" oninput="ghtkAutoEstimate()">
+                                </div>
+                            </div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label class="text-black small">Phường/Xã</label>
+                                    <input type="text" id="ghtk_receiver_ward" class="form-control" placeholder="VD: Phường Bến Nghé">
+                                </div>
+                                <div class="col-6">
+                                    <label class="text-black small">Tên đường, khu phố</label>
+                                    <input type="text" id="ghtk_receiver_street" class="form-control" placeholder="Số nhà, tên đường">
+                                </div>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <label class="text-black small">Số điện thoại nhận hàng <span class="text-danger">*</span></label>
+                                    <input type="text" id="ghtk_receiver_phone" class="form-control" placeholder="Số điện thoại nhận hàng">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+						<div class="form-group" th:if="${session.SPRING_SECURITY_CONTEXT == null}">
+							<label for="c_create_account" class="text-black"
+								data-bs-toggle="collapse" th:href="${domain} + '/' + '#create_an_account'"
+								role="button" aria-expanded="false"
+								aria-controls="create_an_account"><input type="checkbox"
+								value="1" id="c_create_account"> Tạo tài khoản với email?</label>
+							<div class="collapse" id="create_an_account">
+								<div class="py-2 mb-4">
+									<p class="mb-3">Tạo tài khoản nếu bạn muốn tích điểm và đặt hàng lần sau.</p>
+									<div class="form-group position-relative">
+										<label for="c_account_password" class="text-black">Mật
+											khẩu:<span class="validate-text"> </span> </label> <input type="password" class="form-control"
+											id="c_account_password" name="c_account_password"
+											placeholder=""> <span id="togglePassword"
+											class="toggle-password"> 👁️ </span>
+									</div>
+								</div>
+							</div>
+						</div>
+
+
+						<div class="form-group">
+							<label for="c_order_notes" class="text-black">Ghi chú giao hàng</label>
+							<textarea name="c_order_notes" id="c_order_notes" cols="30" 
+								rows="5" class="form-control"
+								placeholder="Ghi chú ở đây..."></textarea>
+						</div>
+
+					</div>
+				</div>
+				<div class="col-md-6">
+
+					<div class="row mb-5">
+						<div class="col-md-12">
+							<h2 class="h3 mb-3 text-black">Mã giảm giá</h2>
+							<div class="p-3 p-lg-5 border bg-white">
+
+								<label for="c_code" class="text-black mb-3">Nhập mã giảm giá của bạn</label>
+								<div class="input-group w-75 couponcode-wrap">
+									<input type="text" class="form-control me-2" id="c_code"
+										placeholder="Coupon Code" aria-label="Mã giảm giá"
+										aria-describedby="button-addon2">
+									<div class="input-group-append">
+										<button class="btn btn-black btn-sm" type="button"
+											id="button-addon2">Kiểm tra</button>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</div>
+
+					<div class="row mb-5">
+						<div class="col-md-12">
+							<h2 class="h3 mb-3 text-black">Sản phẩm</h2>
+							<div class="p-3 p-lg-5 border bg-white">
+								<table class="table site-block-order-table mb-5">
+									<thead>
+										<th>#</th>
+										<th>Tên</th>
+										<th>Màu/Kích cỡ</th>
+										<th>SL</th>
+										<th>Tổng</th>
+									</thead>
+									<tbody>
+										<tr th:each="item : ${cart.items}">
+										
+										<td class="product-id" th:text="${item.id} + '.'"></td>
+											<td>						<strong th:text="${item.name}"></strong></td>
+											<td>						<strong th:text="${item.colorCode} +':'+ ${item.sizeCode} "></strong></td>
+											<td class="product-id"><strong> x </strong><strong th:text="${item.quantity}"></strong></td>
+											<td class="product-price small" style="text-align:right;"> <strong th:text="${item.totalPrice}" ></strong> </td>
+										</tr>
+										
+										<tr>
+											<td class="product-id"></td>
+											<td class="text-black font-weight-bold"><strong>Tổng tiền đơn hàng:</strong></td>
+											<td class="product-id"></td>
+											<td class="text-black font-weight-bold"><strong class="product-price small"  th:text="${cart.formatedPrice} + ${cart.currency}"  >$350.00</strong></td>
+										</tr>
+									</tbody>
+								</table>
+
+								<!-- Hidden defaults for Viettel Post sender (set by server) -->
+                                <input type="hidden" id="viettel_sender_province" th:value="${viettelSenderProvince}" />
+                                <input type="hidden" id="viettel_sender_district" th:value="${viettelSenderDistrict}" />
+                                <!-- Cart total used to pre-fill COD and product price -->
+                                <input type="hidden" id="cart_raw_total" th:value="${cart != null ? cart.totalPrice : 0}" />
+
+                                <!-- Viettel Post estimate + options (shown only when Viettel Post is selected) -->
+                                <div id="viettelEstimateSection" style="display:none;">
+
+                                    <!-- Shipping params -->
+                                    <div class="border p-3 mb-2">
+                                        <h3 class="h6 mb-2"><strong>⚖️ Thông số giao hàng</strong></h3>
+                                        <div class="row g-2">
+                                            <div class="col-4">
+                                                <label class="text-black small">Trọng lượng (gram) <span class="text-danger">*</span></label>
+                                                <input type="number" id="viettel_product_weight" class="form-control form-control-sm" min="1" value="500">
+                                            </div>
+                                            <div class="col-4">
+                                                <label class="text-black small">Giá trị hàng (VND)</label>
+                                                <input type="number" id="viettel_product_price" class="form-control form-control-sm" min="0" value="0">
+                                            </div>
+                                            <div class="col-4">
+                                                <label class="text-black small">COD (VND)</label>
+                                                <input type="number" id="viettel_money_collection" class="form-control form-control-sm" min="0" value="0">
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <button type="button" id="viettelEstimateBtn" class="btn btn-outline-primary btn-sm">
+                                                <span id="viettelSpinner" class="spinner-border spinner-border-sm me-1" style="display:none;" role="status" aria-hidden="true"></span>
+                                                🔎 Tính phí giao hàng
+                                            </button>
+                                            <small class="text-muted ms-2">Tự động tính khi chọn xong quận/huyện.</small>
+                                        </div>
+                                    </div>
+
+                                    <!-- Delivery Options -->
+                                    <div class="border p-3 mb-2">
+                                        <h3 class="h6 mb-2"><strong>🚚 Tùy chọn giao hàng</strong></h3>
+                                        <div id="shippingOptions">
+                                            <p class="text-muted small">Vui lòng chọn địa chỉ nhận hàng để xem tùy chọn giao hàng.</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <!-- GHTK estimate + options (shown only when GHTK is selected) -->
+                                <div id="ghtkEstimateSection" style="display:none;">
+
+                                    <!-- Shipping params -->
+                                    <div class="border p-3 mb-2">
+                                        <h3 class="h6 mb-2"><strong>⚖️ Thông số giao hàng (GHTK)</strong></h3>
+                                        <div class="row g-2">
+                                            <div class="col-4">
+                                                <label class="text-black small">Trọng lượng (gram) <span class="text-danger">*</span></label>
+                                                <input type="number" id="ghtk_product_weight" class="form-control form-control-sm" min="1" value="500">
+                                            </div>
+                                            <div class="col-4">
+                                                <label class="text-black small">Giá trị hàng (VND)</label>
+                                                <input type="number" id="ghtk_product_price" class="form-control form-control-sm" min="0" value="0">
+                                            </div>
+                                            <div class="col-4">
+                                                <label class="text-black small">COD (VND)</label>
+                                                <input type="number" id="ghtk_money_collection" class="form-control form-control-sm" min="0" value="0">
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <button type="button" id="ghtkEstimateBtn" class="btn btn-outline-success btn-sm">
+                                                <span id="ghtkSpinner" class="spinner-border spinner-border-sm me-1" style="display:none;" role="status" aria-hidden="true"></span>
+                                                🔎 Tính phí GHTK
+                                            </button>
+                                            <small class="text-muted ms-2">Điền đầy đủ tỉnh/quận gửi và nhận để tính phí.</small>
+                                        </div>
+                                    </div>
+
+                                    <!-- Delivery Options -->
+                                    <div class="border p-3 mb-2">
+                                        <h3 class="h6 mb-2"><strong>🚚 Tùy chọn vận chuyển GHTK</strong></h3>
+                                        <div id="ghtkShippingOptions">
+                                            <p class="text-muted small">Vui lòng nhập đầy đủ địa chỉ để xem tùy chọn.</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <!-- SPX estimate + option (shown only when SPX is selected) -->
+                                <div id="spxEstimateSection" style="display:none;">
+
+                                    <div class="border p-3 mb-2">
+                                        <h3 class="h6 mb-2"><strong>Thong so giao hang (SPX)</strong></h3>
+                                        <div class="row g-2">
+                                            <div class="col-4">
+                                                <label class="text-black small">Trong luong (gram) <span class="text-danger">*</span></label>
+                                                <input type="number" id="spx_product_weight" class="form-control form-control-sm" min="1" value="500">
+                                            </div>
+                                            <div class="col-4">
+                                                <label class="text-black small">Gia tri hang (VND)</label>
+                                                <input type="number" id="spx_product_price" class="form-control form-control-sm" min="0" value="0">
+                                            </div>
+                                            <div class="col-4">
+                                                <label class="text-black small">COD (VND)</label>
+                                                <input type="number" id="spx_money_collection" class="form-control form-control-sm" min="0" value="0">
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <button type="button" id="spxEstimateBtn" class="btn btn-sm btn-outline-primary">
+                                                Tinh phi SPX
+                                                <span id="spxSpinner" class="spinner-border spinner-border-sm ms-1" style="display:none;"></span>
+                                            </button>
+                                            <small class="text-muted ms-2">Chon kho va dien dia chi de tinh phi.</small>
+                                        </div>
+                                    </div>
+
+                                    <div class="border p-3 mb-2">
+                                        <h3 class="h6 mb-2"><strong>Tuy chon van chuyen SPX</strong></h3>
+                                        <div id="spxShippingOptions">
+                                            <p class="text-muted small">Nhap dia chi va bam Tinh phi SPX de xem phi.</p>
+                                        </div>
+                                    </div>
+
+                                </div>
+								<div class="border p-3 mb-3">
+									<h3 class="h6 mb-0">
+										<a class="d-block" data-bs-toggle="collapse"
+											th:href=" '#collapseCOD'" role="button"
+											aria-expanded="false" aria-controls="collapseCOD">Thanh toán khi nhận hàng (COD)</a>
+									</h3>
+
+									<div class="collapse" id="collapseCOD">
+										<div class="py-2">
+											<p class="mb-0">Nhận tiền khi giao hàng.</p>
+										</div>
+									</div>
+								</div>
+
+
+								
+
+								<div class="form-group">
+								<p> <label for="c_address" class="text-black"><span class="text-danger" ></span> </label> </p>
+									<button class="btn btn-black btn-lg py-3 btn-block" id="process"
+										>Đặt hàng</button>
+								</div>
+
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+			<!-- </form> -->
+		</div>
+
+<!-- Viettel Post UI and API integration -->
+<script>
+(function(){
+    const VP = '/viettelpost';
+    let isEstimating = false;
+
+    function pick(obj, keys) {
+        for (const k of keys) if (obj && obj[k] !== undefined) return obj[k];
+        return undefined;
+    }
+
+    // ── Warehouse list ────────────────────────────────────────────────────────
+    let _warehouses = [];
+
+    async function loadWarehouses() {
+        const box = document.getElementById('warehouseList');
+        if (!box) return;
+        try {
+            const res = await fetch('/api/warehouses');
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            _warehouses = await res.json();
+            if (!_warehouses.length) {
+                box.innerHTML = '<p class="text-muted small">Không có kho nào.</p>';
+                return;
+            }
+            box.innerHTML = '';
+            _warehouses.forEach((wh, i) => {
+                const div = document.createElement('div');
+                div.className = 'form-check mb-1';
+                const radio = document.createElement('input');
+                radio.type = 'radio'; radio.name = 'selectedWarehouse';
+                radio.value = wh.stringId; radio.id = 'wh_' + i;
+                radio.className = 'form-check-input';
+                radio.setAttribute('data-wh-name',         wh.warehouseName || '');
+                radio.setAttribute('data-wh-address',      wh.address || '');
+                radio.setAttribute('data-vp-province',     wh.vpProvinceId || 0);
+                radio.setAttribute('data-vp-district',     wh.vpDistrictId || 0);
+                radio.setAttribute('data-ghtk-province',   wh.ghtkProvince  || '');
+                radio.setAttribute('data-ghtk-district',   wh.ghtkDistrict  || '');
+                if (i === 0) { radio.checked = true; onWarehouseSelect(radio); }
+                radio.addEventListener('change', () => onWarehouseSelect(radio));
+                const label = document.createElement('label');
+                label.htmlFor = radio.id; label.className = 'form-check-label';
+                label.innerHTML = '<strong>' + (wh.warehouseName || '') + '</strong>'
+                    + ' <span class="text-muted small">— ' + (wh.address || '') + '</span>';
+                div.appendChild(radio); div.appendChild(label);
+                box.appendChild(div);
+            });
+        } catch(e) {
+            if (box) box.innerHTML = '<p class="text-warning small">Không thể tải kho: ' + e.message + '</p>';
+            console.error('[Warehouse]', e);
+        }
+    }
+
+    function onWarehouseSelect(radio) {
+        const pId = parseInt(radio.getAttribute('data-vp-province') || 0);
+        const dId = parseInt(radio.getAttribute('data-vp-district') || 0);
+        // Update VP hidden sender defaults
+        const spHid = document.getElementById('viettel_sender_province');
+        const sdHid = document.getElementById('viettel_sender_district');
+        if (spHid) spHid.value = pId;
+        if (sdHid) sdHid.value = dId;
+        // Pre-fill GHTK sender text inputs from same warehouse record
+        const ghtkProv = radio.getAttribute('data-ghtk-province') || '';
+        const ghtkDist = radio.getAttribute('data-ghtk-district') || '';
+        const ghtkPEl  = document.getElementById('ghtk_sender_province');
+        const ghtkDEl  = document.getElementById('ghtk_sender_district');
+        if (ghtkPEl) ghtkPEl.value = ghtkProv;
+        if (ghtkDEl) ghtkDEl.value = ghtkDist;
+        updateGhtkSenderSummary();
+        // Store globally for submit. cart.js declares userDetails with let, so keep both in sync.
+        const warehousePayload = {
+            warehouseId: radio.value,
+            warehouseName: radio.getAttribute('data-wh-name') || '',
+            vpSenderProvinceId: pId,
+            vpSenderDistrictId: dId,
+            ghtkPickProvince: ghtkProv,
+            ghtkPickDistrict: ghtkDist
+        };
+        if (!window.userDetails) window.userDetails = {};
+        Object.assign(window.userDetails, warehousePayload);
+        try {
+            if (typeof userDetails !== 'undefined' && userDetails) {
+                Object.assign(userDetails, warehousePayload);
+            }
+        } catch (e) {}
+        // Reload VP sender dropdowns
+        loadSenderProvinces().catch(console.error);
+        updateSenderSummary();
+        const selectedCarrier = document.querySelector('input[name="shippingCarrier"]:checked')?.value;
+        if (selectedCarrier === 'spx') spxAutoEstimate();
+    }
+
+    // ── Toggle carrier ────────────────────────────────────────────────────────
+    function toggleCarrier(value) {
+        const std    = document.getElementById('standardAddressFields');
+        const viet   = document.getElementById('viettelAddressFields');
+        const ghtk   = document.getElementById('ghtkAddressFields');
+        const shared = document.getElementById('sharedWarehouseSection');
+        const vpEst  = document.getElementById('viettelEstimateSection');
+        const ghtkEst = document.getElementById('ghtkEstimateSection');
+        const spxEst = document.getElementById('spxEstimateSection');
+        const spxNote = document.getElementById('spxShippingNote');
+        [std, viet, ghtk, shared].forEach(el => { if (el) el.style.display = 'none'; });
+        [vpEst, ghtkEst, spxEst].forEach(el => { if (el) el.style.display = 'none'; });
+        if (spxNote) spxNote.style.display = 'none';
+
+        if (value === 'viettel') {
+            if (shared) shared.style.display = 'block';
+            if (viet)   viet.style.display   = 'block';
+            if (vpEst)  vpEst.style.display  = 'block';
+            prefillFromCart();
+            loadWarehouses().catch(console.error);
+            loadViettelProvinces().catch(console.error);
+            loadSenderProvinces().catch(console.error);
+            const stdPhone = document.getElementById('c_phone');
+            const vpPhone  = document.getElementById('viettel_receiver_phone');
+            if (stdPhone && vpPhone && !vpPhone.value) vpPhone.value = stdPhone.value;
+        } else if (value === 'ghtk') {
+            if (shared)  shared.style.display  = 'block';
+            if (ghtk)    ghtk.style.display    = 'block';
+            if (ghtkEst) ghtkEst.style.display = 'block';
+            ghtkPrefillFromCart();
+            loadWarehouses().catch(console.error);
+            const stdPhone  = document.getElementById('c_phone');
+            const ghtkPhone = document.getElementById('ghtk_receiver_phone');
+            if (stdPhone && ghtkPhone && !ghtkPhone.value) ghtkPhone.value = stdPhone.value;
+        } else if (value === 'spx') {
+            if (shared)  shared.style.display = 'block';
+            if (std)     std.style.display    = 'block';
+            if (spxEst)  spxEst.style.display = 'block';
+            if (spxNote) spxNote.style.display = 'block';
+            spxPrefillFromCart();
+            loadWarehouses().catch(console.error);
+            spxAutoEstimate();
+        } else {
+            if (std) std.style.display = 'block';
+        }
+    }
+
+    function prefillFromCart() {
+        const raw = document.getElementById('cart_raw_total');
+        if (!raw || !raw.value) return;
+        const total = Math.round(parseFloat(raw.value) || 0);
+        if (!total) return;
+        const priceEl = document.getElementById('viettel_product_price');
+        const codEl   = document.getElementById('viettel_money_collection');
+        if (priceEl && !priceEl.dataset.userEdited) priceEl.value = total;
+        if (codEl   && !codEl.dataset.userEdited)   codEl.value   = total;
+    }
+
+    // ── Sender address ────────────────────────────────────────────────────────
+    async function loadSenderProvinces() {
+        const sel = document.getElementById('viettel_sender_province_sel');
+        if (!sel) return;
+        try {
+            const res = await fetch(VP + '/provinces');
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+            const list = data?.data || [];
+            if (!list.length) throw new Error('Danh sách tỉnh trống — kiểm tra token ViettelPost');
+            const def = document.getElementById('viettel_sender_province')?.value || '';
+            sel.innerHTML = '<option value="">-- Chọn --</option>';
+            list.forEach(p => {
+                const id = pick(p, ['PROVINCE_ID','provinceId']);
+                const name = pick(p, ['PROVINCE_NAME','provinceName']) || '';
+                const opt = document.createElement('option');
+                opt.value = id; opt.textContent = name;
+                if (String(id) === String(def)) opt.selected = true;
+                sel.appendChild(opt);
+            });
+            if (def) await loadSenderDistricts(def);
+            updateSenderSummary();
+        } catch(e) {
+            sel.innerHTML = '<option value="">⚠ Lỗi tải tỉnh/thành</option>';
+            console.error('[ViettelPost] loadSenderProvinces:', e.message);
+        }
+    }
+
+    async function loadSenderDistricts(provinceId) {
+        const res = await fetch(VP + '/districts/' + provinceId);
+        const data = await res.json();
+        const list = data?.data || [];
+        const sel = document.getElementById('viettel_sender_district_sel');
+        if (!sel) return;
+        const def = document.getElementById('viettel_sender_district')?.value || '';
+        sel.innerHTML = '<option value="">-- Chọn --</option>';
+        list.forEach(d => {
+            const id = pick(d, ['DISTRICT_ID','districtId']);
+            const name = pick(d, ['DISTRICT_NAME','districtName']) || '';
+            const opt = document.createElement('option');
+            opt.value = id; opt.textContent = name;
+            if (String(id) === String(def)) opt.selected = true;
+            sel.appendChild(opt);
+        });
+        updateSenderSummary();
+    }
+
+    async function onSenderProvinceChange() {
+        const provinceId = document.getElementById('viettel_sender_province_sel').value;
+        if (provinceId) await loadSenderDistricts(provinceId);
+        updateSenderSummary();
+    }
+
+    function updateSenderSummary() {
+        const pSel = document.getElementById('viettel_sender_province_sel');
+        const dSel = document.getElementById('viettel_sender_district_sel');
+        const el   = document.getElementById('senderSummary');
+        if (!el) return;
+        const p = pSel?.selectedOptions[0]?.text;
+        const d = dSel?.selectedOptions[0]?.text;
+        el.textContent = [p, d].filter(x => x && x !== '-- Chọn --').join(' / ') || 'Chưa chọn';
+    }
+
+    function toggleSenderDetails() {
+        const det  = document.getElementById('senderDetails');
+        const icon = document.getElementById('senderToggleIcon');
+        if (!det) return;
+        const open = det.style.display !== 'none';
+        det.style.display  = open ? 'none' : 'block';
+        if (icon) icon.textContent = open ? '▼' : '▲';
+    }
+
+    // ── Receiver address ──────────────────────────────────────────────────────
+    async function loadViettelProvinces() {
+        const sel = document.getElementById('viettel_receiver_province');
+        if (!sel) return;
+        try {
+            const res = await fetch(VP + '/provinces');
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+            const list = data?.data || [];
+            if (!list.length) throw new Error('Danh sách tỉnh trống — kiểm tra token ViettelPost');
+            sel.innerHTML = '<option value="">-- Chọn Tỉnh --</option>';
+            list.forEach(p => {
+                const id = pick(p, ['PROVINCE_ID','provinceId']);
+                const name = pick(p, ['PROVINCE_NAME','provinceName']) || '';
+                const opt = document.createElement('option');
+                opt.value = id; opt.textContent = name;
+                sel.appendChild(opt);
+            });
+        } catch(e) {
+            sel.innerHTML = '<option value="">⚠ Lỗi tải tỉnh/thành</option>';
+            showShippingMsg('Không thể tải danh sách tỉnh/thành: ' + e.message + '. Vui lòng tải lại trang.', 'danger');
+            console.error('[ViettelPost] loadViettelProvinces:', e.message);
+        }
+    }
+
+    async function onViettelProvinceChange() {
+        document.getElementById('viettel_receiver_district').innerHTML = '<option value="">-- Chọn Quận/Huyện --</option>';
+        document.getElementById('viettel_receiver_ward').innerHTML = '<option value="">-- Chọn Phường/Xã --</option>';
+        clearShippingOptions();
+        const provinceId = document.getElementById('viettel_receiver_province').value;
+        if (!provinceId) return;
+        const res = await fetch(VP + '/districts/' + provinceId);
+        const data = await res.json();
+        const list = data?.data || [];
+        const sel = document.getElementById('viettel_receiver_district');
+        sel.innerHTML = '<option value="">-- Chọn Quận/Huyện --</option>';
+        list.forEach(d => {
+            const id = pick(d, ['DISTRICT_ID','districtId']);
+            const name = pick(d, ['DISTRICT_NAME','districtName']) || '';
+            const opt = document.createElement('option');
+            opt.value = id; opt.textContent = name;
+            sel.appendChild(opt);
+        });
+    }
+
+    async function onViettelDistrictChange() {
+        document.getElementById('viettel_receiver_ward').innerHTML = '<option value="">-- Chọn Phường/Xã --</option>';
+        const districtId = document.getElementById('viettel_receiver_district').value;
+        if (!districtId) return;
+        try {
+            const res = await fetch(VP + '/wards/' + districtId);
+            const data = await res.json();
+            const list = data?.data || [];
+            const sel = document.getElementById('viettel_receiver_ward');
+            sel.innerHTML = '<option value="">-- Chọn Phường/Xã --</option>';
+            list.forEach(w => {
+                const id = pick(w, ['WARDS_ID','wardsId']);
+                const name = pick(w, ['WARDS_NAME','wardsName']) || '';
+                const opt = document.createElement('option');
+                opt.value = id; opt.textContent = name;
+                sel.appendChild(opt);
+            });
+        } catch (e) { console.error(e); }
+        viettelEstimate().catch(console.error);
+    }
+
+    function clearShippingOptions() {
+        const c = document.getElementById('shippingOptions');
+        if (c) c.innerHTML = '<p class="text-muted small">Vui lòng chọn địa chỉ nhận hàng để xem tùy chọn giao hàng.</p>';
+    }
+
+    // ── Estimate ──────────────────────────────────────────────────────────────
+    async function viettelEstimate() {
+        if (isEstimating) return;
+        try {
+            isEstimating = true;
+            setEstimating(true);
+
+            const weight = parseInt(document.getElementById('viettel_product_weight').value || 0);
+            if (!weight || weight <= 0) {
+                showShippingMsg('Vui lòng nhập trọng lượng hợp lệ.', 'warning');
+                return;
+            }
+
+            const productPrice    = parseInt(document.getElementById('viettel_product_price').value || 0);
+            const moneyCollection = parseInt(document.getElementById('viettel_money_collection').value || 0);
+
+            const sProvSel = document.getElementById('viettel_sender_province_sel');
+            const sDistSel = document.getElementById('viettel_sender_district_sel');
+            const sProvHid = document.getElementById('viettel_sender_province');
+            const sDistHid = document.getElementById('viettel_sender_district');
+            const senderProvince = parseInt(sProvSel?.value || sProvHid?.value || 0);
+            const senderDistrict = parseInt(sDistSel?.value || sDistHid?.value || 0);
+
+            const receiverProvince = parseInt(document.getElementById('viettel_receiver_province').value || 0);
+            const receiverDistrict = parseInt(document.getElementById('viettel_receiver_district').value || 0);
+
+            if (!receiverProvince || !receiverDistrict) {
+                showShippingMsg('Vui lòng chọn Tỉnh/Thành và Quận/Huyện nhận hàng.', 'warning');
+                return;
+            }
+
+            const payload = {
+                PRODUCT_WEIGHT: weight,
+                PRODUCT_PRICE: productPrice,
+                MONEY_COLLECTION: moneyCollection,
+                SENDER_PROVINCE: senderProvince,
+                SENDER_DISTRICT: senderDistrict,
+                RECEIVER_PROVINCE: receiverProvince,
+                RECEIVER_DISTRICT: receiverDistrict,
+                PRODUCT_TYPE: 'HH',
+                NATIONAL_TYPE: 1
+            };
+
+            const res = await fetch(VP + '/shipment-options', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            renderShippingOptions(result);
+        } catch (err) {
+            console.error(err);
+            showShippingMsg('Lỗi tính phí: ' + err.message, 'danger');
+        } finally {
+            isEstimating = false;
+            setEstimating(false);
+        }
+    }
+
+    function setEstimating(loading) {
+        const btn     = document.getElementById('viettelEstimateBtn');
+        const spinner = document.getElementById('viettelSpinner');
+        if (btn)     btn.disabled = loading;
+        if (spinner) spinner.style.display = loading ? 'inline-block' : 'none';
+    }
+
+    function showShippingMsg(msg, type) {
+        const c = document.getElementById('shippingOptions');
+        if (c) c.innerHTML = `<p class="text-${type} small">${msg}</p>`;
+    }
+
+    function renderShippingOptions(result) {
+        const c = document.getElementById('shippingOptions');
+        c.innerHTML = '';
+        const list = result?.data || [];
+        if (!result?.success || !list.length) {
+            c.innerHTML = '<p class="text-muted small">Không có tùy chọn giao hàng cho tuyến này. Kiểm tra lại địa chỉ gửi/nhận.</p>';
+            return;
+        }
+        list.forEach((opt, idx) => {
+            const code     = opt.serviceCode || '';
+            const name     = opt.serviceName || code;
+            const total    = opt.totalFee || 0;
+            const delivery = opt.deliveryTime && opt.deliveryTime !== 'N/A' ? opt.deliveryTime : null;
+
+            const row = document.createElement('div');
+            row.className = 'form-check border rounded p-2 mb-1';
+
+            const radio = document.createElement('input');
+            radio.type = 'radio'; radio.name = 'shippingOption';
+            radio.value = JSON.stringify(opt); radio.id = 'shipOpt' + idx;
+            radio.className = 'form-check-input';
+            if (idx === 0) radio.checked = true;
+
+            const label = document.createElement('label');
+            label.htmlFor = radio.id; label.className = 'form-check-label w-100 ms-1';
+            label.innerHTML = `<strong>${name}</strong> <span class="text-muted small">(${code})</span>`
+                + (delivery ? ` · <span class="text-info small">⏱ ${delivery}</span>` : '')
+                + `<span class="float-end text-success fw-bold">${fmtVND(total)}</span>`;
+
+            row.appendChild(radio); row.appendChild(label);
+            c.appendChild(row);
+        });
+    }
+
+    function fmtVND(n) {
+        try { return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n || 0); }
+        catch (e) { return n; }
+    }
+
+    // ── Wire up ───────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
+        const btn = document.getElementById('viettelEstimateBtn');
+        if (btn) btn.addEventListener('click', () => viettelEstimate().catch(console.error));
+
+        // Mark price/COD as user-edited so prefill doesn't overwrite them later
+        ['viettel_product_price', 'viettel_money_collection'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', () => { el.dataset.userEdited = '1'; });
+        });
+    });
+
+
+    // ── GHTK ─────────────────────────────────────────────────────────────────
+    let _ghtkEstimating = false;
+
+    function updateGhtkSenderSummary() {
+        const p  = document.getElementById('ghtk_sender_province')?.value || '';
+        const d  = document.getElementById('ghtk_sender_district')?.value || '';
+        const el = document.getElementById('ghtkSenderSummary');
+        if (el) el.textContent = [p, d].filter(Boolean).join(' / ') || 'Chua chon';
+    }
+
+    function toggleGhtkSenderDetails() {
+        const det  = document.getElementById('ghtkSenderDetails');
+        const icon = document.getElementById('ghtkSenderToggleIcon');
+        if (!det) return;
+        const open = det.style.display !== 'none';
+        det.style.display = open ? 'none' : 'block';
+        if (icon) icon.textContent = open ? '▼' : '▲';
+    }
+
+    function ghtkPrefillFromCart() {
+        const raw = document.getElementById('cart_raw_total');
+        if (!raw || !raw.value) return;
+        const total = Math.round(parseFloat(raw.value) || 0);
+        if (!total) return;
+        const priceEl = document.getElementById('ghtk_product_price');
+        const codEl   = document.getElementById('ghtk_money_collection');
+        if (priceEl && !priceEl.dataset.userEdited) priceEl.value = total;
+        if (codEl   && !codEl.dataset.userEdited)   codEl.value   = total;
+    }
+
+    function spxPrefillFromCart() {
+        const raw = document.getElementById('cart_raw_total');
+        if (!raw || !raw.value) return;
+        const total = Math.round(parseFloat(raw.value) || 0);
+        if (!total) return;
+        const priceEl = document.getElementById('spx_product_price');
+        const codEl   = document.getElementById('spx_money_collection');
+        if (priceEl && !priceEl.dataset.userEdited) priceEl.value = total;
+        if (codEl   && !codEl.dataset.userEdited)   codEl.value   = total;
+    }
+    let _spxEstimating = false;
+    let _spxAutoTimer = null;
+
+    function clearSpxOptions() {
+        const c = document.getElementById('spxShippingOptions');
+        if (c) c.innerHTML = '<p class="text-muted small">Nhap dia chi va bam Tinh phi SPX de xem phi.</p>';
+    }
+
+    function spxAutoEstimate() {
+        const carrier = document.querySelector('input[name="shippingCarrier"]:checked')?.value;
+        if (carrier !== 'spx') return;
+        clearTimeout(_spxAutoTimer);
+        const province = (document.getElementById('c_state_country')?.value || '').trim();
+        const district = (document.getElementById('c_district')?.value || '').trim();
+        const address  = (document.getElementById('c_address')?.value || '').trim();
+        if (province.length >= 2 && district.length >= 2 && address.length >= 2) {
+            _spxAutoTimer = setTimeout(() => spxEstimate().catch(console.error), 900);
+        }
+    }
+
+    async function spxEstimate() {
+        if (_spxEstimating) return;
+        try {
+            _spxEstimating = true;
+            setSpxEstimating(true);
+            const whRadio = document.querySelector('input[name="selectedWarehouse"]:checked');
+            if (!whRadio) { showSpxMsg('Vui long chon kho gui hang SPX.', 'warning'); return; }
+            const weight = parseInt(document.getElementById('spx_product_weight')?.value || 0);
+            if (!weight || weight <= 0) { showSpxMsg('Vui long nhap trong luong SPX hop le.', 'warning'); return; }
+            const province = (document.getElementById('c_state_country')?.value || '').trim();
+            const district = (document.getElementById('c_district')?.value || '').trim();
+            const address  = (document.getElementById('c_address')?.value || '').trim();
+            if (!province || !district || !address) { showSpxMsg('Vui long nhap tinh, quan va dia chi nhan hang.', 'warning'); return; }
+            const payload = {
+                warehouseId: whRadio.value || '',
+                warehouseName: whRadio.getAttribute('data-wh-name') || '',
+                pickProvince: whRadio.getAttribute('data-ghtk-province') || '',
+                pickDistrict: whRadio.getAttribute('data-ghtk-district') || '',
+                pickAddress: whRadio.getAttribute('data-wh-address') || '',
+                province,
+                district,
+                address,
+                phone: (document.getElementById('c_phone')?.value || '').trim(),
+                weight,
+                value: parseInt(document.getElementById('spx_product_price')?.value || 0),
+                codAmount: parseInt(document.getElementById('spx_money_collection')?.value || 0)
+            };
+            const res = await fetch('/spx/shipment-fee', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            renderSpxOptions(result);
+        } catch(err) {
+            showSpxMsg('Loi tinh phi SPX: ' + err.message, 'danger');
+        } finally {
+            _spxEstimating = false;
+            setSpxEstimating(false);
+        }
+    }
+
+    function setSpxEstimating(loading) {
+        const btn = document.getElementById('spxEstimateBtn');
+        const spinner = document.getElementById('spxSpinner');
+        if (btn) btn.disabled = loading;
+        if (spinner) spinner.style.display = loading ? 'inline-block' : 'none';
+    }
+
+    function showSpxMsg(msg, type) {
+        const c = document.getElementById('spxShippingOptions');
+        if (c) c.innerHTML = '<p class="text-' + type + ' small">' + msg + '</p>';
+    }
+
+    function renderSpxOptions(result) {
+        const c = document.getElementById('spxShippingOptions');
+        if (!c) return;
+        c.innerHTML = '';
+        const list = result?.data || [];
+        if (!result?.success || !list.length) {
+            c.innerHTML = '<p class="text-muted small">Khong tinh duoc phi SPX. Kiem tra kho, dia chi va trong luong.</p>';
+            return;
+        }
+        list.forEach((opt, idx) => {
+            const code = opt.serviceCode || 'spx';
+            const name = opt.serviceName || 'SPX Shopee Express';
+            const fee = opt.fee || opt.totalFee || 0;
+            const row = document.createElement('div');
+            row.className = 'form-check border rounded p-2 mb-1';
+            const radio = document.createElement('input');
+            radio.type = 'radio'; radio.name = 'spxShippingOption';
+            radio.value = code; radio.id = 'spxOpt' + idx;
+            radio.className = 'form-check-input';
+            radio.setAttribute('data-code', code);
+            radio.setAttribute('data-name', name);
+            radio.setAttribute('data-price', fee);
+            if (idx === 0) radio.checked = true;
+            const label = document.createElement('label');
+            label.htmlFor = radio.id; label.className = 'form-check-label w-100 ms-1';
+            label.innerHTML = '<strong>' + name + '</strong>'
+                + '<span class="float-end text-success fw-bold">' + fmtVND(fee) + '</span>';
+            row.appendChild(radio); row.appendChild(label);
+            c.appendChild(row);
+        });
+    }
+    let _ghtkAutoTimer = null;
+    function ghtkAutoEstimate() {
+        clearGhtkOptions();
+        clearTimeout(_ghtkAutoTimer);
+        const prov = (document.getElementById('ghtk_receiver_province')?.value || '').trim();
+        const dist = (document.getElementById('ghtk_receiver_district')?.value || '').trim();
+        if (prov.length >= 2 && dist.length >= 2) {
+            _ghtkAutoTimer = setTimeout(() => ghtkEstimate().catch(console.error), 900);
+        }
+    }
+
+    function clearGhtkOptions() {
+        const c = document.getElementById('ghtkShippingOptions');
+        if (c) c.innerHTML = '<p class="text-muted small">Vui lòng nhập đầy đủ địa chỉ để xem tùy chọn.</p>';
+    }
+
+    async function ghtkEstimate() {
+        if (_ghtkEstimating) return;
+        try {
+            _ghtkEstimating = true;
+            setGhtkEstimating(true);
+            const weight       = parseInt(document.getElementById('ghtk_product_weight')?.value || 0);
+            if (!weight || weight <= 0) { showGhtkMsg('Vui lòng nhập trọng lượng hợp lệ.', 'warning'); return; }
+            const value        = parseInt(document.getElementById('ghtk_product_price')?.value || 0);
+            const pickProvince = (document.getElementById('ghtk_sender_province')?.value || '').trim();
+            const pickDistrict = (document.getElementById('ghtk_sender_district')?.value || '').trim();
+            const province     = (document.getElementById('ghtk_receiver_province')?.value || '').trim();
+            const district     = (document.getElementById('ghtk_receiver_district')?.value || '').trim();
+            if (!pickProvince || !pickDistrict) { showGhtkMsg('Vui lòng nhập tỉnh/quận gửi hàng.', 'warning'); return; }
+            if (!province || !district)         { showGhtkMsg('Vui lòng nhập tỉnh/quận nhận hàng.', 'warning'); return; }
+            const payload = { pickProvince, pickDistrict, province, district, weight, value };
+            const res = await fetch('/ghtk/shipment-fee', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await res.json();
+            renderGhtkOptions(result);
+        } catch(err) {
+            showGhtkMsg('Lỗi tính phí GHTK: ' + err.message, 'danger');
+        } finally {
+            _ghtkEstimating = false;
+            setGhtkEstimating(false);
+        }
+    }
+
+    function setGhtkEstimating(loading) {
+        const btn     = document.getElementById('ghtkEstimateBtn');
+        const spinner = document.getElementById('ghtkSpinner');
+        if (btn)     btn.disabled = loading;
+        if (spinner) spinner.style.display = loading ? 'inline-block' : 'none';
+    }
+
+    function showGhtkMsg(msg, type) {
+        const c = document.getElementById('ghtkShippingOptions');
+        if (c) c.innerHTML = '<p class="text-' + type + ' small">' + msg + '</p>';
+    }
+
+    function renderGhtkOptions(result) {
+        const c = document.getElementById('ghtkShippingOptions');
+        c.innerHTML = '';
+        const list = result?.data || [];
+        if (!result?.success || !list.length) {
+            c.innerHTML = '<p class="text-muted small">Không có tùy chọn nào cho tuyến này. Kiểm tra lại tỉnh/quận gửi và nhận.</p>';
+            return;
+        }
+        list.forEach((opt, idx) => {
+            const transport = opt.transport || 'road';
+            const name      = opt.transportName || transport;
+            const fee       = opt.fee || 0;
+            const row = document.createElement('div');
+            row.className = 'form-check border rounded p-2 mb-1';
+            const radio = document.createElement('input');
+            radio.type = 'radio'; radio.name = 'ghtkShippingOption';
+            radio.value = transport; radio.id = 'ghtkOpt' + idx;
+            radio.className = 'form-check-input';
+            radio.setAttribute('data-transport', transport);
+            radio.setAttribute('data-price', fee);
+            if (idx === 0) radio.checked = true;
+            const label = document.createElement('label');
+            label.htmlFor = radio.id; label.className = 'form-check-label w-100 ms-1';
+            const zoneStr = opt.zone ? ' <span class="text-muted small">(' + opt.zone + ')</span>' : '';
+            label.innerHTML = '<strong>' + name + '</strong>' + zoneStr
+                + '<span class="float-end text-success fw-bold">' + fmtVND(fee) + '</span>';
+            if (!opt.delivery) label.innerHTML += ' <span class="badge bg-warning text-dark ms-1 small">Co the khong giao duoc</span>';
+            row.appendChild(radio); row.appendChild(label);
+            c.appendChild(row);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const btn = document.getElementById('ghtkEstimateBtn');
+        if (btn) btn.addEventListener('click', () => ghtkEstimate().catch(console.error));
+        const spxBtn = document.getElementById('spxEstimateBtn');
+        if (spxBtn) spxBtn.addEventListener('click', () => spxEstimate().catch(console.error));
+        ['ghtk_product_price', 'ghtk_money_collection', 'spx_product_price', 'spx_money_collection', 'spx_product_weight'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', () => { el.dataset.userEdited = '1'; spxAutoEstimate(); });
+        });
+        ['c_state_country', 'c_district', 'c_address', 'c_phone'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener('input', spxAutoEstimate);
+        });
+    });
+
+    window.toggleGhtkSenderDetails = toggleGhtkSenderDetails;
+    window.ghtkAutoEstimate        = ghtkAutoEstimate;
+    window.updateGhtkSenderSummary  = updateGhtkSenderSummary;
+    window.clearGhtkOptions         = clearGhtkOptions;
+    window.ghtkEstimate             = ghtkEstimate;
+    window.spxEstimate              = spxEstimate;
+    window.spxAutoEstimate          = spxAutoEstimate;
+    window.clearSpxOptions          = clearSpxOptions;
+
+    window.toggleCarrier       = toggleCarrier;
+    window.onViettelProvinceChange = onViettelProvinceChange;
+    window.onViettelDistrictChange = onViettelDistrictChange;
+    window.onSenderProvinceChange  = onSenderProvinceChange;
+    window.updateSenderSummary     = updateSenderSummary;
+    window.toggleSenderDetails     = toggleSenderDetails;
+    window.loadViettelProvinces    = loadViettelProvinces;
+})();
+</script>
+
+	</div>

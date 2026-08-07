@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{dailocoffee :: head('Đặt hàng — Đại Lộ Coffee', 'Xác nhận thông tin và hoàn tất đơn hàng tại Đại Lộ Coffee.')}"></head>
+<body>
+<nav th:replace="~{dailocoffee :: nav('checkout')}"></nav>
+<header class="fh5co-cover dailo-page-hero dailo-order-hero" style="background-image:url('/dailocoffee/images/gallery_3.jpeg')"><div class="overlay"></div><div class="container"><div class="display-t"><div class="display-tc text-center"><p class="hero-kicker">Đại Lộ mang đến bạn</p><h1>Đặt hàng</h1></div></div></div></header>
+<main class="dailo-checkout"><div th:replace="~{dailocoffee/fcheckout :: body}"></div></main>
+<footer th:replace="~{dailocoffee :: footer}"></footer>
+<script src="/dailocoffee/js/cart.js"></script>
+<script src="/dailocoffee/js/checkout.js"></script>
+</body>
+</html>

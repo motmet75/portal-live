@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{dailocoffee :: head('Đặt hàng thành công — Đại Lộ Coffee', 'Đại Lộ Coffee đã nhận được đơn hàng của bạn.')}"></head>
+<body>
+<nav th:replace="~{dailocoffee :: nav('checkout')}"></nav>
+<main class="dailo-order-success"><div><span aria-hidden="true">✓</span><p class="hero-kicker">Đặt hàng thành công</p><h1>Cảm ơn bạn!</h1><p>Đại Lộ Coffee đã nhận được đơn hàng và sẽ sớm liên hệ xác nhận.</p><a href="/products.html">Tiếp tục chọn món</a></div></main>
+<footer th:replace="~{dailocoffee :: footer}"></footer>
+</body>
+</html>
