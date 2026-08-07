@@ -1,0 +1,56 @@
+/* High-contrast navigation over both light and dark photography. */
+.dailo-nav .menu-wrap ul {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 999px;
+  background: rgba(28, 19, 13, .82);
+  box-shadow: 0 10px 30px rgba(20, 12, 7, .22);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.dailo-nav .menu-wrap ul li a,
+.scrolled .dailo-nav .menu-wrap ul li a {
+  display: block;
+  padding: 10px 18px;
+  border-radius: 999px;
+  color: #fff !important;
+  font-weight: 600;
+}
+
+.dailo-nav .menu-wrap ul li a:hover,
+.dailo-nav .menu-wrap ul li a:focus,
+.dailo-nav .menu-wrap ul li.active a {
+  color: #211810 !important;
+  background: #f3bd73;
+}
+
+.dailo-nav .menu-wrap ul li.active > a::after { display: none; }
+
+/* Keep the desktop hero cinematic without forcing it to fill a tall monitor. */
+@media (min-width: 769px) {
+  .dailo-hero,
+  .dailo-hero .display-t,
+  .dailo-hero .display-tc {
+    height: clamp(600px, 76vh, 760px) !important;
+  }
+
+  .dailo-hero {
+    min-height: 600px;
+    background-position: center 46%;
+  }
+}
+
+@media (max-width: 768px) {
+  .dailo-nav .menu-wrap ul {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    border-radius: 18px;
+  }
+
+  .dailo-nav .menu-wrap ul li a { padding: 9px 12px; }
+}

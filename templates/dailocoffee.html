@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="/dailocoffee/css/icomoon.css">
   <link rel="stylesheet" href="/dailocoffee/css/style.css">
   <link rel="stylesheet" href="/dailocoffee/css/dailo.css">
+  <link rel="stylesheet" href="/dailocoffee/css/navigation-banner.css">
 </head>
 <body>
 <nav th:fragment="nav(active)" class="fh5co-nav dailo-nav" role="navigation">
@@ -20,9 +21,9 @@
     <div class="row">
       <div class="col-xs-12 text-center logo-wrap"><div id="fh5co-logo"><a href="/home">Đại Lộ<span>.</span></a></div></div>
       <div class="col-xs-12 text-center menu-1 menu-wrap"><ul>
-        <li style="background-color: rgba(0, 0, 0, 0.5); color: white;" th:classappend="${active == 'home'} ? 'active'"><a href="/home">Trang chủ</a></li>
-        <li style="background-color: rgba(0, 0, 0, 0.5); color: white;" th:classappend="${active == 'products'} ? 'active'"><a href="/products.html">Thực đơn</a></li>
-        <li style="background-color: rgba(0, 0, 0, 0.5); color: white;" ><a href="#visit">Ghé quán</a></li>
+        <li th:classappend="${active == 'home'} ? 'active'"><a href="/home">Trang chủ</a></li>
+        <li th:classappend="${active == 'products'} ? 'active'"><a href="/products.html">Thực đơn</a></li>
+        <li><a href="#visit">Ghé quán</a></li>
       </ul></div>
     </div>
   </div>
