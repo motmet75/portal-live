@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:attr="data-server-lang=${language}">
+<head th:replace="open2job :: head('Open2Job — Find work. Discover talent.','A multimedia labour market exchange connecting people and companies through proof of work.')"></head>
+<body>
+<div class="o2j-noise" aria-hidden="true"></div><canvas id="o2j-scene" aria-hidden="true"></canvas>
+<header class="o2j-header"><div class="o2j-wrap o2j-nav">
+  <a class="o2j-logo" href="/home" aria-label="Open2Job home"><span class="o2j-logo-mark"><i></i><i></i></span><span>open<b>2</b>job</span></a>
+  <nav aria-label="Main navigation"><a href="#talent" data-i18n="navTalent">Explore talent</a><a href="#how" data-i18n="navHow">How it works</a><a href="#companies" data-i18n="navCompanies">For companies</a></nav>
+  <div class="o2j-nav-actions"><button class="o2j-lang" type="button" data-language-toggle><span>VI</span><i></i><span>EN</span></button><a class="o2j-login" href="/dang-nhap" data-i18n="signIn">Sign in</a><a class="o2j-button small" href="/register" data-i18n="join">Join Open2Job</a></div>
+  <button class="o2j-menu" type="button" aria-label="Menu"><span></span><span></span></button>
+</div></header>
+
+<main>
+  <section class="o2j-hero"><div class="o2j-wrap o2j-hero-grid">
+    <div class="o2j-hero-copy o2j-reveal">
+      <div class="o2j-eyebrow"><span></span><b data-i18n="eyebrow">THE OPEN LABOUR MARKET EXCHANGE</b></div>
+      <h1><span data-i18n="heroLine1">Your work tells</span><br><em data-i18n="heroLine2">a better story.</em></h1>
+      <p data-i18n="heroBody">Build a living multimedia profile. Show your experience over time. Meet companies that value what you can actually do.</p>
+      <form class="o2j-search" action="/products/search" method="get"><label><svg viewBox="0 0 24 24"><path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"/></svg><input name="searchTerm" data-i18n-placeholder="searchPlaceholder" placeholder="Role, skill, city or industry"></label><input type="hidden" name="catalogCode" value="0"><button type="submit" data-i18n="search">Explore</button></form>
+      <div class="o2j-trust"><div><strong>12K+</strong><span data-i18n="people">people ready</span></div><div><strong>680+</strong><span data-i18n="companies">companies hiring</span></div><div><strong>34</strong><span data-i18n="industries">industries</span></div></div>
+    </div>
+    <div class="o2j-world" data-tilt-root aria-label="Interactive talent network">
+      <div class="o2j-orbit orbit-a"></div><div class="o2j-orbit orbit-b"></div><div class="o2j-core"><span>OPEN</span><strong>2</strong><span>WORK</span></div>
+      <article class="o2j-float-card card-one" data-depth="18"><div class="o2j-avatar coral">ML</div><div><strong>Mai Lan</strong><span>Product Designer · HCMC</span></div><b>94%</b></article>
+      <article class="o2j-float-card card-two" data-depth="28"><span class="o2j-play">▶</span><div><strong>Project story</strong><span>2:14 · Product launch</span></div></article>
+      <article class="o2j-float-card card-three" data-depth="13"><span class="o2j-online"></span><div><strong data-i18n="available">Available now</strong><span>Frontend · Remote</span></div></article>
+      <div class="o2j-skill-pill skill-a">React</div><div class="o2j-skill-pill skill-b">CNC</div><div class="o2j-skill-pill skill-c">Sales</div>
+    </div>
+  </div><a class="o2j-scroll" href="#talent"><span></span><b data-i18n="scroll">Scroll to discover</b></a></section>
+
+  <section id="talent" class="o2j-section o2j-talent"><div class="o2j-wrap">
+    <div class="o2j-section-head o2j-reveal"><div><span class="o2j-kicker" data-i18n="talentKicker">OPEN TALENT NETWORK</span><h2 data-i18n="talentTitle">Meet people through their work.</h2></div><p data-i18n="talentBody">Profiles move beyond a résumé. Watch project stories, explore career milestones and understand the person behind the skills.</p></div>
+    <div class="o2j-filter-row"><button class="active" data-filter="all" data-i18n="all">All talent</button><button data-filter="technology">Technology</button><button data-filter="creative" data-i18n="creative">Creative</button><button data-filter="operations" data-i18n="operations">Operations</button><button data-filter="sales" data-i18n="sales">Sales</button></div>
+    <div class="o2j-profile-stage">
+      <article class="o2j-profile o2j-reveal" data-profile-category="creative">
+        <div class="o2j-profile-media gradient-one"><div class="o2j-media-top"><span data-i18n="profileStory">PROFILE STORY</span><button type="button" aria-label="Play profile">▶</button></div><div class="o2j-person-silhouette"><span>ML</span></div><div class="o2j-media-caption"><span>01:48</span><p data-i18n="lanQuote">“I turn complicated services into simple human experiences.”</p></div></div>
+        <div class="o2j-profile-info"><div class="o2j-profile-name"><div><h3>Mai Lan</h3><p>Senior Product Designer · TP.HCM</p></div><span class="o2j-verified">✓</span></div><div class="o2j-tags"><span>UX Strategy</span><span>Figma</span><span>Research</span></div><div class="o2j-timeline"><div class="active"><i></i><time>2026</time><strong data-i18n="timelineOne">Led fintech redesign</strong></div><div><i></i><time>2024</time><strong data-i18n="timelineTwo">Built a design team</strong></div><div><i></i><time>2021</time><strong data-i18n="timelineThree">Started in product</strong></div></div><a href="/dang-nhap" data-i18n="viewProfile">View full profile →</a></div>
+      </article>
+      <article class="o2j-mini-profile o2j-reveal" data-profile-category="technology"><div class="o2j-mini-visual blue"><span>QT</span><b>Available</b></div><h3>Quang Trần</h3><p>Full-stack Engineer · Đà Nẵng</p><div><span>Java</span><span>React</span><span>AWS</span></div></article>
+      <article class="o2j-mini-profile o2j-reveal" data-profile-category="operations"><div class="o2j-mini-visual lime"><span>HN</span><b>Open to work</b></div><h3>Hương Nguyễn</h3><p>Operations Lead · Bình Dương</p><div><span>Lean</span><span>Supply chain</span></div></article>
+      <article class="o2j-mini-profile o2j-reveal" data-profile-category="sales"><div class="o2j-mini-visual violet"><span>DK</span><b>Available</b></div><h3>Duy Khánh</h3><p>B2B Sales · Hà Nội</p><div><span>SaaS</span><span>Enterprise</span></div></article>
+      <article class="o2j-mini-profile o2j-reveal" th:each="profile : ${products}" th:if="${products != null}" data-profile-category="all"><div class="o2j-mini-visual"><img th:src="${profile.productImageDesUrl}" th:alt="${profile.productName}"></div><h3 th:text="${profile.productName}">Candidate</h3><p th:text="${profile.productShortDes}">Professional profile</p><a th:href="@{/single-product.html(id=${profile.path})}" data-i18n="viewProfile">View full profile →</a></article>
+    </div>
+  </div></section>
+
+  <section id="how" class="o2j-section o2j-how"><div class="o2j-wrap">
+    <div class="o2j-section-head center o2j-reveal"><div><span class="o2j-kicker" data-i18n="howKicker">PROOF, NOT PROMISES</span><h2 data-i18n="howTitle">A career timeline people can experience.</h2></div></div>
+    <div class="o2j-steps"><article><b>01</b><div class="o2j-step-icon">◎</div><h3 data-i18n="stepOneTitle">Create your identity</h3><p data-i18n="stepOneBody">Add skills, availability, location and the work you want to do next.</p></article><article><b>02</b><div class="o2j-step-icon">▶</div><h3 data-i18n="stepTwoTitle">Show your journey</h3><p data-i18n="stepTwoBody">Build a timeline with video, images, certificates and project outcomes.</p></article><article><b>03</b><div class="o2j-step-icon">↗</div><h3 data-i18n="stepThreeTitle">Connect directly</h3><p data-i18n="stepThreeBody">Let verified companies discover you and start a meaningful conversation.</p></article></div>
+    <div class="o2j-timeline-demo o2j-reveal"><div class="o2j-phone"><div class="o2j-phone-head"><span>9:41</span><b>open2job</b><i>•••</i></div><div class="o2j-phone-video"><span class="o2j-play big">▶</span><small>Project documentary · 01:24</small></div><div class="o2j-phone-copy"><strong>Warehouse flow improvement</strong><p>Reduced picking time by 31% with a redesigned floor process.</p></div></div><div class="o2j-time-rail"><article><time>Now</time><i></i><div><span>OPEN TO WORK</span><strong>Operations Manager</strong><p>Manufacturing · Logistics · HCMC</p></div></article><article><time>2025</time><i></i><div><span>PROJECT</span><strong>Smart warehouse rollout</strong><p>Video · 8 images · Verified outcome</p></div></article><article><time>2022</time><i></i><div><span>EXPERIENCE</span><strong>Team lead, 42 people</strong><p>Industrial operations</p></div></article></div></div>
+  </div></section>
+
+  <section id="companies" class="o2j-section o2j-company"><div class="o2j-wrap o2j-company-grid">
+    <div class="o2j-company-copy o2j-reveal"><span class="o2j-kicker" data-i18n="companyKicker">FOR EMPLOYERS</span><h2 data-i18n="companyTitle">Hire the person, not the paper.</h2><p data-i18n="companyBody">Register your company, publish opportunities and discover verified people through real projects, skills and career stories.</p><ul><li><i>✓</i><span data-i18n="benefitOne">Verified company presence</span></li><li><i>✓</i><span data-i18n="benefitTwo">Searchable multimedia talent pool</span></li><li><i>✓</i><span data-i18n="benefitThree">Direct candidate conversations</span></li><li><i>✓</i><span data-i18n="benefitFour">Structured job and apprenticeship listings</span></li></ul><div class="o2j-company-metric"><strong>4.2×</strong><span data-i18n="metric">more signal than a résumé-only application</span></div></div>
+    <form class="o2j-company-form o2j-reveal" id="companyInterestForm"><div class="o2j-form-head"><span data-i18n="registerCompany">REGISTER YOUR COMPANY</span><h3 data-i18n="companyFormTitle">Start meeting better-fit people.</h3></div><div class="o2j-field-grid"><label><span data-i18n="companyName">Company name</span><input name="company" required placeholder="Acme Vietnam"></label><label><span data-i18n="businessEmail">Business email</span><input name="email" type="email" required placeholder="you@company.com"></label></div><label><span data-i18n="industry">Industry</span><select name="industry"><option>Technology</option><option>Manufacturing</option><option>Retail &amp; Services</option><option>Logistics</option><option>Creative</option><option>Other</option></select></label><div class="o2j-field-grid"><label><span data-i18n="companySize">Company size</span><select name="size"><option>1–10</option><option>11–50</option><option>51–200</option><option>201–1,000</option><option>1,000+</option></select></label><label><span data-i18n="location">Location</span><input name="location" placeholder="Ho Chi Minh City"></label></div><label><span data-i18n="hiringFor">Who are you hiring?</span><textarea name="hiring" rows="3" data-i18n-placeholder="hiringPlaceholder" placeholder="Roles, skills or a short hiring plan"></textarea></label><label class="o2j-consent"><input type="checkbox" required><span data-i18n="consent">I agree to create an employer account and verify company information.</span></label><button class="o2j-button wide" type="submit" data-i18n="continueRegistration">Continue company registration</button><p id="companyFormNote" class="o2j-form-note" aria-live="polite"></p></form>
+  </div></section>
+
+  <section class="o2j-cta"><div class="o2j-wrap o2j-reveal"><span data-i18n="ctaKicker">WORK IS CHANGING. YOUR PROFILE SHOULD TOO.</span><h2 data-i18n="ctaTitle">Be seen for what you can do.</h2><div><a class="o2j-button light" href="/register" data-i18n="createProfile">Create my profile</a><a class="o2j-text-link" href="#companies" data-i18n="hireTalent">I want to hire talent →</a></div></div></section>
+</main>
+
+<footer th:replace="open2job :: footer"></footer>
+<script src="/open2job/js/open2job.js?v=20260808"></script>
+</body></html>
