@@ -994,7 +994,7 @@
     currentIndex = index;
     slideIndex = requestedSlide || 0;
     viewer.classList.add('active');
-    setSideCollapsed(false);
+    setSideCollapsed(true);
     viewer.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
     renderViewer();
@@ -1002,7 +1002,7 @@
 
   function closeViewer() {
     viewer.classList.remove('active');
-    setSideCollapsed(false);
+    setSideCollapsed(true);
     viewer.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
     setMediaMode('empty');
@@ -1027,7 +1027,9 @@
 
   document.querySelector('.am-viewer-close').addEventListener('click', closeViewer);
   if (sideCollapseButton) sideCollapseButton.addEventListener('click', function() { setSideCollapsed(true); });
-  if (sideToggleButton) sideToggleButton.addEventListener('click', function() { setSideCollapsed(false); });
+  if (sideToggleButton) sideToggleButton.addEventListener('click', function() {
+    setSideCollapsed(!viewer.classList.contains('is-side-collapsed'));
+  });
   document.querySelector('.am-viewer-item-prev').addEventListener('click', function() { moveItem(-1); });
   document.querySelector('.am-viewer-item-next').addEventListener('click', function() { moveItem(1); });
   if (slidePrevButton) slidePrevButton.addEventListener('click', function() { moveSlide(-1, true); });
@@ -1130,8 +1132,8 @@
   }
 })();
 </script>
-<link rel="stylesheet" th:href="'/' + ${domain} + '/css/instruction-reel-2026.css?v=20260808-2'">
+<link rel="stylesheet" th:href="'/' + ${domain} + '/css/instruction-reel-2026.css?v=20260809-1'">
 <script defer th:src="'/' + ${domain} + '/js/anhmedia-live-2026.js?v=20260806'"></script>
-<script defer th:src="'/' + ${domain} + '/js/instruction-reel-2026.js?v=20260808-2'"></script>
+<script defer th:src="'/' + ${domain} + '/js/instruction-reel-2026.js?v=20260809-1'"></script>
 </body>
 </html>

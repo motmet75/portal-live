@@ -19,7 +19,17 @@
   function visibleCardButton(card){return card&&card.querySelector('.am-card-button')}
   function move(direction){var button=direction>0?next:prev;if(button)button.click()}
   function pauseMedia(){if(video&&!video.paused)video.pause()}
-  function playMedia(){if(video&&video.classList.contains('active')){video.muted=true;video.playsInline=true;video.play().catch(function(){})}}
+  function playMedia(){
+    var embedActive=embed&&embed.classList.contains('active');
+    if(gestureLayer)gestureLayer.style.pointerEvents=embedActive?'none':'';
+    if(video&&video.classList.contains('active')){
+      video.defaultMuted=false;
+      video.muted=false;
+      video.volume=1;
+      video.playsInline=true;
+      video.play().catch(function(){});
+    }
+  }
 
   videoBadge=document.createElement('div');videoBadge.className='am-viewer-video-state';videoBadge.innerHTML='<i class="fa fa-play"></i>';viewer.appendChild(videoBadge);
   gestureLayer=document.createElement('div');gestureLayer.className='am-reel-gesture-layer';gestureLayer.setAttribute('aria-label','Vuốt lên hoặc xuống để đổi gallery; vuốt ngang để đổi ảnh');mediaPanel.appendChild(gestureLayer);
