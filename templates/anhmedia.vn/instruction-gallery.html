@@ -89,7 +89,11 @@
 
 <div id="am-gallery-viewer" class="am-gallery-viewer" aria-hidden="true">
   <button class="am-viewer-close" type="button" aria-label="Close"><i class="fa fa-times"></i></button>
-  <button id="am-side-toggle" class="am-side-toggle" type="button" aria-label="Show comments"><i class="fa fa-comment"></i><span id="am-side-toggle-count">0</span></button>
+  <div class="am-social-rail" aria-label="Media actions">
+    <button id="am-heart-button" type="button" aria-label="Like"><i class="fa fa-heart"></i><span id="am-like-count">0</span></button>
+    <button id="am-side-toggle" class="am-side-toggle" type="button" aria-label="Show comments"><i class="fa fa-comment"></i><span id="am-side-toggle-count">0</span></button>
+    <a id="am-share-link" class="am-share-link" href="#" target="_blank" rel="noopener" aria-label="Share"><i class="fa fa-share"></i><span>Share</span></a>
+  </div>
   <button class="am-viewer-item-nav am-viewer-item-prev" type="button" aria-label="Previous"><i class="fa fa-angle-left"></i></button>
   <button class="am-viewer-item-nav am-viewer-item-next" type="button" aria-label="Next"><i class="fa fa-angle-right"></i></button>
   <div class="am-viewer-shell">
@@ -129,8 +133,6 @@
       </dl>
       <a id="am-viewer-source" class="am-source-link" target="_blank" rel="noopener"><i class="fa fa-external-link"></i> Link</a>
       <div class="am-action-row">
-        <button id="am-heart-button" type="button"><i class="fa fa-heart"></i><span id="am-like-count">0</span></button>
-        <a id="am-share-link" class="am-share-link" href="#" target="_blank" rel="noopener"><i class="fa fa-link"></i><span>Share</span></a>
         <div id="am-rating-buttons" class="am-rating-buttons" aria-label="Rating">
           <button type="button" data-rate="1">★</button>
           <button type="button" data-rate="2">★</button>
@@ -291,7 +293,13 @@
   .am-viewer-media-panel { height:100%; }
   .am-viewer-side { position:absolute; right:18px; bottom:74px; z-index:4; width:min(360px, calc(100vw - 36px)); max-height:calc(100vh - 150px); background:linear-gradient(180deg, rgba(17,24,39,.92), rgba(7,7,11,.84)); color:#fff; border:1px solid rgba(255,255,255,.14); border-radius:8px; padding:16px; gap:12px; backdrop-filter:blur(16px); box-shadow:0 18px 48px rgba(0,0,0,.36); transform-origin:right bottom; transition:opacity .16s ease, transform .16s ease, visibility .16s ease; }
   .am-gallery-viewer.is-side-collapsed .am-viewer-side { opacity:0; visibility:hidden; pointer-events:none; transform:translateY(12px) scale(.96); }
-  .am-gallery-viewer.is-side-collapsed .am-side-toggle { display:flex; }
+  .am-social-rail { position:absolute; right:18px; bottom:86px; z-index:7; display:flex; flex-direction:column; align-items:center; gap:14px; }
+  .am-social-rail #am-heart-button, .am-social-rail .am-share-link, .am-social-rail .am-side-toggle { position:relative; inset:auto; width:50px; min-width:50px; height:50px; padding:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; border:1px solid rgba(255,255,255,.2); border-radius:50%; background:rgba(7,7,11,.72); color:#fff; box-shadow:0 10px 26px rgba(0,0,0,.32); backdrop-filter:blur(10px); }
+  .am-social-rail #am-heart-button i, .am-social-rail .am-share-link i, .am-social-rail .am-side-toggle i { font-size:19px; }
+  .am-social-rail #am-heart-button span, .am-social-rail .am-share-link span { font-size:10px; line-height:1; }
+  .am-social-rail .am-side-toggle span { top:-5px; right:-5px; }
+  .am-social-rail #am-heart-button.active { background:#ff315a; }
+  .am-social-rail .am-share-link:hover, .am-social-rail .am-side-toggle:hover { background:#0f766e; }
   .am-viewer-side h2 { color:#fff; font-size:18px; }
   .am-viewer-side p, .am-detail-list dd { color:rgba(255,255,255,.78); }
   .am-side-header strong, .am-detail-list dt { color:#fff; }
@@ -318,6 +326,7 @@
   .am-slide-controls button:disabled { opacity:.38; cursor:default; }
   /* Clean fullscreen viewer: media, zoom/pan, image navigation, slide count, and exit controls stay visible. */
   .am-viewer-item-nav, .am-viewer-thumbs { display:none !important; }
+  .am-instruction-gallery-body #fc-wrap, .am-instruction-gallery-body #fc-panel { display:none !important; }
   .am-slide-controls { bottom:18px; padding:7px 12px; }
   @keyframes am-loader-sweep { 0% { transform:translateX(-120%); } 55%, 100% { transform:translateX(220%); } }
   @keyframes am-skeleton-shimmer { 0% { background-position:200% 0; } 100% { background-position:-200% 0; } }
@@ -329,7 +338,7 @@
     .am-viewer-item-next { right:16px; }
     .am-viewer-media-panel { padding:64px 12px 16px; }
     .am-viewer-side { left:12px; right:12px; bottom:70px; width:auto; max-height:42vh; padding:14px; }
-    .am-side-toggle { right:14px; bottom:70px; }
+    .am-social-rail { right:14px; bottom:78px; }
     .am-viewer-thumbs { left:16px; right:16px; }
   }
   @media (max-width: 640px) {
@@ -396,7 +405,7 @@
 
   function externalVideoEmbedUrl(url) {
     var youtubeId = youtubeVideoId(url);
-    if (youtubeId) return 'https://www.youtube.com/embed/' + youtubeId + '?autoplay=1&mute=1&playsinline=1&rel=0';
+    if (youtubeId) return 'https://www.youtube.com/embed/' + youtubeId + '?autoplay=1&playsinline=1&rel=0';
     try {
       var parsed = new URL(clean(url), window.location.origin);
       var host = parsed.hostname.replace(/^www\./i, '').replace(/^m\./i, '').toLowerCase();
@@ -404,7 +413,7 @@
       if (host === 'dai.ly' || host === 'dailymotion.com' || host.endsWith('.dailymotion.com')) {
         var dmId = host === 'dai.ly' ? (parts[0] || '') : (parts[0] === 'video' ? (parts[1] || '') : (parsed.searchParams.get('video') || ''));
         dmId = dmId.replace(/[^a-z0-9]/ig, '');
-        return dmId ? 'https://geo.dailymotion.com/player.html?video=' + dmId + '&autoplay=1&mute=1&queue-enable=false' : '';
+        return dmId ? 'https://geo.dailymotion.com/player.html?video=' + dmId + '&autoplay=1&queue-enable=false' : '';
       }
       if (host === 'tiktok.com' || host.endsWith('.tiktok.com')) {
         var videoAt = parts.indexOf('video');
@@ -945,7 +954,9 @@
       } else if (videoMode) {
         setMediaMode('video');
         videoEl.src = src;
-        videoEl.muted = true;
+        videoEl.defaultMuted = false;
+        videoEl.muted = false;
+        videoEl.volume = 1;
         videoEl.loop = true;
         videoEl.setAttribute('playsinline', '');
         videoEl.poster = assetUrl(item.thumbs[slideIndex] || item.thumbs[0] || youtubeThumbnailUrl(mediaUrl) || '');
