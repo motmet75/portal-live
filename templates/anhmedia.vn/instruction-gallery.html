@@ -964,8 +964,19 @@
         videoEl.play().catch(function() {});
       } else {
         setMediaMode('image');
-        imageEl.src = src;
-        if (imageEl.complete) setMediaLoading(false);
+        // Keep the current slide visible until the next image is fully decoded.
+        // This prevents a black frame between gallery images.
+        var requestedMediaKey = mediaKey;
+        var pendingImage = new Image();
+        pendingImage.onload = function() {
+          if (currentMediaKey !== requestedMediaKey) return;
+          imageEl.src = src;
+          if (imageEl.complete) setMediaLoading(false);
+        };
+        pendingImage.onerror = function() {
+          if (currentMediaKey === requestedMediaKey) setMediaLoading(false);
+        };
+        pendingImage.src = src;
       }
     }
     if (mediaChanged) resetZoom(); else applyZoom();
@@ -985,6 +996,12 @@
     if (shareLink) shareLink.href = exactShareUrl(item);
     renderSkills(item);
     renderThumbs(item);
+    if (item.media.length > 1) {
+      var nextImageUrl = item.media[(slideIndex + 1) % item.media.length];
+      var previousImageUrl = item.media[(slideIndex - 1 + item.media.length) % item.media.length];
+      if (nextImageUrl && !isVideoUrl(nextImageUrl) && !externalVideoEmbedUrl(nextImageUrl)) preloadImage(assetUrl(nextImageUrl));
+      if (previousImageUrl && !isVideoUrl(previousImageUrl) && !externalVideoEmbedUrl(previousImageUrl)) preloadImage(assetUrl(previousImageUrl));
+    }
     renderSocial(item);
     loadExperience(item);
   }
@@ -1132,7 +1149,7 @@
   }
 })();
 </script>
-<link rel="stylesheet" th:href="'/' + ${domain} + '/css/instruction-reel-2026.css?v=20260809-4'">
+<link rel="stylesheet" th:href="'/' + ${domain} + '/css/instruction-reel-2026.css?v=20260809-6'">
 <script defer th:src="'/' + ${domain} + '/js/anhmedia-live-2026.js?v=20260806'"></script>
 <script defer th:src="'/' + ${domain} + '/js/instruction-reel-2026.js?v=20260809-1'"></script>
 </body>
