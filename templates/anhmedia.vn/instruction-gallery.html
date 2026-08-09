@@ -889,9 +889,28 @@
       commentList.appendChild(empty);
       return;
     }
+    var commentsById = {};
+    var repliesByParent = {};
     comments.forEach(function(comment) {
+      if (comment.id) commentsById[String(comment.id)] = comment;
+    });
+    comments.forEach(function(comment) {
+      var parentKey = comment.parentCommentId ? String(comment.parentCommentId) : '';
+      if (!parentKey || !commentsById[parentKey]) return;
+      repliesByParent[parentKey] = repliesByParent[parentKey] || [];
+      repliesByParent[parentKey].push(comment);
+    });
+
+    var renderedComments = [];
+    function appendComment(comment, depth, visited) {
+      var commentKey = comment.id ? String(comment.id) : '';
+      if (commentKey && visited[commentKey]) return;
+      if (renderedComments.indexOf(comment) >= 0) return;
+      if (commentKey) visited[commentKey] = true;
+      renderedComments.push(comment);
       var row = document.createElement('div');
-      row.className = 'am-comment-row' + (comment.parentCommentId ? ' is-reply' : '');
+      row.className = 'am-comment-row ' + (depth ? 'is-reply' : 'is-root');
+      row.style.setProperty('--reply-depth', String(Math.min(depth, 5)));
       var author = document.createElement('strong');
       var body = document.createElement('span');
       var reply = document.createElement('button');
@@ -901,12 +920,36 @@
       author.textContent = clean(comment.username) || 'Guest';
       body.textContent = clean(comment.commentText || comment.text || comment);
       row.appendChild(author);
+      if (depth && comment.parentCommentId) {
+        var parent = commentsById[String(comment.parentCommentId)];
+        if (parent) {
+          var context = document.createElement('small');
+          var parentText = clean(parent.commentText || parent.text || '');
+          context.className = 'am-comment-parent-context';
+          context.textContent = '↳ ' + (clean(parent.username) || 'Guest') + ': ' +
+            (parentText.length > 72 ? parentText.substring(0, 72) + '…' : parentText);
+          row.appendChild(context);
+        }
+      }
       row.appendChild(body);
       if (comment.id) {
         reply.addEventListener('click', function() { setReplyTarget(comment); });
         row.appendChild(reply);
       }
       commentList.appendChild(row);
+      (repliesByParent[commentKey] || []).forEach(function(replyComment) {
+        appendComment(replyComment, depth + 1, visited);
+      });
+    }
+
+    var visited = {};
+    comments.forEach(function(comment) {
+      var parentKey = comment.parentCommentId ? String(comment.parentCommentId) : '';
+      if (!parentKey || !commentsById[parentKey]) appendComment(comment, 0, visited);
+    });
+    // Defensive fallback for malformed/cyclic legacy data.
+    comments.forEach(function(comment) {
+      if (renderedComments.indexOf(comment) < 0) appendComment(comment, 0, visited);
     });
   }
 
@@ -1226,7 +1269,7 @@
   }
 })();
 </script>
-<link rel="stylesheet" th:href="'/' + ${domain} + '/css/instruction-reel-2026.css?v=20260809-10'">
+<link rel="stylesheet" th:href="'/' + ${domain} + '/css/instruction-reel-2026.css?v=20260809-11'">
 <script defer th:src="'/' + ${domain} + '/js/anhmedia-live-2026.js?v=20260806'"></script>
 <script defer th:src="'/' + ${domain} + '/js/instruction-reel-2026.js?v=20260809-1'"></script>
 </body>
