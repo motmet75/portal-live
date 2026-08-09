@@ -68,7 +68,7 @@
     <div class="am-tiktok-grid" th:if="${instructionMediaItems != null and !instructionMediaItems.isEmpty()}">
       <article class="am-tiktok-card"
                th:each="item, iter : ${instructionMediaItems}"
-               th:attr="data-index=${iter.index},data-id=${item.id},data-share=${'/instruction-gallery.html?lang=' + language + '&pageKey=' + item.pageKey + '&mediaId=' + item.id},data-media=${item.mediaUrl},data-thumbnails=${item.thumbnailUrl},data-caption=${item.caption},data-description=${item.description},data-achievement=${item.achievement},data-place=${item.sourcePlace},data-source=${item.sourceUrl},data-collaborators=${item.collaborators},data-skills=${item.skills},data-date=${item.occurredOn},data-type=${item.mediaType}">
+               th:attr="data-index=${iter.index},data-id=${item.id},data-share=${'/instruction-gallery.html?lang=' + language + '&pageKey=' + item.pageKey + '&mediaId=' + item.id},data-media=${item.mediaUrl},data-thumbnails=${item.thumbnailUrl},data-caption=${item.caption},data-description=${item.description},data-achievement=${item.achievement},data-place=${item.sourcePlace},data-source=${item.sourceUrl},data-collaborators=${item.collaborators},data-skills=${item.skills},data-date=${item.occurredOn},data-created=${item.createdTime},data-type=${item.mediaType}">
         <button class="am-card-button" type="button">
           <img class="am-card-poster" loading="lazy" alt=""
                th:src="${!#strings.isEmpty(item.firstThumbnailUrl) ? item.firstThumbnailUrl : (item.image ? item.firstMediaUrl : '')}"
@@ -583,6 +583,7 @@
   var commentInput = document.getElementById('am-comment-input');
   var commentReplying = document.getElementById('am-comment-replying');
   var commentPanel = document.querySelector('.am-comment-panel');
+  var commentSide = document.querySelector('.am-viewer-side');
   var commentResize = document.getElementById('am-comment-resize');
   var sideToggleButton = document.getElementById('am-side-toggle');
   var sideCollapseButton = document.getElementById('am-side-collapse');
@@ -668,6 +669,7 @@
       collaborators: clean(card.dataset.collaborators),
       skills: clean(card.dataset.skills),
       date: clean(card.dataset.date),
+      created: clean(card.dataset.created),
       type: clean(card.dataset.type),
       baseLikes: 0,
       backendHearted: false,
@@ -959,6 +961,15 @@
     return url.href;
   }
 
+  function viewerDateTime(item) {
+    var occurredDate = clean(item && item.date);
+    var created = clean(item && item.created);
+    var timeMatch = created.match(/[T ](\d{2}:\d{2})/);
+    if (occurredDate) return occurredDate + (timeMatch ? ' ' + timeMatch[1] : '');
+    if (!created) return '';
+    return created.replace('T', ' ').substring(0, 16);
+  }
+
   function renderViewer() {
     var item = activeItem();
     if (!item) return;
@@ -1017,7 +1028,7 @@
     achievementEl.textContent = item.achievement || '';
     placeEl.textContent = item.place || '';
     collaboratorsEl.textContent = item.collaborators || '';
-    dateEl.textContent = item.date || '';
+    dateEl.textContent = viewerDateTime(item);
     counterEl.textContent = (item.media.length ? slideIndex + 1 : 0) + ' / ' + Math.max(item.media.length, 1);
     var hasMultipleSlides = item.media.length > 1;
     if (slidePrevButton) slidePrevButton.disabled = !hasMultipleSlides;
@@ -1194,6 +1205,7 @@
         commentResizeStartHeight + commentResizeStartY - event.clientY));
       commentPanel.style.setProperty('height', nextHeight + 'px', 'important');
       commentPanel.style.setProperty('top', 'auto', 'important');
+      if (commentSide) commentSide.style.setProperty('height', nextHeight + 'px', 'important');
       event.preventDefault();
     });
     function stopCommentResize() { commentResize.classList.remove('active'); }
@@ -1202,6 +1214,7 @@
     commentResize.addEventListener('dblclick', function() {
       commentPanel.style.removeProperty('height');
       commentPanel.style.removeProperty('top');
+      if (commentSide) commentSide.style.removeProperty('height');
     });
   }
 
@@ -1213,7 +1226,7 @@
   }
 })();
 </script>
-<link rel="stylesheet" th:href="'/' + ${domain} + '/css/instruction-reel-2026.css?v=20260809-9'">
+<link rel="stylesheet" th:href="'/' + ${domain} + '/css/instruction-reel-2026.css?v=20260809-10'">
 <script defer th:src="'/' + ${domain} + '/js/anhmedia-live-2026.js?v=20260806'"></script>
 <script defer th:src="'/' + ${domain} + '/js/instruction-reel-2026.js?v=20260809-1'"></script>
 </body>
