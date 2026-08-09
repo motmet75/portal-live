@@ -46,3 +46,18 @@
 /* Gentle loading state: retain the previous image and float a small spinner. */
 .am-media-stage.is-loading:before{content:""!important;position:absolute!important;inset:50% auto auto 50%!important;width:42px!important;height:42px!important;margin:-21px 0 0 -21px!important;border:4px solid rgba(255,255,255,.22)!important;border-top-color:#fff!important;border-radius:50%!important;background:rgba(8,11,17,.42)!important;background-size:auto!important;box-shadow:0 0 0 10px rgba(8,11,17,.28),0 8px 28px rgba(0,0,0,.35)!important;z-index:24!important;pointer-events:none!important;animation:am-gallery-spinner .78s linear infinite!important}
 @keyframes am-gallery-spinner{to{transform:rotate(360deg)}}
+
+/* Scrollable comment sheet with a visible close control and threaded replies. */
+.am-gallery-viewer.comments-open .am-comment-panel{display:flex!important;flex-direction:column!important;overflow:hidden!important;height:min(620px,70vh)!important;max-height:calc(100dvh - 36px)!important;box-sizing:border-box!important}
+.am-gallery-viewer.comments-open .am-comment-header{position:relative!important;flex:0 0 auto!important;min-height:38px!important;margin:0 0 10px!important;padding:0 44px 10px 0!important;border-bottom:1px solid rgba(255,255,255,.12)!important}
+.am-gallery-viewer.comments-open .am-side-collapse{position:absolute!important;display:flex!important;top:-4px!important;right:0!important;margin:0!important;width:36px!important;height:36px!important;background:rgba(255,255,255,.14)!important;color:#fff!important;border:1px solid rgba(255,255,255,.2)!important;z-index:94!important}
+.am-gallery-viewer.comments-open .am-side-collapse:hover,.am-gallery-viewer.comments-open .am-side-collapse:focus{background:#374151!important;color:#fff!important}
+.am-gallery-viewer.comments-open .am-comment-list{flex:1 1 auto!important;min-height:120px!important;max-height:none!important;overflow-y:auto!important;overscroll-behavior:contain!important;margin:0!important;padding:0 5px 10px 0!important;scrollbar-color:rgba(255,255,255,.34) transparent!important}
+.am-comment-row{position:relative!important;padding:10px 12px 28px!important}
+.am-comment-row.is-reply{margin-left:28px!important;border-left:3px solid rgba(34,230,208,.52)!important;background:rgba(34,230,208,.08)!important}
+.am-comment-reply{position:absolute!important;left:12px!important;bottom:6px!important;padding:2px 0!important;border:0!important;background:transparent!important;color:#8ee9e1!important;font-size:11px!important;font-weight:800!important;cursor:pointer!important}
+.am-comment-replying{display:none;flex:0 0 auto;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 6px;padding:7px 10px;border-radius:8px;background:rgba(34,230,208,.12);color:#b9fff7;font-size:12px;font-weight:700}
+.am-comment-replying.active{display:flex}.am-comment-replying button{width:26px;height:26px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;cursor:pointer}
+.am-comment-form{flex:0 0 auto!important;padding-top:8px!important;border-top:1px solid rgba(255,255,255,.1)!important}
+@media(min-width:761px){.am-gallery-viewer.comments-open .am-comment-panel{top:14px!important;right:14px!important;bottom:14px!important;left:auto!important;width:min(410px,calc(100vw - 40px))!important;height:auto!important;max-height:none!important}}
+@media(max-width:760px){.am-gallery-viewer.comments-open .am-comment-panel{height:min(580px,calc(100dvh - 20px))!important;max-height:calc(100dvh - 20px)!important}.am-comment-row.is-reply{margin-left:18px!important}}

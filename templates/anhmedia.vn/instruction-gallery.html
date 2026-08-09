@@ -121,7 +121,6 @@
       <div class="am-side-header">
         <div class="am-mini-avatar">AM</div>
         <div><strong>anhmedia.vn</strong><span id="am-viewer-date"></span></div>
-        <button id="am-side-collapse" class="am-side-collapse" type="button" aria-label="Hide comments" title="Hide comments"><i class="fa fa-times" aria-hidden="true"></i></button>
       </div>
       <h2 id="am-viewer-caption"></h2>
       <p id="am-viewer-description"></p>
@@ -143,8 +142,9 @@
         <span id="am-rating-summary" class="am-rating-summary">Rate</span>
       </div>
       <div class="am-comment-panel">
-        <div class="am-comment-header"><strong>Comments</strong><span id="am-comment-count">0</span></div>
+        <div class="am-comment-header"><strong>Comments</strong><span id="am-comment-count">0</span><button id="am-side-collapse" class="am-side-collapse" type="button" aria-label="Close comments" title="Close comments"><i class="fa fa-times" aria-hidden="true"></i></button></div>
         <div id="am-comment-list" class="am-comment-list"></div>
+        <div id="am-comment-replying" class="am-comment-replying"><span></span><button type="button" aria-label="Cancel reply"><i class="fa fa-times"></i></button></div>
         <form id="am-comment-form" class="am-comment-form">
           <input id="am-comment-input" type="text" autocomplete="off" placeholder="Bình luận">
           <button type="submit"><i class="fa fa-paper-plane"></i></button>
@@ -580,6 +580,7 @@
   var commentList = document.getElementById('am-comment-list');
   var commentForm = document.getElementById('am-comment-form');
   var commentInput = document.getElementById('am-comment-input');
+  var commentReplying = document.getElementById('am-comment-replying');
   var sideToggleButton = document.getElementById('am-side-toggle');
   var sideCollapseButton = document.getElementById('am-side-collapse');
   var sideToggleCount = document.getElementById('am-side-toggle-count');
@@ -610,6 +611,24 @@
   var localComments = {};
   var localRatings = {};
   var localLikes = {};
+  var replyToCommentId = null;
+
+  function clearReplyTarget() {
+    replyToCommentId = null;
+    if (commentReplying) commentReplying.classList.remove('active');
+    if (commentInput) commentInput.placeholder = 'Bình luận';
+  }
+
+  function setReplyTarget(comment) {
+    if (!comment || !comment.id) return;
+    replyToCommentId = Number(comment.id);
+    if (commentReplying) {
+      commentReplying.querySelector('span').textContent = 'Replying to ' + (clean(comment.username) || 'Guest');
+      commentReplying.classList.add('active');
+    }
+    commentInput.placeholder = 'Write a reply…';
+    commentInput.focus();
+  }
 
   function setMediaLoading(active) {
     if (mediaStage) mediaStage.classList.toggle('is-loading', Boolean(active));
@@ -867,12 +886,21 @@
     }
     comments.forEach(function(comment) {
       var row = document.createElement('div');
+      row.className = 'am-comment-row' + (comment.parentCommentId ? ' is-reply' : '');
       var author = document.createElement('strong');
       var body = document.createElement('span');
+      var reply = document.createElement('button');
+      reply.type = 'button';
+      reply.className = 'am-comment-reply';
+      reply.textContent = 'Reply';
       author.textContent = clean(comment.username) || 'Guest';
       body.textContent = clean(comment.commentText || comment.text || comment);
       row.appendChild(author);
       row.appendChild(body);
+      if (comment.id) {
+        reply.addEventListener('click', function() { setReplyTarget(comment); });
+        row.appendChild(reply);
+      }
       commentList.appendChild(row);
     });
   }
@@ -1131,15 +1159,19 @@
     var text = clean(commentInput.value);
     if (!item || !text) return;
     localComments[item.index] = localComments[item.index] || [];
-    localComments[item.index].push({ username: 'You', commentText: text });
+    var optimisticParentId = replyToCommentId;
+    localComments[item.index].push({ username: 'You', commentText: text, parentCommentId: optimisticParentId });
     commentInput.value = '';
+    clearReplyTarget();
     renderComments(item);
     if (item.id) {
-      postJson(apiPath(item, '/comments'), { comment: text }).then(function(data) {
+      postJson(apiPath(item, '/comments'), { comment: text, parentCommentId: optimisticParentId }).then(function(data) {
         applyExperience(item, data);
       }).catch(function() {});
     }
   });
+
+  if (commentReplying) commentReplying.querySelector('button').addEventListener('click', clearReplyTarget);
 
   if (requestedMediaId) {
     var requestedIndex = items.findIndex(function(item) { return item.id === requestedMediaId; });
@@ -1149,7 +1181,7 @@
   }
 })();
 </script>
-<link rel="stylesheet" th:href="'/' + ${domain} + '/css/instruction-reel-2026.css?v=20260809-6'">
+<link rel="stylesheet" th:href="'/' + ${domain} + '/css/instruction-reel-2026.css?v=20260809-7'">
 <script defer th:src="'/' + ${domain} + '/js/anhmedia-live-2026.js?v=20260806'"></script>
 <script defer th:src="'/' + ${domain} + '/js/instruction-reel-2026.js?v=20260809-1'"></script>
 </body>
