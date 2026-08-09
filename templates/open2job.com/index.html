@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#090b10">
+  <title>open2job — Career stories, beautifully told</title>
+  <meta name="description" content="A cinematic career profile prototype for open2job.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/open2job.com/css/open2job.css">
+</head>
+<body>
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="open2job home"><span class="brand-mark">o2</span><span>open2job</span></a>
+    <nav aria-label="Primary"><a href="#story">Story</a><a href="#work">Work</a><a href="#about">About</a></nav>
+    <div class="header-actions">
+      <button class="icon-button" id="privacyButton" aria-label="View privacy status"><span class="lock-icon">⌁</span><span class="desktop-only">Protected</span></button>
+      <button class="contact-button">Let’s talk <span>↗</span></button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero reveal" id="about">
+      <div class="hero-copy">
+        <p class="eyebrow"><span></span> Product designer · Ho Chi Minh City</p>
+        <h1>I turn complex ideas into <em>clear, human</em> experiences.</h1>
+        <p class="intro">I’m Maya — a multidisciplinary designer working where research, systems, and visual storytelling meet.</p>
+        <div class="hero-actions"><a class="primary-cta" href="#story">Explore my story <span>↓</span></a><button class="play-reel" id="reelButton"><i>▶</i> Play 45s reel</button></div>
+        <div class="availability"><span class="pulse"></span> Available for selected collaborations · 2026</div>
+      </div>
+      <div class="portrait-wrap">
+        <div class="portrait-card">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1100&q=85" alt="Maya Chen, product designer">
+          <span class="portrait-label">Maya Chen</span><span class="portrait-number">01 / 08</span>
+        </div>
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+        <div class="floating-note"><b>12</b><span>products shipped</span></div>
+      </div>
+    </section>
+
+    <section class="story-section" id="story">
+      <div class="section-heading reveal">
+        <div><p class="eyebrow"><span></span> The profile, your way</p><h2>Explore the same story<br>from a different angle.</h2></div>
+        <p>Switch the lens. Every view keeps Maya’s work connected, but changes what leads the narrative.</p>
+      </div>
+
+      <div class="view-switcher reveal" role="tablist" aria-label="Profile layout">
+        <button class="view-tab active" data-view="timeline" role="tab" aria-selected="true"><b>01</b><span>Timeline<small>Follow the journey</small></span></button>
+        <button class="view-tab" data-view="achievements" role="tab" aria-selected="false"><b>02</b><span>Achievements<small>See the impact</small></span></button>
+        <button class="view-tab" data-view="people" role="tab" aria-selected="false"><b>03</b><span>People<small>Meet the collaborators</small></span></button>
+      </div>
+
+      <div class="profile-stage reveal" id="profileStage">
+        <aside class="stage-sidebar">
+          <p>Navigate</p>
+          <div id="stageNav"></div>
+          <div class="progress-track"><i id="progressLine"></i></div>
+        </aside>
+        <div class="stage-content" id="stageContent" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="principles reveal">
+      <p class="eyebrow"><span></span> More than a résumé</p>
+      <h2>A career is not a list.<br><em>It’s a living story.</em></h2>
+      <div class="principle-grid">
+        <article><b>01</b><h3>Context over claims</h3><p>Show the problem, your decisions, and the real outcome—not a wall of keywords.</p></article>
+        <article><b>02</b><h3>People behind the work</h3><p>Credit the people who shaped the journey, without requiring complex social connections.</p></article>
+        <article><b>03</b><h3>Share on your terms</h3><p>Publish openly or use password protection for work that needs a smaller audience.</p></article>
+      </div>
+    </section>
+
+    <section class="closing reveal" id="work">
+      <span class="closing-orb"></span><p>Ready for the next chapter?</p><h2>Let’s build something<br><em>worth remembering.</em></h2><button class="primary-cta">Start a conversation <span>↗</span></button>
+    </section>
+  </main>
+
+  <footer><a class="brand" href="#"><span class="brand-mark">o2</span><span>open2job</span></a><p>Career stories, beautifully told.</p><span>Prototype · 2026</span></footer>
+
+  <dialog id="privacyDialog">
+    <button class="dialog-close" data-close aria-label="Close">×</button><span class="dialog-icon">⌁</span><p class="eyebrow">Privacy preview</p><h2>This profile is protected.</h2><p>Private profiles can be shared with a password. Public profiles remain viewable without an account.</p>
+    <label>Profile password<input type="password" placeholder="Enter password" value="openmaya"></label><button class="primary-cta" data-close>Preview profile <span>→</span></button>
+  </dialog>
+  <dialog id="reelDialog" class="reel-dialog"><button class="dialog-close" data-close aria-label="Close">×</button><div class="reel-visual"><span></span><b>45 second reel</b><p>Video preview placeholder<br>YouTube public / unlisted</p></div></dialog>
+
+  <script src="/open2job.com/js/open2job.js"></script>
+</body>
+</html>
