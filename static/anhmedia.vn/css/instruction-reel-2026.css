@@ -34,6 +34,8 @@
 .am-social-rail{top:50%!important;right:18px!important;bottom:auto!important;transform:translateY(-50%);gap:7px!important}
 .am-social-rail .am-viewer-item-nav,.am-social-rail #am-heart-button,.am-social-rail .am-side-toggle,.am-social-rail .am-share-link{position:relative!important;inset:auto!important;display:flex!important;transform:none!important;width:46px!important;min-width:46px!important;height:46px!important;margin:0!important;padding:0!important}
 .am-social-rail .am-viewer-item-nav{z-index:auto!important;font-size:22px!important;background:rgba(16,20,29,.78)!important}
+.am-social-rail .am-viewer-item-nav i{width:100%!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;line-height:1!important;margin:0!important;padding:0!important;transform:none!important}
+.am-social-rail .am-viewer-item-nav i:before{display:block!important;line-height:1!important;margin:0!important;position:static!important;transform:none!important}
 .am-social-rail .am-viewer-item-prev i:before{content:"\f106"!important}
 .am-social-rail .am-viewer-item-next i:before{content:"\f107"!important}
 .am-social-rail #am-heart-button span,.am-social-rail .am-share-link span{transform:none!important;position:static!important;font-size:9px!important}
