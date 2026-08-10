@@ -48,14 +48,14 @@
 @keyframes am-gallery-spinner{to{transform:rotate(360deg)}}
 
 /* Scrollable comment sheet with a visible close control and threaded replies. */
-.am-gallery-viewer.comments-open .am-comment-panel{display:flex!important;flex-direction:column!important;overflow:hidden!important;height:70vh!important;min-height:50vh!important;max-height:calc(100dvh - 28px)!important;box-sizing:border-box!important}
-.am-gallery-viewer.comments-open .am-viewer-side{top:auto!important;right:14px!important;bottom:14px!important;left:auto!important;width:min(410px,calc(100vw - 40px))!important;height:70vh!important;min-height:50vh!important;max-height:calc(100dvh - 28px)!important;padding:0!important;overflow:visible!important;box-sizing:border-box!important}
+.am-gallery-viewer.comments-open .am-comment-panel{display:flex!important;flex-direction:column!important;overflow:hidden!important;height:70vh!important;min-height:50vh!important;max-height:calc(100dvh - 28px)!important;box-sizing:border-box!important;z-index:97!important}
+.am-gallery-viewer.comments-open .am-viewer-side{top:auto!important;right:14px!important;bottom:14px!important;left:auto!important;width:min(410px,calc(100vw - 40px))!important;height:70vh!important;min-height:50vh!important;max-height:calc(100dvh - 28px)!important;padding:0!important;overflow:visible!important;box-sizing:border-box!important;z-index:96!important}
 .am-gallery-viewer.comments-open .am-viewer-side>:not(.am-comment-panel){display:none!important}
 .am-comment-resize{display:flex;flex:0 0 24px;align-items:center;justify-content:center;margin:-12px -8px 2px;cursor:ns-resize;touch-action:none;user-select:none}
 .am-comment-resize span{display:block;width:54px;height:5px;border-radius:999px;background:rgba(255,255,255,.42);transition:background .15s ease,transform .15s ease}
 .am-comment-resize:hover span,.am-comment-resize.active span{background:#fff;transform:scaleX(1.18)}
 .am-gallery-viewer.comments-open .am-comment-header{position:relative!important;flex:0 0 auto!important;min-height:38px!important;margin:0 0 10px!important;padding:0 44px 10px 0!important;border-bottom:1px solid rgba(255,255,255,.12)!important}
-.am-gallery-viewer.comments-open .am-side-collapse{position:absolute!important;display:flex!important;top:-4px!important;right:0!important;margin:0!important;width:36px!important;height:36px!important;background:rgba(255,255,255,.14)!important;color:#fff!important;border:1px solid rgba(255,255,255,.2)!important;z-index:94!important}
+.am-gallery-viewer.comments-open .am-side-collapse{position:absolute!important;display:flex!important;top:-4px!important;right:0!important;margin:0!important;width:36px!important;height:36px!important;background:rgba(255,255,255,.14)!important;color:#fff!important;border:1px solid rgba(255,255,255,.2)!important;z-index:99!important}
 .am-gallery-viewer.comments-open .am-side-collapse:hover,.am-gallery-viewer.comments-open .am-side-collapse:focus{background:#374151!important;color:#fff!important}
 .am-gallery-viewer.comments-open .am-comment-list{flex:1 1 auto!important;min-height:120px!important;max-height:none!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;touch-action:pan-y!important;-webkit-overflow-scrolling:touch!important;margin:0!important;padding:0 5px 10px 0!important;scrollbar-color:rgba(255,255,255,.34) transparent!important}
 .am-comment-row{position:relative!important;padding:10px 12px 28px!important}
