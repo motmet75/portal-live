@@ -23,21 +23,29 @@
   </header>
 
   <main>
+    <section class="demo-gallery" aria-labelledby="demoTitle">
+      <div class="demo-intro"><p class="eyebrow"><span></span> Hard-coded profile demos</p><h2 id="demoTitle">Three careers.<br>Three ways forward.</h2></div>
+      <div class="demo-cards" role="list">
+        <button class="demo-card active" data-profile="student" role="listitem"><span class="demo-no">01</span><span class="demo-avatar"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&amp;fit=crop&amp;w=300&amp;q=80" alt="Linh Nguyen"></span><span><b>Linh Nguyen</b><small>Software engineering student</small></span><i>View profile ↗</i></button>
+        <button class="demo-card" data-profile="professional" role="listitem"><span class="demo-no">02</span><span class="demo-avatar"><img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&amp;fit=crop&amp;w=300&amp;q=80" alt="Daniel Carter"></span><span><b>Daniel Carter</b><small>Senior operations leader</small></span><i>View profile ↗</i></button>
+        <button class="demo-card" data-profile="creative" role="listitem"><span class="demo-no">03</span><span class="demo-avatar"><img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&amp;fit=crop&amp;w=300&amp;q=80" alt="Maya Chen"></span><span><b>Maya Chen</b><small>Independent visual designer</small></span><i>View profile ↗</i></button>
+      </div>
+    </section>
     <section class="hero reveal" id="about">
       <div class="hero-copy">
-        <p class="eyebrow"><span></span> Product designer · Ho Chi Minh City</p>
-        <h1>I turn complex ideas into <em>clear, human</em> experiences.</h1>
-        <p class="intro">I’m Maya — a multidisciplinary designer working where research, systems, and visual storytelling meet.</p>
+        <p class="eyebrow" id="profileRole"><span></span> Software engineering student · Ho Chi Minh City</p>
+        <h1 id="profileHeadline">I build useful things while <em>learning in public.</em></h1>
+        <p class="intro" id="profileIntro">I’m Linh — a final-year student focused on accessible web products, practical AI, and thoughtful teamwork.</p>
         <div class="hero-actions"><a class="primary-cta" href="#story">Explore my story <span>↓</span></a><button class="play-reel" id="reelButton"><i>▶</i> Play 45s reel</button></div>
         <div class="availability"><span class="pulse"></span> Available for selected collaborations · 2026</div>
       </div>
       <div class="portrait-wrap">
         <div class="portrait-card">
-          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1100&q=85" alt="Maya Chen, product designer">
-          <span class="portrait-label">Maya Chen</span><span class="portrait-number">01 / 08</span>
+          <img id="profilePortrait" src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&amp;fit=crop&amp;w=1100&amp;q=85" alt="Linh Nguyen, software engineering student">
+          <span class="portrait-label" id="profileName">Linh Nguyen</span><span class="portrait-number" id="profileNumber">Profile 01 / 03</span>
         </div>
         <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
-        <div class="floating-note"><b>12</b><span>products shipped</span></div>
+        <div class="floating-note"><b id="profileStat">04</b><span id="profileStatLabel">projects shipped</span></div>
       </div>
     </section>
 

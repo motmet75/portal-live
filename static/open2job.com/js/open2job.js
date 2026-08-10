@@ -1,58 +1,44 @@
 (() => {
-  const data = {
-    timeline: {
-      title: 'The journey', label: '2018 — Now', nav: ['Now · Nova Labs','2023 · Independent','2021 · Loomly','2018 · Beginning'],
-      html: `<div class="timeline">
-        <article class="timeline-item"><time>2024 — now</time><div class="timeline-card"><div><h4>Lead Product Designer · Nova Labs</h4><p>Leading a small design team building tools that help climate researchers understand complex field data.</p><span class="tag">Leadership</span><span class="tag">Climate tech</span><span class="tag">With Aisha, Tom + 4</span></div><img src="https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=500&q=80" alt="Team working together"></div></article>
-        <article class="timeline-item"><time>2023 — 24</time><div class="timeline-card"><div><h4>Independent designer</h4><p>Partnered with early-stage teams to turn ambiguous ideas into tested, launch-ready products.</p><span class="tag">7 launches</span><span class="tag">With Jun, Lena + 8</span></div><img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=500&q=80" alt="Workshop wall"></div></article>
-        <article class="timeline-item"><time>2021 — 23</time><div class="timeline-card"><div><h4>Senior Product Designer · Loomly</h4><p>Rebuilt onboarding around real user intent, improving first-week activation by 31%.</p><span class="tag">Product strategy</span><span class="tag">+31% activation</span></div><img src="https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=500&q=80" alt="Design collaboration"></div></article>
-      </div>`
+  const profiles = {
+    student: {
+      role:'Software engineering student · Ho Chi Minh City', headline:'I build useful things while <em>learning in public.</em>', intro:'I’m Linh — a final-year student focused on accessible web products, practical AI, and thoughtful teamwork.', name:'Linh Nguyen', number:'Profile 01 / 03', stat:'04', statLabel:'projects shipped', portrait:'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=1100&q=85', alt:'Linh Nguyen, software engineering student', range:'2022 — Now',
+      timeline:[['2025 — now','Graduation project · StudyFlow','Built an accessible planning app that helps student teams organize courses and deadlines.','Vue · Spring Boot','With Minh, An + 2','https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=500&q=80'],['Summer 2025','Software intern · BrightWare','Delivered three production features and wrote integration tests for a customer support platform.','Java · PostgreSQL','With Quang + 5','https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=500&q=80'],['2023 — 24','Developer · University Tech Club','Ran weekly build nights and helped first-year students publish their first web projects.','Community','12 workshops','https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=500&q=80']],
+      achievements:[['04','Projects shipped','Course planner, campus map, accessibility checker, and a volunteer portal.'],['2nd','Hackathon place','A 36-hour prototype for matching food surplus with local charities.'],['3.72','GPA / 4.0','Strong foundation in data structures, databases, and software architecture.'],['12','Workshops hosted','Peer learning sessions for Git, APIs, testing, and deployment.']],
+      people:[['Minh Tran','Project teammate','Owned the mobile experience for StudyFlow.','https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=500&q=80'],['An Pham','UX researcher','Tested StudyFlow with 18 university students.','https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=80'],['Quang Le','Internship mentor','Reviewed backend architecture and production releases.','https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=500&q=80']]
     },
-    achievements: {
-      title: 'Selected impact', label: 'Outcomes over titles', nav: ['31% activation','12 products','3 design awards','24 mentees'],
-      html: `<div class="achievement-grid">
-        <article class="achievement-card"><small>Product</small><b>+31%</b><h4>Activation, redesigned</h4><p>Mapped 42 onboarding journeys with Priya and Dan, then reduced the path to first value from nine steps to four.</p></article>
-        <article class="achievement-card"><small>Delivery</small><b>12</b><h4>Products shipped</h4><p>From research prototypes to mature platforms used by teams across four continents.</p></article>
-        <article class="achievement-card"><small>Recognition</small><b>03</b><h4>Design awards</h4><p>Recognition shared with the researchers, engineers, writers and clients behind the work.</p></article>
-        <article class="achievement-card"><small>Community</small><b>24</b><h4>Designers mentored</h4><p>A monthly practice focused on portfolio storytelling, confidence, and finding a personal design voice.</p></article>
-      </div>`
+    professional: {
+      role:'Senior operations leader · Singapore', headline:'I turn growing teams into <em>reliable systems.</em>', intro:'I’m Daniel — an operations leader with 12 years of experience scaling regional logistics, teams, and customer delivery.', name:'Daniel Carter', number:'Profile 02 / 03', stat:'28%', statLabel:'faster delivery', portrait:'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=1100&q=85', alt:'Daniel Carter, operations leader', range:'2014 — Now',
+      timeline:[['2022 — now','Regional Operations Director · Northstar','Lead 86 people across four markets, with ownership of delivery performance and operating cost.','Leadership','With Mei, Hassan + 84','https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=500&q=80'],['2018 — 22','Head of Fulfilment · ParcelWorks','Designed a capacity model that supported three years of growth without service decline.','Regional scale','6 facilities','https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=500&q=80'],['2014 — 18','Operations analyst · TransitCo','Moved from reporting into continuous improvement and led the first cross-site planning program.','Analytics','Process design','https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=500&q=80']],
+      achievements:[['28%','Faster delivery','Reduced median delivery time while maintaining safety and quality.'],['18%','Lower unit cost','Network and shift redesign completed with finance and site leaders.'],['04','Markets scaled','Standard operating model adapted for local requirements.'],['86','People led','Managers, analysts, planners, and frontline operations teams.']],
+      people:[['Mei Wong','Country manager','Partnered on the Malaysia launch and scale-up.','https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=500&q=80'],['Hassan Ali','Planning lead','Built the regional demand and capacity model.','https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=500&q=80'],['Sofia Martin','People partner','Redesigned manager development across four markets.','https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=500&q=80']]
     },
-    people: {
-      title: 'People behind the work', label: 'Selected collaborators', nav: ['Nova Labs','Independent','Loomly'],
-      html: `<div class="people-grid">
-        <article class="person-card"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=80" alt="Aisha Rahman"><h4>Aisha Rahman</h4><small>Research lead · Nova Labs</small><p>Worked together on the Field Atlas and research system.</p></article>
-        <article class="person-card"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=500&q=80" alt="Tom Becker"><h4>Tom Becker</h4><small>Engineer · Nova Labs</small><p>Built the data canvas and interaction engine together.</p></article>
-        <article class="person-card"><img src="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=500&q=80" alt="Jun Park"><h4>Jun Park</h4><small>Founder · Sora</small><p>Partnered from first sketch through the public launch.</p></article>
-      </div>`
+    creative: {
+      role:'Independent visual designer · Ho Chi Minh City', headline:'I turn complex ideas into <em>clear, human</em> experiences.', intro:'I’m Maya — a multidisciplinary designer working where research, systems, and visual storytelling meet.', name:'Maya Chen', number:'Profile 03 / 03', stat:'12', statLabel:'products shipped', portrait:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1100&q=85', alt:'Maya Chen, visual designer', range:'2018 — Now',
+      timeline:[['2024 — now','Lead Product Designer · Nova Labs','Leading a small design team building tools for climate researchers.','Leadership','With Aisha, Tom + 4','https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=500&q=80'],['2023 — 24','Independent designer','Partnered with early-stage teams to turn ambiguous ideas into launch-ready products.','7 launches','With Jun, Lena + 8','https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=500&q=80'],['2021 — 23','Senior Product Designer · Loomly','Rebuilt onboarding around real user intent, improving first-week activation by 31%.','Product strategy','+31% activation','https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=500&q=80']],
+      achievements:[['+31%','Activation, redesigned','Reduced the path to first value from nine steps to four.'],['12','Products shipped','From research prototypes to mature global platforms.'],['03','Design awards','Recognition shared with every team behind the work.'],['24','Designers mentored','Portfolio storytelling and finding a personal design voice.']],
+      people:[['Aisha Rahman','Research lead · Nova Labs','Shaped the Field Atlas research system.','https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=500&q=80'],['Tom Becker','Engineer · Nova Labs','Built the data canvas and interaction engine.','https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=500&q=80'],['Jun Park','Founder · Sora','Partnered from first sketch through public launch.','https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=500&q=80']]
     }
   };
-
-  const content = document.querySelector('#stageContent');
-  const nav = document.querySelector('#stageNav');
-  const progress = document.querySelector('#progressLine');
-  function render(view) {
-    const item = data[view];
-    content.innerHTML = `<div class="stage-title"><h3>${item.title}</h3><span>${item.label}</span></div>${item.html}`;
-    nav.innerHTML = item.nav.map((label,i) => `<button class="${i===0?'active':''}" data-index="${i}">${label}</button>`).join('');
-    nav.querySelectorAll('button').forEach((button) => button.addEventListener('click', () => {
-      nav.querySelector('.active')?.classList.remove('active'); button.classList.add('active');
-      progress.style.height = `${((Number(button.dataset.index)+1)/item.nav.length)*100}%`;
-      content.animate([{opacity:.45,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:350});
-    }));
-    progress.style.height = `${100/item.nav.length}%`;
+  let activeProfile='student', activeView='timeline';
+  const content=document.querySelector('#stageContent'), nav=document.querySelector('#stageNav'), progress=document.querySelector('#progressLine');
+  const timelineHtml=items=>`<div class="timeline">${items.map((x,i)=>`<article class="timeline-item" style="animation-delay:${i*.06}s"><time>${x[0]}</time><div class="timeline-card"><div><h4>${x[1]}</h4><p>${x[2]}</p><span class="tag">${x[3]}</span><span class="tag">${x[4]}</span></div><img src="${x[5]}" alt="Career project"></div></article>`).join('')}</div>`;
+  const achievementHtml=items=>`<div class="achievement-grid">${items.map((x,i)=>`<article class="achievement-card" style="animation-delay:${i*.06}s"><small>0${i+1}</small><b>${x[0]}</b><h4>${x[1]}</h4><p>${x[2]}</p></article>`).join('')}</div>`;
+  const peopleHtml=items=>`<div class="people-grid">${items.map((x,i)=>`<article class="person-card" style="animation-delay:${i*.06}s"><img src="${x[3]}" alt="${x[0]}"><h4>${x[0]}</h4><small>${x[1]}</small><p>${x[2]}</p></article>`).join('')}</div>`;
+  function render(view){
+    activeView=view; const p=profiles[activeProfile];
+    const item=view==='timeline'?{title:'The journey',label:p.range,nav:p.timeline.map(x=>x[0]),html:timelineHtml(p.timeline)}:view==='achievements'?{title:'Selected impact',label:'Outcomes over titles',nav:p.achievements.map(x=>x[1]),html:achievementHtml(p.achievements)}:{title:'People behind the work',label:'Selected collaborators',nav:p.people.map(x=>x[0]),html:peopleHtml(p.people)};
+    content.innerHTML=`<div class="stage-title"><h3>${item.title}</h3><span>${item.label}</span></div>${item.html}`;
+    nav.innerHTML=item.nav.map((label,i)=>`<button class="${i===0?'active':''}" data-index="${i}">${label}</button>`).join('');
+    nav.querySelectorAll('button').forEach(button=>button.addEventListener('click',()=>{nav.querySelector('.active')?.classList.remove('active');button.classList.add('active');progress.style.height=`${((Number(button.dataset.index)+1)/item.nav.length)*100}%`;content.animate([{opacity:.45,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:350})}));
+    progress.style.height=`${100/item.nav.length}%`;
   }
-  document.querySelectorAll('.view-tab').forEach(tab => tab.addEventListener('click', () => {
-    document.querySelector('.view-tab.active')?.classList.remove('active');
-    document.querySelectorAll('.view-tab').forEach(t => t.setAttribute('aria-selected','false'));
-    tab.classList.add('active'); tab.setAttribute('aria-selected','true'); render(tab.dataset.view);
-  }));
-  const observer = new IntersectionObserver(entries => entries.forEach(entry => entry.isIntersecting && entry.target.classList.add('visible')), {threshold:.12});
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-  const privacyDialog = document.querySelector('#privacyDialog');
-  const reelDialog = document.querySelector('#reelDialog');
-  document.querySelector('#privacyButton').addEventListener('click', () => privacyDialog.showModal());
-  document.querySelector('#reelButton').addEventListener('click', () => reelDialog.showModal());
-  document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
-  document.querySelectorAll('dialog').forEach(dialog => dialog.addEventListener('click', e => { if(e.target === dialog) dialog.close(); }));
-  render('timeline');
+  function selectProfile(key){
+    activeProfile=key;const p=profiles[key];document.body.classList.remove('profile-changing');void document.body.offsetWidth;document.body.classList.add('profile-changing');
+    document.querySelector('#profileRole').innerHTML=`<span></span>${p.role}`;document.querySelector('#profileHeadline').innerHTML=p.headline;document.querySelector('#profileIntro').textContent=p.intro;document.querySelector('#profileName').textContent=p.name;document.querySelector('#profileNumber').textContent=p.number;document.querySelector('#profileStat').textContent=p.stat;document.querySelector('#profileStatLabel').textContent=p.statLabel;const portrait=document.querySelector('#profilePortrait');portrait.src=p.portrait;portrait.alt=p.alt;
+    document.querySelectorAll('.demo-card').forEach(card=>card.classList.toggle('active',card.dataset.profile===key));render(activeView);document.querySelector('#about').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  document.querySelectorAll('.demo-card').forEach(card=>card.addEventListener('click',()=>selectProfile(card.dataset.profile)));
+  document.querySelectorAll('.view-tab').forEach(tab=>tab.addEventListener('click',()=>{document.querySelector('.view-tab.active')?.classList.remove('active');document.querySelectorAll('.view-tab').forEach(t=>t.setAttribute('aria-selected','false'));tab.classList.add('active');tab.setAttribute('aria-selected','true');render(tab.dataset.view)}));
+  const observer=new IntersectionObserver(entries=>entries.forEach(entry=>entry.isIntersecting&&entry.target.classList.add('visible')),{threshold:.12});document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+  const privacyDialog=document.querySelector('#privacyDialog'),reelDialog=document.querySelector('#reelDialog');document.querySelector('#privacyButton').addEventListener('click',()=>privacyDialog.showModal());document.querySelector('#reelButton').addEventListener('click',()=>reelDialog.showModal());document.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>button.closest('dialog').close()));document.querySelectorAll('dialog').forEach(dialog=>dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()}));render('timeline');
 })();
