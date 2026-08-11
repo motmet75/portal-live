@@ -30,7 +30,8 @@
 
   <section id="demos" class="o2j-section o2j-talent"><div class="o2j-wrap">
     <div class="o2j-section-head o2j-reveal"><div><span class="o2j-kicker" data-i18n="demoKicker">ONE CANDIDATE · THREE ROOTS</span><h2 data-i18n="demoTitle">One profile. Three ways to explore it.</h2></div><p data-i18n="demoBody">Switch the root point to regroup the same career data in a modern 3D gallery. No sign-in is required.</p></div>
-    <div class="o2j-mode-tabs" role="tablist" aria-label="Profile demo modes"><button class="active" type="button" data-demo-mode="timeline" role="tab" aria-selected="true"><b>01</b><span data-i18n="modeTimeline">Timeline</span><small data-i18n="modeTimelineSub">Career journey</small></button><button type="button" data-demo-mode="achievements" role="tab" aria-selected="false"><b>02</b><span data-i18n="modeAchievements">Achievements</span><small data-i18n="modeAchievementsSub">Results and impact</small></button><button type="button" data-demo-mode="people" role="tab" aria-selected="false"><b>03</b><span data-i18n="modePeople">Cooperation people</span><small data-i18n="modePeopleSub">People behind the work</small></button></div>
+    <div class="o2j-arrange-bar"><div><span>ARRANGE PROFILE BY</span><p>Choose a root criterion. Every card will regroup around it.</p></div><button id="sortDirection" class="o2j-sort-button" type="button" aria-label="Reverse arrangement">Newest first <b>↓</b></button></div>
+    <div class="o2j-mode-tabs" id="criteriaTabs" role="tablist" aria-label="Profile arrangement criteria"></div>
     <div class="o2j-public-demo o2j-reveal" id="publicProfileDemo" aria-live="polite"></div>
   </div></section>
 
@@ -44,5 +45,5 @@
 </main>
 
 <footer th:replace="open2job :: footer"></footer>
-<script src="/open2job/js/open2job.js?v=20260811b"></script>
+<script src="/open2job/js/open2job.js?v=20260811c"></script>
 </body></html>
