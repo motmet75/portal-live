@@ -200,6 +200,10 @@ select,
     margin-left: 12px;
 }
 
+.migi-social-nav--mobile {
+    display: none;
+}
+
 .migi-social-nav a {
     width: 36px;
     height: 36px;
@@ -216,9 +220,25 @@ select,
 
 .migi-social-nav a:hover,
 .migi-social-nav a:focus {
-    color: var(--migi-gold);
-    border-color: var(--migi-gold);
-    background: rgba(255, 255, 255, .14);
+    color: #fff;
+    border-color: rgba(255, 255, 255, .82);
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+}
+
+.migi-social-nav .migi-social-youtube {
+    background: #ff0000;
+    border-color: #ff0000;
+}
+
+.migi-social-nav .migi-social-facebook {
+    background: #1877f2;
+    border-color: #1877f2;
+}
+
+.migi-social-nav .migi-social-tiktok {
+    background: #010101;
+    border-color: rgba(255, 255, 255, .5);
 }
 
 .migi-social-nav a > span:not(.migi-tiktok-mark) {
@@ -234,9 +254,11 @@ select,
 }
 
 .migi-tiktok-mark {
+    color: #fff;
     font-size: 15px;
     font-weight: 900;
     font-style: italic;
+    text-shadow: -1px 0 #25f4ee, 1px 0 #fe2c55;
 }
 
 .nav-call-mobile {
@@ -916,35 +938,21 @@ select,
         padding: 8px 0;
     }
 
-    .migi-social-nav {
-        align-items: stretch;
-        flex-direction: column;
-        gap: 0;
-        margin: 6px 0 0;
-        padding-top: 6px;
-        border-top: 1px solid rgba(255, 255, 255, .12);
+    .migi-social-nav--desktop {
+        display: none;
     }
 
-    .migi-social-nav a {
-        width: 100%;
-        height: 40px;
-        justify-content: flex-start;
-        gap: 10px;
-        border: 0;
-        border-radius: 0;
-        background: transparent;
-        font-size: 15px;
-        font-weight: 700;
+    .migi-social-nav--mobile {
+        display: flex;
+        flex-direction: row;
+        gap: 5px;
+        margin: 0 10px 0 auto;
     }
 
-    .migi-social-nav a > span:not(.migi-tiktok-mark) {
-        position: static;
-        width: auto;
-        height: auto;
-        margin: 0;
-        overflow: visible;
-        clip: auto;
-        white-space: normal;
+    .migi-social-nav--mobile a {
+        width: 32px;
+        height: 32px;
+        flex: 0 0 32px;
     }
 
     .nav-call {
@@ -954,6 +962,7 @@ select,
 
     .nav-call-mobile {
         display: inline-flex;
+        margin-left: 0;
     }
 
     .nav-call-desktop {
