@@ -1,0 +1,81 @@
+2026-08-06T09:42:23.957759213	562f6afe-38b1-4c3d-b511-a10b4374750d	anhmedia	QUEUED	milktea	Waiting
+2026-08-06T09:42:23.962877378	562f6afe-38b1-4c3d-b511-a10b4374750d	anhmedia	CLONING_DATABASE	milktea	Waiting
+2026-08-06T09:42:27.173939514	562f6afe-38b1-4c3d-b511-a10b4374750d	anhmedia	REGISTERING_TENANT	milktea	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
+2026-08-06T09:42:27.346487764	562f6afe-38b1-4c3d-b511-a10b4374750d	anhmedia	READY	milktea	https://milktea.anhmedia.vn | template=milktea
+2026-08-06T10:14:14.736981422	79d71a82-06fb-4be7-9a69-5df4427c2490	anhmedia	QUEUED	milktea	Waiting
+2026-08-06T10:14:14.741729385	79d71a82-06fb-4be7-9a69-5df4427c2490	anhmedia	CLONING_DATABASE	milktea	Waiting
+2026-08-06T10:14:14.881917525	79d71a82-06fb-4be7-9a69-5df4427c2490	anhmedia	FAILED	milktea	Target database 'milktea' already exists; nothing was overwritten.
+2026-08-06T10:16:12.414950071	a4c5f2a7-d773-45b8-bff9-c58b52b7a3e6	anhmedia	QUEUED	milktea	Waiting
+2026-08-06T10:16:12.415264269	a4c5f2a7-d773-45b8-bff9-c58b52b7a3e6	anhmedia	CLONING_DATABASE	milktea	Waiting
+2026-08-06T10:16:12.424856852	a4c5f2a7-d773-45b8-bff9-c58b52b7a3e6	anhmedia	FAILED	milktea	Target live template/static folder already exists; nothing was overwritten.
+2026-08-06T10:17:06.799510279	5b584300-ef16-41e5-8b8b-16ad047af7cb	anhmedia	QUEUED	milkteas	Waiting
+2026-08-06T10:17:06.799772568	5b584300-ef16-41e5-8b8b-16ad047af7cb	anhmedia	CLONING_DATABASE	milkteas	Waiting
+2026-08-06T10:17:09.373169736	5b584300-ef16-41e5-8b8b-16ad047af7cb	anhmedia	REGISTERING_TENANT	milkteas	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
+2026-08-06T10:17:09.541810922	5b584300-ef16-41e5-8b8b-16ad047af7cb	anhmedia	READY	milkteas	https://milkntea.anhmedia.vn | template=milkteas
+2026-08-06T12:55:00.485405511	c511a79b-5a21-4d88-b628-66c7977f4e6d	anhmedia	QUEUED	milkteas	Waiting
+2026-08-06T12:55:00.490197554	c511a79b-5a21-4d88-b628-66c7977f4e6d	anhmedia	CLONING_DATABASE	milkteas	Waiting
+2026-08-06T12:55:04.368177760	c511a79b-5a21-4d88-b628-66c7977f4e6d	anhmedia	REGISTERING_TENANT	milkteas	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
+2026-08-06T12:55:04.505143332	c511a79b-5a21-4d88-b628-66c7977f4e6d	anhmedia	READY	milkteas	https://milkntea.anhmedia.vn | template=milkteas
+2026-08-06T13:47:27.556993983	2501ea68-3e9a-49a9-8807-aee138e9f1de	anhmedia	QUEUED	milkteas	Waiting
+2026-08-06T13:47:27.558753137	2501ea68-3e9a-49a9-8807-aee138e9f1de	anhmedia	USING_DATABASE	milkteas	Waiting
+2026-08-06T13:47:27.870904377	2501ea68-3e9a-49a9-8807-aee138e9f1de	anhmedia	REGISTERING_TENANT	milkteas	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
+2026-08-06T13:47:27.911226744	2501ea68-3e9a-49a9-8807-aee138e9f1de	anhmedia	READY	milkteas	https://milkntea.anhmedia.vn | template=milkteas
+2026-08-06T13:52:46.132349798	97046c8d-c68a-4fa8-af83-433c6a60da90	anhmedia	QUEUED	milkteas	Waiting
+2026-08-06T13:52:46.132628594	97046c8d-c68a-4fa8-af83-433c6a60da90	anhmedia	USING_DATABASE	milkteas	Waiting
+2026-08-06T13:52:46.269943389	97046c8d-c68a-4fa8-af83-433c6a60da90	anhmedia	REGISTERING_TENANT	milkteas	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
+2026-08-06T13:52:46.304246938	97046c8d-c68a-4fa8-af83-433c6a60da90	anhmedia	READY	milkteas	https://milkntea.anhmedia.vn | template=milkteas
+2026-08-06T13:54:50.576016042	f83f4e07-066c-47f0-876c-1bd444899cfd	anhmedia	QUEUED	milkntea	Waiting
+2026-08-06T13:54:50.576341556	f83f4e07-066c-47f0-876c-1bd444899cfd	anhmedia	USING_DATABASE	milkntea	Waiting
+2026-08-06T13:54:50.639290132	f83f4e07-066c-47f0-876c-1bd444899cfd	anhmedia	FAILED	milkntea	Existing target database 'milkntea' does not exist.
+2026-08-06T14:40:21.804598632	46670ca0-2337-41e1-89ac-779c1ffbe92b	anhmedia	QUEUED	milktea	Waiting
+2026-08-06T14:40:21.808095240	46670ca0-2337-41e1-89ac-779c1ffbe92b	anhmedia	CLONING_DATABASE	milktea	Waiting
+2026-08-06T14:40:25.031955572	46670ca0-2337-41e1-89ac-779c1ffbe92b	anhmedia	REGISTERING_TENANT	milktea	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
+2026-08-06T14:40:25.182497198	46670ca0-2337-41e1-89ac-779c1ffbe92b	anhmedia	READY	milktea	https://milktea.anhmedia.vn | template=milktea
+2026-08-06T16:28:04.359676390	f8bb7fc2-48f6-4def-8105-098feaa9a146	anhmedia	QUEUED	dailocoffee	Waiting
+2026-08-06T16:28:04.366902547	f8bb7fc2-48f6-4def-8105-098feaa9a146	anhmedia	USING_DATABASE	dailocoffee	Waiting
+2026-08-06T16:28:04.493949753	f8bb7fc2-48f6-4def-8105-098feaa9a146	anhmedia	REGISTERING_TENANT	dailocoffee	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
+2026-08-06T16:28:04.711281029	f8bb7fc2-48f6-4def-8105-098feaa9a146	anhmedia	READY	dailocoffee	https://dailocoffee.anhmedia.vn | template=dailocoffee
+2026-08-06T17:05:30.385245567	755154ea-e45f-4060-9e9f-ff898e9eb64b	anhmedia	QUEUED	minhmapshop	Waiting
+2026-08-06T17:05:30.390887817	755154ea-e45f-4060-9e9f-ff898e9eb64b	anhmedia	USING_DATABASE	minhmapshop	Waiting
+2026-08-06T17:05:30.560742941	755154ea-e45f-4060-9e9f-ff898e9eb64b	anhmedia	REGISTERING_TENANT	minhmapshop	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
+2026-08-06T17:05:30.645473737	755154ea-e45f-4060-9e9f-ff898e9eb64b	anhmedia	READY	minhmapshop	https://minhmapshop.com | template=minhmapshop.com
+2026-08-06T17:07:57.964543608	30a41cc5-1ecb-45e8-8f6a-28e833a4ece2	anhmedia	QUEUED	cuchoami	Waiting
+2026-08-06T17:07:57.964756955	30a41cc5-1ecb-45e8-8f6a-28e833a4ece2	anhmedia	USING_DATABASE	cuchoami	Waiting
+2026-08-06T17:07:58.050127331	30a41cc5-1ecb-45e8-8f6a-28e833a4ece2	anhmedia	REGISTERING_TENANT	cuchoami	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
+2026-08-06T17:07:58.121661941	30a41cc5-1ecb-45e8-8f6a-28e833a4ece2	anhmedia	READY	cuchoami	https://cuchoami.anhmedia.vn | template=cuchoami
+2026-08-07T14:28:09.075428506	911eec14-4bbe-4155-9666-25a698f34230	anhmedia	QUEUED	caphemare	Waiting
+2026-08-07T14:28:09.076614937	911eec14-4bbe-4155-9666-25a698f34230	anhmedia	CLONING_DATABASE	caphemare	Waiting
+2026-08-07T14:28:12.010433712	911eec14-4bbe-4155-9666-25a698f34230	anhmedia	REGISTERING_TENANT	caphemare	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
+2026-08-07T14:28:12.056995417	911eec14-4bbe-4155-9666-25a698f34230	anhmedia	READY	caphemare	https://caphemare.anhmedia.vn | template=caphemare
+2026-08-08T12:36:24.186739871	0b9d7447-71f3-4685-9ab3-1cb1731ec84c	anhmedia	QUEUED	open2job	Waiting
+2026-08-08T12:36:24.190019736	0b9d7447-71f3-4685-9ab3-1cb1731ec84c	anhmedia	CLONING_DATABASE	open2job	Waiting
+2026-08-08T12:36:28.772779175	0b9d7447-71f3-4685-9ab3-1cb1731ec84c	anhmedia	FAILED	open2job	Existing live template '/opt/portal-live/templates/open2job' does not exist.
+2026-08-08T13:00:09.247080349	b30c9238-0b06-4af9-b27d-62e5e4b9bc01	anhmedia	QUEUED	open2job	Waiting
+2026-08-08T13:00:09.254905632	b30c9238-0b06-4af9-b27d-62e5e4b9bc01	anhmedia	CLONING_DATABASE	open2job	Waiting
+2026-08-08T13:00:09.431916627	b30c9238-0b06-4af9-b27d-62e5e4b9bc01	anhmedia	FAILED	open2job	Target database 'open2job' already exists; nothing was overwritten.
+2026-08-08T13:00:24.503261755	8c8f0ce6-a454-4681-9a99-f793335e38cb	anhmedia	QUEUED	open2job	Waiting
+2026-08-08T13:00:24.510797340	8c8f0ce6-a454-4681-9a99-f793335e38cb	anhmedia	VALIDATING_EXISTING	open2job	Checking existing database and live template
+2026-08-08T13:00:24.591978242	8c8f0ce6-a454-4681-9a99-f793335e38cb	anhmedia	REGISTERING_TENANT	open2job	Checking existing database and live template
+2026-08-08T13:00:24.858374578	8c8f0ce6-a454-4681-9a99-f793335e38cb	anhmedia	READY	open2job	https://open2job.com | template=open2job
+2026-08-08T13:29:41.436695970	53370469-356d-49eb-8e32-d367b811e401	anhmedia	QUEUED	dailocoffee	Waiting
+2026-08-08T13:29:41.438501598	53370469-356d-49eb-8e32-d367b811e401	anhmedia	VALIDATING_EXISTING	dailocoffee	Checking existing database and live template
+2026-08-08T13:29:41.458216598	53370469-356d-49eb-8e32-d367b811e401	anhmedia	REGISTERING_TENANT	dailocoffee	Checking existing database and live template
+2026-08-08T13:29:41.562547857	53370469-356d-49eb-8e32-d367b811e401	anhmedia	READY	dailocoffee	https://dailocoffee.anhmedia.vn | template=dailocoffee
+2026-08-08T13:35:17.615017930	82f67ac2-ec2f-44e4-8344-01700fd92edd	anhmedia	QUEUED	open2job	Waiting
+2026-08-08T13:35:17.617888079	82f67ac2-ec2f-44e4-8344-01700fd92edd	anhmedia	CLONING_DATABASE	open2job	Waiting
+2026-08-08T13:35:22.244312095	82f67ac2-ec2f-44e4-8344-01700fd92edd	anhmedia	REGISTERING_TENANT	open2job	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
+2026-08-08T13:35:22.293427760	82f67ac2-ec2f-44e4-8344-01700fd92edd	anhmedia	READY	open2job	https://open2job.com | template=open2job
+2026-08-09T15:49:36.339062016	0daf9d8b-05a3-4c76-b9d1-89afcb3dc8ed	anhmedia	QUEUED	open2job	Waiting
+2026-08-09T15:49:36.346467773	0daf9d8b-05a3-4c76-b9d1-89afcb3dc8ed	anhmedia	VALIDATING_EXISTING	open2job	Checking existing database and live template
+2026-08-09T15:49:36.369668852	0daf9d8b-05a3-4c76-b9d1-89afcb3dc8ed	anhmedia	REGISTERING_TENANT	open2job	Checking existing database and live template
+2026-08-09T15:49:36.556160411	0daf9d8b-05a3-4c76-b9d1-89afcb3dc8ed	anhmedia	READY	open2job	https://open2job.com | template=open2job
+2026-08-09T15:50:44.345733096	0e41e841-192a-4ee9-9a7a-033288b24b26	anhmedia	QUEUED	open2job	Waiting
+2026-08-09T15:50:44.345985598	0e41e841-192a-4ee9-9a7a-033288b24b26	anhmedia	VALIDATING_EXISTING	open2job	Checking existing database and live template
+2026-08-09T15:50:44.346349177	0e41e841-192a-4ee9-9a7a-033288b24b26	anhmedia	FAILED	open2job	Existing root template was not found: templates/open2job.com.html
+2026-08-11T08:35:02.445250793	0695e25f-840b-474e-aa41-c09ac749a0e4	anhmedia	QUEUED	open2job	Waiting
+2026-08-11T08:35:02.447820122	0695e25f-840b-474e-aa41-c09ac749a0e4	anhmedia	VALIDATING_EXISTING	open2job	Checking existing database and live template
+2026-08-11T08:35:02.448229543	0695e25f-840b-474e-aa41-c09ac749a0e4	anhmedia	FAILED	open2job	Existing root template was not found: templates/open2job.com.html
+2026-08-13T15:55:15.248412817	fd05ddf3-ffae-4820-9b22-a0517d95d00c	anhmedia	QUEUED	migiatruyen	Waiting
+2026-08-13T15:55:15.250760975	fd05ddf3-ffae-4820-9b22-a0517d95d00c	anhmedia	USING_DATABASE	migiatruyen	Waiting
+2026-08-13T15:55:15.659841797	fd05ddf3-ffae-4820-9b22-a0517d95d00c	anhmedia	REGISTERING_TENANT	migiatruyen	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
+2026-08-13T15:55:15.857226876	fd05ddf3-ffae-4820-9b22-a0517d95d00c	anhmedia	READY	migiatruyen	https://migiatruyen.vn | template=migiatruyen.vn

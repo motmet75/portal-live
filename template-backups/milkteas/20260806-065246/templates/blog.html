@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head th:replace="migiatruyen :: head"> </head>
+
+<body>
+<style>
+.pagination button {
+    margin: 2px;
+    padding: 4px 8px;
+}
+.pagination button.active {
+    font-weight: bold;
+    background-color: #eee;
+}
+</style>
+
+	<!-- Spinner Start -->
+	<div id="spinner"
+		class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+		<div class="spinner-grow text-primary"
+			style="width: 3rem; height: 3rem;" role="status">
+			<span class="sr-only">Loading...</span>
+		</div>
+	</div>
+	<!-- Spinner End -->
+
+
+	<!-- Navbar Start -->
+	<div th:replace="migiatruyen :: navigation"> </div>
+	<!-- Navbar End -->
+
+
+	<!-- Hero Start -->
+	<div class="container-fluid bg-primary hero-header mb-5">
+		<div class="container text-center">
+			<h1 class="display-4 text-white mb-3 animated slideInDown">Blog
+				Bài Viết</h1>
+			<nav aria-label="breadcrumb">
+
+			</nav>
+		</div>
+	</div>
+	<!-- Hero End -->
+
+
+	<!-- Blog Start -->
+	<div class="container-fluid py-5">
+		<div class="container">
+		<div class="pagination" th:replace="fragments :: pageable"></div>
+			<div class="row g-4">
+				<div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.1s" th:each="article : ${articles}">
+				<th:block th:with="
+				    vid=${article.videoUrl},
+				    hasVid=${vid != null and vid != '' and vid != 'videoUrl' and vid != 'none'},
+				    isYtWatch=${hasVid and (#strings.contains(vid,'youtube.com/watch') or #strings.contains(vid,'youtu.be/'))},
+				    afterV=${(hasVid and isYtWatch) ? (#strings.contains(vid,'v=') ? #strings.substringAfter(vid,'v=') : #strings.substringAfterLast(vid,'/')) : ''},
+				    ytId=${#strings.substringBefore(#strings.substringBefore(afterV,'&'),'?')},
+				    embedSrc=${(hasVid and isYtWatch) ? ('https://www.youtube.com/embed/' + ytId) : vid}
+				">
+					<div class="blog-item border h-100 p-4">
+
+						<!-- Embedded video player (same pattern as one-product.html) -->
+						<div th:if="${hasVid}" style="position:relative;width:100%;padding-top:56.25%;overflow:hidden;border-radius:4px;margin-bottom:1rem;">
+							<iframe th:src="${embedSrc}"
+							        frameborder="0" allowfullscreen
+							        allow="autoplay; fullscreen; picture-in-picture; web-share"
+							        style="position:absolute;top:0;left:0;width:100%;height:100%;">
+							</iframe>
+						</div>
+
+						<!-- Regular image thumbnail (no video) -->
+						<a th:unless="${hasVid}"
+						   th:href="${midpath} + '/' + ${article.articleLink}">
+							<img class="img-fluid mb-4" th:src="${article.articleThumnailURLWithHost2}" alt="">
+						</a>
+
+						<a th:href="${midpath} + '/' + ${article.articleLink}"
+						   class="h5 lh-base d-inline-block" th:text="${article.articleTitle}">
+							Foods that are good for your hair growing
+						</a>
+						<div class="d-flex text-black-50 mb-2"></div>
+						<p class="mb-4" th:text="${article.articleDescription}">Lorem ipsum dolor sit amet, consectetur
+							adipiscing elit. Duis aliquet, erat non malesuada consequat.</p>
+						<a th:href="${midpath} + '/' + ${article.articleLink}" class="btn btn-outline-primary px-3">Xem</a>
+					</div>
+				</th:block>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<!-- Blog End -->
+
+
+	<!-- Newsletter Start -->
+	<div class="container-fluid newsletter bg-primary py-5 my-5">
+		<div class="container py-5">
+
+
+		</div>
+	</div>
+	<!-- Newsletter End -->
+
+
+	<!-- Footer Start -->
+	<div th:replace="migiatruyen :: footer"> </div>
+	<!-- Footer End -->
+
+
+	<!-- Back to Top -->
+	<a th:href="${domain} + '/' + '#'" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i
+		class="bi bi-arrow-up"></i></a>
+
+
+	<!-- JavaScript Libraries -->
+	<script
+		src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script th:src="${domain} + '/' + 'lib/wow/wow.min.js'"></script>
+	<script th:src="${domain} + '/' + 'lib/easing/easing.min.js'"></script>
+	<script th:src="${domain} + '/' + 'lib/waypoints/waypoints.min.js'"></script>
+	<script th:src="${domain} + '/' + 'lib/owlcarousel/owl.carousel.min.js'"></script>
+
+	<!-- Template Javascript -->
+	<script th:src="${domain} + '/' + 'js/main.js'"></script>
+	<script th:src="${domain} + '/' + 'js/cart.js'"></script>
+</body>
+
+</html>

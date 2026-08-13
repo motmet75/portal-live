@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>Thực đơn | Mì Gia Truyền Vũng Liêm</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="mì gia truyền, mì tươi, hủ tiếu mì, hủ tiếu, hoành thánh, Vũng Liêm" name="keywords">
+    <meta content="Xem thực đơn Mì Gia Truyền tại Vũng Liêm: mì tươi, hủ tiếu mì, hủ tiếu và hoành thánh nóng mỗi sáng." name="description">
+    <link href="/milkteas/img/favicon.png" th:href="'/' + ${domain} + '/img/favicon.png'" rel="icon" type="image/png">
+    <link href="/milkteas/css/bootstrap.min.css" th:href="'/' + ${domain} + '/css/bootstrap.min.css'" rel="stylesheet">
+    <link href="/milkteas/css/font-awesome.min.css" th:href="'/' + ${domain} + '/css/font-awesome.min.css'" rel="stylesheet">
+    <link href="/milkteas/css/migi-3d.css" th:href="'/' + ${domain} + '/css/migi-3d.css'" rel="stylesheet">
+</head>
+
+<body>
+<div class="migi-page migi-products-page">
+    <header class="migi-inner-header">
+        <nav id="navigation" class="navbar navbar-expand-lg migi-navbar">
+            <a href="trang-chu.html" class="navbar-brand">
+                <span class="brand-mark"><img src="/milkteas/img/favicon.png" th:src="'/' + ${domain} + '/img/favicon.png'" alt="Mì Gia Truyền" class="brand-logo"></span>
+                <span class="brand-name">Mì Gia Truyền</span>
+            </a>
+            <a href="tel:0378945786" class="nav-call-mobile" aria-label="Gọi 0378 945 786"><i class="fa fa-phone" aria-hidden="true"></i><span>0378 945 786</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Mở menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ms-auto">
+                    <a href="trang-chu.html" class="nav-item nav-link">Trang chủ</a>
+                    <a href="trang-chu.html#cau-chuyen" class="nav-item nav-link">Câu chuyện</a>
+                    <a href="products.html" class="nav-item nav-link active" aria-current="page">Menu</a>
+                    <a href="trang-chu.html#bai-viet" class="nav-item nav-link">Bài viết</a>
+                    <a href="trang-chu.html#dat-mon" class="nav-item nav-link">Đặt món</a>
+                    <a href="trang-chu.html#lien-he" class="nav-item nav-link">Liên hệ</a>
+                </div>
+                <a href="tel:0378945786" class="btn btn-primary nav-call nav-call-desktop"><i class="fa fa-phone" aria-hidden="true"></i>0378 945 786</a>
+            </div>
+        </nav>
+
+        <div class="container migi-inner-hero">
+            <a class="migi-back-link" href="trang-chu.html#menu"><i class="fa fa-arrow-left" aria-hidden="true"></i> Về trang chủ</a>
+            <span class="migi-section-label">Thực đơn buổi sáng</span>
+            <h1>Món nóng từ bếp<br>Mì Gia Truyền</h1>
+            <p>Mì tươi, hủ tiếu và hoành thánh được chuẩn bị mỗi sáng, dùng cùng nước dùng xương trong ngày.</p>
+        </div>
+    </header>
+
+    <main>
+        <section class="migi-section migi-menu migi-products-list" id="menu">
+            <div class="container">
+                <div class="migi-section-head centered">
+                    <span class="migi-section-label">Menu</span>
+                    <h2>Chọn món cho buổi sáng</h2>
+                    <p class="migi-menu-intro">Phục vụ từ 05:00 đến 09:00 tại 167 Tỉnh Lộ 907, TT Vũng Liêm, Vĩnh Long.</p>
+                </div>
+
+                <div class="migi-product-groups" th:each="group : ${productGroups}" th:id="'productList' + ${group.stringId}" th:fragment="'productList' + ${group.stringId}">
+                    <div class="migi-product-tools">
+                        <h3 th:text="${group.productGroupName}">Món chính</h3>
+                        <ul class="store-pagination" aria-label="Trang sản phẩm">
+                            <li th:each="page : ${group.pageCount}" th:class="${page.activeClassString}" class="active">
+                                <a href="#" th:id="${group.stringId}" th:class="${page.activeClassString}" th:text="${page.pageNumber}" th:onclick="'loadPage(event,this,' + ${page.pageNumber} + ')'">1</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="migi-menu-grid">
+                        <article class="dish-card" th:each="product : ${group.currentPageProductList}">
+                            <div class="dish-photo-link dish-media">
+                                <iframe th:if="${product.productVideoAdd != null and (#strings.contains(#strings.toLowerCase(product.productVideoAdd), 'dailymotion.com') or #strings.contains(#strings.toLowerCase(product.productVideoAdd), 'dai.ly') or #strings.contains(#strings.toLowerCase(product.productVideoAdd), 'tiktok.com'))}"
+                                        th:src="${#strings.contains(#strings.toLowerCase(product.productVideoAdd), 'dailymotion.com') ? product.productVideoAdd : null}"
+                                        th:attr="data-product-video=${product.productVideoAdd},title=${product.productName}"
+                                        loading="lazy" allow="fullscreen; picture-in-picture" allowfullscreen></iframe>
+                                <a th:unless="${product.productVideoAdd != null and (#strings.contains(#strings.toLowerCase(product.productVideoAdd), 'dailymotion.com') or #strings.contains(#strings.toLowerCase(product.productVideoAdd), 'dai.ly') or #strings.contains(#strings.toLowerCase(product.productVideoAdd), 'tiktok.com'))}"
+                                   th:href="'san-pham/' + ${product.path}">
+                                    <img src="/milkteas/img/menu-1.jpg" th:src="${product.productImageDesUrl}" th:alt="${product.productName}" loading="lazy">
+                                </a>
+                            </div>
+                            <div class="dish-body">
+                                <span class="dish-tag" th:text="${product.productCategory != null ? product.productCategory.catalogName : 'Món nóng'}">Món nóng</span>
+                                <h3><a th:href="'san-pham/' + ${product.path}" th:text="${product.productName}">Mì tươi gia truyền</a></h3>
+                                <p th:text="${product.productShortDes}">Sợi mì tươi dùng cùng nước dùng xương nóng trong ngày.</p>
+                                <strong class="dish-price" th:text="${product.formatedPriceAfterDiscount} + ${product.productPriceCurrency}">25.000VND</strong>
+                            </div>
+                        </article>
+                    </div>
+                    <div class="migi-product-tools migi-product-tools-bottom">
+                        <ul class="store-pagination" aria-label="Trang sản phẩm">
+                            <li th:each="page : ${group.pageCount}" th:class="${page.activeClassString}" class="active">
+                                <a href="#" th:id="${group.stringId}" th:class="${page.activeClassString}" th:text="${page.pageNumber}" th:onclick="'loadPage(event,this,' + ${page.pageNumber} + ')'">1</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="migi-menu-grid" th:if="${productGroups == null or productGroups.isEmpty()}">
+                    <article class="dish-card" th:each="product : ${products}">
+                        <div class="dish-photo-link dish-media">
+                            <iframe th:if="${product.productVideoAdd != null and (#strings.contains(#strings.toLowerCase(product.productVideoAdd), 'dailymotion.com') or #strings.contains(#strings.toLowerCase(product.productVideoAdd), 'dai.ly') or #strings.contains(#strings.toLowerCase(product.productVideoAdd), 'tiktok.com'))}"
+                                    th:src="${#strings.contains(#strings.toLowerCase(product.productVideoAdd), 'dailymotion.com') ? product.productVideoAdd : null}"
+                                    th:attr="data-product-video=${product.productVideoAdd},title=${product.productName}"
+                                    loading="lazy" allow="fullscreen; picture-in-picture" allowfullscreen></iframe>
+                            <a th:unless="${product.productVideoAdd != null and (#strings.contains(#strings.toLowerCase(product.productVideoAdd), 'dailymotion.com') or #strings.contains(#strings.toLowerCase(product.productVideoAdd), 'dai.ly') or #strings.contains(#strings.toLowerCase(product.productVideoAdd), 'tiktok.com'))}"
+                               th:href="'san-pham/' + ${product.path}"><img src="/milkteas/img/menu-1.jpg" th:src="${product.productImageDesUrl}" th:alt="${product.productName}" loading="lazy"></a>
+                        </div>
+                        <div class="dish-body">
+                            <span class="dish-tag" th:text="${product.productCategory != null ? product.productCategory.catalogName : 'Món nóng'}">Món nóng</span>
+                            <h3><a th:href="'san-pham/' + ${product.path}" th:text="${product.productName}">Mì tươi gia truyền</a></h3>
+                            <p th:text="${product.productShortDes}">Món nóng được chuẩn bị trong buổi sáng.</p>
+                            <strong class="dish-price" th:text="${product.formatedPriceAfterDiscount} + ${product.productPriceCurrency}">25.000VND</strong>
+                        </div>
+                    </article>
+                    <article class="dish-card migi-empty-menu" th:if="${products == null or products.isEmpty()}">
+                        <div class="dish-body"><span class="dish-tag">Mì Gia Truyền</span><h3>Thực đơn đang được cập nhật</h3><p>Các món mới sẽ sớm xuất hiện tại đây. Gọi quán để hỏi món phục vụ trong ngày.</p><a class="btn btn-primary" href="tel:0378945786"><i class="fa fa-phone" aria-hidden="true"></i>0378 945 786</a></div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="migi-section migi-menu-cta">
+            <div class="container">
+                <div class="migi-order-panel">
+                    <div><span class="migi-section-label">Gọi trước, lấy nhanh</span><h2>Đặt món cho buổi sáng</h2><p>Quán mở cửa từ 05:00 đến 09:00. Gọi trước để món nóng sẵn khi bạn đến.</p></div>
+                    <div class="migi-order-actions"><a href="tel:0378945786" class="btn btn-primary"><i class="fa fa-phone" aria-hidden="true"></i>0378 945 786</a><a href="trang-chu.html#lien-he" class="btn btn-outline-light">Xem địa chỉ</a></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="migi-footer">
+        <div class="container">
+            <span class="footer-brand"><img src="/milkteas/img/favicon.png" th:src="'/' + ${domain} + '/img/favicon.png'" alt="Mì Gia Truyền" width="28" height="28" style="border-radius:50%;vertical-align:middle;margin-right:6px;">© milkteas</span>
+            <span>Mì tươi, hủ tiếu mì, hủ tiếu, hoành thánh</span>
+        </div>
+    </footer>
+</div>
+
+<script src="/milkteas/js/bootstrap.bundle.min.js" th:src="'/' + ${domain} + '/js/bootstrap.bundle.min.js'"></script>
+<script src="/milkteas/js/migi-3d.js" th:src="'/' + ${domain} + '/js/migi-3d.js'"></script>
+<script src="/milkteas/js/migi-product-video.js" th:src="'/' + ${domain} + '/js/migi-product-video.js?v=20260804-2'"></script>
+</body>
+</html>

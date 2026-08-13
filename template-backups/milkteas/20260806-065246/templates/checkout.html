@@ -1,0 +1,50 @@
+
+<html lang="en" class="nivo-lightbox-notouch"
+	xmlns:th="https://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="migiatruyen :: head"> 
+
+<link type="text/css" rel="stylesheet"	th:href="${subpath} + ${domaintf} + '/css/checkout.css'" />
+</head>
+<body>
+
+	<!-- Start Header/Navigation -->
+	<header th:replace="migiatruyen :: navigation"> </header>
+	<!-- End Header/Navigation -->
+
+	<!-- Start Hero Section -->
+	<div class="hero" style="padding-top: 2rem; padding-bottom: 1rem;">
+		<div class="container">
+			<div class="row justify-content-between">
+				<div class="col-lg-5">
+					<div class="intro-excerpt">
+						<h1>Đặt hàng</h1>
+					</div>
+				</div>
+				<div class="col-lg-7"></div>
+			</div>
+		</div>
+	</div>
+	<!-- End Hero Section -->
+
+	<div th:replace="fcheckout :: body"> </div>
+
+	<!-- Start Footer Section -->
+	<div th:replace="migiatruyen :: footer"> </div>
+	<!-- End Footer Section -->
+
+
+	<script th:src="'/' + ${domaintf} + '/js/jquery.min.js'"></script>
+	<script th:src="'/' + ${domaintf} + '/js/bootstrap.min.js'"></script>
+	<script th:src="'/' + ${domaintf} + '/js/slick.min.js'"></script>
+	<script th:src="'/' + ${domaintf} + '/js/nouislider.min.js'"></script>
+	<script th:src=" '/' +${domaintf} + '/js/jquery.zoom.min.js'"></script>
+	<script th:src="'/' + ${domaintf} + '/js/main.js'"></script>
+	<script th:src="'/' + ${domaintf} + '/js/checkout.js'"></script>
+	<script th:src="'/' + ${domaintf} + '/js/bootstrap.bundle.min.js'"></script>
+	
+	<script th:src="'/' +${domain} + '/' + 'js/cart.js'"></script>
+	
+</body>
+
+</html>

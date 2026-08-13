@@ -1,0 +1,154 @@
+<html lang="en" class="nivo-lightbox-notouch"
+	xmlns:th="https://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<meta charset="UTF-8">
+<link th:href="${subpath} + ${domain} + '/' + 'css/login.css'" rel="stylesheet">
+
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .login-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .google-btn {
+            display: inline-flex;
+            align-items: center;
+            background-color: white;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            padding: 10px 12px;
+            cursor: pointer;
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            color: #3c4043;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        .google-btn:hover {
+            background-color: #f8f9fa;
+            border-color: #d2e3fc;
+        }
+        .google-btn img {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+
+	<!-- Start Hero Section -->
+	<div  >
+	  <div class="wrapper" th:if="${session.username == null}">
+      <div class="title-text">
+        <div class="title login">Đăng nhập</div>
+        <div class="title signup">Tạo tài khoản</div>
+      </div>
+      <div class="form-container">
+        <div class="slide-controls">
+          <input type="radio" name="slide" id="login" checked>
+          <input type="radio" name="slide" id="signup">
+          <label for="login" class="slide login">Đăng nhập</label>
+          <label for="signup" class="slide signup">Đăng ký nhanh</label>
+          <div class="slider-tab"></div>
+        </div>
+        <div class="form-inner">
+          <form id="loginForm" class="login">
+            <div class="field">
+              <input type="text" name="email" placeholder="Tên đăng nhập hoặc Email" required>
+            </div>
+            <div class="field">
+              <input type="password" name="password" placeholder="Mật khẩu" required>
+            </div>
+             <span class="error-message1" style="color: red; display: none;"></span>
+            <div class="pass-link"><a href="forgotpassword">Quên mật khẩu?</a></div>
+            <div class="field btn">
+              <input type="button" class="btn-layer-login" value="Đăng nhập">
+            </div>
+           
+            <div class="signup-link">Chưa là thành viên? <a href="">Đăng ký nhanh bằng email</a></div>
+          </form>
+          
+          <form id="sinupForm" class="signup">
+          <a href="register"> Đăng ký với username tự chọn</a>
+            <div class="field">
+              <input type="text"  name="email" placeholder="Email" required>
+            </div>
+              <input type="hidden"  name="loginform" value="simple">
+            <div class="field">
+              <input type="password"  name="password" placeholder="Password" required>
+            </div>
+            <div class="field">
+              <input type="password"  name="repassword" placeholder="Confirm password" required>
+            </div>
+             <span class="error-message" style="color: red; display: none;"></span>
+            <div class="field btn">
+              <div class="btn-layer"></div>
+              <input type="submit" class="btn-layer-signup" value="Đăng ký">
+            </div>
+           
+            
+          </form>
+          
+        
+			
+        </div>
+      </div>
+      
+      
+			
+       <div class="login-container">
+        <p>Đăng nhập với google</p>
+        <a href="/oauth2/authorization/google" class="google-btn">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo">
+            Sign in with Google
+        </a>
+    </div>
+    </div>
+    
+    <!-- Include MFA Setup Fragment -->
+	<div th:replace="mfa-setup :: mfaSetup"></div>
+
+	<!-- Include MFA Verify Fragment -->
+	<div th:replace="mfa-verify :: mfaVerify"></div>
+    </div>
+
+	
+
+
+
+	<!-- End Hero Section -->
+
+
+	
+
+	<!-- Start Blog Section -->
+	<!-- End Blog Section -->
+
+
+
+
+	<!-- Start Footer Section -->
+	
+	<!-- End Footer Section -->
+
+
+	<script th:src="${subpath} +${domain} + '/' + 'js/login.js'"></script>
+</body>
+
+</html>

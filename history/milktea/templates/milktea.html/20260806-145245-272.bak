@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title, description)">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#15110d">
+  <meta name="description" th:content="${description}">
+  <title th:text="${title}">Đại Lộ Coffee</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css?family=Cormorant+Garamond:400,500,600,700|Satisfy&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/milktea/css/bootstrap.css">
+  <link rel="stylesheet" href="/milktea/css/icomoon.css">
+  <link rel="stylesheet" href="/milktea/css/style.css">
+  <link rel="stylesheet" href="/milktea/css/dailo.css">
+</head>
+<body>
+<nav th:fragment="nav(active)" class="fh5co-nav dailo-nav" role="navigation" >
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12 text-center logo-wrap"><div id="fh5co-logo"><a href="/home">Trà sữa<span>.</span></a></div></div>
+      <div style="background-color: rgba(0, 0, 0, 0.2); color: white;" class="col-xs-12 text-center menu-1 menu-wrap"><ul>
+        <li th:classappend="${active == 'home'} ? 'active'"><a href="/home">Trang chủ</a></li>
+        <li th:classappend="${active == 'products'} ? 'active'"><a href="/products.html">Thực đơn</a></li>
+        <li><a href="#visit">Ghé quán</a></li>
+      </ul></div>
+    </div>
+  </div>
+</nav>
+<footer th:fragment="footer" id="fh5co-footer" role="contentinfo">
+  <div class="container"><div class="row row-pb-md">
+    <div class="col-md-5"><h4>Đại Lộ Coffee</h4><p>Một điểm dừng dễ chịu giữa nhịp sống Quận 6.</p></div>
+    <div class="col-md-4" id="visit"><h4>Địa chỉ</h4><p>157–159 Bình Phú, Phường 11<br>Quận 6, TP. Hồ Chí Minh</p></div>
+    <div class="col-md-3"><h4>Giờ mở cửa</h4><p>Hằng ngày<br>06:00 – 23:00</p></div>
+  </div><div class="row copyright"><div class="col-md-12 text-center"><p>© 2026 Đại Lộ Coffee · Demo storefront</p></div></div></div>
+</footer>
+<script src="/milktea/js/jquery.min.js"></script>
+<script src="/milktea/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách đơn hàng</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+           width: 100%;
+        }
+        
+        
+        .main-content {
+        width: 100%;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .order-list {
+            list-style: none;
+        }
+        
+        .order-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #34495e;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .order-item:hover {
+            background-color: #3f5973;
+        }
+        
+        .order-item.active {
+            background-color: #1abc9c;
+        }
+        
+        .order-id {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .order-date {
+            font-size: 12px;
+            color: #bdc3c7;
+            margin-top: 5px;
+        }
+        
+        .order-status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .status-pending {
+            background-color: #f39c12;
+        }
+        
+        .status-processing {
+            background-color: #3498db;
+        }
+        
+        .status-shipped {
+            background-color: #2ecc71;
+        }
+        
+        .status-delivered {
+            background-color: #27ae60;
+        }
+        
+        .status-cancelled {
+            background-color: #e74c3c;
+        }
+        
+        .order-detail {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+            margin-bottom: 20px;
+        }
+        
+        .customer-info {
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .info-item {
+            margin-bottom: 10px;
+        }
+        
+        .info-label {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-weight: 500;
+        }
+        
+        .order-items {
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+         tbody {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            text-align: left;
+            padding: 10px;
+            background-color: #ecf0f1;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
+        .total-row td {
+            font-weight: bold;
+            border-top: 2px solid #ecf0f1;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .no-order-selected {
+            display: flex;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+            color: #7f8c8d;
+            font-size: 18px;
+        }
+        
+        .badge {
+            display: inline-block;
+            min-width: 10px;
+            padding: 3px 7px;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            background-color: #777;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        
+        
+        
+        
+        
+        
+        @media (max-width: 768px) {
+  .container {
+    position: relative;
+  }
+  
+  .sidebar {
+    position: absolute;
+    left: -300px;
+    top: 0;
+    height: 100%;
+    transition: left 0.3s ease;
+    z-index: 10;
+  }
+  
+  .sidebar.active {
+    left: 0;
+  }
+  
+  .menu-toggle {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    z-index: 11;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .menu-toggle .icon {
+    display: inline-block;
+    width: 20px;
+    height: 2px;
+    background-color: white;
+    position: relative;
+  }
+  
+  .menu-toggle .icon:before,
+  .menu-toggle .icon:after {
+    content: '';
+    width: 20px;
+    height: 2px;
+    background-color: white;
+    position: absolute;
+    left: 0;
+  }
+  
+  .menu-toggle .icon:before {
+    top: -6px;
+  }
+  
+  .menu-toggle .icon:after {
+    top: 6px;
+  }
+}
+
+ @media (max-width: 768px) {
+      body {
+        font-size: 14px;
+      }
+      
+      th, td {
+        padding: 8px 4px;
+        font-size: 12px;
+      }
+      
+      img {
+        max-width: 60px;
+      }
+    }
+    
+    /* Small mobile styles */
+    @media (max-width: 480px) {
+      body {
+        font-size: 12px;
+        padding: 5px;
+      }
+      
+      th, td {
+        padding: 6px 3px;
+        font-size: 11px;
+      }
+      
+      img {
+        max-width: 40px;
+      }
+    }
+    
+    </style>
+</head>
+<body>
+
+<button class="menu-toggle" id="menu-toggle">
+  <span class="icon"></span>
+</button>
+    <div class="container">
+         <div class="main-content">
+            <div id="order-detail-container">
+               
+                
+                <!-- These sections will be filled by Thymeleaf but initially hidden by JavaScript -->
+                <!-- We'll store all order details here, and only show the selected one -->
+                <div th:each="order : ${orders}" th:id="'order-detail-' + ${order.id}" class="order-detail">
+                   
+                  
+                    <div class="customer-info">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Username</div>
+                                <div class="info-value" th:text="${order.customerUsername}">Customer Name</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Tên</div>
+                                <div class="info-value" th:text="${order.customerBean.lastName} + ' ' + ${order.customerBean.firstName}">Customer Name</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Email</div>
+                                <div class="info-value" th:text="${order.customerEmail}">customer@example.com</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Điện thoại</div>
+                                <a class="info-value" th:href="'tel:' + ${order.shippingInfo.phone}" th:text="${order.shippingInfo.phone}">(555) 123-4567</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                     <div class="detail-header">
+                        <div>
+                            <h2 th:text="${order.stringId}">ORD-2023-0000</h2>
+                            <a th:href=" 'https://' + ${domain} + '/app/order?orderid=' + ${order.stringId}" th:text="'Xem: ' + ${order.stringId}"></a>
+                            <p th:text="'Ngày đặt hàng: ' + ${temporals.format(order.createdTime, 'HH:mm dd-MM-yyyy')}">Placed on January 1, 2025</p>
+                        </div>
+                        <div class="order-status" th:class="'order-status status-' + ${order.statusBean.orderStatus.toLowerCase()}" 
+                             th:text="${#strings.capitalize(order.statusBean.vi)}">Status</div>
+                    </div>
+                    
+                    <div class="shipping-info">
+                        <h3 class="section-title">Thông tin vận chuyển</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Địa chỉ</div>
+                                <div class="info-value" th:text="${order.shippingInfo.address}">123 Main St</div>
+                            </div>
+                             <div class="info-item">
+                                <div class="info-label">Quận/Huyện</div>
+                                <div class="info-value" th:text="${order.shippingInfo.district}">CA</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Tỉnh/TP</div>
+                                <div class="info-value" th:text="${order.shippingInfo.city}">Anytown</div>
+                            </div>
+                           
+                            <div class="info-item">
+                                <div class="info-label">Mã bưu chính</div>
+                                <div class="info-value" th:text="${order.shippingInfo.zipcode}">12345</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Ghi chú</div>
+                                <div class="info-value" th:text="${order.shippingInfo.note}">USA</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Kho gửi hàng</div>
+                                <div class="info-value" th:text="${order.shippingInfo.warehouseName}">-</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Đơn vị vận chuyển</div>
+                                <div class="info-value" th:text="${order.shippingInfo.shippingAgent}">standard</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Dịch vụ</div>
+                                <div class="info-value" th:text="${order.shippingInfo.viettelTypeName} + ' (' + ${order.shippingInfo.viettelTypeCode} + ')'">-</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="order-items">
+                        <h3 class="section-title">Chi tiết đơn hàng</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Hình ảnh</th>
+                                    <th>Sản phẩm</th>
+                                    <th class="text-right">Số lượng</th>
+                                    <th class="text-right">Giá</th>
+                                    <th class="text-right">Tổng</th>
+                                </tr>
+                            </thead>
+                            <tbody th:each="item : ${order.orderItems}">
+                              <tr >
+                                    <td th:text="${item.index}">1</td>
+                                    <td > <img th:src="${item.itemImg}" style="height:50px;"></td>
+                                    <td colspan="4" class="" ><a th:href="'https://' +${domain} +'/san-pham/' + ${item.product.path}" th:text="${item.productName} + ' : ' + ${item.colorCode} + '/' + ${item.sizeCode}"> </a></td>
+                                
+                                </tr>
+                                <tr >
+                                    <td class="text-right"  ></td>
+                                    <td class="text-right"  ></td>
+                                    <td class="text-right"  ></td>
+                                    <td class="text-right"  th:text="${#numbers.formatDecimal(item.quantity, 0, 'POINT', 0, 'COMMA')} ">1</td>
+                                    <td class="text-right"  th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'POINT', 0, 'COMMA')} + 'đ'">$0.00</td>
+                                    <td class="text-right"  th:text="${#numbers.formatDecimal(item.unitPrice * item.quantity , 0, 'POINT', 0, 'COMMA')} + 'đ'">$0.00</td>
+                                
+                                </tr>
+                                 <tr >
+                                    <td class="text-right"  ></td>
+                                    <td class="text-right"  ></td>
+                                    <td class="text-right"  >Giá sau khi giảm</td>
+                                    <td class="text-right"  th:text="${#numbers.formatDecimal(item.quantity, 0, 'POINT', 0, 'COMMA')} ">1</td>
+                                    <td class="text-right"  th:text="${#numbers.formatDecimal(item.unitPrice - item.disCountAmount , 0, 'POINT', 0, 'COMMA')} + 'đ'">$0.00</td>
+                                    <td class="text-right"  th:text="${#numbers.formatDecimal((item.unitPrice - item.disCountAmount) * item.quantity , 0, 'POINT', 0, 'COMMA')} + 'đ'">$0.00</td>
+                                
+                                </tr>
+                                </tbody>
+                                
+                                <!--tr>
+                                    <td colspan="3" class="text-right">Subtotal</td>
+                                    <td th:text="${#numbers.formatDecimal(item.unitPrice * item.quantity , 0, 'POINT', 0, 'COMMA')} + 'đ' ">$0.00</td>
+                                </tr-->
+                                <tr>
+                                    <td colspan="5" class="text-right">Phí vận chuyển</td>
+                                    <td class="text-right" th:text="${order.shippingInfo.shippingPrice > 0 } ? ${#numbers.formatDecimal(order.shippingInfo.shippingPrice, 0, 'POINT', 0, 'COMMA')} + 'đ' : 'đang đợi kiểm tra' ">đang đợi kiểm tra</td>
+                                </tr>
+                                
+                                <tr class="total-row">
+                                    <td colspan="2" class="text-center">Tổng cộng</td>
+                                    <td colspan="2"  class="text-right" th:text="${#numbers.formatDecimal(order.quantity, 0, 'POINT', 0, 'COMMA')}">$0.00</td>
+                                    <td  colspan="2" class="text-right" th:text="${#numbers.formatDecimal(order.priceAmount + order.shippingInfo.shippingPrice, 0, 'POINT', 0, 'COMMA')} + 'đ'">$0.00</td>
+                                </tr> 
+                                <tr class="total-row">
+                                    <td colspan="2" class="text-center">Giá khuyến mãi</td>
+                                    <td colspan="2"  class="text-right" th:text="${#numbers.formatDecimal(order.quantity, 0, 'POINT', 0, 'COMMA')}">$0.00</td>
+                                    <td  colspan="2" class="text-right" th:text="${#numbers.formatDecimal(order.priceAmount - order.disCountAmount + order.shippingInfo.shippingPrice, 0, 'POINT', 0, 'COMMA')} + 'đ'">$0.00</td>
+                                </tr> 
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+
+  
+</body>
+</html>
