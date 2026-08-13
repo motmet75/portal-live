@@ -241,7 +241,7 @@ select,
     border-color: rgba(255, 255, 255, .5);
 }
 
-.migi-social-nav a > span:not(.migi-tiktok-mark) {
+.migi-social-nav a > span {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -253,11 +253,8 @@ select,
     border: 0;
 }
 
-.migi-tiktok-mark {
+.migi-social-tiktok .fa-tiktok {
     color: #fff;
-    font-size: 15px;
-    font-weight: 900;
-    font-style: italic;
     text-shadow: -1px 0 #25f4ee, 1px 0 #fe2c55;
 }
 
