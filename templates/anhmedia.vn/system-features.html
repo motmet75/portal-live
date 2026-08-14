@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<section class="am-system" id="system-features" th:fragment="capabilities(langCode)" th:attr="lang=${langCode}">
+  <div class="container">
+    <div class="am-system__head reveal" th:switch="${langCode}">
+      <div th:case="'vi'"><div class="am-system__eyebrow"><i class="fas fa-server"></i> Hạ tầng &amp; bảo mật hệ thống</div><h2 class="am-system__title">Vận hành ổn định, tiếp thị đúng kênh và bảo vệ từng lần đăng nhập</h2></div>
+      <div th:case="'cn'"><div class="am-system__eyebrow"><i class="fas fa-server"></i> 基础设施与系统安全</div><h2 class="am-system__title">稳定运行、精准邮件营销并保护每次登录</h2></div>
+      <div th:case="'tw'"><div class="am-system__eyebrow"><i class="fas fa-server"></i> 基礎設施與系統安全</div><h2 class="am-system__title">穩定運行、精準郵件行銷並保護每次登入</h2></div>
+      <div th:case="'es'"><div class="am-system__eyebrow"><i class="fas fa-server"></i> Infraestructura y seguridad</div><h2 class="am-system__title">Operación estable, email marketing confiable y protección de cada acceso</h2></div>
+      <div th:case="'fil'"><div class="am-system__eyebrow"><i class="fas fa-server"></i> Infrastructure at seguridad</div><h2 class="am-system__title">Matatag na operasyon, maaasahang email marketing, at protektadong pag-login</h2></div>
+      <div th:case="'id'"><div class="am-system__eyebrow"><i class="fas fa-server"></i> Infrastruktur &amp; keamanan</div><h2 class="am-system__title">Operasi stabil, email marketing andal, dan perlindungan setiap login</h2></div>
+      <div th:case="'ja'"><div class="am-system__eyebrow"><i class="fas fa-server"></i> インフラとシステムセキュリティ</div><h2 class="am-system__title">安定運用、信頼できるメールマーケティング、ログイン保護</h2></div>
+      <div th:case="'ko'"><div class="am-system__eyebrow"><i class="fas fa-server"></i> 인프라 및 시스템 보안</div><h2 class="am-system__title">안정적인 운영, 신뢰할 수 있는 이메일 마케팅, 안전한 로그인</h2></div>
+      <div th:case="'ms'"><div class="am-system__eyebrow"><i class="fas fa-server"></i> Infrastruktur &amp; keselamatan</div><h2 class="am-system__title">Operasi stabil, pemasaran e-mel dipercayai dan perlindungan setiap log masuk</h2></div>
+      <div th:case="*"><div class="am-system__eyebrow"><i class="fas fa-server"></i> Infrastructure &amp; system security</div><h2 class="am-system__title">Reliable operations, responsible email delivery, and protection at every login</h2></div>
+      <p class="am-system__intro">A production-ready foundation for customer-facing commerce: cloud infrastructure, controlled campaign delivery, stronger account access, and recoverable business data.</p>
+    </div>
+
+    <div class="am-system__grid">
+      <article class="am-system-card reveal">
+        <div class="am-system-card__icon"><i class="fab fa-aws"></i></div>
+        <span class="am-system-card__tag">Cloud infrastructure</span>
+        <h3>AWS Server Infrastructure</h3>
+        <p>Cloud server deployment with HTTPS, firewall controls, service monitoring, and an architecture that can grow with traffic.</p>
+        <ul class="am-system-card__points"><li>EC2</li><li>SSL/TLS</li><li>Firewall</li><li>Monitoring</li></ul>
+      </article>
+      <article class="am-system-card am-system-card--ses reveal">
+        <div class="am-system-card__icon"><i class="fas fa-paper-plane"></i></div>
+        <span class="am-system-card__tag">Marketing email</span>
+        <h3>Amazon SES Email Marketing</h3>
+        <p>Verified-domain campaign delivery for promotions, customer updates, and lifecycle messaging with delivery and bounce tracking.</p>
+        <ul class="am-system-card__points"><li>Amazon SES</li><li>Campaigns</li><li>Delivery tracking</li><li>Bounce handling</li></ul>
+      </article>
+      <article class="am-system-card am-system-card--device reveal">
+        <div class="am-system-card__icon"><i class="fas fa-laptop-shield"></i></div>
+        <span class="am-system-card__tag">Access protection</span>
+        <h3>New-device Login Verification</h3>
+        <p>Recognize unfamiliar devices and require an additional verification step before granting account access.</p>
+        <ul class="am-system-card__points"><li>Device detection</li><li>Login alert</li><li>Verification</li></ul>
+      </article>
+      <article class="am-system-card am-system-card--mfa reveal">
+        <div class="am-system-card__icon"><i class="fas fa-shield-halved"></i></div>
+        <span class="am-system-card__tag">Second factor</span>
+        <h3>Multi-factor Authentication (MFA)</h3>
+        <p>Add a second authentication factor for sensitive accounts and administrative actions to reduce password-only risk.</p>
+        <ul class="am-system-card__points"><li>OTP</li><li>Second factor</li><li>Admin protection</li></ul>
+      </article>
+      <article class="am-system-card am-system-card--backup reveal">
+        <div class="am-system-card__icon"><i class="fas fa-database"></i></div>
+        <span class="am-system-card__tag">Business continuity</span>
+        <h3>Automated Database Backup</h3>
+        <p>Scheduled encrypted backups, retention management, and restore procedures designed to keep critical business data recoverable.</p>
+        <ul class="am-system-card__points"><li>Scheduled backup</li><li>Encryption</li><li>Retention</li><li>Restore readiness</li></ul>
+      </article>
+    </div>
+  </div>
+</section>
+</body>
+</html>
