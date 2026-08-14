@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<section class="am-portfolio" id="live-products" th:fragment="gallery(langCode)" th:attr="lang=${langCode}">
+  <div class="container">
+    <div class="am-portfolio__intro reveal" th:switch="${langCode}">
+      <div th:case="'vi'">
+        <div class="am-portfolio__eyebrow"><i class="fas fa-window-restore"></i> Sản phẩm đang hoạt động</div>
+        <h2 class="am-portfolio__title">Xem sản phẩm thật. Trải nghiệm website thật.</h2>
+        <p class="am-portfolio__description">Khám phá các website, cửa hàng trực tuyến và nền tảng doanh nghiệp đã được AnhMedia triển khai. Nhấn vào dự án để mở bản demo trực tiếp.</p>
+      </div>
+      <div th:case="'cn'">
+        <div class="am-portfolio__eyebrow"><i class="fas fa-window-restore"></i> 已上线产品</div>
+        <h2 class="am-portfolio__title">真实产品，真实网站体验</h2>
+        <p class="am-portfolio__description">浏览 AnhMedia 已交付的网站、在线商店和企业平台。点击任意项目即可打开在线演示。</p>
+      </div>
+      <div th:case="'tw'">
+        <div class="am-portfolio__eyebrow"><i class="fas fa-window-restore"></i> 已上線產品</div>
+        <h2 class="am-portfolio__title">真實產品，真實網站體驗</h2>
+        <p class="am-portfolio__description">瀏覽 AnhMedia 已交付的網站、線上商店和企業平台。點擊任意專案即可開啟線上展示。</p>
+      </div>
+      <div th:case="'es'">
+        <div class="am-portfolio__eyebrow"><i class="fas fa-window-restore"></i> Productos en producción</div>
+        <h2 class="am-portfolio__title">Productos reales. Experiencias web reales.</h2>
+        <p class="am-portfolio__description">Explore sitios web, tiendas en línea y plataformas empresariales creadas por AnhMedia. Seleccione un proyecto para abrir la demostración en vivo.</p>
+      </div>
+      <div th:case="'fil'">
+        <div class="am-portfolio__eyebrow"><i class="fas fa-window-restore"></i> Mga aktibong produkto</div>
+        <h2 class="am-portfolio__title">Tunay na produkto. Tunay na karanasan sa website.</h2>
+        <p class="am-portfolio__description">Tingnan ang mga website, online store, at business platform na ginawa ng AnhMedia. Pumili ng proyekto upang buksan ang live demo.</p>
+      </div>
+      <div th:case="'id'">
+        <div class="am-portfolio__eyebrow"><i class="fas fa-window-restore"></i> Produk aktif</div>
+        <h2 class="am-portfolio__title">Produk nyata. Pengalaman website langsung.</h2>
+        <p class="am-portfolio__description">Jelajahi website, toko online, dan platform bisnis yang telah dibuat AnhMedia. Pilih proyek untuk membuka demo langsung.</p>
+      </div>
+      <div th:case="'ja'">
+        <div class="am-portfolio__eyebrow"><i class="fas fa-window-restore"></i> 稼働中のプロダクト</div>
+        <h2 class="am-portfolio__title">実際のプロダクトを、実際のサイトで体験</h2>
+        <p class="am-portfolio__description">AnhMedia が構築したウェブサイト、オンラインストア、ビジネスプラットフォームをご覧ください。各プロジェクトからライブデモを開けます。</p>
+      </div>
+      <div th:case="'ko'">
+        <div class="am-portfolio__eyebrow"><i class="fas fa-window-restore"></i> 운영 중인 제품</div>
+        <h2 class="am-portfolio__title">실제 제품을 실제 웹사이트에서 경험하세요</h2>
+        <p class="am-portfolio__description">AnhMedia가 구축한 웹사이트, 온라인 스토어 및 비즈니스 플랫폼을 살펴보세요. 프로젝트를 선택하면 라이브 데모가 열립니다.</p>
+      </div>
+      <div th:case="'ms'">
+        <div class="am-portfolio__eyebrow"><i class="fas fa-window-restore"></i> Produk yang beroperasi</div>
+        <h2 class="am-portfolio__title">Produk sebenar. Pengalaman laman web sebenar.</h2>
+        <p class="am-portfolio__description">Terokai laman web, kedai dalam talian dan platform perniagaan yang dibina oleh AnhMedia. Pilih projek untuk membuka demo langsung.</p>
+      </div>
+      <div th:case="'dv'">
+        <div class="am-portfolio__eyebrow"><i class="fas fa-window-restore"></i> Products in production</div>
+        <h2 class="am-portfolio__title">Real products. Live customer experiences.</h2>
+        <p class="am-portfolio__description">Explore websites, online storefronts, and business platforms delivered by AnhMedia. Select any project to open the live demo.</p>
+      </div>
+      <div th:case="*">
+        <div class="am-portfolio__eyebrow"><i class="fas fa-window-restore"></i> Products in production</div>
+        <h2 class="am-portfolio__title">Real products. Live customer experiences.</h2>
+        <p class="am-portfolio__description">Explore websites, online storefronts, and business platforms delivered by AnhMedia. Select any project to open the live demo.</p>
+      </div>
+      <div class="am-portfolio__count"><i class="fas fa-circle-check"></i> 9 live products</div>
+    </div>
+
+    <div class="am-portfolio__grid">
+      <article class="am-project-card reveal"><a class="am-project-card__link" href="https://hihitomyum.anhmedia.vn" target="_blank" rel="noopener noreferrer" aria-label="Open Hihi Tom Yum website"><div class="am-project-card__media"><img src="/anhmedia.vn/img/portfolio/hihitomyum.webp" alt="Hihi Tom Yum restaurant website" loading="lazy" decoding="async"><span class="am-project-card__browser"><span></span><span></span><span></span></span><span class="am-project-card__open"><i class="fas fa-arrow-up-right-from-square"></i></span></div><div class="am-project-card__body"><div class="am-project-card__meta"><span class="am-project-card__type">Restaurant &amp; QR Ordering</span><span class="am-project-card__status">Live</span></div><h3>Hihi Tom Yum</h3><div class="am-project-card__domain"><i class="fas fa-globe"></i><span>hihitomyum.anhmedia.vn</span></div></div></a></article>
+      <article class="am-project-card reveal"><a class="am-project-card__link" href="https://thegioithan.com" target="_blank" rel="noopener noreferrer" aria-label="Open The Gioi Than website"><div class="am-project-card__media"><img src="/anhmedia.vn/img/portfolio/thegioithan.webp" alt="The Gioi Than ecommerce website" loading="lazy" decoding="async"><span class="am-project-card__browser"><span></span><span></span><span></span></span><span class="am-project-card__open"><i class="fas fa-arrow-up-right-from-square"></i></span></div><div class="am-project-card__body"><div class="am-project-card__meta"><span class="am-project-card__type">Ecommerce</span><span class="am-project-card__status">Live</span></div><h3>Thế Giới Than</h3><div class="am-project-card__domain"><i class="fas fa-globe"></i><span>thegioithan.com</span></div></div></a></article>
+      <article class="am-project-card reveal"><a class="am-project-card__link" href="https://nlsjsc.com" target="_blank" rel="noopener noreferrer" aria-label="Open NLS JSC website"><div class="am-project-card__media"><img src="/anhmedia.vn/img/portfolio/nlsjsc.webp" alt="NLS JSC corporate website" loading="lazy" decoding="async"><span class="am-project-card__browser"><span></span><span></span><span></span></span><span class="am-project-card__open"><i class="fas fa-arrow-up-right-from-square"></i></span></div><div class="am-project-card__body"><div class="am-project-card__meta"><span class="am-project-card__type">Corporate Website</span><span class="am-project-card__status">Live</span></div><h3>NLS JSC</h3><div class="am-project-card__domain"><i class="fas fa-globe"></i><span>nlsjsc.com</span></div></div></a></article>
+      <article class="am-project-card reveal"><a class="am-project-card__link" href="https://tuonghoa-imex.com" target="_blank" rel="noopener noreferrer" aria-label="Open Tuong Hoa Imex website"><div class="am-project-card__media"><img src="/anhmedia.vn/img/portfolio/tuonghoa-imex.webp" alt="Tuong Hoa Imex B2B website" loading="lazy" decoding="async"><span class="am-project-card__browser"><span></span><span></span><span></span></span><span class="am-project-card__open"><i class="fas fa-arrow-up-right-from-square"></i></span></div><div class="am-project-card__body"><div class="am-project-card__meta"><span class="am-project-card__type">B2B Import &amp; Export</span><span class="am-project-card__status">Live</span></div><h3>Tường Hòa Imex</h3><div class="am-project-card__domain"><i class="fas fa-globe"></i><span>tuonghoa-imex.com</span></div></div></a></article>
+      <article class="am-project-card reveal"><a class="am-project-card__link" href="https://nncminhchau.vn" target="_blank" rel="noopener noreferrer" aria-label="Open NNC Minh Chau website"><div class="am-project-card__media"><img src="/anhmedia.vn/img/portfolio/nncminhchau.webp" alt="NNC Minh Chau machinery storefront" loading="lazy" decoding="async"><span class="am-project-card__browser"><span></span><span></span><span></span></span><span class="am-project-card__open"><i class="fas fa-arrow-up-right-from-square"></i></span></div><div class="am-project-card__body"><div class="am-project-card__meta"><span class="am-project-card__type">Machinery Storefront</span><span class="am-project-card__status">Live</span></div><h3>NNC Minh Châu</h3><div class="am-project-card__domain"><i class="fas fa-globe"></i><span>nncminhchau.vn</span></div></div></a></article>
+      <article class="am-project-card am-project-card--tariff reveal"><a class="am-project-card__link" href="https://portal.tuonghoa-imex.com/tariff" target="_blank" rel="noopener noreferrer" aria-label="Open tariff lookup portal"><div class="am-project-card__media"><span class="am-project-card__browser"><span></span><span></span><span></span></span><div class="am-tariff-preview"><div class="am-tariff-preview__title"><i class="fas fa-file-invoice-dollar"></i> HS code &amp; tariff lookup</div><div class="am-tariff-preview__search"><span>Enter an HS code or product name</span><i class="fas fa-magnifying-glass"></i></div><div class="am-tariff-preview__rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></div><span class="am-project-card__open"><i class="fas fa-arrow-up-right-from-square"></i></span></div><div class="am-project-card__body"><div class="am-project-card__meta"><span class="am-project-card__type">Tariff Lookup Portal</span><span class="am-project-card__status">Demo</span></div><h3>Tariff Portal</h3><div class="am-project-card__domain"><i class="fas fa-globe"></i><span>portal.tuonghoa-imex.com/tariff</span></div></div></a></article>
+      <article class="am-project-card reveal"><a class="am-project-card__link" href="https://dailocoffee.anhmedia.vn" target="_blank" rel="noopener noreferrer" aria-label="Open Dai Lo Coffee website"><div class="am-project-card__media"><img src="/anhmedia.vn/img/portfolio/dailocoffee.webp" alt="Dai Lo Coffee ordering website" loading="lazy" decoding="async"><span class="am-project-card__browser"><span></span><span></span><span></span></span><span class="am-project-card__open"><i class="fas fa-arrow-up-right-from-square"></i></span></div><div class="am-project-card__body"><div class="am-project-card__meta"><span class="am-project-card__type">Cafe &amp; Online Ordering</span><span class="am-project-card__status">Live</span></div><h3>Đại Lộ Coffee</h3><div class="am-project-card__domain"><i class="fas fa-globe"></i><span>dailocoffee.anhmedia.vn</span></div></div></a></article>
+      <article class="am-project-card reveal"><a class="am-project-card__link" href="https://cosmetic.anhmedia.vn" target="_blank" rel="noopener noreferrer" aria-label="Open Cosmetic AnhMedia website"><div class="am-project-card__media"><img src="/anhmedia.vn/img/portfolio/cosmetic.webp" alt="Cosmetic AnhMedia storefront" loading="lazy" decoding="async"><span class="am-project-card__browser"><span></span><span></span><span></span></span><span class="am-project-card__open"><i class="fas fa-arrow-up-right-from-square"></i></span></div><div class="am-project-card__body"><div class="am-project-card__meta"><span class="am-project-card__type">Beauty Storefront</span><span class="am-project-card__status">Live</span></div><h3>Cosmetic AnhMedia</h3><div class="am-project-card__domain"><i class="fas fa-globe"></i><span>cosmetic.anhmedia.vn</span></div></div></a></article>
+      <article class="am-project-card reveal"><a class="am-project-card__link" href="https://open2job.com" target="_blank" rel="noopener noreferrer" aria-label="Open Open2Job platform"><div class="am-project-card__media"><img src="/anhmedia.vn/img/portfolio/open2job.webp" alt="Open2Job career platform" loading="lazy" decoding="async"><span class="am-project-card__browser"><span></span><span></span><span></span></span><span class="am-project-card__open"><i class="fas fa-arrow-up-right-from-square"></i></span></div><div class="am-project-card__body"><div class="am-project-card__meta"><span class="am-project-card__type">Career Platform</span><span class="am-project-card__status">Live</span></div><h3>Open2Job</h3><div class="am-project-card__domain"><i class="fas fa-globe"></i><span>open2job.com</span></div></div></a></article>
+    </div>
+
+    <div class="am-portfolio__cta reveal" th:switch="${langCode}">
+      <th:block th:case="'vi'"><p>Bạn muốn một sản phẩm tương tự cho doanh nghiệp của mình?</p><a href="#lien-he" class="am-portfolio__button">Trao đổi dự án <i class="fas fa-arrow-right"></i></a></th:block>
+      <th:block th:case="'cn'"><p>希望为您的企业打造类似产品？</p><a href="#lien-he" class="am-portfolio__button">讨论项目 <i class="fas fa-arrow-right"></i></a></th:block>
+      <th:block th:case="'tw'"><p>希望為您的企業打造類似產品？</p><a href="#lien-he" class="am-portfolio__button">討論專案 <i class="fas fa-arrow-right"></i></a></th:block>
+      <th:block th:case="'es'"><p>¿Quiere un producto similar para su empresa?</p><a href="#lien-he" class="am-portfolio__button">Hablemos del proyecto <i class="fas fa-arrow-right"></i></a></th:block>
+      <th:block th:case="'fil'"><p>Gusto mo ba ng katulad na produkto para sa iyong negosyo?</p><a href="#lien-he" class="am-portfolio__button">Talakayin ang proyekto <i class="fas fa-arrow-right"></i></a></th:block>
+      <th:block th:case="'id'"><p>Ingin produk serupa untuk bisnis Anda?</p><a href="#lien-he" class="am-portfolio__button">Diskusikan proyek <i class="fas fa-arrow-right"></i></a></th:block>
+      <th:block th:case="'ja'"><p>同様のプロダクトをビジネスに導入しませんか？</p><a href="#lien-he" class="am-portfolio__button">プロジェクトを相談 <i class="fas fa-arrow-right"></i></a></th:block>
+      <th:block th:case="'ko'"><p>비즈니스를 위한 유사한 제품이 필요하신가요?</p><a href="#lien-he" class="am-portfolio__button">프로젝트 상담 <i class="fas fa-arrow-right"></i></a></th:block>
+      <th:block th:case="'ms'"><p>Mahukan produk serupa untuk perniagaan anda?</p><a href="#lien-he" class="am-portfolio__button">Bincangkan projek <i class="fas fa-arrow-right"></i></a></th:block>
+      <th:block th:case="'dv'"><p>Planning a product like one of these for your business?</p><a href="#lien-he" class="am-portfolio__button">Discuss Your Project <i class="fas fa-arrow-right"></i></a></th:block>
+      <th:block th:case="*"><p>Planning a product like one of these for your business?</p><a href="#contact" class="am-portfolio__button">Discuss Your Project <i class="fas fa-arrow-right"></i></a></th:block>
+    </div>
+  </div>
+</section>
+</body>
+</html>
