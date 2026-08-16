@@ -248,3 +248,4 @@ button { color: inherit; font: inherit; }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+.demo-only-badge{position:fixed;z-index:300;top:92px;right:14px;padding:.48rem .75rem;color:#fff;background:#d82a22;border:2px solid #241b16;border-radius:999px;box-shadow:4px 4px 0 #241b16;font-size:.58rem;font-weight:800;line-height:1;letter-spacing:.12em;text-transform:uppercase;pointer-events:none}@media(max-width:900px){.demo-only-badge{top:78px;right:8px;font-size:.5rem;padding:.4rem .6rem}}
