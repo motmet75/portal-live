@@ -1,0 +1,1 @@
+(function(){'use strict';var toggle=document.querySelector('[data-nav-toggle]'),nav=document.querySelector('[data-nav]');if(toggle&&nav)toggle.addEventListener('click',function(){nav.classList.toggle('open');});document.querySelectorAll('[data-nav] a').forEach(function(link){link.addEventListener('click',function(){nav&&nav.classList.remove('open');});});}());
