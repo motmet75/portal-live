@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{hihitomyum :: head}"></head>
+<body class="menu-body">
+<header th:replace="~{hihitomyum :: navigation('menu')}"></header>
+
+<main id="main-content" class="menu-book">
+    <section class="menu-cover">
+        <div class="menu-cover__copy">
+            <p class="eyebrow">HIHI delivery · 2026</p>
+            <span class="menu-cover__issue">MENU<br>No. 01</span>
+            <h1>Pick your<br><em>happy bowl.</em></h1>
+            <p>Scroll down through our bright little book of Thai noodles, snacks and sweets.</p>
+            <a href="#bowls" class="menu-scroll">Start the menu <span>↓</span></a>
+        </div>
+        <div class="menu-cover__photo">
+            <span class="thai-burst">ต้มยำ!</span>
+            <img src="/hihitomyum/images/hihi-hero-tomyum.png" alt="HIHI signature Tom Yum noodle bowl">
+            <div class="menu-cover__badge">SOUR<br>SPICY<br>JOY</div>
+        </div>
+        <div class="menu-cover__footer"><span>Thai noodles · Snacks · Sweets</span><span>Saigon, Vietnam</span></div>
+    </section>
+
+    <nav class="menu-index" aria-label="Menu categories">
+        <a href="#bowls">01 Bowls</a>
+        <a href="#sharing">02 Sharing</a>
+        <a href="#sweet">03 Sweet</a>
+        <a href="#visit">04 Visit</a>
+    </nav>
+
+    <section class="book-page book-page--intro" id="bowls">
+        <div class="book-page__side">01 — NOODLE BOWLS</div>
+        <div class="chapter-title">
+            <p class="eyebrow eyebrow--red">The main event</p>
+            <h2>Choose your<br><em>slurp.</em></h2>
+            <p>Springy noodles, fragrant broth and generous toppings. Pick your heat and make it yours.</p>
+        </div>
+        <figure class="chapter-photo">
+            <img src="/hihitomyum/images/hihi-hero-tomyum.png" alt="Thai Tom Yum noodle bowl" loading="lazy">
+            <figcaption>Bright lime · Roasted chilli · Fresh herbs</figcaption>
+        </figure>
+    </section>
+
+    <section class="product-pages">
+        <article class="product-spread" th:each="product, stat : ${products}">
+            <div class="product-spread__number" th:text="${#numbers.formatInteger(stat.count, 2)}">01</div>
+            <a class="product-spread__photo" th:href="'/san-pham/' + ${product.path}">
+                <img th:src="${product.productImageDesUrl != null and !product.productImageDesUrl.isBlank()
+                        ? product.productImageDesUrl : '/hihitomyum/images/hihi-hero-tomyum.png'}"
+                     th:alt="${product.productName}" loading="lazy">
+                <span class="heat-mark" th:if="${stat.count % 3 == 1}">HOT!</span>
+            </a>
+            <div class="product-spread__copy">
+                <p class="product-spread__category"
+                   th:text="${product.productCategory != null ? product.productCategory.catalogName : 'HIHI favorite'}">HIHI favorite</p>
+                <h3 th:text="${product.productName}">Mama Tom Yum Seafood</h3>
+                <p class="product-spread__description">A bright, aromatic bowl with the proper Thai balance of sour, spicy, salty and sweet.</p>
+                <div class="product-spread__order">
+                    <strong th:text="${product.formatedPriceAfterDiscount} + ' ' + ${product.productPriceCurrency}">89.000 ₫</strong>
+                    <button class="add-bowl" type="button"
+                            th:attr="data-product-code=${product.productCode},
+                                     data-product-name=${product.productName},
+                                     data-product-image=${product.productImageDesUrl},
+                                     data-product-price=${product.productPriceAmount}">
+                        Add bowl <span>+</span>
+                    </button>
+                </div>
+            </div>
+        </article>
+
+        <div class="fallback-menu" th:if="${products == null or #lists.isEmpty(products)}">
+            <article class="product-spread">
+                <div class="product-spread__number">01</div>
+                <div class="product-spread__photo"><img src="/hihitomyum/images/hihi-hero-tomyum.png" alt="Mama Tom Yum seafood noodles"><span class="heat-mark">HOT!</span></div>
+                <div class="product-spread__copy"><p class="product-spread__category">HIHI signature · Demo</p><h3>Mama Tom Yum Seafood</h3><p class="product-spread__description">Prawns, squid, mushrooms, lime and fragrant roasted chilli broth.</p><div class="product-spread__order"><strong>89.000 ₫</strong><button class="add-bowl" type="button" data-product-code="HIHI-MAMA-TOM-YUM-SEAFOOD" data-product-name="Mama Tom Yum Seafood" data-product-image="/hihitomyum/images/hihi-hero-tomyum.png" data-product-price="89000">Add bowl <span>+</span></button></div></div>
+            </article>
+            <article class="product-spread">
+                <div class="product-spread__number">02</div>
+                <div class="product-spread__photo"><img src="/hihitomyum/images/hihi-feast.png" alt="Thai sharing feast"></div>
+                <div class="product-spread__copy"><p class="product-spread__category">For the table · Demo</p><h3>HIHI Sharing Feast</h3><p class="product-spread__description">A colorful table of Thai favorites made for sharing with your favorite people.</p><div class="product-spread__order"><strong>199.000 ₫</strong><button class="add-bowl" type="button" data-product-code="HIHI-SHARING-FEAST" data-product-name="HIHI Sharing Feast" data-product-image="/hihitomyum/images/hihi-feast.png" data-product-price="199000">Add feast <span>+</span></button></div></div>
+            </article>
+        </div>
+    </section>
+
+    <section class="book-page book-page--sharing" id="sharing">
+        <div class="book-page__side">02 — SHARE THE JOY</div>
+        <figure class="chapter-photo">
+            <img src="/hihitomyum/images/hihi-feast.png" alt="Thai dishes for sharing" loading="lazy">
+            <figcaption>Order plenty. Pass everything.</figcaption>
+        </figure>
+        <div class="chapter-title">
+            <p class="eyebrow">Made for the middle</p>
+            <h2>More plates.<br><em>More fun.</em></h2>
+            <p>Start with crispy bites, add something fresh, then pass it all around the table.</p>
+            <a class="text-link" href="#bowls">Back to bowls <span>↑</span></a>
+        </div>
+    </section>
+
+    <section class="book-page book-page--sweet" id="sweet">
+        <div class="book-page__side">03 — A SWEET FINISH</div>
+        <div class="chapter-title">
+            <p class="eyebrow eyebrow--red">Always save room</p>
+            <h2>Mango.<br>Coconut.<br><em>Magic.</em></h2>
+            <p>Golden mango, creamy coconut and warm sticky rice: Thailand’s happiest ending.</p>
+            <div class="dessert-price"><span>Mango sticky rice</span><strong>59.000 ₫</strong></div>
+        </div>
+        <figure class="chapter-photo">
+            <img src="/hihitomyum/images/hihi-mango-sticky-rice.png" alt="Mango sticky rice with coconut cream" loading="lazy">
+            <figcaption>Sweet · Creamy · A little salty</figcaption>
+        </figure>
+    </section>
+
+    <section class="menu-back-cover">
+        <p>That was delicious.</p>
+        <h2>See you<br><em>at HIHI!</em></h2>
+        <a class="button button--yellow" href="https://www.google.com/maps/search/?api=1&amp;query=HIHI+TomYum+225%2F7+Nguyen+Dinh+Chieu" target="_blank" rel="noopener">Get directions <span>↗</span></a>
+        <span class="menu-back-cover__thai">ขอบคุณค่ะ</span>
+    </section>
+</main>
+
+<aside th:replace="~{hihitomyum :: cartDrawer}"></aside>
+<footer th:replace="~{hihitomyum :: footer}"></footer>
+<script src="/hihitomyum/js/hihi.js" defer></script>
+</body>
+</html>

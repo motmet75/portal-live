@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ffd400">
+    <meta name="author" content="HIHI TomYum">
+    <meta name="description"
+          th:content="${page != null and page.articleDescription != null and !page.articleDescription.isBlank()}
+              ? ${page.articleDescription}
+              : 'Bright, sour and spicy Thai noodles served with a warm wai in the heart of Saigon.'">
+    <meta name="keywords"
+          th:content="${page != null and page.articleKeyWord != null}
+              ? ${page.articleKeyWord}
+              : 'HIHI TomYum, Thai noodles, Mama Tomyum, Saigon restaurant'">
+    <meta property="og:type" content="website">
+    <meta property="og:title"
+          th:content="${page != null and page.articleTitle != null and !page.articleTitle.isBlank()}
+              ? ${page.articleTitle}
+              : 'HIHI TomYum — All About Thai Noodles'">
+    <meta property="og:description" content="All the bright, sour, spicy joy of Thailand in one generous bowl.">
+    <meta property="og:url" content="https://hihitomyum.anhmedia.vn/">
+    <meta property="og:image" content="https://hihitomyum.anhmedia.vn/hihitomyum/images/hihi-hero-tomyum.png">
+    <link rel="canonical" content="https://hihitomyum.anhmedia.vn/">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="/hihitomyum/css/hihi.css">
+    <title th:text="${page != null and page.articleTitle != null and !page.articleTitle.isBlank()}
+        ? ${page.articleTitle}
+        : 'HIHI TomYum — All About Thai Noodles'">HIHI TomYum — All About Thai Noodles</title>
+</head>
+
+<body>
+
+<header th:fragment="navigation(activePage)" class="site-header" data-site-header>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <div class="site-header__inner">
+        <a class="brand" href="/home?lang=en" aria-label="HIHI TomYum home">
+            <span class="brand__hihi">HIHI</span>
+            <span class="brand__tomyum">TomYum</span>
+        </a>
+
+        <button class="nav-toggle" type="button" aria-controls="primary-navigation" aria-expanded="false"
+                data-nav-toggle>
+            <span></span><span></span>
+            <span class="sr-only">Toggle navigation</span>
+        </button>
+
+        <nav class="primary-navigation" id="primary-navigation" aria-label="Primary navigation" data-navigation>
+            <a href="/home?lang=en" th:classappend="${activePage == 'home'} ? 'is-active'">Home</a>
+            <a href="/products.html?lang=en" th:classappend="${activePage == 'menu' or activePage == 'products'} ? 'is-active'">Menu</a>
+            <a href="/home?lang=en#stories">Stories</a>
+            <a href="/home?lang=en#visit">Visit</a>
+        </nav>
+
+        <div class="header-actions">
+            <details class="language-switcher">
+                <summary aria-label="Choose language">
+                    <span>EN</span>
+                    <svg viewBox="0 0 12 8" aria-hidden="true"><path d="m1 1.25 5 5 5-5"/></svg>
+                </summary>
+                <div class="language-switcher__menu">
+                    <a class="is-current" href="/setLanguage?lang=en&amp;redirect=/home">English <span>Now</span></a>
+                    <span>ไทย <small>Soon</small></span>
+                    <span>Tiếng Việt <small>Soon</small></span>
+                    <span>中文 <small>Soon</small></span>
+                </div>
+            </details>
+
+            <button class="cart-trigger" type="button" aria-label="Open order bag" data-cart-open>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M7 9V7a5 5 0 0 1 10 0v2M5 9h14l-1 12H6L5 9Z"/>
+                </svg>
+                <span class="cart-trigger__count" id="cartCount"
+                      th:text="${cart != null ? cart.totalItems : 0}">0</span>
+            </button>
+
+            <a class="button button--small button--yellow header-order" href="/products.html?lang=en">
+                Order online
+                <span aria-hidden="true">↗</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+<aside th:fragment="cartDrawer" class="cart-drawer" aria-hidden="true" aria-labelledby="cart-title" data-cart-drawer>
+    <button class="cart-drawer__backdrop" type="button" aria-label="Close order bag" data-cart-close></button>
+    <div class="cart-drawer__panel">
+        <div class="cart-drawer__header">
+            <div>
+                <p class="eyebrow eyebrow--red">Your order</p>
+                <h2 id="cart-title">The good stuff.</h2>
+            </div>
+            <button class="icon-button" type="button" aria-label="Close order bag" data-cart-close>×</button>
+        </div>
+
+        <div class="cart-drawer__body">
+            <div class="cart-empty" id="cartEmpty"
+                 th:style="${cart != null and cart.totalItems > 0} ? 'display:none' : ''">
+                <span class="cart-empty__mark">HI!</span>
+                <h3>Your bowl is waiting.</h3>
+                <p>Add a little sour, spicy joy from the menu.</p>
+                <a class="text-link" href="/products.html?lang=en">Explore the menu <span>→</span></a>
+            </div>
+
+            <ul class="cart-items" id="cartItems">
+                <li class="cart-item" th:each="item : ${cart != null ? cart.items : {}}">
+                    <img th:src="${item.imageUrl}" th:alt="${item.name}">
+                    <div>
+                        <strong th:text="${item.name}">Menu item</strong>
+                        <span th:text="${item.formatedPrice} + (${cart.currency})">0 ₫</span>
+                        <div class="cart-item__quantity">
+                            <button type="button" th:data-item-id="${item.id}" onclick="hihiCartQty(this,-1)">−</button>
+                            <span th:text="${item.quantity}">1</span>
+                            <button type="button" th:data-item-id="${item.id}" onclick="hihiCartQty(this,1)">+</button>
+                        </div>
+                    </div>
+                    <button class="cart-item__remove" type="button" th:data-item-id="${item.id}"
+                            onclick="hihiRemoveFromCart(this.dataset.itemId)" aria-label="Remove item">×</button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="cart-drawer__footer">
+            <div class="cart-total">
+                <span>Subtotal</span>
+                <strong id="cartDrawerTotal"
+                        th:text="${cart != null ? cart.formatedPrice + cart.currency : '0 ₫'}">0 ₫</strong>
+            </div>
+            <a class="button button--red button--wide" href="/dat-hang">
+                Continue to checkout <span>→</span>
+            </a>
+            <p>Cashless payment · Pick-up or delivery</p>
+        </div>
+    </div>
+</aside>
+
+<footer th:fragment="footer" class="site-footer" id="visit">
+    <div class="site-footer__top">
+        <div>
+            <p class="eyebrow eyebrow--yellow">Come say hi</p>
+            <h2>A warm bowl.<br>A warmer <em>wai.</em></h2>
+        </div>
+        <a class="footer-arrow" href="https://www.google.com/maps/search/?api=1&amp;query=HIHI+TomYum+225%2F7+Nguyen+Dinh+Chieu"
+           target="_blank" rel="noopener" aria-label="Open HIHI TomYum in Google Maps">↗</a>
+    </div>
+
+    <div class="site-footer__grid">
+        <div>
+            <span class="footer-label">Find us</span>
+            <address>
+                225/7 Nguyen Dinh Chieu<br>
+                District 3, Ho Chi Minh City
+            </address>
+            <a class="text-link text-link--light"
+               href="https://www.google.com/maps/search/?api=1&amp;query=HIHI+TomYum+225%2F7+Nguyen+Dinh+Chieu"
+               target="_blank" rel="noopener">Get directions <span>↗</span></a>
+        </div>
+        <div>
+            <span class="footer-label">Opening hours</span>
+            <p>Daily, 10:00–22:00<br><small>Last order at 21:30</small></p>
+        </div>
+        <div>
+            <span class="footer-label">Follow the flavor</span>
+            <div class="footer-socials">
+                <a href="https://www.instagram.com/hihithainoodle/" target="_blank" rel="noopener">Instagram ↗</a>
+                <a href="https://www.facebook.com/hihithainoodle" target="_blank" rel="noopener">Facebook ↗</a>
+                <a href="https://www.tiktok.com/tag/hihitomyum" target="_blank" rel="noopener">TikTok ↗</a>
+            </div>
+        </div>
+        <div>
+            <span class="footer-label">Plan your meal</span>
+            <a class="button button--yellow button--wide" href="/products.html?lang=en">See the menu <span>→</span></a>
+        </div>
+    </div>
+
+    <div class="site-footer__bottom">
+        <a class="brand brand--footer" href="/home?lang=en">
+            <span class="brand__hihi">HIHI</span>
+            <span class="brand__tomyum">TomYum</span>
+        </a>
+        <p>© <span data-current-year>2026</span> HIHI TomYum. Made hot in Saigon.</p>
+        <p>English first · ไทย / VI / 中文 coming next</p>
+    </div>
+</footer>
+
+</body>
+</html>

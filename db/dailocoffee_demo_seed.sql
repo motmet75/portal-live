@@ -1,0 +1,14 @@
+-- Destructive PostgreSQL demo seed for cloned tenant: dailocoffee.anhmedia.vn
+-- Run ONLY against the newly cloned tenant database.
+BEGIN;
+TRUNCATE TABLE public.articletb, public.producttb RESTART IDENTITY CASCADE;
+
+INSERT INTO public.articletb (articleid,username,articlelink,articlecategory,articlelangcode,articlesubcategory,articletitle,articlekeyword,articlethumnailurl,articledescription,articlecontent,createdtime,modifiedtime,isvisible,isapproved,islocked,rejectedbyuser,rejectedreason,articletime,originauthor,menustringid,viewcount,rating,postid,articletemplate,"index") VALUES
+('DAILO-PAGE-HOME','none','home','page','vi','none','Đại Lộ Coffee — Bình Phú, Quận 6','Đại Lộ Coffee, cà phê Quận 6','/dailocoffee/images/hero_1.jpeg','Cà phê và thức uống mỗi ngày tại 157–159 Bình Phú, Quận 6.','<p>Trang chủ Đại Lộ Coffee.</p>',NOW(),NOW(),TRUE,TRUE,FALSE,'none','none',NOW(),'Đại Lộ Coffee','none',0,0,'n','index.html','0'),
+('DAILO-PAGE-PRODUCTS','none','products.html','page','vi','none','Thực đơn — Đại Lộ Coffee','cà phê, trà, thức uống Quận 6','/dailocoffee/images/gallery_3.jpeg','Thực đơn demo Đại Lộ Coffee.','<p>Thực đơn Đại Lộ Coffee.</p>',NOW(),NOW(),TRUE,TRUE,FALSE,'none','none',NOW(),'Đại Lộ Coffee','none',0,0,'n','products.html','1');
+
+INSERT INTO public.producttb (productname,productcode,productcatalog,productbrand,productshortdes,productlongdes,productimageurl1,productimageurl2,productimagedesurl,productsubcatalog,productgroupstring,pagekeyword,productpriceamount,productdiscont,productpricecurrency,language,path,createdtime,publishedtime,modifiedtime,isvisible,isapproved,islocked,isnew) VALUES
+('Cà Phê Sữa Đá','DAILO-CA-PHE-SUA-DA','Cà phê','Đại Lộ Coffee','Đậm vị cà phê Việt, cân bằng cùng sữa đặc.','<p>Một lựa chọn quen thuộc cho buổi sáng tỉnh táo hoặc cuộc hẹn giữa ngày.</p>','/dailocoffee/images/gallery_9.jpeg','/dailocoffee/images/gallery_9.jpeg','/dailocoffee/images/gallery_9.jpeg','Cà phê Việt','dailocoffee-menu','cà phê sữa đá, Đại Lộ Coffee',29000,0,'VND','vi','ca-phe-sua-da',NOW(),NOW(),NOW(),TRUE,TRUE,FALSE,TRUE),
+('Trà Đào Cam Sả','DAILO-TRA-DAO-CAM-SA','Trà trái cây','Đại Lộ Coffee','Trà đào thanh mát cùng cam tươi và hương sả dịu.','<p>Vị trà cân bằng chua ngọt, thích hợp cho một chiều thư thả.</p>','/dailocoffee/images/gallery_6.jpeg','/dailocoffee/images/gallery_6.jpeg','/dailocoffee/images/gallery_6.jpeg','Trà','dailocoffee-menu','trà đào cam sả, Đại Lộ Coffee',39000,0,'VND','vi','tra-dao-cam-sa',NOW(),NOW(),NOW(),TRUE,TRUE,FALSE,TRUE),
+('Matcha Latte','DAILO-MATCHA-LATTE','Latte','Đại Lộ Coffee','Matcha thơm dịu kết hợp cùng sữa béo mượt.','<p>Sắc xanh dịu mắt, vị trà rõ ràng và phần sữa êm.</p>','/dailocoffee/images/gallery_4.jpeg','/dailocoffee/images/gallery_4.jpeg','/dailocoffee/images/gallery_4.jpeg','Không cà phê','dailocoffee-menu','matcha latte, Đại Lộ Coffee',45000,0,'VND','vi','matcha-latte',NOW(),NOW(),NOW(),TRUE,TRUE,FALSE,TRUE);
+COMMIT;
