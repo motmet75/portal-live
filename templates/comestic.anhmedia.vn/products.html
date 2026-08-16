@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{comestic.anhmedia.vn :: head('Dưỡng da | ÉLANCIER', 'Khám phá bộ sưu tập dưỡng da và nghi thức rạng rỡ ÉLancier.')}"></head>
+<body>
+<header th:replace="~{comestic.anhmedia.vn :: header('products')}"></header>
+<main id="main-content" class="collection-page">
+    <section class="collection-hero">
+        <div><span class="micro-label">SKINCARE COLLECTION</span><h1>Chăm sóc da</h1><p>Công thức hiệu năng cao, kết cấu tinh tế và những nghi thức được thiết kế theo nhịp tự nhiên của làn da.</p></div>
+        <img src="/comestic.anhmedia.vn/images/collection-ritual.png" alt="Bộ sưu tập dưỡng da ÉLancier">
+    </section>
+    <div class="collection-toolbar">
+        <button type="button" data-filter-open>Bộ lọc <span>＋</span></button>
+        <p><strong th:text="${products != null ? #lists.size(products) : 5}">5</strong> sản phẩm</p>
+        <label>Sắp xếp <select><option>Nổi bật</option><option>Mới nhất</option><option>Giá thấp đến cao</option></select></label>
+    </div>
+    <aside class="filter-panel" data-filter-panel>
+        <header><h2>Lọc sản phẩm</h2><button type="button" data-filter-close>×</button></header>
+        <details open><summary>Thời điểm sử dụng</summary><label><input type="checkbox"> Ban ngày</label><label><input type="checkbox"> Ban đêm</label></details>
+        <details open><summary>Nhu cầu làn da</summary><label><input type="checkbox"> Khô và mất nước</label><label><input type="checkbox"> Xỉn màu</label><label><input type="checkbox"> Nếp nhăn</label><label><input type="checkbox"> Vùng mắt và môi</label></details>
+        <button class="apply-filter" type="button" data-filter-close>Hiển thị sản phẩm</button>
+    </aside>
+    <button class="filter-backdrop" type="button" aria-label="Đóng bộ lọc" data-filter-close></button>
+
+    <section class="product-grid" th:if="${products != null and !#lists.isEmpty(products)}">
+        <article class="product-card" th:each="product, stat : ${products}">
+            <a class="product-image" th:href="'/san-pham/' + ${product.path}">
+                <span th:if="${stat.index == 0}">Bestseller</span>
+                <img th:src="${product.productImageDesUrl != null and !product.productImageDesUrl.isBlank() ? #strings.replace(product.productImageDesUrl, '_rslt_300x300', '') : '/comestic.anhmedia.vn/images/essence-lotion.png'}" th:alt="${product.productName}" loading="lazy">
+                <em>Quick view</em>
+            </a>
+            <div class="product-info"><p th:text="${product.productCategory != null ? product.productCategory.catalogName : 'Skincare'}">Skincare</p><h2><a th:href="'/san-pham/' + ${product.path}" th:text="${product.productName}">Lumière Essence</a></h2><small th:text="${product.productShortDes}">Tinh chất dưỡng ẩm rạng rỡ</small><strong th:text="${product.formatedPriceAfterDiscount} + ' ' + ${product.productPriceCurrency}">2.450.000 ₫</strong></div>
+        </article>
+    </section>
+    <section class="product-grid" th:if="${products == null or #lists.isEmpty(products)}">
+        <article class="product-card"><a class="product-image" href="/single-product.html"><span>Bestseller</span><img src="/comestic.anhmedia.vn/images/essence-lotion.png" alt="Lumière Softening Essence"><em>Quick view</em></a><div class="product-info"><p>Essence lotion</p><h2><a href="/single-product.html">Lumière Softening Essence</a></h2><small>Tinh chất làm mềm giàu ẩm · 250 ml</small><strong>2.450.000 ₫</strong></div></article>
+        <article class="product-card"><a class="product-image" href="#"><img src="/comestic.anhmedia.vn/images/collection-ritual.png" alt="Contour Supreme Eye Cream"><em>Quick view</em></a><div class="product-info"><p>Eye care</p><h2>Contour Supreme Eye Cream</h2><small>Kem dưỡng vùng mắt chuyên sâu · 15 ml</small><strong>3.250.000 ₫</strong></div></article>
+        <article class="product-card"><a class="product-image" href="#"><img src="/comestic.anhmedia.vn/images/hero-radiance.png" alt="Radiance Renewal Serum"><em>Quick view</em></a><div class="product-info"><p>Serum</p><h2>Radiance Renewal Serum</h2><small>Tinh chất phục hồi độ sáng · 50 ml</small><strong>3.890.000 ₫</strong></div></article>
+        <article class="product-card"><a class="product-image" href="#"><img src="/comestic.anhmedia.vn/images/collection-ritual.png" alt="Protective Lip Veil"><em>Quick view</em></a><div class="product-info"><p>Lip care</p><h2>Protective Lip Veil</h2><small>Dưỡng môi phục hồi · 8 ml</small><strong>1.250.000 ₫</strong></div></article>
+        <article class="product-card"><a class="product-image" href="#"><img src="/comestic.anhmedia.vn/images/hero-radiance.png" alt="Cellular Night Cream"><em>Quick view</em></a><div class="product-info"><p>Moisturizer</p><h2>Cellular Night Cream</h2><small>Kem dưỡng đêm tái tạo · 50 ml</small><strong>4.150.000 ₫</strong></div></article>
+    </section>
+    <section class="consultation-banner"><span class="micro-label">PERSONAL CONSULTATION</span><h2>Chưa biết bắt đầu từ đâu?</h2><p>Hãy để chuyên gia của chúng tôi thiết kế nghi thức phù hợp với làn da và nhịp sống của bạn.</p><a href="/lien-he.html?lang=vi">Đặt lịch tư vấn →</a></section>
+</main>
+<aside th:replace="~{comestic.anhmedia.vn :: cart}"></aside>
+<footer th:replace="~{comestic.anhmedia.vn :: footer}"></footer>
+<script src="/comestic.anhmedia.vn/js/elancier.js" defer></script>
+</body>
+</html>

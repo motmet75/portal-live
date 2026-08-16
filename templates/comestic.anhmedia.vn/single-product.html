@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{comestic.anhmedia.vn :: head(${product != null ? product.productName + ' | ÉLANCIER' : 'Lumière Softening Essence | ÉLANCIER'}, ${product != null ? product.productShortDes : 'Tinh chất làm mềm giàu ẩm cho vẻ rạng rỡ trong trẻo.'})}"></head>
+<body>
+<header th:replace="~{comestic.anhmedia.vn :: header('products')}"></header>
+<main id="main-content" class="pdp">
+    <nav class="breadcrumbs"><a href="/home?lang=vi">Trang chủ</a><span>/</span><a href="/products.html?lang=vi">Dưỡng da</a><span>/</span><b th:text="${product != null ? product.productName : 'Lumière Softening Essence'}">Lumière Softening Essence</b></nav>
+    <section class="pdp-hero">
+        <div class="pdp-gallery">
+            <img th:src="${product != null and product.productImageDesUrl != null and !product.productImageDesUrl.isBlank() ? #strings.replace(product.productImageDesUrl, '_rslt_300x300', '') : '/comestic.anhmedia.vn/images/essence-lotion.png'}" th:alt="${product != null ? product.productName : 'Lumière Softening Essence'}">
+            <span>01 / 02</span>
+        </div>
+        <div class="pdp-summary">
+            <span class="micro-label">LIMITED RADIANCE EDITION</span>
+            <h1 th:text="${product != null ? product.productName : 'Lumière Softening Essence'}">Lumière Softening Essence</h1>
+            <p class="pdp-subtitle" th:text="${product != null and product.productShortDes != null ? product.productShortDes : 'Tinh chất làm mềm giàu ẩm'}">Tinh chất làm mềm giàu ẩm</p>
+            <p class="pdp-description">Một lớp tinh chất giàu dưỡng chất giúp làn da chống lại khô ráp, củng cố khả năng giữ ẩm và khơi mở vẻ trong trẻo, mềm mại.</p>
+            <div class="pdp-size"><span>Dung tích</span><button type="button" class="selected">250 ml</button></div>
+            <div class="pdp-price"><strong th:text="${product != null ? product.formatedPriceAfterDiscount + ' ' + product.productPriceCurrency : '2.450.000 ₫'}">2.450.000 ₫</strong><small>Đã bao gồm thuế</small></div>
+            <button class="add-to-bag" type="button"
+                    th:attr="data-product-code=${product != null ? product.productCode : ''},
+                             data-product-name=${product != null ? product.productName : 'Lumière Softening Essence'},
+                             data-product-image=${product != null and product.productImageDesUrl != null ? #strings.replace(product.productImageDesUrl, '_rslt_300x300', '') : '/comestic.anhmedia.vn/images/essence-lotion.png'},
+                             data-product-price=${product != null ? product.productPriceAmount : 2450000}">
+                Thêm vào túi <span>→</span>
+            </button>
+            <div class="pdp-benefits"><details open><summary>Lợi ích nổi bật <span>＋</span></summary><ul><li>Hỗ trợ tăng khả năng giữ ẩm tự nhiên của da</li><li>Cải thiện cảm giác khô ráp và thiếu sức sống</li><li>Cho làn da mềm mại, trong trẻo và căng mượt</li></ul></details><details><summary>Cách sử dụng <span>＋</span></summary><p>Sử dụng sáng và tối sau bước làm sạch. Thấm sản phẩm ra bông hoặc lòng bàn tay, nhẹ nhàng áp lên toàn bộ khuôn mặt.</p></details><details><summary>Thành phần chính <span>＋</span></summary><p>Phức hợp men sinh học, hyaluronic acid đa phân tử, chiết xuất hoa huệ trắng và trehalose.</p></details></div>
+        </div>
+    </section>
+    <section class="pdp-story">
+        <div><span class="micro-label">DEEP HYDRATION</span><h2>Moisture, held<br><em>like light.</em></h2><p>Cấu trúc essence-lotion tan nhanh trên da, đưa độ ẩm vào từng lớp bề mặt và để lại cảm giác êm mượt không nhờn dính.</p></div>
+        <img src="/comestic.anhmedia.vn/images/hero-radiance.png" alt="Ánh sáng phản chiếu trên bộ dưỡng da ÉLancier">
+    </section>
+    <section class="pdp-results"><span class="section-number">03</span><h2>Hiệu quả cảm nhận</h2><div><article><strong>98%</strong><p>cảm nhận da mềm mại hơn ngay sau khi sử dụng</p></article><article><strong>91%</strong><p>cảm nhận độ ẩm kéo dài suốt ngày</p></article><article><strong>88%</strong><p>nhận thấy làn da trông rạng rỡ sau 4 tuần</p></article></div><small>* Khảo sát tự đánh giá trên 32 người. Kết quả có thể khác nhau.</small></section>
+    <section class="pdp-related"><span class="micro-label">COMPLETE THE RITUAL</span><h2>Hoàn thiện nghi thức</h2><div><a href="/products.html?lang=vi"><img src="/comestic.anhmedia.vn/images/collection-ritual.png" alt="Radiance Renewal Serum"><h3>Radiance Renewal Serum</h3><p>Bước 02 · Awaken</p></a><a href="/products.html?lang=vi"><img src="/comestic.anhmedia.vn/images/hero-radiance.png" alt="Cellular Night Cream"><h3>Cellular Night Cream</h3><p>Bước 05 · Seal</p></a></div></section>
+</main>
+<aside th:replace="~{comestic.anhmedia.vn :: cart}"></aside>
+<footer th:replace="~{comestic.anhmedia.vn :: footer}"></footer>
+<script src="/comestic.anhmedia.vn/js/elancier.js" defer></script>
+</body>
+</html>

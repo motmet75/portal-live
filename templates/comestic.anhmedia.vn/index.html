@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{comestic.anhmedia.vn :: head('ÉLANCIER | The Art of Radiance', 'Nghi thức dưỡng da thanh lịch cho vẻ rạng rỡ nguyên bản.')}"></head>
+<body>
+<header th:replace="~{comestic.anhmedia.vn :: header('home')}"></header>
+<main id="main-content">
+    <section class="hero">
+        <img src="/comestic.anhmedia.vn/images/hero-radiance.png" alt="Tinh chất và kem dưỡng ÉLancier trên bệ đá sáng">
+        <div class="hero-copy reveal">
+            <span class="micro-label">THE NEW RADIANCE RITUAL</span>
+            <h1>Light begins<br><em>within.</em></h1>
+            <p>Một nghi thức chăm sóc được tinh chỉnh để đánh thức khả năng tự phục hồi và vẻ rạng rỡ tự nhiên của làn da.</p>
+            <a class="line-link" href="/products.html?lang=vi">Khám phá bộ sưu tập <span>→</span></a>
+        </div>
+        <a class="scroll-note" href="#philosophy">Cuộn để khám phá <span>↓</span></a>
+    </section>
+
+    <section class="philosophy" id="philosophy">
+        <span class="section-number">01</span>
+        <div><span class="micro-label">OUR PHILOSOPHY</span><h2>Vẻ đẹp không được tạo ra.<br><em>Nó được đánh thức.</em></h2></div>
+        <p>Chúng tôi kết hợp khoa học về nhịp sinh học của da với những kết cấu giàu cảm giác. Mỗi công thức đồng hành cùng làn da—nhẹ nhàng, chính xác và đầy chủ đích.</p>
+    </section>
+
+    <section class="ritual-feature" id="ritual">
+        <div class="ritual-image reveal"><img src="/comestic.anhmedia.vn/images/collection-ritual.png" alt="Bộ sản phẩm dưỡng da ÉLancier"></div>
+        <div class="ritual-copy">
+            <span class="section-number">02</span><span class="micro-label">THE ESSENTIAL RITUAL</span>
+            <h2>Five gestures.<br><em>One luminous rhythm.</em></h2>
+            <ol>
+                <li><span>01</span><div><strong>Prepare</strong><small>Làm mềm và cân bằng</small></div></li>
+                <li><span>02</span><div><strong>Awaken</strong><small>Đánh thức sức sống</small></div></li>
+                <li><span>03</span><div><strong>Illuminate</strong><small>Nuôi dưỡng rạng rỡ</small></div></li>
+                <li><span>04</span><div><strong>Define</strong><small>Chăm sóc mắt và môi</small></div></li>
+                <li><span>05</span><div><strong>Seal</strong><small>Khóa ẩm và phục hồi</small></div></li>
+            </ol>
+            <a class="line-link" href="/products.html?lang=vi">Tìm nghi thức của bạn <span>→</span></a>
+        </div>
+    </section>
+
+    <section class="featured-products">
+        <header><div><span class="micro-label">CURATED FOR YOU</span><h2>Essentials of radiance</h2></div><a class="line-link" href="/products.html?lang=vi">Xem tất cả <span>→</span></a></header>
+        <div class="editorial-grid">
+            <a class="editorial-card editorial-card--large" href="/products.html?lang=vi">
+                <div><img src="/comestic.anhmedia.vn/images/essence-lotion.png" alt="Tinh chất làm mềm da ÉLancier"></div>
+                <span class="micro-label">BESTSELLER</span><h3>Lumière Softening Essence</h3><p>Tinh chất làm mềm giàu ẩm · 250 ml</p>
+            </a>
+            <a class="editorial-card" href="/products.html?lang=vi">
+                <div><img src="/comestic.anhmedia.vn/images/collection-ritual.png" alt="Bộ dưỡng mắt và môi ÉLancier"></div>
+                <span class="micro-label">EYE &amp; LIP</span><h3>Contour Renewal Duo</h3><p>Chăm sóc vùng da biểu cảm</p>
+            </a>
+        </div>
+    </section>
+
+    <section class="maison" id="maison">
+        <div class="maison-copy"><span class="micro-label">MAISON ÉLANCIER</span><h2>Where science meets<br><em>the poetry of touch.</em></h2><p>Mỗi sản phẩm được phát triển như một vật phẩm của nghi thức: hiệu quả được chứng minh, kết cấu tinh tế và một khoảnh khắc tĩnh lặng dành riêng cho bạn.</p><a class="line-link line-link--light" href="/lien-he.html?lang=vi">Câu chuyện của chúng tôi <span>→</span></a></div>
+        <div class="maison-orbit" aria-hidden="true"><span></span><i>É</i></div>
+    </section>
+</main>
+<aside th:replace="~{comestic.anhmedia.vn :: cart}"></aside>
+<footer th:replace="~{comestic.anhmedia.vn :: footer}"></footer>
+<script src="/comestic.anhmedia.vn/js/elancier.js" defer></script>
+</body>
+</html>

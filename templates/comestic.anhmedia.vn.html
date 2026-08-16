@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title, description)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f0ea">
+    <meta name="description" th:content="${description != null ? description : 'Nghi thức dưỡng da thanh lịch cho vẻ rạng rỡ nguyên bản.'}">
+    <title th:text="${title != null ? title : 'ÉLANCIER | The Art of Radiance'}">ÉLANCIER | The Art of Radiance</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&amp;family=Playfair+Display:ital,wght@0,400;1,400&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/comestic.anhmedia.vn/css/elancier.css">
+</head>
+<body>
+
+<header th:fragment="header(activePage)" class="site-header" data-header>
+    <a class="skip-link" href="#main-content">Đi đến nội dung</a>
+    <div class="announcement">Miễn phí giao hàng cho đơn từ 1.500.000 ₫ <span>•</span> Tư vấn da trực tuyến</div>
+    <div class="header-main">
+        <button class="icon-control menu-toggle" type="button" aria-label="Mở trình đơn" aria-expanded="false" data-menu-toggle>
+            <span></span><span></span>
+        </button>
+        <nav class="desktop-nav" aria-label="Điều hướng chính">
+            <a href="/products.html?lang=vi" th:classappend="${activePage == 'products'} ? ' active'">Dưỡng da</a>
+            <a href="/products.html?lang=vi&amp;catalog=makeup">Trang điểm</a>
+            <a href="/home?lang=vi#maison">Câu chuyện</a>
+        </nav>
+        <a class="wordmark" href="/home?lang=vi" aria-label="ÉLANCIER trang chủ">
+            <strong>ÉLANCIER</strong><small>PARIS · SEOUL</small>
+        </a>
+        <div class="header-actions">
+            <button class="text-control search-toggle" type="button" data-search-toggle>Tìm kiếm</button>
+            <a class="text-control account-link" href="/login-page.html">Tài khoản</a>
+            <button class="bag-control" type="button" aria-label="Mở giỏ hàng" data-cart-open>
+                Túi <span th:text="${cart != null ? cart.totalItems : 0}" data-cart-count>0</span>
+            </button>
+        </div>
+    </div>
+    <div class="mobile-menu" data-mobile-menu>
+        <nav>
+            <a href="/products.html?lang=vi">Dưỡng da <span>→</span></a>
+            <a href="/products.html?lang=vi&amp;catalog=makeup">Trang điểm <span>→</span></a>
+            <a href="/home?lang=vi#maison">Câu chuyện <span>→</span></a>
+            <a href="/lien-he.html?lang=vi">Liên hệ <span>→</span></a>
+        </nav>
+    </div>
+    <div class="search-panel" data-search-panel>
+        <form action="/products.html" method="get">
+            <label for="siteSearch">Bạn đang tìm gì?</label>
+            <div><input id="siteSearch" type="search" name="searchTerm" placeholder="Serum, kem dưỡng, chăm sóc mắt…"><button type="submit">Tìm</button></div>
+        </form>
+        <button type="button" aria-label="Đóng tìm kiếm" data-search-close>×</button>
+    </div>
+</header>
+
+<aside th:fragment="cart" class="cart-drawer" aria-hidden="true" data-cart-drawer>
+    <button class="cart-backdrop" type="button" aria-label="Đóng giỏ hàng" data-cart-close></button>
+    <div class="cart-panel">
+        <header><div><span class="micro-label">Nghi thức của bạn</span><h2>Túi sản phẩm</h2></div><button type="button" data-cart-close>×</button></header>
+        <div class="cart-content">
+            <div class="cart-empty" th:if="${cart == null or cart.totalItems == 0}">
+                <p>Túi của bạn đang chờ một chút rạng rỡ.</p>
+                <a href="/products.html?lang=vi">Khám phá bộ sưu tập</a>
+            </div>
+            <article class="cart-item" th:each="item : ${cart != null ? cart.items : {}}">
+                <img th:src="${item.imageUrl}" th:alt="${item.name}">
+                <div><h3 th:text="${item.name}">Sản phẩm</h3><p th:text="${item.formatedPrice} + ' ' + ${cart.currency}">0 ₫</p><small th:text="'Số lượng ' + ${item.quantity}">Số lượng 1</small></div>
+                <button type="button" th:data-item-id="${item.id}" onclick="elancierRemoveItem(this.dataset.itemId)">Xóa</button>
+            </article>
+        </div>
+        <footer><div><span>Tạm tính</span><strong th:text="${cart != null ? cart.formatedPrice + ' ' + cart.currency : '0 ₫'}">0 ₫</strong></div><a href="/dat-hang">Thanh toán an toàn</a><small>Giao hàng toàn quốc · Đổi trả trong 14 ngày</small></footer>
+    </div>
+</aside>
+
+<footer th:fragment="footer" class="site-footer">
+    <div class="newsletter">
+        <span class="micro-label">PRIVATE LETTERS</span>
+        <h2>Những ghi chú về<br><em>vẻ đẹp rạng ngời.</em></h2>
+        <form><label class="sr-only" for="newsletterEmail">Email</label><input id="newsletterEmail" type="email" placeholder="Địa chỉ email"><button type="submit">Đăng ký →</button></form>
+    </div>
+    <div class="footer-links">
+        <div><a class="wordmark wordmark--footer" href="/home?lang=vi"><strong>ÉLANCIER</strong><small>PARIS · SEOUL</small></a><p>Vẻ đẹp không được tạo ra.<br>Nó được đánh thức.</p></div>
+        <div><h3>Khám phá</h3><a href="/products.html?lang=vi">Tất cả sản phẩm</a><a href="/home?lang=vi#ritual">Nghi thức dưỡng da</a><a href="/home?lang=vi#maison">Maison ÉLancier</a></div>
+        <div><h3>Dịch vụ</h3><a href="/lien-he.html?lang=vi">Tư vấn riêng</a><a href="/trang-thai-don-hang.html">Theo dõi đơn hàng</a><a href="/privacy-policy.html">Chính sách bảo mật</a></div>
+        <div><h3>Liên hệ</h3><a th:href="${client != null and client.clientMail != null ? 'mailto:' + client.clientMail : 'mailto:care@elancier.vn'}" th:text="${client != null and client.clientMail != null ? client.clientMail : 'care@elancier.vn'}">care@elancier.vn</a><a th:href="${client != null and client.clientPhone != null ? 'tel:' + client.clientPhone : 'tel:02873001234'}" th:text="${client != null and client.clientPhone != null ? client.clientPhone : '028 7300 1234'}">028 7300 1234</a><p>Thứ Hai–Thứ Bảy<br>09:00–18:00</p></div>
+    </div>
+    <div class="footer-bottom"><span>© <b data-current-year>2026</b> ÉLANCIER Demo by AnhMedia</span><span>Việt Nam / VN</span><span>Instagram · Facebook · Pinterest</span></div>
+</footer>
+</body>
+</html>
