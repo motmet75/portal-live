@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title, description)">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fffaf4">
+  <meta name="description" th:content="${description}">
+  <title th:text="${title}">AMARA Academy</title>
+  <link rel="icon" href="/phuonganhamara.anhmedia.vn/images/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..600;1,9..144,400..600&amp;family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/phuonganhamara.anhmedia.vn/css/amara.css">
+</head>
+<body>
+<nav th:fragment="nav(active)" class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="/home"><img src="/phuonganhamara.anhmedia.vn/images/favicon.svg" alt="" width="38" height="38"><span>AMARA</span></a>
+    <button class="nav-toggle" type="button" aria-label="Mở menu" aria-expanded="false" data-menu-toggle>☰</button>
+    <div class="nav-links" data-menu>
+      <a href="/home" th:classappend="${active == 'home'} ? 'active'">Trang chủ</a>
+      <a href="/products.html" th:classappend="${active == 'products'} ? 'active'">Khóa học</a>
+      <a href="/home#cau-chuyen">Về Phương Anh</a>
+      <a href="/home#cau-hoi">Hỏi đáp</a>
+      <a href="/dang-nhap">Đăng nhập</a>
+      <button class="cart-nav" type="button" data-cart-open>Giỏ hàng <b th:text="${cart != null ? cart.totalItems : 0}">0</b></button>
+      <a class="btn btn-gold" href="/products.html">Bắt đầu học</a>
+    </div>
+  </div>
+</nav>
+<footer th:fragment="footer" class="footer">
+  <aside class="cart" data-cart aria-hidden="true">
+    <button class="cart-backdrop" type="button" data-cart-close aria-label="Đóng giỏ hàng"></button>
+    <section class="cart-panel">
+      <header><div><small>HÀNH TRÌNH CỦA BẠN</small><h2>Giỏ hàng</h2></div><button type="button" data-cart-close aria-label="Đóng">×</button></header>
+      <div class="cart-body">
+        <div class="cart-empty" th:if="${cart == null or cart.totalItems == 0}"><strong>Giỏ hàng đang trống</strong><p>Chọn một khóa học phù hợp để bắt đầu.</p><a href="/products.html">Khám phá khóa học →</a></div>
+        <article class="cart-item" th:each="item : ${cart != null ? cart.items : {}}"><img th:src="${item.imageUrl}" th:alt="${item.name}"><div><strong th:text="${item.name}">Khóa học</strong><span th:text="${item.formatedPrice} + ' ' + ${cart.currency}">0 ₫</span><div class="cart-qty"><button type="button" th:data-cart-item-id="${item.id}" data-cart-delta="-1">−</button><b th:text="${item.quantity}">1</b><button type="button" th:data-cart-item-id="${item.id}" data-cart-delta="1">+</button></div></div><button class="cart-remove" type="button" th:data-cart-remove-id="${item.id}" aria-label="Xóa">×</button></article>
+      </div>
+      <div class="cart-foot"><div><span>Tạm tính</span><strong th:text="${cart != null ? cart.formatedPrice + ' ' + cart.currency : '0 ₫'}">0 ₫</strong></div><a class="btn btn-gold" href="/dat-hang">Thanh toán →</a><a href="/gio-hang">Xem giỏ hàng chi tiết</a></div>
+    </section>
+  </aside>
+  <div class="container footer-grid"><div><div class="brand"><span class="brand-mark">A</span><span>AMARA</span></div><p>Học để sống tử tế hơn, vững vàng hơn — Tiền, Tâm, Thân.</p></div><div><h4>Khám phá</h4><a href="/products.html">Tất cả khóa học</a><a href="/home#cau-chuyen">Về Phương Anh</a><a href="/dang-nhap">Tài khoản</a></div><div><h4>Liên hệ</h4><a href="https://zalo.me/84903961819" target="_blank" rel="noopener">Zalo: 0903 961 819</a><span>AMARA Academy</span></div></div>
+  <div class="container footer-bottom"><span>© 2026 AMARA Academy · Thái Thị Phương Anh</span><span>Người Giữ Bình Yên</span></div>
+  <script src="/phuonganhamara.anhmedia.vn/js/amara.js"></script>
+</footer>
+</body></html>
