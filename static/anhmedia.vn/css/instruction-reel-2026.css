@@ -15,7 +15,8 @@
 .am-gallery-viewer{background:#000!important;overscroll-behavior:none;touch-action:pan-x!important}.am-gallery-viewer.active{display:block!important}
 .am-viewer-shell{height:100dvh!important;display:block!important}.am-viewer-media-panel{position:absolute!important;inset:0!important;padding:0!important;background:radial-gradient(circle at 50% 40%,#172036,#020306 70%)!important}
 .am-media-stage{height:100dvh!important;width:100vw!important}.am-media-stage:after{content:"";position:fixed;inset:auto 0 0;height:42vh;pointer-events:none;background:linear-gradient(transparent,rgba(0,0,0,.76));z-index:2}
-#am-viewer-image,#am-viewer-video,#am-viewer-embed{width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;background:#000}
+#am-viewer-image{max-width:100%;max-height:100%;object-fit:contain!important;background:#000}
+#am-viewer-video,#am-viewer-embed{width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;background:#000}
 .am-reel-gesture-layer{position:absolute;inset:0;z-index:8;display:block;touch-action:none;cursor:pointer;background:transparent;-webkit-tap-highlight-color:transparent}
 .am-social-rail{z-index:75!important}
 .am-media-stage:has(#am-viewer-embed.active) .am-reel-gesture-layer{pointer-events:none}
