@@ -10,6 +10,68 @@
     link.addEventListener('click', function () { if (nav) nav.classList.remove('open'); });
   });
 
+  var detailViewer = document.querySelector('[data-detail-360]');
+  if (detailViewer) {
+    var detailSource = detailViewer.querySelector('[data-detail-source]');
+    var detailView = detailViewer.querySelector('[data-detail-view]');
+    var detailControls = Array.prototype.slice.call(detailViewer.querySelectorAll('[data-detail-look]'));
+    var detailPosition = { x: 50, y: 50 };
+    var detailDragging = false;
+    var detailStartX = 0;
+    var detailStartY = 0;
+
+    function detailClamp(value, min, max) { return Math.min(max, Math.max(min, value)); }
+    function detailWrap(value) { return ((value % 100) + 100) % 100; }
+    function renderDetailView() {
+      detailViewer.style.setProperty('--detail-x', detailPosition.x + '%');
+      detailViewer.style.setProperty('--detail-y', detailPosition.y + '%');
+    }
+    function setDetailPanorama() {
+      var ratio = detailSource.naturalHeight ? detailSource.naturalWidth / detailSource.naturalHeight : 0;
+      var panorama = ratio >= 1.8 && ratio <= 2.2 ? detailSource.currentSrc || detailSource.src : detailViewer.getAttribute('data-fallback-panorama');
+      detailViewer.style.setProperty('--detail-panorama', 'url("' + panorama.replace(/"/g, '%22') + '")');
+    }
+    function moveDetail(direction) {
+      if (direction === 'left') detailPosition.x = detailWrap(detailPosition.x - 8);
+      if (direction === 'right') detailPosition.x = detailWrap(detailPosition.x + 8);
+      if (direction === 'up') detailPosition.y = detailClamp(detailPosition.y - 7, 20, 80);
+      if (direction === 'down') detailPosition.y = detailClamp(detailPosition.y + 7, 20, 80);
+      if (direction === 'reset') detailPosition = { x: 50, y: 50 };
+      renderDetailView();
+    }
+
+    detailControls.forEach(function (control) {
+      control.addEventListener('click', function () { moveDetail(control.getAttribute('data-detail-look')); });
+    });
+    detailViewer.addEventListener('pointerdown', function (event) {
+      if (event.target.closest('button,a')) return;
+      detailDragging = true;
+      detailStartX = event.clientX;
+      detailStartY = event.clientY;
+      detailViewer.classList.add('is-dragging');
+      detailViewer.setPointerCapture(event.pointerId);
+    });
+    detailViewer.addEventListener('pointermove', function (event) {
+      if (!detailDragging) return;
+      var deltaX = event.clientX - detailStartX;
+      var deltaY = event.clientY - detailStartY;
+      detailStartX = event.clientX;
+      detailStartY = event.clientY;
+      detailPosition.x = detailWrap(detailPosition.x - deltaX * 0.055);
+      detailPosition.y = detailClamp(detailPosition.y - deltaY * 0.055, 20, 80);
+      renderDetailView();
+    });
+    function stopDetailDrag() { detailDragging = false; detailViewer.classList.remove('is-dragging'); }
+    detailViewer.addEventListener('pointerup', stopDetailDrag);
+    detailViewer.addEventListener('pointercancel', stopDetailDrag);
+    if (detailSource.complete) setDetailPanorama();
+    else detailSource.addEventListener('load', setDetailPanorama);
+    detailSource.addEventListener('error', function () {
+      detailViewer.style.setProperty('--detail-panorama', 'url("' + detailViewer.getAttribute('data-fallback-panorama') + '")');
+    });
+    renderDetailView();
+  }
+
   var tour = document.querySelector('[data-estate-tour]');
   if (!tour) return;
 
