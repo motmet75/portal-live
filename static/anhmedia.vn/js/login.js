@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function() {
 			const loginBtn = document.querySelector("label.login");
 			const signupBtn = document.querySelector("label.signup");
 			const signupLink = document.querySelector("form .signup-link a");
+			if (!loginText || !loginForm || !loginBtn || !signupBtn || !signupLink) return;
 			signupBtn.onclick = (()=>{
 			  loginForm.style.marginLeft = "-50%";
 			  loginText.style.marginLeft = "-50%";

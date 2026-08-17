@@ -1,212 +1,77 @@
-<html lang="en" class="nivo-lightbox-notouch"
-	xmlns:th="https://www.thymeleaf.org"
-	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-<link th:href="'/' + ${domain} + '/css/login.css'" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
-
-<style>
-        *, *::before, *::after { box-sizing: border-box; }
-        body {
-            font-family: 'Be Vietnam Pro', Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background: linear-gradient(135deg, #0d1b2a 0%, #1e4a75 60%, #356ba2 100%);
-        }
-        .login-container {
-            background: white;
-            padding: 48px 44px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(13,27,42,.35);
-            text-align: center;
-            width: 100%;
-            max-width: 420px;
-        }
-        .login-container h2, .login-container .title {
-            font-weight: 800;
-            color: #0d1b2a;
-            font-size: 1.5rem;
-            margin-bottom: 8px;
-        }
-        .login-container p { color: #64748b; font-size: .9rem; margin-bottom: 28px; }
-        .google-btn, .social-login-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            background-color: white;
-            border: 1px solid #dadce0;
-            border-radius: 10px;
-            padding: 12px 24px;
-            cursor: pointer;
-            font-family: 'Be Vietnam Pro', sans-serif;
-            font-size: .9rem;
-            color: #3c4043;
-            font-weight: 600;
-            transition: all .25s;
-            width: 100%;
-            text-decoration: none;
-        }
-        .google-btn:hover, .social-login-btn:hover {
-            background-color: #f0f7ff;
-            border-color: #356ba2;
-            box-shadow: 0 4px 16px rgba(53,107,162,.18);
-        }
-        .google-btn img { width: 20px; height: 20px; }
-        .social-login-stack { display: grid; gap: 10px; }
-        .social-login-btn.facebook-btn { background: #1877f2; border-color: #1877f2; color: #fff; }
-        .social-login-btn.facebook-btn:hover { background: #166fe5; border-color: #166fe5; box-shadow: 0 4px 16px rgba(24,119,242,.24); }
-        .social-login-btn.tiktok-btn { background: #111; border-color: #111; color: #fff; }
-        .social-login-btn.tiktok-btn:hover { background: #000; border-color: #000; box-shadow: 0 4px 16px rgba(0,0,0,.24); }
-        .social-login-btn.linkedin-btn { background: #0a66c2; border-color: #0a66c2; color: #fff; }
-        .social-login-btn.linkedin-btn:hover { background: #004182; border-color: #004182; box-shadow: 0 4px 16px rgba(10,102,194,.24); }
-        .social-icon {
-            width: 20px; height: 20px; display: inline-flex;
-            align-items: center; justify-content: center;
-            font-weight: 800; font-size: 1rem; line-height: 1;
-        }
-        .am-login-logo {
-            width: 60px; height: 60px; border-radius: 14px;
-            background: linear-gradient(135deg, #356ba2, #99ccff);
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 20px;
-        }
-        .am-login-logo img { width: 38px; height: 38px; object-fit: contain; }
-        .login-divider {
-            display: flex; align-items: center; gap: 12px;
-            color: #94a3b8; font-size: .78rem; margin: 20px 0;
-        }
-        .login-divider::before, .login-divider::after {
-            content: ''; flex: 1; height: 1px; background: #e2e8f0;
-        }
-        .social-login-error {
-            margin: 0 0 14px;
-            padding: 10px 12px;
-            border: 1px solid #fecaca;
-            border-radius: 8px;
-            background: #fef2f2;
-            color: #b91c1c;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Đăng nhập — AnhMedia</title>
+  <link th:href="'/' + ${domain} + '/css/login.css'" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--am-ink:#172330;--am-muted:#667789;--am-blue:#175c9e;--am-blue-dark:#0d355d;--am-line:#dbe4ec;--am-soft:#f4f8fb;--am-danger:#b42318}
+    *{box-sizing:border-box}html,body{width:100%;min-height:100%;height:auto}body{display:block;margin:0;padding:clamp(16px,4vw,52px);background:radial-gradient(circle at 10% 10%,#d7ecff 0,transparent 36%),linear-gradient(135deg,#edf6fc,#d8e9f6);font-family:"Be Vietnam Pro",sans-serif;color:var(--am-ink)}
+    .am-auth{width:min(1060px,100%);min-height:min(760px,calc(100vh - 64px));margin:auto;display:grid;grid-template-columns:minmax(300px,.9fr) minmax(420px,1.1fr);overflow:hidden;border:1px solid rgba(255,255,255,.75);border-radius:28px;background:#fff;box-shadow:0 28px 80px rgba(25,67,99,.18)}
+    .am-auth__story{position:relative;padding:clamp(36px,6vw,76px);display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;background:linear-gradient(155deg,var(--am-blue-dark),#1768a9);color:#fff}.am-auth__story:after{content:"言";position:absolute;right:-32px;bottom:-90px;font:700 290px/1 serif;color:rgba(255,255,255,.06)}
+    .am-auth__brand{position:relative;z-index:1;display:flex;align-items:center;gap:12px;color:#fff;text-decoration:none}.am-auth__brand b{width:48px;height:48px;display:grid;place-items:center;border-radius:14px;background:#fff;color:var(--am-blue);font:700 24px serif}.am-auth__brand strong{font-size:17px}.am-auth__copy{position:relative;z-index:1;margin:70px 0}.am-auth__copy small{font-size:11px;letter-spacing:.16em}.am-auth__copy h1{max-width:430px;margin:14px 0 18px;font-size:clamp(30px,4vw,50px);line-height:1.13}.am-auth__copy p{max-width:440px;margin:0;color:#d6e9f7;font-size:15px;line-height:1.75}.am-auth__trust{position:relative;z-index:1;display:flex;gap:12px;align-items:center;color:#d6e9f7;font-size:12px}.am-auth__trust i{width:9px;height:9px;border-radius:50%;background:#7ee0ab}
+    .am-auth__panel{padding:clamp(28px,5vw,70px);display:flex;flex-direction:column;justify-content:center}.am-auth__heading{margin-bottom:26px}.am-auth__heading small{color:var(--am-blue);font-size:11px;font-weight:800;letter-spacing:.14em}.am-auth__heading h2{margin:7px 0 8px;font-size:clamp(26px,4vw,38px)}.am-auth__heading p{margin:0;color:var(--am-muted);font-size:14px;line-height:1.6}
+    .am-auth .wrapper{width:100%;max-width:none;padding:0;overflow:hidden;border-radius:0;background:transparent;box-shadow:none}.am-auth .wrapper .title{font-size:0}.am-auth .wrapper .title:after{font-size:24px}.am-auth .wrapper .title.login:after{content:"Đăng nhập tài khoản"}.am-auth .wrapper .title.signup:after{content:"Tạo tài khoản"}.am-auth .wrapper .slide-controls{height:54px;margin:0 0 18px;border-color:var(--am-line);border-radius:12px}.am-auth .slide-controls .slide{font-size:14px;line-height:52px}.am-auth .slide-controls .slider-tab{border-radius:11px;background:linear-gradient(90deg,var(--am-blue-dark),var(--am-blue))}.am-auth .form-inner form .field{height:56px;margin-top:14px}.am-auth .form-inner form .field input{min-height:56px;padding:0 16px;border:1px solid var(--am-line);border-radius:12px;background:#fff;font:500 16px "Be Vietnam Pro",sans-serif}.am-auth .form-inner form .field input:focus{border-color:var(--am-blue);box-shadow:0 0 0 4px rgba(23,92,158,.11)}.am-auth form .btn{height:56px;border-radius:12px}.am-auth form .btn input{font-size:16px;font-weight:700}.am-auth .pass-link,.am-auth .signup-link{font-size:13px}.am-auth .error-message,.am-auth .error-message1{display:block!important;margin-top:10px;color:var(--am-danger)!important;font-size:13px}.am-auth form.signup>a{display:inline-block;margin-bottom:5px;color:var(--am-blue);font-size:13px;font-weight:700;text-decoration:none}
+    .login-container{width:100%;max-width:none;margin-top:26px;padding:22px;border:1px solid var(--am-line);border-radius:16px;background:var(--am-soft);box-shadow:none;text-align:center}.login-container>p{margin:0 0 14px;color:var(--am-muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em}.social-login-stack{display:grid;grid-template-columns:1fr 1fr;gap:10px}.google-btn,.social-login-btn{min-height:52px;padding:12px 14px;border-radius:11px;font-size:13px}.social-login-error{margin:0 0 14px;padding:12px;border:1px solid #fecaca;border-radius:9px;background:#fef2f2;color:var(--am-danger);font-size:13px}
+    .am-mfa-card{width:100%}.am-mfa-card:empty{display:none}.am-mfa-card>div>div{width:100%;max-width:560px;margin:0 auto;padding:clamp(24px,5vw,42px);border:1px solid var(--am-line);border-radius:20px;background:var(--am-soft);text-align:center}.am-mfa-card h2,.am-mfa-card h3{margin:0 0 12px;font-size:clamp(23px,5vw,32px);line-height:1.3}.am-mfa-card p,.am-mfa-card label{color:var(--am-muted);font-size:14px;line-height:1.6}.am-mfa-card img{width:min(240px,72vw)!important;height:auto!important;margin:16px auto;border:12px solid #fff;border-radius:14px}.am-mfa-card code{display:block;max-width:100%;margin:10px 0;padding:12px!important;overflow-wrap:anywhere;border-radius:8px}.am-mfa-card input[name="code"]{width:100%;height:62px;padding:0 14px;border:2px solid var(--am-line);border-radius:12px;background:#fff;text-align:center;font:700 26px/1 "Be Vietnam Pro",sans-serif;letter-spacing:.28em}.am-mfa-card input[name="code"]:focus{outline:0;border-color:var(--am-blue);box-shadow:0 0 0 4px rgba(23,92,158,.12)}.am-mfa-card button[type="submit"]{width:100%;min-height:56px;margin-top:14px;border:0;border-radius:12px;background:linear-gradient(90deg,var(--am-blue-dark),var(--am-blue));color:#fff;font:700 16px "Be Vietnam Pro",sans-serif}.am-mfa-card li{margin-top:18px;list-style:none}.am-mfa-card li a{color:var(--am-danger);font-size:13px;font-weight:700}
+    @media(max-width:780px){body{padding:0;background:#fff}.am-auth{min-height:100vh;display:block;border:0;border-radius:0;box-shadow:none}.am-auth__story{min-height:220px;padding:24px 22px 32px}.am-auth__copy{margin:34px 0 0}.am-auth__copy h1{margin:10px 0;font-size:30px}.am-auth__copy p{font-size:13px}.am-auth__trust{display:none}.am-auth__panel{padding:30px 18px 44px}.social-login-stack{grid-template-columns:1fr}.google-btn,.social-login-btn{min-height:56px;font-size:14px}.am-mfa-card>div>div{padding:26px 18px;border-radius:16px}.am-mfa-card input[name="code"]{height:66px;font-size:28px}.am-auth__heading h2{font-size:28px}}
+    @media(max-width:380px){.am-auth__panel{padding-inline:14px}.login-container{padding:14px}.am-auth .slide-controls .slide{font-size:12px}.am-auth__copy h1{font-size:26px}}
+  </style>
 </head>
-
 <body>
+<main class="am-auth">
+  <section class="am-auth__story">
+    <a class="am-auth__brand" href="/"><b>言</b><strong>AnhMedia Learning</strong></a>
+    <div class="am-auth__copy"><small>HỌC TỪ TÀI LIỆU CỦA BẠN</small><h1>Trở lại đúng trang bạn đang học.</h1><p>Đăng nhập an toàn để phân tích tiếng Nhật, ghi nhớ từ mới và tiếp tục hành trình học tập.</p></div>
+    <div class="am-auth__trust"><i></i><span>Google OAuth · OTP bảo vệ tài khoản</span></div>
+  </section>
 
+  <section class="am-auth__panel">
+    <div class="am-auth__heading" th:if="${session.username == null}"><small>KOTOBA STUDIO</small><h2>Chào mừng trở lại</h2><p>Chọn phương thức đăng nhập phù hợp với bạn.</p></div>
 
-	<!-- Start Hero Section -->
-	<div  >
-	  <div class="wrapper" th:if="${session.username == null}">
-      <div class="title-text">
-        <div class="title login">Đăng nhập</div>
-        <div class="title signup">Tạo tài khoản</div>
-      </div>
+    <div class="wrapper" th:if="${session.username == null}">
+      <div class="title-text"><div class="title login">Đăng nhập</div><div class="title signup">Tạo tài khoản</div></div>
       <div class="form-container">
-        <div class="slide-controls">
-          <input type="radio" name="slide" id="login" checked>
-          <input type="radio" name="slide" id="signup">
-          <label for="login" class="slide login">Đăng nhập</label>
-          <label for="signup" class="slide signup">Đăng ký nhanh</label>
-          <div class="slider-tab"></div>
-        </div>
+        <div class="slide-controls"><input type="radio" name="slide" id="login" checked><input type="radio" name="slide" id="signup"><label for="login" class="slide login">Đăng nhập</label><label for="signup" class="slide signup">Đăng ký nhanh</label><div class="slider-tab"></div></div>
         <div class="form-inner">
           <form id="loginForm" class="login">
-            <div class="field">
-              <input type="text" name="email" placeholder="Tên đăng nhập hoặc Email" required>
-            </div>
-            <div class="field">
-              <input type="password" name="password" placeholder="Mật khẩu" required>
-            </div>
-             <span class="error-message1" style="color: red; display: none;"></span>
+            <div class="field"><input type="text" name="email" autocomplete="username" placeholder="Tên đăng nhập hoặc email" required></div>
+            <div class="field"><input type="password" name="password" autocomplete="current-password" placeholder="Mật khẩu" required></div>
+            <span class="error-message1" role="alert" style="display:none"></span>
             <div class="pass-link"><a href="/forgotpassword">Quên mật khẩu?</a></div>
-            <div class="field btn">
-              <input type="button" class="btn-layer-login" value="Đăng nhập">
-            </div>
-            <div class="signup-link">Chưa là thành viên? <a href="">Đăng ký nhanh bằng email</a></div>
+            <div class="field btn"><input type="button" class="btn-layer-login" value="Đăng nhập"></div>
+            <div class="signup-link">Chưa có tài khoản? <a href="">Đăng ký nhanh bằng email</a></div>
           </form>
-          
           <form id="sinupForm" class="signup">
-          <a href="/register"> Đăng ký với username tự chọn</a>
-            <div class="field">
-              <input type="text"  name="email" placeholder="Email" required>
-            </div>
-              <input type="hidden"  name="loginform" value="simple">
-            <div class="field">
-              <input type="password"  name="password" placeholder="Password" required>
-            </div>
-            <div class="field">
-              <input type="password"  name="repassword" placeholder="Confirm password" required>
-            </div>
-             <span class="error-message" style="color: red; display: none;"></span>
-            <div class="field btn">
-              <div class="btn-layer"></div>
-              <input type="submit" class="btn-layer-signup" value="Đăng ký">
-            </div>
-           
-            
+            <a href="/register">Đăng ký với username tự chọn</a>
+            <div class="field"><input type="text" name="email" autocomplete="email" placeholder="Email" required></div>
+            <input type="hidden" name="loginform" value="simple">
+            <div class="field"><input type="password" name="password" autocomplete="new-password" placeholder="Mật khẩu" required></div>
+            <div class="field"><input type="password" name="repassword" autocomplete="new-password" placeholder="Nhập lại mật khẩu" required></div>
+            <span class="error-message" role="alert" style="display:none"></span>
+            <div class="field btn"><div class="btn-layer"></div><input type="submit" class="btn-layer-signup" value="Đăng ký"></div>
           </form>
-          
-        
-			
         </div>
       </div>
-       <div class="login-container">
-        <p>Social login</p>
-        <div class="social-login-error" role="alert"
-             th:if="${param.social != null and param.error != null}">
-          Facebook sign-in could not be completed. Please try again or contact support.
-        </div>
+
+      <div class="login-container">
+        <p>Hoặc đăng nhập nhanh</p>
+        <div class="social-login-error" role="alert" th:if="${param.social != null and param.error != null}">Không thể đăng nhập mạng xã hội. Vui lòng thử lại.</div>
         <div class="social-login-stack">
-          <a href="/oauth2/authorization/google" class="google-btn social-login-btn">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google logo">
-              Sign in with Google
-          </a>
-          <a href="/oauth2/authorization/facebook" class="social-login-btn facebook-btn">
-              <span class="social-icon">f</span>
-              Sign in with Facebook
-          </a>
-          <a href="/dang-nhap/oauth2/authorization/tiktok?tenant=anhmedia.vn" class="social-login-btn tiktok-btn">
-              <span class="social-icon">TT</span>
-              Sign in with TikTok
-          </a>
-          <a href="/oauth2/authorization/linkedin" class="social-login-btn linkedin-btn">
-              <span class="social-icon">in</span>
-              Sign in with LinkedIn
-          </a>
+          <a href="/oauth2/authorization/google" class="google-btn social-login-btn"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google"><span>Tiếp tục với Google</span></a>
+          <a href="/oauth2/authorization/facebook" class="social-login-btn facebook-btn"><span class="social-icon">f</span>Facebook</a>
+          <a href="/dang-nhap/oauth2/authorization/tiktok?tenant=anhmedia.vn" class="social-login-btn tiktok-btn"><span class="social-icon">TT</span>TikTok</a>
+          <a href="/oauth2/authorization/linkedin" class="social-login-btn linkedin-btn"><span class="social-icon">in</span>LinkedIn</a>
         </div>
-    </div>
-    </div>
-    
-    <!-- Include MFA Setup Fragment -->
-	<div th:replace="mfa-setup :: mfaSetup"></div>
-
-	<!-- Include MFA Verify Fragment -->
-	<div th:replace="mfa-verify :: mfaVerify"></div>
+      </div>
     </div>
 
-	
-
-
-
-	<!-- End Hero Section -->
-
-
-	
-
-	<!-- Start Blog Section -->
-	<!-- End Blog Section -->
-
-
-
-
-	<!-- Start Footer Section -->
-	
-	<!-- End Footer Section -->
-
-
-	<script th:src="'/' + ${domain} + '/js/login.js'"></script>
+    <section class="am-mfa-card"><div th:replace="mfa-setup :: mfaSetup"></div></section>
+    <section class="am-mfa-card"><div th:replace="mfa-verify :: mfaVerify"></div></section>
+  </section>
+</main>
+<script th:src="'/' + ${domain} + '/js/login.js?v=20260817-2'"></script>
 </body>
-
 </html>
