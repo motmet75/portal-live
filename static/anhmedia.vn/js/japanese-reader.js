@@ -201,6 +201,7 @@
     }
     currentAnalysis = null;
     hasUnsavedAnalysis = false;
+    $('[data-show-analysis]').disabled = true;
     popover.hidden = true;
     analyzeButton.disabled = true;
     analyzeButton.firstChild.textContent = 'Đang phân tích… ';
@@ -238,6 +239,7 @@
     $('[data-vocabulary]').innerHTML = analysisWords.map((item, index) => { const word = item.word || item[0] || ''; const meaningEn = item.meaningEn || item.meaning || item[1] || ''; const meaningVi = item.meaningVi || ''; const saved = state.savedWords.some(entry => entry.sessionId === currentAnalysis.sessionId && entry.word === word); const characters = (item.characters || []).map(char => `<i class="jp-kanji-char"><strong>${escapeHtml(char.kanji)}</strong><small>On ${escapeHtml(char.onReading || '—')} · Kun ${escapeHtml(char.kunReading || '—')}</small><em>${escapeHtml(char.meaningEn || '')}${char.memoryVi ? ` · ${escapeHtml(char.memoryVi)}` : ''}</em></i>`).join(''); return `<span class="jp-word"><b>${escapeHtml(word)}</b><small>ひらがな: ${escapeHtml(item.reading || '—')} · ${escapeHtml(item.romaji || '')}</small><span>On: ${escapeHtml(item.onReading || '—')} · Kun: ${escapeHtml(item.kunReading || '—')}</span><em>${escapeHtml(meaningEn)}${meaningVi ? ` · ${escapeHtml(meaningVi)}` : ''}</em>${characters ? `<span class="jp-kanji-breakdown">${characters}</span>` : ''}<button type="button" data-speak-word="${index}">▶ Đọc từ</button><button type="button" data-save-word="${index}" ${saved ? 'disabled' : ''}>${saved ? '✓ Đã lưu' : '＋ Lưu từ'}</button></span>`; }).join('');
     $('[data-study-note]').value = currentAnalysis.note || '';
     $('[data-note-count]').textContent = String((currentAnalysis.note || '').length);
+    $('[data-show-analysis]').disabled = false;
   }
 
   function prepareAnalysisResult(result) { const existing = (state.analyses || []).find(item => item.source === result.source && item.documentId === currentDocumentId && item.pageIndex === currentPageIndex); result.sessionId = existing?.sessionId || `session-${Date.now()}`; result.savedAt = new Date().toISOString(); result.documentId = currentDocumentId; result.pageIndex = currentPageIndex; }
@@ -325,10 +327,11 @@
   $$('[data-google-login], [data-analysis-login]').forEach(link => link.addEventListener('click', rememberLoginReturn));
   analyzeButton.addEventListener('click', analyzeSelection); $('[data-analyze-popover]').addEventListener('click', analyzeSelection);
   $('[data-close-analysis]').addEventListener('click', () => { $('[data-analysis]').hidden = true; $('[data-inspector-empty]').hidden = false; });
+  $('[data-show-analysis]').addEventListener('click', () => { if (!currentAnalysis) return; $('[data-inspector]').scrollTop = 0; renderAnalysis(); });
   $('#jp-file').addEventListener('change', event => extractFile(event.target.files[0]));
   $('[data-toggle-connection]').addEventListener('click', () => { const panel = $('[data-connection-panel]'); panel.hidden = !panel.hidden; });
   $('[data-retry-analysis]').addEventListener('click', analyzeSelection);
-  $('[data-save-document]').addEventListener('click', saveDocument); $('[data-remember]').addEventListener('click', remember);
+  $('[data-save-document]').addEventListener('click', saveDocument); $$('[data-remember]').forEach(button => button.addEventListener('click', remember));
   $('[data-vocabulary]').addEventListener('click', event => { const saveButton = event.target.closest('[data-save-word]'); if (saveButton) saveWord(Number(saveButton.dataset.saveWord)); const speakButton = event.target.closest('[data-speak-word]'); if (speakButton) { const word = (currentAnalysis.words || [])[Number(speakButton.dataset.speakWord)]; speakJapanese(word?.reading || word?.word); } });
   $('[data-speak]').addEventListener('click', () => speakJapanese(currentAnalysis?.source));
   $('[data-memory-list]').addEventListener('click', event => { const open = event.target.closest('[data-open-session]'); if (open) reopenSession(open.dataset.openSession); const sentence = event.target.closest('[data-speak-session]'); if (sentence) speakJapanese(state.analyses.find(item => item.sessionId === sentence.dataset.speakSession)?.source); const speak = event.target.closest('[data-speak-saved-index]'); if (speak) { const word = state.savedWords[Number(speak.dataset.speakSavedIndex)]; speakJapanese(word?.reading || word?.word); } const editWord = event.target.closest('[data-edit-saved-index]'); if (editWord) editSavedWord(Number(editWord.dataset.editSavedIndex)); const deleteWord = event.target.closest('[data-delete-saved-index]'); if (deleteWord) deleteSavedWord(Number(deleteWord.dataset.deleteSavedIndex)); const edit = event.target.closest('[data-edit-session]'); if (edit) editSession(edit.dataset.editSession); const remove = event.target.closest('[data-delete-session]'); if (remove) deleteSession(remove.dataset.deleteSession); });
