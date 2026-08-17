@@ -90,11 +90,12 @@
   async function extractFile(file) {
     if (!file) return;
     const userId = $('[data-user-id]').value.trim(); const tokenId = $('[data-token-id]').value;
-    if (!userId || !tokenId) { $('[data-connection-panel]').hidden = false; toast('Nhập User ID và token trích xuất trước.'); return; }
     const progress = $('[data-upload-progress]'); progress.hidden = false;
-    const form = new FormData(); form.append('file', file); form.append('userId', userId); form.append('tokenId', tokenId); form.append('language', 'jpn');
+    const form = new FormData(); form.append('file', file); form.append('language', 'jpn');
+    if (userId && tokenId) { form.append('userId', userId); form.append('tokenId', tokenId); }
     try {
       const response = await fetch('/api/extract-text', { method: 'POST', body: form }); const data = await response.json();
+      if (response.status === 401) { $('[data-connection-panel]').hidden = false; throw new Error('Hãy đăng nhập Google hoặc nhập token máy chủ.'); }
       if (!response.ok || data.status !== 'success') throw new Error(data.error || 'Không thể trích xuất');
       editor.innerText = data.text || ''; $('[data-document-title]').value = file.name.replace(/\.pdf$/i, '');
       state.documents.unshift({ id: Date.now(), title: $('[data-document-title]').value, html: editor.innerHTML, updatedAt: new Date().toISOString() }); persist(); toast('Đã trích xuất. Hãy chọn một câu để học.');
