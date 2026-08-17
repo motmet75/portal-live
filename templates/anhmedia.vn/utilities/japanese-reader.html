@@ -11,6 +11,7 @@
   <style>.jp-page-nav{max-width:780px;margin:14px auto 0;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px}.jp-page-nav--top{margin-bottom:14px}.jp-page-nav button{padding:9px 13px;border:1px solid #dfe5e1;border-radius:8px;background:#fff;color:#315f55;font-weight:700}.jp-page-nav button:disabled{opacity:.35}.jp-page-nav span{min-width:100px;text-align:center;color:#6c7774;font-size:12px}.jp-page-jump{display:flex;align-items:center;gap:5px}.jp-page-jump input{width:58px;padding:8px;border:1px solid #dfe5e1;border-radius:8px;text-align:center}.jp-bookmark-compose{display:flex;gap:5px}.jp-bookmark-compose input{width:min(240px,45vw);padding:8px;border:1px solid #dfe5e1;border-radius:8px}.jp-page-bookmark.is-active{background:#fff0a8;color:#795a0c}</style>
   <style>.jp-document-row{position:relative}.jp-document-row>.jp-document{width:100%;padding-right:38px}.jp-document-delete{position:absolute;right:5px;top:21px;transform:translateY(-50%);width:28px;height:28px;border:0;border-radius:7px;background:transparent;color:#9a5548;font-size:20px;line-height:1;cursor:pointer}.jp-document-delete:hover{background:#f5e4df}.jp-bookmark-list{display:grid;gap:5px;padding:0 8px 9px}.jp-bookmark-list article{position:relative}.jp-bookmark-open{width:100%;padding:7px 28px 7px 8px;border:0;border-radius:7px;background:#fff0a8;color:#795a0c;text-align:left;cursor:pointer}.jp-bookmark-open b,.jp-bookmark-open span,.jp-bookmark-open small{display:block}.jp-bookmark-open span{margin-top:2px;font-size:10px}.jp-bookmark-open small{margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#6c7774;font-size:9px}.jp-bookmark-delete{position:absolute;right:3px;top:3px;border:0;background:transparent;color:#9a5548;font-size:16px;cursor:pointer}</style>
   <style>.jp-analysis-connection{margin:0 0 18px;padding:14px;border:1px solid #e8c98b;border-radius:10px;background:#fff8e6}.jp-analysis-connection strong,.jp-analysis-connection small{display:block}.jp-analysis-connection small{margin-top:5px;line-height:1.5;letter-spacing:0}.jp-analysis-connection__actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.jp-analysis-connection__actions a,.jp-analysis-connection__actions button{padding:8px 10px;border:1px solid #d9c38f;border-radius:7px;background:#fff;color:#315f55;text-decoration:none;font-size:11px;font-weight:700}</style>
+  <style>.jp-user{display:flex;align-items:center;gap:8px}.jp-user strong{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.jp-user a{color:#9a5548;font-size:11px;font-weight:700;text-decoration:none}</style>
 </head>
 <body>
 <div class="jp-app" data-jp-reader>
@@ -22,7 +23,8 @@
     </nav>
     <div class="jp-account">
       <span class="jp-sync"><i></i> Bản nháp cục bộ</span>
-      <a class="jp-google" href="/oauth2/authorization/google" data-google-login>
+      <div class="jp-user" th:if="${session.SPRING_SECURITY_CONTEXT != null}"><span>Đang học:</span><strong th:text="${session.SPRING_SECURITY_CONTEXT.authentication.name}">user@example.com</strong><a href="/logout">Đăng xuất</a></div>
+      <a class="jp-google" href="/oauth2/authorization/google" data-google-login th:if="${session.SPRING_SECURITY_CONTEXT == null}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285f4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.9h5.4a4.6 4.6 0 0 1-2 3v2.5h3.3c1.9-1.8 2.9-4.4 2.9-7.4Z"/><path fill="#34a853" d="M12 22c2.7 0 5-.9 6.7-2.4l-3.3-2.5c-.9.6-2 1-3.4 1a5.9 5.9 0 0 1-5.5-4.1H3.1v2.6A10 10 0 0 0 12 22Z"/><path fill="#fbbc05" d="M6.5 14a6 6 0 0 1 0-3.9V7.4H3.1a10 10 0 0 0 0 9.2L6.5 14Z"/><path fill="#ea4335" d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.9-2.8A9.7 9.7 0 0 0 3.1 7.4l3.4 2.7A5.9 5.9 0 0 1 12 6Z"/></svg>
         Đăng nhập Google
       </a>
@@ -90,6 +92,6 @@
   </main>
   <div class="jp-toast" data-toast hidden></div>
 </div>
-<script src="/anhmedia.vn/js/japanese-reader.js?v=20260817-4" defer></script>
+<script src="/anhmedia.vn/js/japanese-reader.js?v=20260817-5" defer></script>
 </body>
 </html>
