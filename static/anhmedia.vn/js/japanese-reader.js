@@ -178,6 +178,22 @@
   }
   function showAnalysisConnection(status, message) { const panel = $('[data-analysis-connection]'); const login = $('[data-analysis-login]'); const contact = $('[data-analysis-contact]'); panel.hidden = false; $('[data-inspector-empty]').hidden = true; login.hidden = status !== 401; contact.hidden = status !== 429; const missingKey = /not configured|OPENAI_API_KEY/i.test(message || ''); $('[data-analysis-error]').textContent = status === 401 ? 'Phiên đăng nhập Google chưa hợp lệ. Đăng nhập rồi bấm Thử lại.' : status === 429 ? 'Bạn đã dùng hết 10 lượt phân tích hôm nay. Vui lòng liên hệ AnhMedia để mở rộng hạn mức.' : missingKey ? 'Bạn đã đăng nhập. Máy chủ chưa có OPENAI_API_KEY nên chưa thể phân tích. Quản trị viên cần thêm key vào secrets/live-designer.env và khởi động lại portal.' : status === 503 ? `OpenAI tạm thời chưa phản hồi. ${message || 'Vui lòng thử lại sau.'}` : `Không thể kết nối API phân tích. ${message || 'Kiểm tra mạng rồi thử lại.'}`; const extraction = $('[data-connection-panel]'); extraction.hidden = false; }
   function rememberLoginReturn() { const target = `${window.location.pathname}${window.location.search}${window.location.hash}`; document.cookie = `PORTAL_LOGIN_RETURN=${encodeURIComponent(target)}; Max-Age=600; Path=/; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`; }
+  function setLoginOpen(open) { const modal = $('[data-login-modal]'); if (!modal) return; modal.hidden = !open; document.body.style.overflow = open ? 'hidden' : ''; if (open) setTimeout(() => modal.querySelector('input')?.focus(), 30); }
+  async function submitReaderLogin(event) {
+    event.preventDefault();
+    const form = event.currentTarget; const error = $('[data-login-error]'); const submit = form.querySelector('[type="submit"]'); const data = new FormData(form);
+    const email = String(data.get('email') || '').trim(); const pass = String(data.get('password') || '');
+    if (!email || !pass) { error.textContent = 'Vui lòng nhập tài khoản và mật khẩu.'; error.hidden = false; return; }
+    rememberLoginReturn(); submit.disabled = true; submit.textContent = 'Đang đăng nhập…'; error.hidden = true;
+    try {
+      const response = await fetch('/api/login-act', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ id: 0, firstName: '', lastName: '', user: email, pass, address: '', district: '', city: '', province: '', email, phoneNumber: '', selectedAddress: '000', zipcode: '000', note: '000' }) });
+      if (!response.ok) throw new Error('Máy chủ không chấp nhận yêu cầu đăng nhập.');
+      const user = await response.json();
+      if (!user || Number(user.id) <= 0) throw new Error('Sai tài khoản hoặc mật khẩu.');
+      if (user.pass === 'mfa') { window.location.assign('/dang-nhap'); return; }
+      window.location.assign(`${window.location.pathname}${window.location.search}${window.location.hash}`);
+    } catch (loginError) { error.textContent = loginError.message || 'Không thể đăng nhập. Vui lòng thử lại.'; error.hidden = false; submit.disabled = false; submit.textContent = 'Đăng nhập'; }
+  }
 
   function updateSelection() {
     const selection = window.getSelection();
@@ -354,6 +370,10 @@
   $('[data-reader-larger]').addEventListener('click', () => changeReaderScale(1));
   $('[data-reader-bold]').addEventListener('click', () => toggleDisplaySetting('bold'));
   $$('[data-google-login], [data-analysis-login]').forEach(link => link.addEventListener('click', rememberLoginReturn));
+  $('[data-login-open]')?.addEventListener('click', () => setLoginOpen(true));
+  $$('[data-login-close]').forEach(button => button.addEventListener('click', () => setLoginOpen(false)));
+  $('[data-reader-login]')?.addEventListener('submit', submitReaderLogin);
+  $('[data-home-link]').addEventListener('click', event => { event.preventDefault(); if (window.confirm('Bạn có chắc muốn rời bài học và trở về trang chủ?')) window.location.assign(event.currentTarget.href); });
   analyzeButton.addEventListener('click', analyzeSelection); $('[data-analyze-popover]').addEventListener('click', analyzeSelection);
   $('[data-close-analysis]').addEventListener('click', () => { $('[data-analysis]').hidden = true; $('[data-inspector-empty]').hidden = false; });
   $('[data-show-analysis]').addEventListener('click', () => { if (!currentAnalysis) return; $('[data-inspector]').scrollTop = 0; renderAnalysis(); });
@@ -375,6 +395,6 @@
   $$('[data-page-prev]').forEach(button => button.addEventListener('click', () => renderPage(currentPageIndex - 1))); $$('[data-page-next]').forEach(button => button.addEventListener('click', () => renderPage(currentPageIndex + 1)));
   $$('[data-page-go]').forEach(button => button.addEventListener('click', () => goToPage(button.closest('[data-page-nav]').querySelector('[data-page-input]').value))); $$('[data-page-input]').forEach(input => input.addEventListener('keydown', event => { if (event.key === 'Enter') goToPage(event.currentTarget.value); })); $$('[data-page-bookmark]').forEach(button => button.addEventListener('click', () => addBookmark(button.closest('[data-page-nav]').querySelector('[data-bookmark-note]').value)));
   $$('[data-view]').forEach(button => button.addEventListener('click', () => setView(button.dataset.view === 'memory'))); $('[data-back-reader]').addEventListener('click', () => setView(false));
-  document.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); analyzeSelection(); } if (event.key === 'Escape' && root.classList.contains('is-library-open')) setLibraryOpen(false); });
+  document.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); analyzeSelection(); } if (event.key === 'Escape' && root.classList.contains('is-library-open')) setLibraryOpen(false); if (event.key === 'Escape') setLoginOpen(false); });
   applyDisplaySettings(loadDisplaySettings()); renderDailyUsage(); refreshDailyUsage(); renderDocuments(); renderMemory(); renderMemoryNotes(); renderPage(0, false);
 })();
