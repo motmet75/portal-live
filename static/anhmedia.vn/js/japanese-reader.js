@@ -46,6 +46,7 @@
   function storeCurrentPage() { currentPages[currentPageIndex] = editor.innerHTML; }
   function renderPage(index, saveCurrent = true) { if (saveCurrent) storeCurrentPage(); currentPageIndex = Math.max(0, Math.min(index, currentPages.length - 1)); editor.innerHTML = currentPages[currentPageIndex] || '<p></p>'; const doc = state.documents.find(item => item.id === currentDocumentId); const bookmarked = Boolean(doc?.bookmarks?.includes(currentPageIndex)); $$('[data-page-label]').forEach(el => { el.textContent = `Trang ${currentPageIndex + 1} / ${currentPages.length}`; }); $$('[data-page-input]').forEach(el => { el.value = currentPageIndex + 1; el.max = currentPages.length; }); $$('[data-page-prev]').forEach(el => { el.disabled = currentPageIndex === 0; }); $$('[data-page-next]').forEach(el => { el.disabled = currentPageIndex >= currentPages.length - 1; }); $$('[data-page-bookmark]').forEach(el => { el.disabled = !doc; el.classList.toggle('is-active', bookmarked); el.textContent = bookmarked ? '★ Đã đánh dấu' : '☆ Đánh dấu'; }); $('[data-document-meta]').textContent = `TRANG ${currentPageIndex + 1} / ${currentPages.length} · Chọn đoạn ngắn để học`; if (doc) { doc.currentPage = currentPageIndex; localStorage.setItem(storageKey, JSON.stringify(state)); } }
   function speakJapanese(text) { if (!text || !('speechSynthesis' in window)) { toast('Thiết bị này không hỗ trợ đọc tiếng Nhật.'); return; } speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'ja-JP'; utterance.rate = .82; speechSynthesis.speak(utterance); }
+  function showAnalysisConnection(status, message) { const panel = $('[data-analysis-connection]'); const login = $('[data-analysis-login]'); panel.hidden = false; $('[data-inspector-empty]').hidden = true; login.hidden = status !== 401; $('[data-analysis-error]').textContent = status === 401 ? 'Phiên đăng nhập Google chưa hợp lệ. Đăng nhập rồi bấm Thử lại.' : status === 503 ? `API phân tích chưa sẵn sàng trên máy chủ. ${message || 'Quản trị viên cần cấu hình OPENAI_API_KEY.'}` : `Không thể kết nối API phân tích. ${message || 'Kiểm tra mạng rồi thử lại.'}`; const extraction = $('[data-connection-panel]'); extraction.hidden = false; }
 
   function updateSelection() {
     const selection = window.getSelection();
@@ -87,14 +88,16 @@
     analyzeButton.firstChild.textContent = 'Đang phân tích… ';
     try {
       const response = await fetch('/api/japanese-learning/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: selectedText, mode: 'selection' }) });
-      if (!response.ok) throw new Error('analysis endpoint unavailable');
+      if (!response.ok) { const body = await response.text(); let message = body; try { message = JSON.parse(body).error || body; } catch (_) {} const error = new Error(message || 'analysis endpoint unavailable'); error.status = response.status; throw error; }
       currentAnalysis = await response.json();
-    } catch (_) {
+      $('[data-analysis-connection]').hidden = true;
+    } catch (error) {
+      showAnalysisConnection(error.status || 0, error.message);
       if (/パイロット|微量|燃料|点火/.test(selectedText)) {
         currentAnalysis = sampleAnalysis(selectedText);
         toast('Đang dùng bản phân tích mẫu; kết nối API để phân tích nội dung mới.');
       } else {
-        toast('Cần kết nối API máy chủ để phân tích đoạn mới.');
+        toast(error.status === 401 ? 'Hãy đăng nhập Google để phân tích.' : 'API máy chủ chưa sẵn sàng. Đoạn đã chọn vẫn được giữ.');
       }
     } finally {
       analyzeButton.firstChild.textContent = 'Phân tích đoạn chọn ';
@@ -155,6 +158,7 @@
   $('[data-close-analysis]').addEventListener('click', () => { $('[data-analysis]').hidden = true; $('[data-inspector-empty]').hidden = false; });
   $('#jp-file').addEventListener('change', event => extractFile(event.target.files[0]));
   $('[data-toggle-connection]').addEventListener('click', () => { const panel = $('[data-connection-panel]'); panel.hidden = !panel.hidden; });
+  $('[data-retry-analysis]').addEventListener('click', analyzeSelection);
   $('[data-save-document]').addEventListener('click', saveDocument); $('[data-remember]').addEventListener('click', remember);
   $('[data-vocabulary]').addEventListener('click', event => { const saveButton = event.target.closest('[data-save-word]'); if (saveButton) saveWord(Number(saveButton.dataset.saveWord)); const speakButton = event.target.closest('[data-speak-word]'); if (speakButton) { const word = (currentAnalysis.words || [])[Number(speakButton.dataset.speakWord)]; speakJapanese(word?.reading || word?.word); } });
   $('[data-speak]').addEventListener('click', () => speakJapanese(currentAnalysis?.source));
