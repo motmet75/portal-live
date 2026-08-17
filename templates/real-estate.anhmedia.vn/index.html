@@ -1,5 +1,40 @@
-<!DOCTYPE html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head th:replace="~{real-estate.anhmedia.vn :: head('NEXA Estate — Bất động sản cho một tương lai khác biệt','Danh mục bất động sản cao cấp và dịch vụ tư vấn đầu tư minh bạch.')}"></head><body><header th:replace="~{real-estate.anhmedia.vn :: header('home')}"></header><main>
-<section class="hero"><img src="/real-estate.anhmedia.vn/images/property-panorama.png" alt="Bộ sưu tập bất động sản NEXA"><div class="hero-shade"></div><div class="hero-copy"><span class="kicker">REAL ESTATE · REIMAGINED</span><h1>Kiến tạo giá trị.<br><em>Cam kết tương lai.</em></h1><p>Chúng tôi kết nối những tài sản khác biệt với những chủ nhân có cùng tầm nhìn.</p><a class="cta" href="/products.html">Khám phá danh mục <i>↗</i></a></div><div class="hero-index"><b>01</b><span>Không gian sống<br>được tuyển chọn</span></div></section>
+<!DOCTYPE html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head th:replace="~{real-estate.anhmedia.vn :: head('NEXA Estate — Bất động sản cho một tương lai khác biệt','Khám phá bất động sản cao cấp qua hành trình không gian tương tác.')}" ></head><body><header th:replace="~{real-estate.anhmedia.vn :: header('home')}"></header><main>
+<section class="estate-tour" data-estate-tour aria-label="Hành trình khám phá biệt thự Azure">
+  <div class="tour-stage">
+    <div class="tour-scenes" data-tour-scenes>
+      <article class="tour-scene is-active" data-tour-scene data-title="Miền đất" data-chapter="01" style="--scene-image:url('/real-estate.anhmedia.vn/images/tour-01-land.webp');--scene-x:50%">
+        <div class="tour-scene__image"></div><div class="tour-vignette"></div>
+        <div class="tour-copy"><span class="kicker">AZURE PRIVATE RESIDENCE · 01</span><h1>Nơi câu chuyện<br><em>bắt đầu.</em></h1><p>Một miền đất hiếm giữa sườn đồi và đường chân trời. Giữ và kéo để nhìn quanh.</p><button class="tour-action" type="button" data-tour-go="1"><span>Tiến về phía ngôi nhà</span><i>↗</i></button></div>
+      </article>
+      <article class="tour-scene" data-tour-scene data-title="Ngoại thất" data-chapter="02" style="--scene-image:url('/real-estate.anhmedia.vn/images/tour-02-villa.webp');--scene-x:50%">
+        <div class="tour-scene__image"></div><div class="tour-vignette"></div>
+        <div class="tour-copy"><span class="kicker">THE APPROACH · 02</span><h2>Kiến trúc mở ra<br><em>theo từng bước.</em></h2><p>Di chuyển quanh mặt tiền, cảm nhận tỷ lệ đá, kính và ánh sáng trước khi bước vào.</p></div>
+        <button class="tour-hotspot tour-hotspot--door" type="button" data-tour-go="2"><span class="tour-hotspot__pulse"></span><b>Mở cửa</b><small>Đi vào sảnh đón</small></button>
+      </article>
+      <article class="tour-scene" data-tour-scene data-title="Sảnh đón" data-chapter="03" style="--scene-image:url('/real-estate.anhmedia.vn/images/tour-03-reception.webp');--scene-x:50%">
+        <div class="tour-scene__image"></div><div class="tour-vignette"></div>
+        <div class="tour-copy"><span class="kicker">ARRIVAL · 03</span><h2>Một lời chào<br><em>được điêu khắc.</em></h2><p>Sảnh lễ tân bằng đá nguyên khối dẫn lối đến không gian sống riêng tư phía trong.</p></div>
+        <button class="tour-hotspot tour-hotspot--hall" type="button" data-tour-go="3"><span class="tour-hotspot__pulse"></span><b>Lên tầng</b><small>Khám phá cầu thang</small></button>
+      </article>
+      <article class="tour-scene" data-tour-scene data-title="Tầng trên" data-chapter="04" style="--scene-image:url('/real-estate.anhmedia.vn/images/tour-04-stair.webp');--scene-x:50%">
+        <div class="tour-scene__image"></div><div class="tour-vignette"></div>
+        <div class="tour-copy"><span class="kicker">ASCEND · 04</span><h2>Ánh sáng dẫn<br><em>lên cao.</em></h2><p>Cầu thang nổi kết nối sảnh đôi với tầng nghỉ, nơi đường chân trời dần hiện ra.</p></div>
+        <button class="tour-hotspot tour-hotspot--stairs" type="button" data-tour-go="4"><span class="tour-hotspot__pulse"></span><b>Đi đến phòng</b><small>Lên tầng cao nhất</small></button>
+      </article>
+      <article class="tour-scene" data-tour-scene data-title="Sky suite" data-chapter="05" style="--scene-image:url('/real-estate.anhmedia.vn/images/tour-05-suite.webp');--scene-x:50%">
+        <div class="tour-scene__image"></div><div class="tour-vignette"></div>
+        <div class="tour-copy"><span class="kicker">SKY SUITE · 05</span><h2>Cả thành phố<br><em>dưới tầm mắt.</em></h2><p>Chạm vào những điểm sáng để tiếp tục khám phá, hoặc bước ra ban công ngắm đường bờ biển.</p><a class="tour-action" href="/products.html"><span>Xem hồ sơ dự án</span><i>↗</i></a></div>
+        <button class="tour-hotspot tour-hotspot--view" type="button" data-tour-go="0"><span class="tour-hotspot__pulse"></span><b>Về miền đất</b><small>Bắt đầu lại hành trình</small></button>
+      </article>
+    </div>
+    <div class="tour-ui">
+      <div class="tour-progress"><span data-tour-progress></span></div>
+      <div class="tour-meta"><span data-tour-counter>01 / 05</span><b data-tour-title>Miền đất</b></div>
+      <div class="tour-help"><span class="tour-drag-icon" aria-hidden="true">↔</span><span>Kéo để xoay · Cuộn để di chuyển</span></div>
+      <nav class="tour-dots" aria-label="Chọn không gian"><button class="is-active" type="button" data-tour-go="0" aria-label="Miền đất"></button><button type="button" data-tour-go="1" aria-label="Ngoại thất"></button><button type="button" data-tour-go="2" aria-label="Sảnh đón"></button><button type="button" data-tour-go="3" aria-label="Tầng trên"></button><button type="button" data-tour-go="4" aria-label="Sky suite"></button></nav>
+    </div>
+  </div>
+</section>
 <section class="statement" id="about"><span>01 / TRIẾT LÝ</span><h2>Mỗi bất động sản là một quyết định lớn. Chúng tôi giúp quyết định ấy trở nên <em>rõ ràng.</em></h2><p>Dữ liệu chính xác, góc nhìn độc lập và cam kết đồng hành từ cuộc trò chuyện đầu tiên đến ngày bàn giao.</p></section>
 <section class="featured"><div class="section-head"><span>02 / TUYỂN CHỌN</span><h2>Dự án nổi bật</h2><a href="/products.html">Xem tất cả ↗</a></div><div class="property-grid"><article th:each="product,stat : ${products}" th:if="${stat.index &lt; 3}"><a th:href="'/product/' + ${product.path}"><img th:src="${#strings.replace(product.productImageDesUrl, '_rslt_300x300', '')}" th:alt="${product.productName}"><span th:text="${product.productCatalog}">Căn hộ</span><h3 th:text="${product.productName}">Tên dự án</h3><p th:text="${product.productShortDes}">Mô tả dự án</p><strong th:text="${product.formatedPriceAfterDiscount} + ' ₫'">0 ₫</strong></a></article><th:block th:if="${products == null or #lists.isEmpty(products)}"><article><a href="/products.html"><img src="/real-estate.anhmedia.vn/images/villa-azure.png" alt="Azure Palm Villa"><span>Biệt thự · Demo</span><h3>Azure Palm Villa</h3><p>Thảo Điền, TP. Hồ Chí Minh</p><strong>32,5 tỷ ₫</strong></a></article><article><a href="/products.html"><img src="/real-estate.anhmedia.vn/images/residence-one.png" alt="NEXA One Residence"><span>Căn hộ · Demo</span><h3>NEXA One Residence</h3><p>Thủ Thiêm, TP. Hồ Chí Minh</p><strong>12,8 tỷ ₫</strong></a></article><article><a href="/products.html"><img src="/real-estate.anhmedia.vn/images/coastal-retreat.png" alt="Solara Coastal Retreat"><span>Nghỉ dưỡng · Demo</span><h3>Solara Coastal Retreat</h3><p>Cam Ranh, Khánh Hòa</p><strong>18,9 tỷ ₫</strong></a></article></th:block></div></section>
 <section class="services" id="services"><div><span>03 / NĂNG LỰC</span><h2>Không chỉ môi giới.<br><em>Một đối tác chiến lược.</em></h2></div><ol><li><b>01</b><h3>Tư vấn mua &amp; bán</h3><p>Định vị nhu cầu và đàm phán dựa trên dữ liệu.</p></li><li><b>02</b><h3>Phân tích đầu tư</h3><p>Đánh giá dòng tiền, pháp lý và tiềm năng tăng trưởng.</p></li><li><b>03</b><h3>Quản lý tài sản</h3><p>Tối ưu vận hành và giá trị tài sản dài hạn.</p></li></ol></section>
