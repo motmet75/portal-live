@@ -14,8 +14,8 @@
   let state = loadState();
 
   function loadState() {
-    try { return JSON.parse(localStorage.getItem(storageKey)) || { documents: [], memories: [] }; }
-    catch (_) { return { documents: [], memories: [] }; }
+    try { const value = JSON.parse(localStorage.getItem(storageKey)) || {}; return { documents: value.documents || [], memories: value.memories || [], analyses: value.analyses || [] }; }
+    catch (_) { return { documents: [], memories: [], analyses: [] }; }
   }
   function persist() { localStorage.setItem(storageKey, JSON.stringify(state)); renderDocuments(); renderMemory(); }
   function toast(message) { const el = $('[data-toast]'); el.textContent = message; el.hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(() => { el.hidden = true; }, 2400); }
@@ -42,13 +42,13 @@
       hira: 'ぱいろっと ねんりょう は びりょう だ が てんか ぷらぐ に ひ し やく 8000 ばい…',
       translation: 'Although the pilot fuel amount is minute, its powerful ignition energy stabilizes combustion and improves efficiency.',
       tokens: [['ぱいろっと','pairotto'],['燃料','nenryō'],['微量','biryō'],['点火','tenka'],['約','yaku'],['倍','bai']],
-      words: [['燃料','fuel'],['微量','minute amount'],['点火','ignition'],['燃焼','combustion'],['効率','efficiency']]
+      words: [{word:'燃料',reading:'ねんりょう',romaji:'nenryō',onReading:'ネン・リョウ',kunReading:'もえる・はかる',meaningEn:'fuel',meaningVi:'nhiên liệu'},{word:'微量',reading:'びりょう',romaji:'biryō',onReading:'ビ・リョウ',kunReading:'かすか・はかる',meaningEn:'minute amount',meaningVi:'một lượng rất nhỏ'},{word:'点火',reading:'てんか',romaji:'tenka',onReading:'テン・カ',kunReading:'つける・ひ',meaningEn:'ignition',meaningVi:'sự đánh lửa'}]
     } : {
       ruby: '<ruby>微<rt>bi</rt></ruby><ruby>量<rt>ryō</rt></ruby>（<ruby>熱<rt>netsu</rt></ruby><ruby>量<rt>ryō</rt></ruby><ruby>比<rt>hi</rt></ruby> 1% <ruby>以<rt>i</rt></ruby><ruby>下<rt>ka</rt></ruby>）の <ruby>液<rt>eki</rt></ruby><ruby>体<rt>tai</rt></ruby><ruby>燃<rt>nen</rt></ruby><ruby>料<rt>ryō</rt></ruby>',
       hira: 'ぱいろっと いんじぇくた から びりょう（ねつりょう ひ 1% いか）の えきたい ねんりょう を ふんしゃ し…',
       translation: 'A minute amount of liquid fuel—less than a 1% heat-value ratio—is injected to ignite the gas inside the pre-chamber.',
       tokens: [['ぱいろっと','pairotto'],['いんじぇくた','injekuta'],['微量','biryō'],['液体','ekitai'],['燃料','nenryō'],['噴射','funsha']],
-      words: [['微量','minute amount'],['熱量比','heat-value ratio'],['液体燃料','liquid fuel'],['噴射','injection'],['副室','pre-chamber']]
+      words: [{word:'微量',reading:'びりょう',romaji:'biryō',onReading:'ビ・リョウ',kunReading:'かすか・はかる',meaningEn:'minute amount',meaningVi:'một lượng rất nhỏ'},{word:'液体',reading:'えきたい',romaji:'ekitai',onReading:'エキ・タイ',kunReading:'しる・からだ',meaningEn:'liquid',meaningVi:'chất lỏng'},{word:'噴射',reading:'ふんしゃ',romaji:'funsha',onReading:'フン・シャ',kunReading:'ふく・いる',meaningEn:'injection / jetting',meaningVi:'phun, phun nhiên liệu'}]
     };
     return { ...first, source: text };
   }
@@ -74,7 +74,7 @@
       analyzeButton.firstChild.textContent = 'Phân tích đoạn chọn ';
       analyzeButton.disabled = !selectedText;
     }
-    if (currentAnalysis) renderAnalysis();
+    if (currentAnalysis) { saveAnalysisResult(currentAnalysis); renderAnalysis(); }
   }
 
   function renderAnalysis() {
@@ -84,8 +84,10 @@
     $('[data-hiragana]').textContent = currentAnalysis.hira || currentAnalysis.hiragana;
     $('[data-translation]').textContent = currentAnalysis.translation;
     $('[data-tokens]').innerHTML = (currentAnalysis.tokens || []).map(item => `<span class="jp-token"><b>${escapeHtml(item[0] || item.surface)}</b><small>${escapeHtml(item[1] || item.romaji)}</small></span>`).join('');
-    $('[data-vocabulary]').innerHTML = (currentAnalysis.words || currentAnalysis.vocabulary || []).map(item => `<span class="jp-word"><b>${escapeHtml(item[0] || item.word)}</b><small>${escapeHtml(item[1] || item.meaning)}</small></span>`).join('');
+    $('[data-vocabulary]').innerHTML = (currentAnalysis.words || currentAnalysis.vocabulary || []).map(item => { const word = item.word || item[0] || ''; const meaningEn = item.meaningEn || item.meaning || item[1] || ''; const meaningVi = item.meaningVi || ''; return `<span class="jp-word"><b>${escapeHtml(word)}</b><small>ひらがな: ${escapeHtml(item.reading || '—')} · ${escapeHtml(item.romaji || '')}</small><span>On: ${escapeHtml(item.onReading || '—')} · Kun: ${escapeHtml(item.kunReading || '—')}</span><em>${escapeHtml(meaningEn)}${meaningVi ? ` · ${escapeHtml(meaningVi)}` : ''}</em></span>`; }).join('');
   }
+
+  function saveAnalysisResult(result) { const normalized = { ...result, savedAt: new Date().toISOString() }; state.analyses = [normalized, ...(state.analyses || []).filter(item => item.source !== result.source)].slice(0, 100); persist(); }
 
   async function extractFile(file) {
     if (!file) return;
@@ -105,7 +107,7 @@
   function saveDocument() { const title = $('[data-document-title]').value.trim() || 'Tài liệu chưa đặt tên'; const existing = state.documents.find(item => item.title === title); const data = { id: existing?.id || Date.now(), title, html: editor.innerHTML, updatedAt: new Date().toISOString() }; state.documents = [data, ...state.documents.filter(item => item.id !== data.id)]; persist(); toast('Đã lưu bản nháp trên thiết bị này.'); }
   function renderDocuments() { $('[data-document-list]').innerHTML = state.documents.slice(0, 8).map(item => `<button class="jp-document" data-document-id="${item.id}"><strong>${escapeHtml(item.title)}</strong><small>${new Date(item.updatedAt).toLocaleDateString('vi-VN')}</small></button>`).join(''); }
   function remember() { if (!currentAnalysis) return; state.memories.unshift({ id: Date.now(), ...currentAnalysis, nextReview: new Date(Date.now() + 86400000).toISOString() }); persist(); toast('Đã lưu vào bộ nhớ ôn tập.'); }
-  function renderMemory() { $('[data-memory-count]').textContent = state.memories.length; $('[data-memory-list]').innerHTML = state.memories.length ? state.memories.map(item => `<article class="jp-memory-card"><h3>${escapeHtml(item.source)}</h3><p>${escapeHtml(item.translation)}</p><small>Ôn tiếp: ${new Date(item.nextReview).toLocaleDateString('vi-VN')}</small></article>`).join('') : '<p>Chưa có từ hoặc đoạn nào được lưu.</p>'; }
+  function renderMemory() { const items = state.memories.length ? state.memories : state.analyses; $('[data-memory-count]').textContent = items.length; $('[data-memory-list]').innerHTML = items.length ? items.map(item => `<article class="jp-memory-card"><h3>${escapeHtml(item.source)}</h3><p>${escapeHtml(item.translation)}</p><small>${item.nextReview ? `Ôn tiếp: ${new Date(item.nextReview).toLocaleDateString('vi-VN')}` : `Đã phân tích: ${new Date(item.savedAt).toLocaleString('vi-VN')}`}</small></article>`).join('') : '<p>Chưa có kết quả phân tích nào được lưu.</p>'; }
   function setView(memory) { $('[data-reader-view]').hidden = memory; $('[data-inspector]').hidden = memory; $('[data-library]').hidden = memory; $('[data-memory-view]').hidden = !memory; $$('.jp-nav').forEach((el, index) => el.classList.toggle('is-active', Boolean(index) === memory)); }
 
   document.addEventListener('selectionchange', () => requestAnimationFrame(updateSelection));
