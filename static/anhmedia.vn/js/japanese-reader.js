@@ -13,7 +13,8 @@
   const displayStorageKey = 'anhmedia.jp-reader.display.v1';
   const usageStorageKey = 'anhmedia.jp-reader.analysis-usage.v1';
   const maxSelectionCharacters = 500;
-  const dailyAnalysisLimit = 10;
+  let dailyAnalysisLimit = 10;
+  let serverRemaining = null;
   let selectedText = '';
   let savedRange = null;
   let currentAnalysis = null;
@@ -76,9 +77,20 @@
   function toast(message) { const el = $('[data-toast]'); el.textContent = message; el.hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(() => { el.hidden = true; }, 2400); }
   function usageDate() { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date()); }
   function loadDailyUsage() { try { const usage = JSON.parse(localStorage.getItem(usageStorageKey)) || {}; return usage.date === usageDate() ? usage : { date: usageDate(), count: 0 }; } catch (_) { return { date: usageDate(), count: 0 }; } }
-  function remainingAnalyses() { return Math.max(0, dailyAnalysisLimit - loadDailyUsage().count); }
-  function renderDailyUsage() { $('[data-daily-remaining]').textContent = String(remainingAnalyses()); }
-  function recordAnalysis() { const usage = loadDailyUsage(); usage.count = Math.min(dailyAnalysisLimit, usage.count + 1); localStorage.setItem(usageStorageKey, JSON.stringify(usage)); renderDailyUsage(); }
+  function remainingAnalyses() { return serverRemaining === null ? Math.max(0, dailyAnalysisLimit - loadDailyUsage().count) : serverRemaining; }
+  function renderDailyUsage() { $('[data-daily-remaining]').textContent = String(remainingAnalyses()); $('[data-daily-limit]').textContent = String(dailyAnalysisLimit); }
+  function recordAnalysis() { const usage = loadDailyUsage(); usage.count = Math.min(dailyAnalysisLimit, usage.count + 1); localStorage.setItem(usageStorageKey, JSON.stringify(usage)); if (serverRemaining !== null) serverRemaining = Math.max(0, serverRemaining - 1); renderDailyUsage(); }
+  async function refreshDailyUsage() {
+    try {
+      const response = await fetch('/api/japanese-learning/usage', { headers: { Accept: 'application/json' } });
+      if (!response.ok) return;
+      const usage = await response.json();
+      dailyAnalysisLimit = Math.max(0, Number(usage.limit) || 0);
+      serverRemaining = Math.max(0, Number(usage.remaining) || 0);
+      renderDailyUsage();
+      analyzeButton.disabled = !selectedText || selectedText.length > maxSelectionCharacters || serverRemaining === 0;
+    } catch (_) {}
+  }
   function escapeHtml(value) { const el = document.createElement('div'); el.textContent = value || ''; return el.innerHTML; }
   function textToHtml(text) { return String(text || '').split(/\n\s*\n/).filter(Boolean).map(part => `<p>${escapeHtml(part).replace(/\n/g, '<br>')}</p>`).join(''); }
   function splitIntoPages(text) {
@@ -208,7 +220,7 @@
   async function analyzeSelection() {
     if (!selectedText) return;
     if (selectedText.length > maxSelectionCharacters) { toast(`Đoạn quá dài. Chỉ chọn tối đa ${maxSelectionCharacters} ký tự, khoảng 1/4 trang A4.`); return; }
-    if (remainingAnalyses() === 0) { toast('Bạn đã dùng hết 10 lượt hôm nay. Liên hệ AnhMedia để mở rộng hạn mức.'); return; }
+    if (remainingAnalyses() === 0) { toast(`Bạn đã dùng hết ${dailyAnalysisLimit} lượt hôm nay. Liên hệ AnhMedia để mở rộng hạn mức.`); return; }
     if (currentAnalysis && hasUnsavedAnalysis && currentAnalysis.source !== selectedText) {
       const savePrevious = window.confirm('Bạn chưa lưu kết quả phân tích trước. Nhấn OK để lưu trước khi phân tích đoạn mới, hoặc Hủy để bỏ kết quả cũ.');
       if (savePrevious) remember();
@@ -236,6 +248,7 @@
       }
     } finally {
       analyzeButton.firstChild.textContent = 'Phân tích đoạn chọn ';
+      await refreshDailyUsage();
       analyzeButton.disabled = !selectedText || selectedText.length > maxSelectionCharacters || remainingAnalyses() === 0;
     }
     if (currentAnalysis) { prepareAnalysisResult(currentAnalysis); hasUnsavedAnalysis = true; renderAnalysis(); }
@@ -363,5 +376,5 @@
   $$('[data-page-go]').forEach(button => button.addEventListener('click', () => goToPage(button.closest('[data-page-nav]').querySelector('[data-page-input]').value))); $$('[data-page-input]').forEach(input => input.addEventListener('keydown', event => { if (event.key === 'Enter') goToPage(event.currentTarget.value); })); $$('[data-page-bookmark]').forEach(button => button.addEventListener('click', () => addBookmark(button.closest('[data-page-nav]').querySelector('[data-bookmark-note]').value)));
   $$('[data-view]').forEach(button => button.addEventListener('click', () => setView(button.dataset.view === 'memory'))); $('[data-back-reader]').addEventListener('click', () => setView(false));
   document.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); analyzeSelection(); } if (event.key === 'Escape' && root.classList.contains('is-library-open')) setLibraryOpen(false); });
-  applyDisplaySettings(loadDisplaySettings()); renderDailyUsage(); renderDocuments(); renderMemory(); renderMemoryNotes(); renderPage(0, false);
+  applyDisplaySettings(loadDisplaySettings()); renderDailyUsage(); refreshDailyUsage(); renderDocuments(); renderMemory(); renderMemoryNotes(); renderPage(0, false);
 })();
