@@ -13,6 +13,7 @@
   <style>.jp-analysis-connection{margin:0 0 18px;padding:14px;border:1px solid #e8c98b;border-radius:10px;background:#fff8e6}.jp-analysis-connection strong,.jp-analysis-connection small{display:block}.jp-analysis-connection small{margin-top:5px;line-height:1.5;letter-spacing:0}.jp-analysis-connection__actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.jp-analysis-connection__actions a,.jp-analysis-connection__actions button{padding:8px 10px;border:1px solid #d9c38f;border-radius:7px;background:#fff;color:#315f55;text-decoration:none;font-size:11px;font-weight:700}</style>
   <style>.jp-user{display:flex;align-items:center;gap:8px}.jp-user strong{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.jp-user a{color:#9a5548;font-size:11px;font-weight:700;text-decoration:none}</style>
   <style>.jp-document-search{max-width:780px;margin:12px auto;position:relative}.jp-document-search>input,.jp-memory-search{width:100%;padding:12px 14px;border:1px solid #dfe5e1;border-radius:10px;background:#fff;font-size:14px}.jp-search-results{max-height:240px;display:grid;gap:5px;padding:8px;border:1px solid #dfe5e1;border-radius:10px;background:#fff;overflow:auto;box-shadow:0 12px 35px #1f302c1c}.jp-search-results>small{padding:5px;color:#6c7774}.jp-search-results button{display:grid;grid-template-columns:65px 1fr;gap:8px;padding:8px;border:0;border-radius:7px;background:#f5f7f4;text-align:left}.jp-search-results button b{color:#315f55}.jp-search-results button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}mark[data-temp-search]{padding:1px 2px;border-radius:3px;background:#ffd95c;animation:jpSearchPulse 1.8s ease}@keyframes jpSearchPulse{50%{box-shadow:0 0 0 7px #ffd95c55}}.jp-memory-tools{display:flex;gap:12px;align-items:center;margin-top:18px}.jp-memory-tools label{flex:1}.jp-session-actions{flex-wrap:wrap}</style>
+  <style>.jp-usage-notice{max-width:780px;margin:12px auto;padding:11px 14px;border:1px solid #d9c38f;border-radius:10px;background:#fff8e6;color:#5d5237;font-size:12px;line-height:1.55}.jp-usage-notice strong{color:#315f55}.jp-usage-notice a{color:#9a5548;font-weight:800}.jp-selection-popover.is-over-limit{background:#8b3f36}.jp-selection-popover.is-over-limit button{display:none}</style>
   <link rel="stylesheet" href="/anhmedia.vn/css/japanese-reader-layout.css?v=20260817-4">
 </head>
 <body>
@@ -63,6 +64,7 @@
 
       <nav class="jp-page-nav jp-page-nav--top" data-page-nav aria-label="Điều hướng trang phía trên"><button type="button" data-page-prev>← Trang trước</button><span data-page-label>Trang 1 / 1</span><button type="button" data-page-next>Trang sau →</button><label class="jp-page-jump">Đến trang <input type="number" min="1" value="1" data-page-input aria-label="Số trang phía trên"><button type="button" data-page-go>Đi</button></label><label class="jp-bookmark-compose"><input data-bookmark-note maxlength="240" placeholder="Ghi chú để nhớ đoạn này"><button class="jp-page-bookmark" type="button" data-page-bookmark disabled>☆ Lưu dấu</button></label></nav>
       <div class="jp-document-search"><input type="search" data-document-search placeholder="Tìm chữ trong toàn bộ tài liệu…" aria-label="Tìm trong tài liệu"><div class="jp-search-results" data-document-search-results hidden></div></div>
+      <div class="jp-usage-notice"><strong>Giới hạn sử dụng:</strong> Mỗi lần chọn tối đa 500 ký tự (khoảng 1/4 trang A4). Bạn có <b data-daily-remaining>10</b>/10 lượt phân tích hôm nay. Cần thêm lượt? <a href="/#lien-he" target="_blank" rel="noopener noreferrer">Liên hệ AnhMedia để mở rộng hạn mức</a>.</div>
 
       <div class="jp-editor-tools" role="toolbar" aria-label="Định dạng tài liệu">
         <select data-font aria-label="Phông chữ"><option value="serif">Mincho</option><option value="sans">Gothic</option><option value="rounded">Rounded</option></select>
@@ -80,7 +82,7 @@
     </section>
 
     <aside class="jp-inspector" data-inspector>
-      <div class="jp-analysis-connection" data-analysis-connection hidden><strong>Chưa kết nối được API phân tích</strong><small data-analysis-error></small><div class="jp-analysis-connection__actions"><a href="/oauth2/authorization/google" data-analysis-login hidden>Đăng nhập Google</a><button type="button" data-retry-analysis>Thử lại đoạn đã chọn</button></div><small>Không nhập OpenAI API key cá nhân vào trình duyệt. Key phải được cấu hình an toàn trên máy chủ.</small></div>
+      <div class="jp-analysis-connection" data-analysis-connection hidden><strong>Chưa kết nối được API phân tích</strong><small data-analysis-error></small><div class="jp-analysis-connection__actions"><a href="/oauth2/authorization/google" data-analysis-login hidden>Đăng nhập Google</a><a href="/#lien-he" target="_blank" rel="noopener noreferrer" data-analysis-contact hidden>Liên hệ mở rộng hạn mức</a><button type="button" data-retry-analysis>Thử lại đoạn đã chọn</button></div><small>Không nhập OpenAI API key cá nhân vào trình duyệt. Key phải được cấu hình an toàn trên máy chủ.</small></div>
       <div class="jp-inspector__empty" data-inspector-empty><span>文</span><h2>Chọn một câu để học</h2><p>Kotoba chỉ phân tích phần bạn chọn, giúp tiết kiệm thời gian và ghi nhớ theo từng bước nhỏ.</p></div>
       <div class="jp-analysis" data-analysis hidden>
         <div class="jp-analysis__head"><div><small>PHÂN TÍCH ĐOẠN CHỌN</small><h2 data-analysis-title>Đoạn 01</h2></div><button type="button" data-close-analysis>×</button></div>
@@ -88,6 +90,7 @@
         <section><label>Hiragana tự nhiên</label><p class="jp-hiragana" data-hiragana></p><button class="jp-listen-whole" type="button" data-speak><span>▶</span><strong>Nghe &amp; đọc toàn đoạn</strong><small>Phát lại câu tiếng Nhật đã chọn</small></button><div class="jp-spelling-line" data-spelling-line aria-label="Đánh vần theo từ gốc"></div></section>
         <section><label>Tách từ · Romaji · Nghĩa</label><div class="jp-tokens" data-tokens></div></section>
         <section><label>Nghĩa tiếng Anh</label><p data-translation></p></section>
+        <section><label>Nghĩa tiếng Việt</label><p data-translation-vi></p></section>
         <section><label>Từ nên nhớ</label><div class="jp-vocabulary" data-vocabulary></div></section>
         <label class="jp-study-note"><span>Ghi chú của bạn trước khi lưu</span><textarea data-study-note maxlength="500" rows="3" placeholder="Ví dụ: câu này dùng trong tài liệu kỹ thuật; cần ôn lại cách đọc…"></textarea><small><b data-note-count>0</b>/500 ký tự · Ghi chú sẽ đi cùng phiên học đã lưu.</small></label>
         <div class="jp-analysis__actions"><button class="primary" type="button" data-remember>＋ Lưu để ôn</button></div>
@@ -100,6 +103,6 @@
   <button class="jp-library-backdrop" type="button" data-library-close aria-label="Đóng thư viện" hidden></button>
   <div class="jp-toast" data-toast hidden></div>
 </div>
-<script src="/anhmedia.vn/js/japanese-reader.js?v=20260817-16" defer></script>
+<script src="/anhmedia.vn/js/japanese-reader.js?v=20260817-17" defer></script>
 </body>
 </html>

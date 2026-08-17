@@ -11,9 +11,13 @@
   const libraryBackdrop = $('.jp-library-backdrop');
   const storageKey = 'anhmedia.jp-reader.v1';
   const displayStorageKey = 'anhmedia.jp-reader.display.v1';
+  const usageStorageKey = 'anhmedia.jp-reader.analysis-usage.v1';
+  const maxSelectionCharacters = 500;
+  const dailyAnalysisLimit = 10;
   let selectedText = '';
   let savedRange = null;
   let currentAnalysis = null;
+  let hasUnsavedAnalysis = false;
   let state = loadState();
   let currentDocumentId = null;
   let currentPageIndex = 0;
@@ -54,6 +58,11 @@
   }
   function persist() { localStorage.setItem(storageKey, JSON.stringify(state)); renderDocuments(); renderMemory(); renderMemoryNotes(); }
   function toast(message) { const el = $('[data-toast]'); el.textContent = message; el.hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(() => { el.hidden = true; }, 2400); }
+  function usageDate() { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date()); }
+  function loadDailyUsage() { try { const usage = JSON.parse(localStorage.getItem(usageStorageKey)) || {}; return usage.date === usageDate() ? usage : { date: usageDate(), count: 0 }; } catch (_) { return { date: usageDate(), count: 0 }; } }
+  function remainingAnalyses() { return Math.max(0, dailyAnalysisLimit - loadDailyUsage().count); }
+  function renderDailyUsage() { $('[data-daily-remaining]').textContent = String(remainingAnalyses()); }
+  function recordAnalysis() { const usage = loadDailyUsage(); usage.count = Math.min(dailyAnalysisLimit, usage.count + 1); localStorage.setItem(usageStorageKey, JSON.stringify(usage)); renderDailyUsage(); }
   function escapeHtml(value) { const el = document.createElement('div'); el.textContent = value || ''; return el.innerHTML; }
   function textToHtml(text) { return String(text || '').split(/\n\s*\n/).filter(Boolean).map(part => `<p>${escapeHtml(part).replace(/\n/g, '<br>')}</p>`).join(''); }
   function splitIntoPages(text) {
@@ -120,7 +129,7 @@
     await new Promise(resolve => setTimeout(resolve, 700));
   }
   async function speakJapanese(text) { if (!text || !('speechSynthesis' in window)) { toast('Thiết bị này không hỗ trợ đọc tiếng Nhật.'); return; } speechSynthesis.cancel(); await playSpeakerAlert(); const utterance = new SpeechSynthesisUtterance(`。　。　${text}`); utterance.lang = 'ja-JP'; utterance.rate = .82; speechSynthesis.speak(utterance); }
-  function showAnalysisConnection(status, message) { const panel = $('[data-analysis-connection]'); const login = $('[data-analysis-login]'); panel.hidden = false; $('[data-inspector-empty]').hidden = true; login.hidden = status !== 401; const missingKey = /not configured|OPENAI_API_KEY/i.test(message || ''); $('[data-analysis-error]').textContent = status === 401 ? 'Phiên đăng nhập Google chưa hợp lệ. Đăng nhập rồi bấm Thử lại.' : missingKey ? 'Bạn đã đăng nhập. Máy chủ chưa có OPENAI_API_KEY nên chưa thể phân tích. Quản trị viên cần thêm key vào secrets/live-designer.env và khởi động lại portal.' : status === 503 ? `OpenAI tạm thời chưa phản hồi. ${message || 'Vui lòng thử lại sau.'}` : `Không thể kết nối API phân tích. ${message || 'Kiểm tra mạng rồi thử lại.'}`; const extraction = $('[data-connection-panel]'); extraction.hidden = false; }
+  function showAnalysisConnection(status, message) { const panel = $('[data-analysis-connection]'); const login = $('[data-analysis-login]'); const contact = $('[data-analysis-contact]'); panel.hidden = false; $('[data-inspector-empty]').hidden = true; login.hidden = status !== 401; contact.hidden = status !== 429; const missingKey = /not configured|OPENAI_API_KEY/i.test(message || ''); $('[data-analysis-error]').textContent = status === 401 ? 'Phiên đăng nhập Google chưa hợp lệ. Đăng nhập rồi bấm Thử lại.' : status === 429 ? 'Bạn đã dùng hết 10 lượt phân tích hôm nay. Vui lòng liên hệ AnhMedia để mở rộng hạn mức.' : missingKey ? 'Bạn đã đăng nhập. Máy chủ chưa có OPENAI_API_KEY nên chưa thể phân tích. Quản trị viên cần thêm key vào secrets/live-designer.env và khởi động lại portal.' : status === 503 ? `OpenAI tạm thời chưa phản hồi. ${message || 'Vui lòng thử lại sau.'}` : `Không thể kết nối API phân tích. ${message || 'Kiểm tra mạng rồi thử lại.'}`; const extraction = $('[data-connection-panel]'); extraction.hidden = false; }
   function rememberLoginReturn() { const target = `${window.location.pathname}${window.location.search}${window.location.hash}`; document.cookie = `PORTAL_LOGIN_RETURN=${encodeURIComponent(target)}; Max-Age=600; Path=/; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`; }
 
   function updateSelection() {
@@ -128,12 +137,14 @@
     const text = selection && selection.rangeCount ? selection.toString().trim() : '';
     const inside = selection && selection.rangeCount && editor.contains(selection.anchorNode) && editor.contains(selection.focusNode);
     if (!inside || text.length < 2) { selectedText = ''; savedRange = null; analyzeButton.disabled = true; popover.hidden = true; return; }
-    selectedText = text.slice(0, 1200);
+    selectedText = text;
     bookmarkExcerpt = text.slice(0, 300);
     bookmarkRange = selection.getRangeAt(0).cloneRange();
     savedRange = selection.getRangeAt(0).cloneRange();
-    analyzeButton.disabled = false;
-    $('[data-selection-preview]').textContent = selectedText;
+    const overLimit = text.length > maxSelectionCharacters;
+    analyzeButton.disabled = overLimit || remainingAnalyses() === 0;
+    popover.classList.toggle('is-over-limit', overLimit);
+    $('[data-selection-preview]').textContent = overLimit ? `Đoạn chọn có ${text.length} ký tự. Vui lòng chọn tối đa ${maxSelectionCharacters} ký tự.` : selectedText;
     const rect = savedRange.getBoundingClientRect();
     popover.style.left = `${Math.max(10, Math.min(window.innerWidth - 330, rect.left))}px`;
     popover.style.top = `${Math.max(76, rect.bottom + 8)}px`;
@@ -145,12 +156,14 @@
       ruby: '<ruby>燃<rt>nen</rt></ruby><ruby>料<rt>ryō</rt></ruby> は <ruby>微<rt>bi</rt></ruby><ruby>量<rt>ryō</rt></ruby> だが <ruby>点<rt>ten</rt></ruby><ruby>火<rt>ka</rt></ruby> プラグ に <ruby>比<rt>hi</rt></ruby>し <ruby>約<rt>yaku</rt></ruby> 8000 <ruby>倍<rt>bai</rt></ruby>',
       hira: 'ぱいろっと ねんりょう は びりょう だ が てんか ぷらぐ に ひ し やく 8000 ばい…',
       translation: 'Although the pilot fuel amount is minute, its powerful ignition energy stabilizes combustion and improves efficiency.',
+      translationVi: 'Mặc dù lượng nhiên liệu mồi rất nhỏ, năng lượng đánh lửa mạnh của nó giúp quá trình cháy ổn định và nâng cao hiệu suất.',
       tokens: [{surface:'パイロット',reading:'ぱいろっと',romaji:'pairotto'},{surface:'燃料',reading:'ねんりょう',romaji:'nenryō'},{surface:'微量',reading:'びりょう',romaji:'biryō'},{surface:'点火',reading:'てんか',romaji:'tenka'},{surface:'約',reading:'やく',romaji:'yaku'},{surface:'倍',reading:'ばい',romaji:'bai'}],
       words: [{word:'燃料',reading:'ねんりょう',romaji:'nenryō',onReading:'ネン・リョウ',kunReading:'もえる・はかる',meaningEn:'fuel',meaningVi:'nhiên liệu'},{word:'微量',reading:'びりょう',romaji:'biryō',onReading:'ビ・リョウ',kunReading:'かすか・はかる',meaningEn:'minute amount',meaningVi:'một lượng rất nhỏ'},{word:'点火',reading:'てんか',romaji:'tenka',onReading:'テン・カ',kunReading:'つける・ひ',meaningEn:'ignition',meaningVi:'sự đánh lửa'}]
     } : {
       ruby: '<ruby>微<rt>bi</rt></ruby><ruby>量<rt>ryō</rt></ruby>（<ruby>熱<rt>netsu</rt></ruby><ruby>量<rt>ryō</rt></ruby><ruby>比<rt>hi</rt></ruby> 1% <ruby>以<rt>i</rt></ruby><ruby>下<rt>ka</rt></ruby>）の <ruby>液<rt>eki</rt></ruby><ruby>体<rt>tai</rt></ruby><ruby>燃<rt>nen</rt></ruby><ruby>料<rt>ryō</rt></ruby>',
       hira: 'ぱいろっと いんじぇくた から びりょう（ねつりょう ひ 1% いか）の えきたい ねんりょう を ふんしゃ し…',
       translation: 'A minute amount of liquid fuel—less than a 1% heat-value ratio—is injected to ignite the gas inside the pre-chamber.',
+      translationVi: 'Một lượng nhỏ nhiên liệu lỏng—có tỷ lệ nhiệt trị dưới 1%—được phun vào để đốt cháy khí bên trong buồng phụ.',
       tokens: [{surface:'パイロット',reading:'ぱいろっと',romaji:'pairotto'},{surface:'インジェクタ',reading:'いんじぇくた',romaji:'injekuta'},{surface:'微量',reading:'びりょう',romaji:'biryō'},{surface:'液体',reading:'えきたい',romaji:'ekitai'},{surface:'燃料',reading:'ねんりょう',romaji:'nenryō'},{surface:'噴射',reading:'ふんしゃ',romaji:'funsha'}],
       words: [{word:'微量',reading:'びりょう',romaji:'biryō',onReading:'ビ・リョウ',kunReading:'かすか・はかる',meaningEn:'minute amount',meaningVi:'một lượng rất nhỏ'},{word:'液体',reading:'えきたい',romaji:'ekitai',onReading:'エキ・タイ',kunReading:'しる・からだ',meaningEn:'liquid',meaningVi:'chất lỏng'},{word:'噴射',reading:'ふんしゃ',romaji:'funsha',onReading:'フン・シャ',kunReading:'ふく・いる',meaningEn:'injection / jetting',meaningVi:'phun, phun nhiên liệu'}]
     };
@@ -159,7 +172,15 @@
 
   async function analyzeSelection() {
     if (!selectedText) return;
+    if (selectedText.length > maxSelectionCharacters) { toast(`Đoạn quá dài. Chỉ chọn tối đa ${maxSelectionCharacters} ký tự, khoảng 1/4 trang A4.`); return; }
+    if (remainingAnalyses() === 0) { toast('Bạn đã dùng hết 10 lượt hôm nay. Liên hệ AnhMedia để mở rộng hạn mức.'); return; }
+    if (currentAnalysis && hasUnsavedAnalysis && currentAnalysis.source !== selectedText) {
+      const savePrevious = window.confirm('Bạn chưa lưu kết quả phân tích trước. Nhấn OK để lưu trước khi phân tích đoạn mới, hoặc Hủy để bỏ kết quả cũ.');
+      if (savePrevious) remember();
+      else discardCurrentAnalysis();
+    }
     currentAnalysis = null;
+    hasUnsavedAnalysis = false;
     popover.hidden = true;
     analyzeButton.disabled = true;
     analyzeButton.firstChild.textContent = 'Đang phân tích… ';
@@ -167,6 +188,7 @@
       const response = await fetch('/api/japanese-learning/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: selectedText, mode: 'selection' }) });
       if (!response.ok) { const body = await response.text(); let message = body; try { message = JSON.parse(body).error || body; } catch (_) {} const error = new Error(message || 'analysis endpoint unavailable'); error.status = response.status; throw error; }
       currentAnalysis = await response.json();
+      recordAnalysis();
       $('[data-analysis-connection]').hidden = true;
     } catch (error) {
       showAnalysisConnection(error.status || 0, error.message);
@@ -178,9 +200,9 @@
       }
     } finally {
       analyzeButton.firstChild.textContent = 'Phân tích đoạn chọn ';
-      analyzeButton.disabled = !selectedText;
+      analyzeButton.disabled = !selectedText || selectedText.length > maxSelectionCharacters || remainingAnalyses() === 0;
     }
-    if (currentAnalysis) { saveAnalysisResult(currentAnalysis); renderAnalysis(); }
+    if (currentAnalysis) { prepareAnalysisResult(currentAnalysis); hasUnsavedAnalysis = true; renderAnalysis(); }
   }
 
   function renderAnalysis() {
@@ -191,13 +213,17 @@
     $('[data-hiragana]').textContent = currentAnalysis.hira || currentAnalysis.hiragana;
     $('[data-spelling-line]').innerHTML = (currentAnalysis.tokens || []).map(item => { const surface = item.surface || item[0] || ''; const reading = item.reading || (/[ぁ-んー]+/.test(surface) ? surface : '—'); const romaji = item.romaji || item[1] || ''; return `<span class="jp-spelling"><b>${escapeHtml(surface)}</b><small>${escapeHtml(reading)}${romaji ? ` · ${escapeHtml(romaji)}` : ''}</small></span>`; }).join('');
     $('[data-translation]').textContent = currentAnalysis.translation;
+    $('[data-translation-vi]').textContent = currentAnalysis.translationVi || 'Chưa có bản dịch tiếng Việt cho kết quả cũ.';
     $('[data-tokens]').innerHTML = (currentAnalysis.tokens || []).map(item => { const surface = item[0] || item.surface || ''; const word = analysisWords.find(entry => (entry.word || entry[0]) === surface || (entry.reading && entry.reading === item.reading)); const romaji = item.romaji || item[1] || word?.romaji || ''; const meaningEn = item.meaningEn || word?.meaningEn || word?.meaning || ''; const meaningVi = item.meaningVi || word?.meaningVi || ''; return `<span class="jp-token"><b>${escapeHtml(surface)}</b><small>${escapeHtml(romaji)}</small><em>${escapeHtml(meaningEn)}${meaningVi ? ` · ${escapeHtml(meaningVi)}` : ''}</em></span>`; }).join('');
     $('[data-vocabulary]').innerHTML = analysisWords.map((item, index) => { const word = item.word || item[0] || ''; const meaningEn = item.meaningEn || item.meaning || item[1] || ''; const meaningVi = item.meaningVi || ''; const saved = state.savedWords.some(entry => entry.sessionId === currentAnalysis.sessionId && entry.word === word); const characters = (item.characters || []).map(char => `<i class="jp-kanji-char"><strong>${escapeHtml(char.kanji)}</strong><small>On ${escapeHtml(char.onReading || '—')} · Kun ${escapeHtml(char.kunReading || '—')}</small><em>${escapeHtml(char.meaningEn || '')}${char.memoryVi ? ` · ${escapeHtml(char.memoryVi)}` : ''}</em></i>`).join(''); return `<span class="jp-word"><b>${escapeHtml(word)}</b><small>ひらがな: ${escapeHtml(item.reading || '—')} · ${escapeHtml(item.romaji || '')}</small><span>On: ${escapeHtml(item.onReading || '—')} · Kun: ${escapeHtml(item.kunReading || '—')}</span><em>${escapeHtml(meaningEn)}${meaningVi ? ` · ${escapeHtml(meaningVi)}` : ''}</em>${characters ? `<span class="jp-kanji-breakdown">${characters}</span>` : ''}<button type="button" data-speak-word="${index}">▶ Đọc từ</button><button type="button" data-save-word="${index}" ${saved ? 'disabled' : ''}>${saved ? '✓ Đã lưu' : '＋ Lưu từ'}</button></span>`; }).join('');
     $('[data-study-note]').value = currentAnalysis.note || '';
     $('[data-note-count]').textContent = String((currentAnalysis.note || '').length);
   }
 
-  function saveAnalysisResult(result) { const existing = (state.analyses || []).find(item => item.source === result.source && item.documentId === currentDocumentId && item.pageIndex === currentPageIndex); result.sessionId = existing?.sessionId || `session-${Date.now()}`; result.savedAt = new Date().toISOString(); result.documentId = currentDocumentId; result.pageIndex = currentPageIndex; state.analyses = [{ ...result }, ...(state.analyses || []).filter(item => item.sessionId !== result.sessionId)].slice(0, 100); persist(); }
+  function prepareAnalysisResult(result) { const existing = (state.analyses || []).find(item => item.source === result.source && item.documentId === currentDocumentId && item.pageIndex === currentPageIndex); result.sessionId = existing?.sessionId || `session-${Date.now()}`; result.savedAt = new Date().toISOString(); result.documentId = currentDocumentId; result.pageIndex = currentPageIndex; }
+  function saveAnalysisResult(result) { prepareAnalysisResult(result); state.analyses = [{ ...result }, ...(state.analyses || []).filter(item => item.sessionId !== result.sessionId)].slice(0, 100); persist(); }
+
+  function discardCurrentAnalysis() { if (!currentAnalysis?.sessionId) return; const sessionId = currentAnalysis.sessionId; state.analyses = state.analyses.filter(item => item.sessionId !== sessionId); state.memories = state.memories.filter(item => item.sessionId !== sessionId); state.savedWords = state.savedWords.filter(item => item.sessionId !== sessionId); persist(); hasUnsavedAnalysis = false; }
 
   function saveWord(index, silent = false) { const item = (currentAnalysis?.words || currentAnalysis?.vocabulary || [])[index]; if (!item || !currentAnalysis?.sessionId) return; const word = item.word || item[0] || ''; if (!state.savedWords.some(entry => entry.sessionId === currentAnalysis.sessionId && entry.word === word)) state.savedWords.unshift({ ...item, word, sessionId: currentAnalysis.sessionId, source: currentAnalysis.source, savedAt: new Date().toISOString() }); persist(); renderAnalysis(); if (!silent) toast(`Đã lưu từ ${word}.`); }
 
@@ -235,6 +261,7 @@
   function remember() {
     if (!currentAnalysis) return;
     currentAnalysis.note = $('[data-study-note]').value.trim();
+    saveAnalysisResult(currentAnalysis);
     (currentAnalysis.words || []).forEach((_, index) => saveWord(index, true));
     const analysis = state.analyses.find(item => item.sessionId === currentAnalysis.sessionId);
     if (analysis) analysis.note = currentAnalysis.note;
@@ -243,6 +270,7 @@
     if (memory) Object.assign(memory, memoryData);
     else state.memories.unshift(memoryData);
     persist();
+    hasUnsavedAnalysis = false;
     toast(currentAnalysis.note ? 'Đã lưu đoạn, ghi chú và toàn bộ từ mới.' : 'Đã lưu đoạn và toàn bộ từ mới để ôn.');
   }
   function renderMemoryNotes() {
@@ -250,7 +278,7 @@
     const sessions = (state.analyses || []).filter(item => {
       if (!needle) return true;
       const words = state.savedWords.filter(word => word.sessionId === item.sessionId);
-      return [item.source, item.translation, ...words.flatMap(word => [word.word, word.reading, word.romaji, word.meaningEn, word.meaningVi, word.onReading, word.kunReading])].some(value => String(value || '').toLocaleLowerCase().includes(needle));
+      return [item.source, item.translation, item.translationVi, ...words.flatMap(word => [word.word, word.reading, word.romaji, word.meaningEn, word.meaningVi, word.onReading, word.kunReading])].some(value => String(value || '').toLocaleLowerCase().includes(needle));
     });
     $$('[data-memory-list] .jp-memory-card').forEach((card, index) => {
       const note = sessions[index]?.note;
@@ -261,12 +289,12 @@
       card.querySelector('.jp-session-actions')?.before(paragraph);
     });
   }
-  function renderMemory() { const needle = memorySearchTerm.toLocaleLowerCase(); const sessions = (state.analyses || []).filter(item => { if (!needle) return true; const words = state.savedWords.filter(word => word.sessionId === item.sessionId); return [item.source, item.translation, ...words.flatMap(word => [word.word, word.reading, word.romaji, word.meaningEn, word.meaningVi, word.onReading, word.kunReading])].some(value => String(value || '').toLocaleLowerCase().includes(needle)); }); $('[data-memory-count]').textContent = state.savedWords.length; $('[data-memory-list]').innerHTML = sessions.length ? sessions.map(item => { const words = state.savedWords.filter(word => word.sessionId === item.sessionId); const pageLabel = item.documentId ? ` · TRANG ${(item.pageIndex || 0) + 1}` : ''; return `<article class="jp-memory-card"><small>PHIÊN HỌC${pageLabel} · ${new Date(item.savedAt).toLocaleString('vi-VN')}</small><h3>${escapeHtml(item.source)}</h3><p>${escapeHtml(item.translation)}</p><div class="jp-session-actions"><button type="button" data-open-session="${escapeHtml(item.sessionId)}">Mở lại đúng trang</button><button type="button" data-speak-session="${escapeHtml(item.sessionId)}">▶ Đọc câu</button><button type="button" data-edit-session="${escapeHtml(item.sessionId)}">Sửa nghĩa</button><button type="button" data-delete-session="${escapeHtml(item.sessionId)}">Xóa phiên</button></div><div class="jp-session-words">${words.length ? words.map(word => { const index = state.savedWords.indexOf(word); return `<span><b>${escapeHtml(word.word)}</b><small>${escapeHtml(word.reading || '')} · ${escapeHtml(word.romaji || '')}</small><em>On ${escapeHtml(word.onReading || '—')} · Kun ${escapeHtml(word.kunReading || '—')}</em><i>${escapeHtml(word.meaningEn || '')}${word.meaningVi ? ` · ${escapeHtml(word.meaningVi)}` : ''}</i><button type="button" data-speak-saved-index="${index}">▶ Đọc từ</button><button type="button" data-edit-saved-index="${index}">Sửa</button><button type="button" data-delete-saved-index="${index}">Xóa</button></span>`; }).join('') : '<small>Chưa lưu từ nào trong phiên này.</small>'}</div></article>`; }).join('') : `<p>${needle ? 'Không tìm thấy nội dung đã lưu phù hợp.' : 'Chưa có phiên phân tích nào được lưu.'}</p>`; }
+  function renderMemory() { const needle = memorySearchTerm.toLocaleLowerCase(); const sessions = (state.analyses || []).filter(item => { if (!needle) return true; const words = state.savedWords.filter(word => word.sessionId === item.sessionId); return [item.source, item.translation, item.translationVi, ...words.flatMap(word => [word.word, word.reading, word.romaji, word.meaningEn, word.meaningVi, word.onReading, word.kunReading])].some(value => String(value || '').toLocaleLowerCase().includes(needle)); }); $('[data-memory-count]').textContent = state.savedWords.length; $('[data-memory-list]').innerHTML = sessions.length ? sessions.map(item => { const words = state.savedWords.filter(word => word.sessionId === item.sessionId); const pageLabel = item.documentId ? ` · TRANG ${(item.pageIndex || 0) + 1}` : ''; return `<article class="jp-memory-card"><small>PHIÊN HỌC${pageLabel} · ${new Date(item.savedAt).toLocaleString('vi-VN')}</small><h3>${escapeHtml(item.source)}</h3><p><b>English:</b> ${escapeHtml(item.translation)}</p><p><b>Tiếng Việt:</b> ${escapeHtml(item.translationVi || 'Chưa có bản dịch tiếng Việt cho kết quả cũ.')}</p><div class="jp-session-actions"><button type="button" data-open-session="${escapeHtml(item.sessionId)}">Mở lại đúng trang</button><button type="button" data-speak-session="${escapeHtml(item.sessionId)}">▶ Đọc câu</button><button type="button" data-edit-session="${escapeHtml(item.sessionId)}">Sửa nghĩa</button><button type="button" data-delete-session="${escapeHtml(item.sessionId)}">Xóa phiên</button></div><div class="jp-session-words">${words.length ? words.map(word => { const index = state.savedWords.indexOf(word); return `<span><b>${escapeHtml(word.word)}</b><small>${escapeHtml(word.reading || '')} · ${escapeHtml(word.romaji || '')}</small><em>On ${escapeHtml(word.onReading || '—')} · Kun ${escapeHtml(word.kunReading || '—')}</em><i>${escapeHtml(word.meaningEn || '')}${word.meaningVi ? ` · ${escapeHtml(word.meaningVi)}` : ''}</i><button type="button" data-speak-saved-index="${index}">▶ Đọc từ</button><button type="button" data-edit-saved-index="${index}">Sửa</button><button type="button" data-delete-saved-index="${index}">Xóa</button></span>`; }).join('') : '<small>Chưa lưu từ nào trong phiên này.</small>'}</div></article>`; }).join('') : `<p>${needle ? 'Không tìm thấy nội dung đã lưu phù hợp.' : 'Chưa có phiên phân tích nào được lưu.'}</p>`; }
   function editSavedWord(index) { const word = state.savedWords[index]; if (!word) return; const value = window.prompt(`Sửa nghĩa tiếng Việt cho ${word.word}:`, word.meaningVi || ''); if (value === null) return; word.meaningVi = value.trim(); persist(); }
   function deleteSavedWord(index) { const word = state.savedWords[index]; if (!word || !window.confirm(`Xóa từ “${word.word}” khỏi danh sách đã lưu?`)) return; state.savedWords.splice(index, 1); persist(); toast('Đã xóa từ đã lưu.'); }
   function editSession(sessionId) { const item = state.analyses.find(entry => entry.sessionId === sessionId); if (!item) return; const value = window.prompt('Sửa bản dịch/ghi chú của đoạn:', item.translation || ''); if (value === null) return; item.translation = value.trim(); persist(); if (currentAnalysis?.sessionId === sessionId) { currentAnalysis.translation = item.translation; renderAnalysis(); } }
   function deleteSession(sessionId) { if (!window.confirm('Xóa phiên phân tích và các từ đã lưu trong phiên này?')) return; state.analyses = state.analyses.filter(item => item.sessionId !== sessionId); state.savedWords = state.savedWords.filter(item => item.sessionId !== sessionId); state.memories = state.memories.filter(item => item.sessionId !== sessionId); persist(); toast('Đã xóa phiên học.'); }
-  function reopenSession(sessionId) { const analysis = state.analyses.find(item => item.sessionId === sessionId); if (!analysis) return; const doc = state.documents.find(item => item.id === analysis.documentId); if (doc) { currentDocumentId = doc.id; currentPages = doc.pages || [doc.html || '<p></p>']; $('[data-document-title]').value = doc.title; renderPage(analysis.pageIndex || 0, false); } currentAnalysis = { ...analysis }; selectedText = analysis.source || ''; setView(false); renderAnalysis(); toast(`Đã trở lại trang ${(analysis.pageIndex || 0) + 1}.`); }
+  function reopenSession(sessionId) { const analysis = state.analyses.find(item => item.sessionId === sessionId); if (!analysis) return; const doc = state.documents.find(item => item.id === analysis.documentId); if (doc) { currentDocumentId = doc.id; currentPages = doc.pages || [doc.html || '<p></p>']; $('[data-document-title]').value = doc.title; renderPage(analysis.pageIndex || 0, false); } currentAnalysis = { ...analysis }; hasUnsavedAnalysis = false; selectedText = analysis.source || ''; setView(false); renderAnalysis(); toast(`Đã trở lại trang ${(analysis.pageIndex || 0) + 1}.`); }
   function setView(memory) { $('[data-reader-view]').hidden = memory; $('[data-inspector]').hidden = memory; $('[data-library]').hidden = memory; $('[data-memory-view]').hidden = !memory; $$('.jp-nav').forEach((el, index) => el.classList.toggle('is-active', Boolean(index) === memory)); }
 
   document.addEventListener('selectionchange', () => requestAnimationFrame(updateSelection));
@@ -295,5 +323,5 @@
   $$('[data-page-go]').forEach(button => button.addEventListener('click', () => goToPage(button.closest('[data-page-nav]').querySelector('[data-page-input]').value))); $$('[data-page-input]').forEach(input => input.addEventListener('keydown', event => { if (event.key === 'Enter') goToPage(event.currentTarget.value); })); $$('[data-page-bookmark]').forEach(button => button.addEventListener('click', () => addBookmark(button.closest('[data-page-nav]').querySelector('[data-bookmark-note]').value)));
   $$('[data-view]').forEach(button => button.addEventListener('click', () => setView(button.dataset.view === 'memory'))); $('[data-back-reader]').addEventListener('click', () => setView(false));
   document.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); analyzeSelection(); } if (event.key === 'Escape' && root.classList.contains('is-library-open')) setLibraryOpen(false); });
-  applyDisplaySettings(loadDisplaySettings()); renderDocuments(); renderMemory(); renderMemoryNotes(); renderPage(0, false);
+  applyDisplaySettings(loadDisplaySettings()); renderDailyUsage(); renderDocuments(); renderMemory(); renderMemoryNotes(); renderPage(0, false);
 })();
