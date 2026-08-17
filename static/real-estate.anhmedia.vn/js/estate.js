@@ -81,6 +81,10 @@
   var dots = Array.prototype.slice.call(tour.querySelectorAll('.tour-dots [data-tour-go]'));
   var lookControls = Array.prototype.slice.call(tour.querySelectorAll('[data-look]'));
   var backControl = tour.querySelector('[data-tour-back]');
+  var videoControl = tour.querySelector('[data-tour-video]');
+  var cinema = tour.querySelector('[data-tour-cinema]');
+  var cinemaClose = tour.querySelector('[data-tour-video-close]');
+  var cinemaFrame = tour.querySelector('[data-tour-video-frame]');
   var counter = tour.querySelector('[data-tour-counter]');
   var title = tour.querySelector('[data-tour-title]');
   var progress = tour.querySelector('[data-tour-progress]');
@@ -139,6 +143,29 @@
   controls.forEach(function (control) {
     control.addEventListener('click', function () { goTo(Number(control.getAttribute('data-tour-go'))); });
   });
+
+  function closeCinema() {
+    if (!cinema) return;
+    cinema.classList.remove('is-open');
+    cinema.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    window.setTimeout(function () { if (cinemaFrame) cinemaFrame.src = ''; }, 450);
+    if (videoControl) videoControl.focus();
+  }
+  if (videoControl && cinema && cinemaFrame) {
+    videoControl.addEventListener('click', function () {
+      var videoId = (videoControl.getAttribute('data-youtube-id') || '').replace(/[^a-zA-Z0-9_-]/g, '');
+      if (!videoId) return;
+      cinemaFrame.src = 'https://www.youtube-nocookie.com/embed/' + videoId + '?autoplay=1&rel=0&modestbranding=1';
+      cinema.classList.add('is-open');
+      cinema.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      cinemaClose.focus();
+    });
+    cinemaClose.addEventListener('click', closeCinema);
+    cinema.addEventListener('click', function (event) { if (event.target === cinema) closeCinema(); });
+    document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && cinema.classList.contains('is-open')) closeCinema(); });
+  }
 
   lookControls.forEach(function (control) {
     control.addEventListener('click', function () {
