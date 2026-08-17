@@ -26,6 +26,7 @@
   let bookmarkRange = null;
   let documentSearchTerm = '';
   let memorySearchTerm = '';
+  let activeSpeech = null;
 
   function setLibraryOpen(open) {
     root.classList.toggle('is-library-open', open);
@@ -128,7 +129,26 @@
     });
     await new Promise(resolve => setTimeout(resolve, 700));
   }
-  async function speakJapanese(text) { if (!text || !('speechSynthesis' in window)) { toast('Thiết bị này không hỗ trợ đọc tiếng Nhật.'); return; } speechSynthesis.cancel(); await playSpeakerAlert(); const utterance = new SpeechSynthesisUtterance(`。　。　${text}`); utterance.lang = 'ja-JP'; utterance.rate = .82; speechSynthesis.speak(utterance); }
+  function isAppleTouchDevice() { return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+  function startJapaneseSpeech(text) {
+    speechSynthesis.cancel();
+    speechSynthesis.resume();
+    const utterance = new SpeechSynthesisUtterance(text);
+    activeSpeech = utterance;
+    utterance.lang = 'ja-JP';
+    utterance.rate = .82;
+    utterance.volume = 1;
+    const voice = speechSynthesis.getVoices().find(item => /^ja(?:-|_)/i.test(item.lang));
+    if (voice) utterance.voice = voice;
+    utterance.onend = () => { if (activeSpeech === utterance) activeSpeech = null; };
+    utterance.onerror = event => { if (activeSpeech === utterance) activeSpeech = null; if (event.error !== 'canceled' && event.error !== 'interrupted') toast('Safari chưa phát được giọng tiếng Nhật. Hãy kiểm tra chế độ im lặng và âm lượng.'); };
+    speechSynthesis.speak(utterance);
+  }
+  function speakJapanese(text) {
+    if (!text || !('speechSynthesis' in window)) { toast('Thiết bị này không hỗ trợ đọc tiếng Nhật.'); return; }
+    if (isAppleTouchDevice()) { startJapaneseSpeech(text); return; }
+    playSpeakerAlert().then(() => startJapaneseSpeech(`。　。　${text}`));
+  }
   function showAnalysisConnection(status, message) { const panel = $('[data-analysis-connection]'); const login = $('[data-analysis-login]'); const contact = $('[data-analysis-contact]'); panel.hidden = false; $('[data-inspector-empty]').hidden = true; login.hidden = status !== 401; contact.hidden = status !== 429; const missingKey = /not configured|OPENAI_API_KEY/i.test(message || ''); $('[data-analysis-error]').textContent = status === 401 ? 'Phiên đăng nhập Google chưa hợp lệ. Đăng nhập rồi bấm Thử lại.' : status === 429 ? 'Bạn đã dùng hết 10 lượt phân tích hôm nay. Vui lòng liên hệ AnhMedia để mở rộng hạn mức.' : missingKey ? 'Bạn đã đăng nhập. Máy chủ chưa có OPENAI_API_KEY nên chưa thể phân tích. Quản trị viên cần thêm key vào secrets/live-designer.env và khởi động lại portal.' : status === 503 ? `OpenAI tạm thời chưa phản hồi. ${message || 'Vui lòng thử lại sau.'}` : `Không thể kết nối API phân tích. ${message || 'Kiểm tra mạng rồi thử lại.'}`; const extraction = $('[data-connection-panel]'); extraction.hidden = false; }
   function rememberLoginReturn() { const target = `${window.location.pathname}${window.location.search}${window.location.hash}`; document.cookie = `PORTAL_LOGIN_RETURN=${encodeURIComponent(target)}; Max-Age=600; Path=/; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`; }
 
