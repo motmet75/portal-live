@@ -17,6 +17,8 @@
   var scenes = Array.prototype.slice.call(tour.querySelectorAll('[data-tour-scene]'));
   var controls = Array.prototype.slice.call(tour.querySelectorAll('[data-tour-go]'));
   var dots = Array.prototype.slice.call(tour.querySelectorAll('.tour-dots [data-tour-go]'));
+  var lookControls = Array.prototype.slice.call(tour.querySelectorAll('[data-look]'));
+  var backControl = tour.querySelector('[data-tour-back]');
   var counter = tour.querySelector('[data-tour-counter]');
   var title = tour.querySelector('[data-tour-title]');
   var progress = tour.querySelector('[data-tour-progress]');
@@ -24,9 +26,16 @@
   var ticking = false;
   var dragging = false;
   var startX = 0;
-  var pan = scenes.map(function () { return 0; });
+  var startY = 0;
+  var views = scenes.map(function () { return { x: 50, y: 50 }; });
 
   function clamp(value, min, max) { return Math.min(max, Math.max(min, value)); }
+  function wrap(value) { return ((value % 100) + 100) % 100; }
+
+  function renderView(index) {
+    scenes[index].style.setProperty('--view-x', views[index].x + '%');
+    scenes[index].style.setProperty('--view-y', views[index].y + '%');
+  }
 
   function setScene(index) {
     index = clamp(index, 0, scenes.length - 1);
@@ -69,19 +78,38 @@
     control.addEventListener('click', function () { goTo(Number(control.getAttribute('data-tour-go'))); });
   });
 
+  lookControls.forEach(function (control) {
+    control.addEventListener('click', function () {
+      var direction = control.getAttribute('data-look');
+      if (direction === 'left') views[active].x = wrap(views[active].x - 8);
+      if (direction === 'right') views[active].x = wrap(views[active].x + 8);
+      if (direction === 'up') views[active].y = clamp(views[active].y - 7, 20, 80);
+      if (direction === 'down') views[active].y = clamp(views[active].y + 7, 20, 80);
+      if (direction === 'reset') views[active] = { x: 50, y: 50 };
+      renderView(active);
+    });
+  });
+  if (backControl) {
+    backControl.addEventListener('click', function () { goTo(Math.max(0, active - 1)); });
+  }
+
   stage.addEventListener('pointerdown', function (event) {
     if (event.target.closest('button,a')) return;
     dragging = true;
     startX = event.clientX;
+    startY = event.clientY;
     stage.classList.add('is-dragging');
     stage.setPointerCapture(event.pointerId);
   });
   stage.addEventListener('pointermove', function (event) {
     if (!dragging) return;
-    var delta = event.clientX - startX;
+    var deltaX = event.clientX - startX;
+    var deltaY = event.clientY - startY;
     startX = event.clientX;
-    pan[active] = clamp(pan[active] + delta * 0.16, -7, 7);
-    scenes[active].style.setProperty('--pan-x', pan[active] + '%');
+    startY = event.clientY;
+    views[active].x = wrap(views[active].x - deltaX * 0.055);
+    views[active].y = clamp(views[active].y - deltaY * 0.055, 20, 80);
+    renderView(active);
   });
   function stopDragging() { dragging = false; stage.classList.remove('is-dragging'); }
   stage.addEventListener('pointerup', stopDragging);
@@ -89,6 +117,9 @@
 
   window.addEventListener('scroll', requestUpdate, { passive: true });
   window.addEventListener('resize', requestUpdate);
-  scenes.forEach(function (scene, index) { scene.setAttribute('aria-hidden', index ? 'true' : 'false'); });
+  scenes.forEach(function (scene, index) {
+    scene.setAttribute('aria-hidden', index ? 'true' : 'false');
+    renderView(index);
+  });
   updateFromScroll();
 }());
