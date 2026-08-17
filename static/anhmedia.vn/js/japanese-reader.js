@@ -7,6 +7,8 @@
   const editor = $('[data-editor]');
   const analyzeButton = $('[data-analyze-selection]');
   const popover = $('[data-selection-popover]');
+  const libraryToggle = $('[data-library-toggle]');
+  const libraryBackdrop = $('.jp-library-backdrop');
   const storageKey = 'anhmedia.jp-reader.v1';
   const displayStorageKey = 'anhmedia.jp-reader.display.v1';
   let selectedText = '';
@@ -20,6 +22,13 @@
   let bookmarkRange = null;
   let documentSearchTerm = '';
   let memorySearchTerm = '';
+
+  function setLibraryOpen(open) {
+    root.classList.toggle('is-library-open', open);
+    libraryToggle.setAttribute('aria-expanded', String(open));
+    libraryBackdrop.hidden = !open;
+    document.body.style.overflow = open ? 'hidden' : '';
+  }
 
   function loadDisplaySettings() {
     try { return JSON.parse(localStorage.getItem(displayStorageKey)) || {}; }
@@ -70,7 +79,31 @@
   function storeCurrentPage() { clearTemporaryHighlights(); currentPages[currentPageIndex] = editor.innerHTML; }
   function normalizedBookmarks(doc) { doc.bookmarks = (doc.bookmarks || []).map((item, index) => typeof item === 'number' ? { id: `legacy-${item}-${index}`, page: item, note: 'Dấu trang cũ', excerpt: '' } : item); return doc.bookmarks; }
   function renderPage(index, saveCurrent = true) { if (saveCurrent) storeCurrentPage(); currentPageIndex = Math.max(0, Math.min(index, currentPages.length - 1)); bookmarkExcerpt = ''; bookmarkRange = null; editor.innerHTML = currentPages[currentPageIndex] || '<p></p>'; const doc = state.documents.find(item => item.id === currentDocumentId); const pageBookmarkCount = doc ? normalizedBookmarks(doc).filter(item => item.page === currentPageIndex).length : 0; $$('[data-page-label]').forEach(el => { el.textContent = `Trang ${currentPageIndex + 1} / ${currentPages.length}`; }); $$('[data-page-input]').forEach(el => { el.value = currentPageIndex + 1; el.max = currentPages.length; }); $$('[data-page-prev]').forEach(el => { el.disabled = currentPageIndex === 0; }); $$('[data-page-next]').forEach(el => { el.disabled = currentPageIndex >= currentPages.length - 1; }); $$('[data-page-bookmark]').forEach(el => { el.disabled = !doc; el.classList.toggle('is-active', pageBookmarkCount > 0); el.textContent = pageBookmarkCount ? `★ Lưu dấu (${pageBookmarkCount})` : '☆ Lưu dấu'; }); $('[data-document-meta]').textContent = `TRANG ${currentPageIndex + 1} / ${currentPages.length} · Chọn đoạn ngắn để học`; if (doc) { doc.currentPage = currentPageIndex; localStorage.setItem(storageKey, JSON.stringify(state)); } }
-  function speakJapanese(text) { if (!text || !('speechSynthesis' in window)) { toast('Thiết bị này không hỗ trợ đọc tiếng Nhật.'); return; } speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'ja-JP'; utterance.rate = .82; speechSynthesis.speak(utterance); }
+  async function playSpeakerWakeChime() {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) { await new Promise(resolve => setTimeout(resolve, 450)); return; }
+    const context = new AudioContextClass();
+    try {
+      if (context.state === 'suspended') await context.resume();
+      const gain = context.createGain();
+      const oscillator = context.createOscillator();
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(880, context.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(1175, context.currentTime + .12);
+      gain.gain.setValueAtTime(.0001, context.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.16, context.currentTime + .015);
+      gain.gain.exponentialRampToValueAtTime(.0001, context.currentTime + .18);
+      oscillator.connect(gain).connect(context.destination);
+      oscillator.start();
+      oscillator.stop(context.currentTime + .19);
+      await new Promise(resolve => setTimeout(resolve, 600));
+    } catch (_) {
+      await new Promise(resolve => setTimeout(resolve, 450));
+    } finally {
+      context.close().catch(() => {});
+    }
+  }
+  async function speakJapanese(text) { if (!text || !('speechSynthesis' in window)) { toast('Thiết bị này không hỗ trợ đọc tiếng Nhật.'); return; } speechSynthesis.cancel(); await playSpeakerWakeChime(); const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'ja-JP'; utterance.rate = .82; speechSynthesis.speak(utterance); }
   function showAnalysisConnection(status, message) { const panel = $('[data-analysis-connection]'); const login = $('[data-analysis-login]'); panel.hidden = false; $('[data-inspector-empty]').hidden = true; login.hidden = status !== 401; const missingKey = /not configured|OPENAI_API_KEY/i.test(message || ''); $('[data-analysis-error]').textContent = status === 401 ? 'Phiên đăng nhập Google chưa hợp lệ. Đăng nhập rồi bấm Thử lại.' : missingKey ? 'Bạn đã đăng nhập. Máy chủ chưa có OPENAI_API_KEY nên chưa thể phân tích. Quản trị viên cần thêm key vào secrets/live-designer.env và khởi động lại portal.' : status === 503 ? `OpenAI tạm thời chưa phản hồi. ${message || 'Vui lòng thử lại sau.'}` : `Không thể kết nối API phân tích. ${message || 'Kiểm tra mạng rồi thử lại.'}`; const extraction = $('[data-connection-panel]'); extraction.hidden = false; }
   function rememberLoginReturn() { const target = `${window.location.pathname}${window.location.search}${window.location.hash}`; document.cookie = `PORTAL_LOGIN_RETURN=${encodeURIComponent(target)}; Max-Age=600; Path=/; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`; }
 
@@ -221,6 +254,8 @@
   function setView(memory) { $('[data-reader-view]').hidden = memory; $('[data-inspector]').hidden = memory; $('[data-library]').hidden = memory; $('[data-memory-view]').hidden = !memory; $$('.jp-nav').forEach((el, index) => el.classList.toggle('is-active', Boolean(index) === memory)); }
 
   document.addEventListener('selectionchange', () => requestAnimationFrame(updateSelection));
+  libraryToggle.addEventListener('click', () => setLibraryOpen(!root.classList.contains('is-library-open')));
+  $$('[data-library-close]').forEach(button => button.addEventListener('click', () => setLibraryOpen(false)));
   $('[data-reader-size]').addEventListener('click', () => toggleDisplaySetting('large'));
   $('[data-reader-bold]').addEventListener('click', () => toggleDisplaySetting('bold'));
   $$('[data-google-login], [data-analysis-login]').forEach(link => link.addEventListener('click', rememberLoginReturn));
@@ -236,13 +271,13 @@
   $('[data-font]').addEventListener('change', event => { editor.classList.remove('font-sans','font-rounded'); if (event.target.value !== 'serif') editor.classList.add(`font-${event.target.value}`); });
   $$('[data-command]').forEach(button => button.addEventListener('click', () => document.execCommand(button.dataset.command)));
   $$('[data-highlight]').forEach(button => button.addEventListener('click', () => { if (savedRange) { const selection = getSelection(); selection.removeAllRanges(); selection.addRange(savedRange); } document.execCommand('hiliteColor', false, button.dataset.highlight); }));
-  $('[data-document-list]').addEventListener('click', event => { const removeBookmark = event.target.closest('[data-delete-bookmark]'); if (removeBookmark) { deleteBookmark(Number(removeBookmark.dataset.bookmarkDocument), removeBookmark.dataset.deleteBookmark); return; } const bookmark = event.target.closest('[data-bookmark-id]'); if (bookmark) { openBookmark(Number(bookmark.dataset.bookmarkDocument), bookmark.dataset.bookmarkId); return; } const remove = event.target.closest('[data-delete-document]'); if (remove) { deleteDocument(Number(remove.dataset.deleteDocument)); return; } const button = event.target.closest('[data-document-id]'); if (!button) return; const doc = state.documents.find(item => item.id === Number(button.dataset.documentId)); if (doc) { currentDocumentId = doc.id; currentPages = doc.pages || [doc.html || '<p></p>']; $('[data-document-title]').value = doc.title; renderPage(doc.currentPage || 0, false); } });
+  $('[data-document-list]').addEventListener('click', event => { const removeBookmark = event.target.closest('[data-delete-bookmark]'); if (removeBookmark) { deleteBookmark(Number(removeBookmark.dataset.bookmarkDocument), removeBookmark.dataset.deleteBookmark); return; } const bookmark = event.target.closest('[data-bookmark-id]'); if (bookmark) { openBookmark(Number(bookmark.dataset.bookmarkDocument), bookmark.dataset.bookmarkId); if (window.innerWidth <= 1100) setLibraryOpen(false); return; } const remove = event.target.closest('[data-delete-document]'); if (remove) { deleteDocument(Number(remove.dataset.deleteDocument)); return; } const button = event.target.closest('[data-document-id]'); if (!button) return; const doc = state.documents.find(item => item.id === Number(button.dataset.documentId)); if (doc) { currentDocumentId = doc.id; currentPages = doc.pages || [doc.html || '<p></p>']; $('[data-document-title]').value = doc.title; renderPage(doc.currentPage || 0, false); if (window.innerWidth <= 1100) setLibraryOpen(false); } });
   $('[data-document-search]').addEventListener('input', event => searchDocument(event.currentTarget.value)); $('[data-document-search]').addEventListener('keydown', event => { if (event.key === 'Enter') searchDocument(event.currentTarget.value); }); $('[data-document-search-results]').addEventListener('click', event => { const result = event.target.closest('[data-search-page]'); if (!result) return; renderPage(Number(result.dataset.searchPage)); requestAnimationFrame(() => { const target = highlightSearchText(documentSearchTerm); target?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }); });
   $('[data-memory-search]').addEventListener('input', event => { memorySearchTerm = event.currentTarget.value.trim(); renderMemory(); renderMemoryNotes(); });
   $('[data-study-note]').addEventListener('input', event => { if (currentAnalysis) currentAnalysis.note = event.currentTarget.value; $('[data-note-count]').textContent = String(event.currentTarget.value.length); });
   $$('[data-page-prev]').forEach(button => button.addEventListener('click', () => renderPage(currentPageIndex - 1))); $$('[data-page-next]').forEach(button => button.addEventListener('click', () => renderPage(currentPageIndex + 1)));
   $$('[data-page-go]').forEach(button => button.addEventListener('click', () => goToPage(button.closest('[data-page-nav]').querySelector('[data-page-input]').value))); $$('[data-page-input]').forEach(input => input.addEventListener('keydown', event => { if (event.key === 'Enter') goToPage(event.currentTarget.value); })); $$('[data-page-bookmark]').forEach(button => button.addEventListener('click', () => addBookmark(button.closest('[data-page-nav]').querySelector('[data-bookmark-note]').value)));
   $$('[data-view]').forEach(button => button.addEventListener('click', () => setView(button.dataset.view === 'memory'))); $('[data-back-reader]').addEventListener('click', () => setView(false));
-  document.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); analyzeSelection(); } });
+  document.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); analyzeSelection(); } if (event.key === 'Escape' && root.classList.contains('is-library-open')) setLibraryOpen(false); });
   applyDisplaySettings(loadDisplaySettings()); renderDocuments(); renderMemory(); renderMemoryNotes(); renderPage(0, false);
 })();
