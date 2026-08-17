@@ -43,7 +43,7 @@
     try { const value = JSON.parse(localStorage.getItem(storageKey)) || {}; return { documents: value.documents || [], memories: value.memories || [], analyses: value.analyses || [], savedWords: value.savedWords || [] }; }
     catch (_) { return { documents: [], memories: [], analyses: [], savedWords: [] }; }
   }
-  function persist() { localStorage.setItem(storageKey, JSON.stringify(state)); renderDocuments(); renderMemory(); }
+  function persist() { localStorage.setItem(storageKey, JSON.stringify(state)); renderDocuments(); renderMemory(); renderMemoryNotes(); }
   function toast(message) { const el = $('[data-toast]'); el.textContent = message; el.hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(() => { el.hidden = true; }, 2400); }
   function escapeHtml(value) { const el = document.createElement('div'); el.textContent = value || ''; return el.innerHTML; }
   function textToHtml(text) { return String(text || '').split(/\n\s*\n/).filter(Boolean).map(part => `<p>${escapeHtml(part).replace(/\n/g, '<br>')}</p>`).join(''); }
@@ -136,13 +136,16 @@
 
   function renderAnalysis() {
     if (!currentAnalysis) return;
+    const analysisWords = currentAnalysis.words || currentAnalysis.vocabulary || [];
     $('[data-inspector-empty]').hidden = true; $('[data-analysis]').hidden = false;
     $('[data-kanji-reading]').innerHTML = currentAnalysis.ruby || escapeHtml(currentAnalysis.annotatedText);
     $('[data-hiragana]').textContent = currentAnalysis.hira || currentAnalysis.hiragana;
     $('[data-spelling-line]').innerHTML = (currentAnalysis.tokens || []).map(item => { const surface = item.surface || item[0] || ''; const reading = item.reading || (/[ぁ-んー]+/.test(surface) ? surface : '—'); const romaji = item.romaji || item[1] || ''; return `<span class="jp-spelling"><b>${escapeHtml(surface)}</b><small>${escapeHtml(reading)}${romaji ? ` · ${escapeHtml(romaji)}` : ''}</small></span>`; }).join('');
     $('[data-translation]').textContent = currentAnalysis.translation;
-    $('[data-tokens]').innerHTML = (currentAnalysis.tokens || []).map(item => `<span class="jp-token"><b>${escapeHtml(item[0] || item.surface)}</b><small>${escapeHtml(item[1] || item.romaji)}</small></span>`).join('');
-    $('[data-vocabulary]').innerHTML = (currentAnalysis.words || currentAnalysis.vocabulary || []).map((item, index) => { const word = item.word || item[0] || ''; const meaningEn = item.meaningEn || item.meaning || item[1] || ''; const meaningVi = item.meaningVi || ''; const saved = state.savedWords.some(entry => entry.sessionId === currentAnalysis.sessionId && entry.word === word); const characters = (item.characters || []).map(char => `<i class="jp-kanji-char"><strong>${escapeHtml(char.kanji)}</strong><small>On ${escapeHtml(char.onReading || '—')} · Kun ${escapeHtml(char.kunReading || '—')}</small><em>${escapeHtml(char.meaningEn || '')}${char.memoryVi ? ` · ${escapeHtml(char.memoryVi)}` : ''}</em></i>`).join(''); return `<span class="jp-word"><b>${escapeHtml(word)}</b><small>ひらがな: ${escapeHtml(item.reading || '—')} · ${escapeHtml(item.romaji || '')}</small><span>On: ${escapeHtml(item.onReading || '—')} · Kun: ${escapeHtml(item.kunReading || '—')}</span><em>${escapeHtml(meaningEn)}${meaningVi ? ` · ${escapeHtml(meaningVi)}` : ''}</em>${characters ? `<span class="jp-kanji-breakdown">${characters}</span>` : ''}<button type="button" data-speak-word="${index}">▶ Đọc từ</button><button type="button" data-save-word="${index}" ${saved ? 'disabled' : ''}>${saved ? '✓ Đã lưu' : '＋ Lưu từ'}</button></span>`; }).join('');
+    $('[data-tokens]').innerHTML = (currentAnalysis.tokens || []).map(item => { const surface = item[0] || item.surface || ''; const word = analysisWords.find(entry => (entry.word || entry[0]) === surface || (entry.reading && entry.reading === item.reading)); const romaji = item.romaji || item[1] || word?.romaji || ''; const meaningEn = item.meaningEn || word?.meaningEn || word?.meaning || ''; const meaningVi = item.meaningVi || word?.meaningVi || ''; return `<span class="jp-token"><b>${escapeHtml(surface)}</b><small>${escapeHtml(romaji)}</small><em>${escapeHtml(meaningEn)}${meaningVi ? ` · ${escapeHtml(meaningVi)}` : ''}</em></span>`; }).join('');
+    $('[data-vocabulary]').innerHTML = analysisWords.map((item, index) => { const word = item.word || item[0] || ''; const meaningEn = item.meaningEn || item.meaning || item[1] || ''; const meaningVi = item.meaningVi || ''; const saved = state.savedWords.some(entry => entry.sessionId === currentAnalysis.sessionId && entry.word === word); const characters = (item.characters || []).map(char => `<i class="jp-kanji-char"><strong>${escapeHtml(char.kanji)}</strong><small>On ${escapeHtml(char.onReading || '—')} · Kun ${escapeHtml(char.kunReading || '—')}</small><em>${escapeHtml(char.meaningEn || '')}${char.memoryVi ? ` · ${escapeHtml(char.memoryVi)}` : ''}</em></i>`).join(''); return `<span class="jp-word"><b>${escapeHtml(word)}</b><small>ひらがな: ${escapeHtml(item.reading || '—')} · ${escapeHtml(item.romaji || '')}</small><span>On: ${escapeHtml(item.onReading || '—')} · Kun: ${escapeHtml(item.kunReading || '—')}</span><em>${escapeHtml(meaningEn)}${meaningVi ? ` · ${escapeHtml(meaningVi)}` : ''}</em>${characters ? `<span class="jp-kanji-breakdown">${characters}</span>` : ''}<button type="button" data-speak-word="${index}">▶ Đọc từ</button><button type="button" data-save-word="${index}" ${saved ? 'disabled' : ''}>${saved ? '✓ Đã lưu' : '＋ Lưu từ'}</button></span>`; }).join('');
+    $('[data-study-note]').value = currentAnalysis.note || '';
+    $('[data-note-count]').textContent = String((currentAnalysis.note || '').length);
   }
 
   function saveAnalysisResult(result) { const existing = (state.analyses || []).find(item => item.source === result.source && item.documentId === currentDocumentId && item.pageIndex === currentPageIndex); result.sessionId = existing?.sessionId || `session-${Date.now()}`; result.savedAt = new Date().toISOString(); result.documentId = currentDocumentId; result.pageIndex = currentPageIndex; state.analyses = [{ ...result }, ...(state.analyses || []).filter(item => item.sessionId !== result.sessionId)].slice(0, 100); persist(); }
@@ -180,7 +183,35 @@
     persist();
     toast('Đã xóa tài liệu khỏi lịch sử. Các phiên học đã lưu vẫn được giữ.');
   }
-  function remember() { if (!currentAnalysis) return; (currentAnalysis.words || []).forEach((_, index) => saveWord(index, true)); if (!state.memories.some(item => item.sessionId === currentAnalysis.sessionId)) state.memories.unshift({ id: Date.now(), ...currentAnalysis, nextReview: new Date(Date.now() + 86400000).toISOString() }); persist(); toast('Đã lưu đoạn và toàn bộ từ mới để ôn.'); }
+  function remember() {
+    if (!currentAnalysis) return;
+    currentAnalysis.note = $('[data-study-note]').value.trim();
+    (currentAnalysis.words || []).forEach((_, index) => saveWord(index, true));
+    const analysis = state.analyses.find(item => item.sessionId === currentAnalysis.sessionId);
+    if (analysis) analysis.note = currentAnalysis.note;
+    const memory = state.memories.find(item => item.sessionId === currentAnalysis.sessionId);
+    const memoryData = { id: memory?.id || Date.now(), ...currentAnalysis, nextReview: memory?.nextReview || new Date(Date.now() + 86400000).toISOString() };
+    if (memory) Object.assign(memory, memoryData);
+    else state.memories.unshift(memoryData);
+    persist();
+    toast(currentAnalysis.note ? 'Đã lưu đoạn, ghi chú và toàn bộ từ mới.' : 'Đã lưu đoạn và toàn bộ từ mới để ôn.');
+  }
+  function renderMemoryNotes() {
+    const needle = memorySearchTerm.toLocaleLowerCase();
+    const sessions = (state.analyses || []).filter(item => {
+      if (!needle) return true;
+      const words = state.savedWords.filter(word => word.sessionId === item.sessionId);
+      return [item.source, item.translation, ...words.flatMap(word => [word.word, word.reading, word.romaji, word.meaningEn, word.meaningVi, word.onReading, word.kunReading])].some(value => String(value || '').toLocaleLowerCase().includes(needle));
+    });
+    $$('[data-memory-list] .jp-memory-card').forEach((card, index) => {
+      const note = sessions[index]?.note;
+      if (!note) return;
+      const paragraph = document.createElement('p');
+      paragraph.className = 'jp-memory-note';
+      paragraph.textContent = `Ghi chú: ${note}`;
+      card.querySelector('.jp-session-actions')?.before(paragraph);
+    });
+  }
   function renderMemory() { const needle = memorySearchTerm.toLocaleLowerCase(); const sessions = (state.analyses || []).filter(item => { if (!needle) return true; const words = state.savedWords.filter(word => word.sessionId === item.sessionId); return [item.source, item.translation, ...words.flatMap(word => [word.word, word.reading, word.romaji, word.meaningEn, word.meaningVi, word.onReading, word.kunReading])].some(value => String(value || '').toLocaleLowerCase().includes(needle)); }); $('[data-memory-count]').textContent = state.savedWords.length; $('[data-memory-list]').innerHTML = sessions.length ? sessions.map(item => { const words = state.savedWords.filter(word => word.sessionId === item.sessionId); const pageLabel = item.documentId ? ` · TRANG ${(item.pageIndex || 0) + 1}` : ''; return `<article class="jp-memory-card"><small>PHIÊN HỌC${pageLabel} · ${new Date(item.savedAt).toLocaleString('vi-VN')}</small><h3>${escapeHtml(item.source)}</h3><p>${escapeHtml(item.translation)}</p><div class="jp-session-actions"><button type="button" data-open-session="${escapeHtml(item.sessionId)}">Mở lại đúng trang</button><button type="button" data-speak-session="${escapeHtml(item.sessionId)}">▶ Đọc câu</button><button type="button" data-edit-session="${escapeHtml(item.sessionId)}">Sửa nghĩa</button><button type="button" data-delete-session="${escapeHtml(item.sessionId)}">Xóa phiên</button></div><div class="jp-session-words">${words.length ? words.map(word => { const index = state.savedWords.indexOf(word); return `<span><b>${escapeHtml(word.word)}</b><small>${escapeHtml(word.reading || '')} · ${escapeHtml(word.romaji || '')}</small><em>On ${escapeHtml(word.onReading || '—')} · Kun ${escapeHtml(word.kunReading || '—')}</em><i>${escapeHtml(word.meaningEn || '')}${word.meaningVi ? ` · ${escapeHtml(word.meaningVi)}` : ''}</i><button type="button" data-speak-saved-index="${index}">▶ Đọc từ</button><button type="button" data-edit-saved-index="${index}">Sửa</button><button type="button" data-delete-saved-index="${index}">Xóa</button></span>`; }).join('') : '<small>Chưa lưu từ nào trong phiên này.</small>'}</div></article>`; }).join('') : `<p>${needle ? 'Không tìm thấy nội dung đã lưu phù hợp.' : 'Chưa có phiên phân tích nào được lưu.'}</p>`; }
   function editSavedWord(index) { const word = state.savedWords[index]; if (!word) return; const value = window.prompt(`Sửa nghĩa tiếng Việt cho ${word.word}:`, word.meaningVi || ''); if (value === null) return; word.meaningVi = value.trim(); persist(); }
   function deleteSavedWord(index) { const word = state.savedWords[index]; if (!word || !window.confirm(`Xóa từ “${word.word}” khỏi danh sách đã lưu?`)) return; state.savedWords.splice(index, 1); persist(); toast('Đã xóa từ đã lưu.'); }
@@ -207,10 +238,11 @@
   $$('[data-highlight]').forEach(button => button.addEventListener('click', () => { if (savedRange) { const selection = getSelection(); selection.removeAllRanges(); selection.addRange(savedRange); } document.execCommand('hiliteColor', false, button.dataset.highlight); }));
   $('[data-document-list]').addEventListener('click', event => { const removeBookmark = event.target.closest('[data-delete-bookmark]'); if (removeBookmark) { deleteBookmark(Number(removeBookmark.dataset.bookmarkDocument), removeBookmark.dataset.deleteBookmark); return; } const bookmark = event.target.closest('[data-bookmark-id]'); if (bookmark) { openBookmark(Number(bookmark.dataset.bookmarkDocument), bookmark.dataset.bookmarkId); return; } const remove = event.target.closest('[data-delete-document]'); if (remove) { deleteDocument(Number(remove.dataset.deleteDocument)); return; } const button = event.target.closest('[data-document-id]'); if (!button) return; const doc = state.documents.find(item => item.id === Number(button.dataset.documentId)); if (doc) { currentDocumentId = doc.id; currentPages = doc.pages || [doc.html || '<p></p>']; $('[data-document-title]').value = doc.title; renderPage(doc.currentPage || 0, false); } });
   $('[data-document-search]').addEventListener('input', event => searchDocument(event.currentTarget.value)); $('[data-document-search]').addEventListener('keydown', event => { if (event.key === 'Enter') searchDocument(event.currentTarget.value); }); $('[data-document-search-results]').addEventListener('click', event => { const result = event.target.closest('[data-search-page]'); if (!result) return; renderPage(Number(result.dataset.searchPage)); requestAnimationFrame(() => { const target = highlightSearchText(documentSearchTerm); target?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }); });
-  $('[data-memory-search]').addEventListener('input', event => { memorySearchTerm = event.currentTarget.value.trim(); renderMemory(); });
+  $('[data-memory-search]').addEventListener('input', event => { memorySearchTerm = event.currentTarget.value.trim(); renderMemory(); renderMemoryNotes(); });
+  $('[data-study-note]').addEventListener('input', event => { if (currentAnalysis) currentAnalysis.note = event.currentTarget.value; $('[data-note-count]').textContent = String(event.currentTarget.value.length); });
   $$('[data-page-prev]').forEach(button => button.addEventListener('click', () => renderPage(currentPageIndex - 1))); $$('[data-page-next]').forEach(button => button.addEventListener('click', () => renderPage(currentPageIndex + 1)));
   $$('[data-page-go]').forEach(button => button.addEventListener('click', () => goToPage(button.closest('[data-page-nav]').querySelector('[data-page-input]').value))); $$('[data-page-input]').forEach(input => input.addEventListener('keydown', event => { if (event.key === 'Enter') goToPage(event.currentTarget.value); })); $$('[data-page-bookmark]').forEach(button => button.addEventListener('click', () => addBookmark(button.closest('[data-page-nav]').querySelector('[data-bookmark-note]').value)));
   $$('[data-view]').forEach(button => button.addEventListener('click', () => setView(button.dataset.view === 'memory'))); $('[data-back-reader]').addEventListener('click', () => setView(false));
   document.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); analyzeSelection(); } });
-  applyDisplaySettings(loadDisplaySettings()); renderDocuments(); renderMemory(); renderPage(0, false);
+  applyDisplaySettings(loadDisplaySettings()); renderDocuments(); renderMemory(); renderMemoryNotes(); renderPage(0, false);
 })();
