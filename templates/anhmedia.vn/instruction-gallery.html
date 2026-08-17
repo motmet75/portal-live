@@ -601,6 +601,12 @@
   var requestedMediaId = clean(boot ? boot.dataset.mediaId : '');
   var requestedSlide = Number(clean(boot ? boot.dataset.slide : '0')) || 0;
   var cards = Array.prototype.slice.call(document.querySelectorAll('.am-tiktok-card'));
+  var galleryGrid = document.querySelector('.am-tiktok-grid');
+  cards.sort(function(a, b) {
+    var newestFirst = clean(b.dataset.created).localeCompare(clean(a.dataset.created));
+    return newestFirst || (Number(b.dataset.id || 0) - Number(a.dataset.id || 0));
+  });
+  if (galleryGrid) cards.forEach(function(card) { galleryGrid.appendChild(card); });
   var currentIndex = 0;
   var slideIndex = 0;
   var touchStartX = 0;
@@ -1269,8 +1275,8 @@
   }
 })();
 </script>
-<link rel="stylesheet" th:href="'/' + ${domain} + '/css/instruction-reel-2026.css?v=20260810-1'">
+<link rel="stylesheet" th:href="'/' + ${domain} + '/css/instruction-reel-2026.css?v=20260817-2'">
 <script defer th:src="'/' + ${domain} + '/js/anhmedia-live-2026.js?v=20260806'"></script>
-<script defer th:src="'/' + ${domain} + '/js/instruction-reel-2026.js?v=20260809-1'"></script>
+<script defer th:src="'/' + ${domain} + '/js/instruction-reel-2026.js?v=20260817-2'"></script>
 </body>
 </html>
