@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kotoba Studio — Đọc tài liệu tiếng Nhật</title>
+  <meta name="description" content="Không gian đọc PDF tiếng Nhật, phân tích đoạn chọn và ôn từ vựng từng bước.">
+  <link rel="stylesheet" href="/anhmedia.vn/css/japanese-reader.css?v=20260817-1">
+</head>
+<body>
+<div class="jp-app" data-jp-reader>
+  <header class="jp-topbar">
+    <a class="jp-brand" href="/"><span>言</span><strong>Kotoba Studio</strong></a>
+    <nav aria-label="Điều hướng tài liệu">
+      <button class="jp-nav is-active" type="button" data-view="reader">Tài liệu</button>
+      <button class="jp-nav" type="button" data-view="memory">Từ đã lưu <b data-memory-count>0</b></button>
+    </nav>
+    <div class="jp-account">
+      <span class="jp-sync"><i></i> Bản nháp cục bộ</span>
+      <a class="jp-google" href="/oauth2/authorization/google" data-google-login>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285f4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.9h5.4a4.6 4.6 0 0 1-2 3v2.5h3.3c1.9-1.8 2.9-4.4 2.9-7.4Z"/><path fill="#34a853" d="M12 22c2.7 0 5-.9 6.7-2.4l-3.3-2.5c-.9.6-2 1-3.4 1a5.9 5.9 0 0 1-5.5-4.1H3.1v2.6A10 10 0 0 0 12 22Z"/><path fill="#fbbc05" d="M6.5 14a6 6 0 0 1 0-3.9V7.4H3.1a10 10 0 0 0 0 9.2L6.5 14Z"/><path fill="#ea4335" d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.9-2.8A9.7 9.7 0 0 0 3.1 7.4l3.4 2.7A5.9 5.9 0 0 1 12 6Z"/></svg>
+        Đăng nhập Google
+      </a>
+    </div>
+  </header>
+
+  <main class="jp-workspace">
+    <aside class="jp-library" data-library aria-label="Thư viện">
+      <div class="jp-library__head"><div><small>THƯ VIỆN CỦA BẠN</small><h1>Tài liệu</h1></div><button type="button" data-new-document aria-label="Tạo tài liệu">＋</button></div>
+      <label class="jp-upload" for="jp-file">
+        <input id="jp-file" type="file" accept="application/pdf,image/png,image/jpeg" hidden>
+        <span>PDF</span><strong>Tải PDF tiếng Nhật</strong><small>Chỉ trích xuất chữ. Không tự phân tích toàn bộ.</small>
+      </label>
+      <div class="jp-upload-progress" data-upload-progress hidden><span></span><p>Đang trích xuất văn bản…</p></div>
+      <div class="jp-documents" data-document-list></div>
+      <div class="jp-extract-auth">
+        <button type="button" data-toggle-connection>Kết nối trình trích xuất</button>
+        <div data-connection-panel hidden>
+          <label>User ID<input data-user-id autocomplete="username" placeholder="anhmedia"></label>
+          <label>Token<input data-token-id type="password" autocomplete="current-password" placeholder="Token máy chủ"></label>
+          <small>Token chỉ gửi tới `/api/extract-text`, không lưu trong lịch sử.</small>
+        </div>
+      </div>
+    </aside>
+
+    <section class="jp-reader" data-reader-view>
+      <div class="jp-document-bar">
+        <div><small data-document-meta>TÀI LIỆU MẪU · 2 ĐOẠN</small><input data-document-title value="Động cơ khí — Pilot ignition" aria-label="Tên tài liệu"></div>
+        <div class="jp-actions"><button type="button" data-save-document>Lưu bản nháp</button><button class="primary" type="button" data-analyze-selection disabled>Phân tích đoạn chọn <span>⌘↵</span></button></div>
+      </div>
+
+      <div class="jp-editor-tools" role="toolbar" aria-label="Định dạng tài liệu">
+        <select data-font aria-label="Phông chữ"><option value="serif">Mincho</option><option value="sans">Gothic</option><option value="rounded">Rounded</option></select>
+        <button type="button" data-command="bold"><b>B</b></button><button type="button" data-command="italic"><i>I</i></button>
+        <button type="button" data-highlight="#fff0a8" class="swatch yellow" aria-label="Tô vàng"></button><button type="button" data-highlight="#ccebdc" class="swatch green" aria-label="Tô xanh"></button><button type="button" data-highlight="#dce7ff" class="swatch blue" aria-label="Tô xanh lam"></button><button type="button" data-highlight="transparent" aria-label="Xóa màu">⌫</button>
+        <span class="jp-tool-hint">Bôi chọn một câu hoặc đoạn ngắn để bắt đầu</span>
+      </div>
+
+      <article class="jp-paper" contenteditable="true" spellcheck="false" data-editor aria-label="Nội dung tiếng Nhật có thể chỉnh sửa">
+        <p>パイロットインジェクタから微量（熱量比1%以下）の液体燃料を噴射し副室内のガスを着火する．</p>
+        <p>パイロット燃料は微量だが点火プラグに比し約8 000倍という強力な着火エネルギーを有するため燃焼が安定し効率が向上する．</p>
+      </article>
+      <div class="jp-selection-popover" data-selection-popover hidden><span data-selection-preview></span><button type="button" data-analyze-popover>この文を学ぶ</button></div>
+    </section>
+
+    <aside class="jp-inspector" data-inspector>
+      <div class="jp-inspector__empty" data-inspector-empty><span>文</span><h2>Chọn một câu để học</h2><p>Kotoba chỉ phân tích phần bạn chọn, giúp tiết kiệm thời gian và ghi nhớ theo từng bước nhỏ.</p></div>
+      <div class="jp-analysis" data-analysis hidden>
+        <div class="jp-analysis__head"><div><small>PHÂN TÍCH ĐOẠN CHỌN</small><h2 data-analysis-title>Đoạn 01</h2></div><button type="button" data-close-analysis>×</button></div>
+        <section><label>Kanji + âm On/Kun</label><div class="jp-ruby-line" data-kanji-reading></div></section>
+        <section><label>Hiragana tự nhiên</label><p class="jp-hiragana" data-hiragana></p></section>
+        <section><label>Tách từ · Romaji</label><div class="jp-tokens" data-tokens></div></section>
+        <section><label>Nghĩa tiếng Anh</label><p data-translation></p></section>
+        <section><label>Từ nên nhớ</label><div class="jp-vocabulary" data-vocabulary></div></section>
+        <div class="jp-analysis__actions"><button type="button" data-speak>▶ Nghe đoạn này</button><button class="primary" type="button" data-remember>＋ Lưu để ôn</button></div>
+        <p class="jp-ai-note">AI có thể sai âm đọc trong tên riêng và thuật ngữ kỹ thuật. Luôn đối chiếu ngữ cảnh.</p>
+      </div>
+    </aside>
+
+    <section class="jp-memory" data-memory-view hidden><div class="jp-memory__head"><div><small>ÔN TẬP NGẮT QUÃNG</small><h1>Từ và đoạn đã lưu</h1></div><button type="button" data-back-reader>← Trở lại tài liệu</button></div><div class="jp-memory-grid" data-memory-list></div></section>
+  </main>
+  <div class="jp-toast" data-toast hidden></div>
+</div>
+<script src="/anhmedia.vn/js/japanese-reader.js?v=20260817-1" defer></script>
+</body>
+</html>
