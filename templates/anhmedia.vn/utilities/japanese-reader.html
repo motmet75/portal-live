@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kotoba Studio — Đọc tài liệu tiếng Nhật</title>
   <meta name="description" content="Không gian đọc PDF tiếng Nhật, phân tích đoạn chọn và ôn từ vựng từng bước.">
-  <link rel="stylesheet" href="/anhmedia.vn/css/japanese-reader.css?v=20260817-1">
+  <link rel="stylesheet" href="/anhmedia.vn/css/japanese-reader.css?v=20260817-2">
   <style>.jp-word{min-width:160px}.jp-word b,.jp-word small,.jp-word span,.jp-word em{display:block}.jp-word span{margin-top:5px;color:#9a5548;font-size:10px}.jp-word em{margin-top:4px;color:#315f55;font-size:11px;font-style:normal}.jp-word button,.jp-session-actions button,.jp-session-words button{margin:8px 4px 0 0;padding:6px 9px;border:1px solid #ccdcd6;border-radius:7px;background:#e1eee9;color:#315f55;font-size:10px;font-weight:700}.jp-word button:disabled{opacity:.65}.jp-session-actions{display:flex;gap:5px}.jp-session-words{display:grid;gap:7px;margin-top:14px}.jp-session-words>span{padding:9px;border-radius:8px;background:#f5f7f4}.jp-session-words b,.jp-session-words small,.jp-session-words em,.jp-session-words i{display:block}.jp-session-words em,.jp-session-words i{margin-top:3px;font-size:10px;font-style:normal;color:#6c7774}.jp-spelling-line{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;padding-top:10px;border-top:1px dashed #dfe5e1}.jp-spelling{padding:6px 8px;border-radius:7px;background:#f5f7f4}.jp-spelling b,.jp-spelling small{display:block}.jp-spelling b{font-family:"Noto Serif JP",serif}.jp-spelling small{margin-top:2px;color:#9a5548;font-size:10px}</style>
   <style>.jp-kanji-breakdown{display:flex!important;flex-wrap:wrap;gap:5px;margin-top:8px!important}.jp-kanji-char{min-width:72px;padding:7px;border-radius:7px;background:#fff8e6;font-style:normal}.jp-kanji-char strong,.jp-kanji-char small,.jp-kanji-char em{display:block}.jp-kanji-char strong{font:600 21px "Noto Serif JP",serif;color:#1e2726}.jp-kanji-char small,.jp-kanji-char em{margin-top:2px;font-size:9px!important;color:#6c7774!important}</style>
   <style>.jp-page-nav{max-width:780px;margin:14px auto 0;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px}.jp-page-nav--top{margin-bottom:14px}.jp-page-nav button{padding:9px 13px;border:1px solid #dfe5e1;border-radius:8px;background:#fff;color:#315f55;font-weight:700}.jp-page-nav button:disabled{opacity:.35}.jp-page-nav span{min-width:100px;text-align:center;color:#6c7774;font-size:12px}.jp-page-jump{display:flex;align-items:center;gap:5px}.jp-page-jump input{width:58px;padding:8px;border:1px solid #dfe5e1;border-radius:8px;text-align:center}.jp-bookmark-compose{display:flex;gap:5px}.jp-bookmark-compose input{width:min(240px,45vw);padding:8px;border:1px solid #dfe5e1;border-radius:8px}.jp-page-bookmark.is-active{background:#fff0a8;color:#795a0c}</style>
@@ -13,6 +13,7 @@
   <style>.jp-analysis-connection{margin:0 0 18px;padding:14px;border:1px solid #e8c98b;border-radius:10px;background:#fff8e6}.jp-analysis-connection strong,.jp-analysis-connection small{display:block}.jp-analysis-connection small{margin-top:5px;line-height:1.5;letter-spacing:0}.jp-analysis-connection__actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.jp-analysis-connection__actions a,.jp-analysis-connection__actions button{padding:8px 10px;border:1px solid #d9c38f;border-radius:7px;background:#fff;color:#315f55;text-decoration:none;font-size:11px;font-weight:700}</style>
   <style>.jp-user{display:flex;align-items:center;gap:8px}.jp-user strong{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.jp-user a{color:#9a5548;font-size:11px;font-weight:700;text-decoration:none}</style>
   <style>.jp-document-search{max-width:780px;margin:12px auto;position:relative}.jp-document-search>input,.jp-memory-search{width:100%;padding:12px 14px;border:1px solid #dfe5e1;border-radius:10px;background:#fff;font-size:14px}.jp-search-results{max-height:240px;display:grid;gap:5px;padding:8px;border:1px solid #dfe5e1;border-radius:10px;background:#fff;overflow:auto;box-shadow:0 12px 35px #1f302c1c}.jp-search-results>small{padding:5px;color:#6c7774}.jp-search-results button{display:grid;grid-template-columns:65px 1fr;gap:8px;padding:8px;border:0;border-radius:7px;background:#f5f7f4;text-align:left}.jp-search-results button b{color:#315f55}.jp-search-results button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}mark[data-temp-search]{padding:1px 2px;border-radius:3px;background:#ffd95c;animation:jpSearchPulse 1.8s ease}@keyframes jpSearchPulse{50%{box-shadow:0 0 0 7px #ffd95c55}}.jp-memory-tools{display:flex;gap:12px;align-items:center;margin-top:18px}.jp-memory-tools label{flex:1}.jp-session-actions{flex-wrap:wrap}</style>
+  <link rel="stylesheet" href="/anhmedia.vn/css/japanese-reader-layout.css?v=20260817-1">
 </head>
 <body>
 <div class="jp-app" data-jp-reader>
@@ -22,6 +23,7 @@
       <button class="jp-nav is-active" type="button" data-view="reader">Tài liệu</button>
       <button class="jp-nav" type="button" data-view="memory">Từ đã lưu <b data-memory-count>0</b></button>
     </nav>
+    <div class="jp-accessibility" aria-label="Hỗ trợ thị lực"><span>Hiển thị</span><button type="button" data-reader-size aria-pressed="false" title="Tăng cỡ chữ">A＋</button><button type="button" data-reader-bold aria-pressed="false" title="Làm đậm toàn bộ chữ"><b>B</b></button></div>
     <div class="jp-account">
       <span class="jp-sync"><i></i> Bản nháp cục bộ</span>
       <div class="jp-user" th:if="${session.SPRING_SECURITY_CONTEXT != null}"><span>Đang học:</span><strong th:text="${session.SPRING_SECURITY_CONTEXT.authentication.name}">user@example.com</strong><a href="/logout">Đăng xuất</a></div>
@@ -52,6 +54,7 @@
     </aside>
 
     <section class="jp-reader" data-reader-view>
+      <div class="jp-control-dock" data-control-dock>
       <div class="jp-document-bar">
         <div><small data-document-meta>TÀI LIỆU MẪU · 2 ĐOẠN</small><input data-document-title value="Động cơ khí — Pilot ignition" aria-label="Tên tài liệu"></div>
         <div class="jp-actions"><button type="button" data-save-document>Lưu bản nháp</button><button class="primary" type="button" data-analyze-selection disabled>Phân tích đoạn chọn <span>⌘↵</span></button></div>
@@ -66,12 +69,12 @@
         <button type="button" data-highlight="#fff0a8" class="swatch yellow" aria-label="Tô vàng"></button><button type="button" data-highlight="#ccebdc" class="swatch green" aria-label="Tô xanh"></button><button type="button" data-highlight="#dce7ff" class="swatch blue" aria-label="Tô xanh lam"></button><button type="button" data-highlight="transparent" aria-label="Xóa màu">⌫</button>
         <span class="jp-tool-hint">Bôi chọn một câu hoặc đoạn ngắn để bắt đầu</span>
       </div>
+      </div>
 
       <article class="jp-paper" contenteditable="true" spellcheck="false" data-editor aria-label="Nội dung tiếng Nhật có thể chỉnh sửa">
         <p>パイロットインジェクタから微量（熱量比1%以下）の液体燃料を噴射し副室内のガスを着火する．</p>
         <p>パイロット燃料は微量だが点火プラグに比し約8 000倍という強力な着火エネルギーを有するため燃焼が安定し効率が向上する．</p>
       </article>
-      <nav class="jp-page-nav" data-page-nav aria-label="Điều hướng trang tài liệu"><button type="button" data-page-prev>← Trang trước</button><span data-page-label>Trang 1 / 1</span><button type="button" data-page-next>Trang sau →</button><label class="jp-page-jump">Đến trang <input type="number" min="1" value="1" data-page-input aria-label="Số trang"><button type="button" data-page-go>Đi</button></label><label class="jp-bookmark-compose"><input data-bookmark-note maxlength="240" placeholder="Ghi chú để nhớ đoạn này"><button class="jp-page-bookmark" type="button" data-page-bookmark disabled>☆ Lưu dấu</button></label></nav>
       <div class="jp-selection-popover" data-selection-popover hidden><span data-selection-preview></span><button type="button" data-analyze-popover>この文を学ぶ</button></div>
     </section>
 
@@ -94,6 +97,6 @@
   </main>
   <div class="jp-toast" data-toast hidden></div>
 </div>
-<script src="/anhmedia.vn/js/japanese-reader.js?v=20260817-8" defer></script>
+<script src="/anhmedia.vn/js/japanese-reader.js?v=20260817-9" defer></script>
 </body>
 </html>

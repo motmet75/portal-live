@@ -8,6 +8,7 @@
   const analyzeButton = $('[data-analyze-selection]');
   const popover = $('[data-selection-popover]');
   const storageKey = 'anhmedia.jp-reader.v1';
+  const displayStorageKey = 'anhmedia.jp-reader.display.v1';
   let selectedText = '';
   let savedRange = null;
   let currentAnalysis = null;
@@ -19,6 +20,24 @@
   let bookmarkRange = null;
   let documentSearchTerm = '';
   let memorySearchTerm = '';
+
+  function loadDisplaySettings() {
+    try { return JSON.parse(localStorage.getItem(displayStorageKey)) || {}; }
+    catch (_) { return {}; }
+  }
+  function applyDisplaySettings(settings) {
+    root.classList.toggle('is-reader-large', Boolean(settings.large));
+    root.classList.toggle('is-reader-bold', Boolean(settings.bold));
+    $('[data-reader-size]').setAttribute('aria-pressed', String(Boolean(settings.large)));
+    $('[data-reader-bold]').setAttribute('aria-pressed', String(Boolean(settings.bold)));
+  }
+  function toggleDisplaySetting(name) {
+    const settings = loadDisplaySettings();
+    settings[name] = !settings[name];
+    localStorage.setItem(displayStorageKey, JSON.stringify(settings));
+    applyDisplaySettings(settings);
+    toast(settings[name] ? (name === 'large' ? 'Đã tăng cỡ chữ toàn trang.' : 'Đã bật chữ đậm toàn trang.') : (name === 'large' ? 'Đã về cỡ chữ tiêu chuẩn.' : 'Đã tắt chữ đậm toàn trang.'));
+  }
 
   function loadState() {
     try { const value = JSON.parse(localStorage.getItem(storageKey)) || {}; return { documents: value.documents || [], memories: value.memories || [], analyses: value.analyses || [], savedWords: value.savedWords || [] }; }
@@ -171,6 +190,8 @@
   function setView(memory) { $('[data-reader-view]').hidden = memory; $('[data-inspector]').hidden = memory; $('[data-library]').hidden = memory; $('[data-memory-view]').hidden = !memory; $$('.jp-nav').forEach((el, index) => el.classList.toggle('is-active', Boolean(index) === memory)); }
 
   document.addEventListener('selectionchange', () => requestAnimationFrame(updateSelection));
+  $('[data-reader-size]').addEventListener('click', () => toggleDisplaySetting('large'));
+  $('[data-reader-bold]').addEventListener('click', () => toggleDisplaySetting('bold'));
   $$('[data-google-login], [data-analysis-login]').forEach(link => link.addEventListener('click', rememberLoginReturn));
   analyzeButton.addEventListener('click', analyzeSelection); $('[data-analyze-popover]').addEventListener('click', analyzeSelection);
   $('[data-close-analysis]').addEventListener('click', () => { $('[data-analysis]').hidden = true; $('[data-inspector-empty]').hidden = false; });
@@ -191,5 +212,5 @@
   $$('[data-page-go]').forEach(button => button.addEventListener('click', () => goToPage(button.closest('[data-page-nav]').querySelector('[data-page-input]').value))); $$('[data-page-input]').forEach(input => input.addEventListener('keydown', event => { if (event.key === 'Enter') goToPage(event.currentTarget.value); })); $$('[data-page-bookmark]').forEach(button => button.addEventListener('click', () => addBookmark(button.closest('[data-page-nav]').querySelector('[data-bookmark-note]').value)));
   $$('[data-view]').forEach(button => button.addEventListener('click', () => setView(button.dataset.view === 'memory'))); $('[data-back-reader]').addEventListener('click', () => setView(false));
   document.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); analyzeSelection(); } });
-  renderDocuments(); renderMemory(); renderPage(0, false);
+  applyDisplaySettings(loadDisplaySettings()); renderDocuments(); renderMemory(); renderPage(0, false);
 })();
