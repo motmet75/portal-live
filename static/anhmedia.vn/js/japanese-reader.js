@@ -85,18 +85,32 @@
     const context = new AudioContextClass();
     try {
       if (context.state === 'suspended') await context.resume();
-      const gain = context.createGain();
-      const oscillator = context.createOscillator();
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(880, context.currentTime);
-      oscillator.frequency.exponentialRampToValueAtTime(1175, context.currentTime + .12);
-      gain.gain.setValueAtTime(.0001, context.currentTime);
-      gain.gain.exponentialRampToValueAtTime(.16, context.currentTime + .015);
-      gain.gain.exponentialRampToValueAtTime(.0001, context.currentTime + .18);
-      oscillator.connect(gain).connect(context.destination);
-      oscillator.start();
-      oscillator.stop(context.currentTime + .19);
-      await new Promise(resolve => setTimeout(resolve, 1200));
+      const now = context.currentTime;
+      const wakeGain = context.createGain();
+      const wakeTone = context.createOscillator();
+      wakeTone.type = 'sine';
+      wakeTone.frequency.setValueAtTime(220, now);
+      wakeGain.gain.setValueAtTime(.035, now);
+      wakeGain.gain.exponentialRampToValueAtTime(.0001, now + .45);
+      wakeTone.connect(wakeGain).connect(context.destination);
+      wakeTone.start(now);
+      wakeTone.stop(now + .46);
+
+      // The warm-up tone may be clipped by Bluetooth. This second, louder tone is the audible ping.
+      const pingGain = context.createGain();
+      const pingTone = context.createOscillator();
+      pingTone.type = 'sine';
+      pingTone.frequency.setValueAtTime(880, now + .55);
+      pingTone.frequency.exponentialRampToValueAtTime(1320, now + .76);
+      pingGain.gain.setValueAtTime(.0001, now);
+      pingGain.gain.setValueAtTime(.0001, now + .54);
+      pingGain.gain.exponentialRampToValueAtTime(.3, now + .58);
+      pingGain.gain.exponentialRampToValueAtTime(.0001, now + .88);
+      pingTone.connect(pingGain).connect(context.destination);
+      pingTone.start(now + .55);
+      pingTone.stop(now + .9);
+
+      await new Promise(resolve => setTimeout(resolve, 1800));
       return context;
     } catch (_) {
       context.close().catch(() => {});
