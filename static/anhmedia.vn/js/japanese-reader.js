@@ -79,46 +79,47 @@
   function storeCurrentPage() { clearTemporaryHighlights(); currentPages[currentPageIndex] = editor.innerHTML; }
   function normalizedBookmarks(doc) { doc.bookmarks = (doc.bookmarks || []).map((item, index) => typeof item === 'number' ? { id: `legacy-${item}-${index}`, page: item, note: 'Dấu trang cũ', excerpt: '' } : item); return doc.bookmarks; }
   function renderPage(index, saveCurrent = true) { if (saveCurrent) storeCurrentPage(); currentPageIndex = Math.max(0, Math.min(index, currentPages.length - 1)); bookmarkExcerpt = ''; bookmarkRange = null; editor.innerHTML = currentPages[currentPageIndex] || '<p></p>'; const doc = state.documents.find(item => item.id === currentDocumentId); const pageBookmarkCount = doc ? normalizedBookmarks(doc).filter(item => item.page === currentPageIndex).length : 0; $$('[data-page-label]').forEach(el => { el.textContent = `Trang ${currentPageIndex + 1} / ${currentPages.length}`; }); $$('[data-page-input]').forEach(el => { el.value = currentPageIndex + 1; el.max = currentPages.length; }); $$('[data-page-prev]').forEach(el => { el.disabled = currentPageIndex === 0; }); $$('[data-page-next]').forEach(el => { el.disabled = currentPageIndex >= currentPages.length - 1; }); $$('[data-page-bookmark]').forEach(el => { el.disabled = !doc; el.classList.toggle('is-active', pageBookmarkCount > 0); el.textContent = pageBookmarkCount ? `★ Lưu dấu (${pageBookmarkCount})` : '☆ Lưu dấu'; }); $('[data-document-meta]').textContent = `TRANG ${currentPageIndex + 1} / ${currentPages.length} · Chọn đoạn ngắn để học`; if (doc) { doc.currentPage = currentPageIndex; localStorage.setItem(storageKey, JSON.stringify(state)); } }
-  async function playSpeakerWakeChime() {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) { await new Promise(resolve => setTimeout(resolve, 1000)); return null; }
-    const context = new AudioContextClass();
-    try {
-      if (context.state === 'suspended') await context.resume();
-      const now = context.currentTime;
-      const wakeGain = context.createGain();
-      const wakeTone = context.createOscillator();
-      wakeTone.type = 'sine';
-      wakeTone.frequency.setValueAtTime(220, now);
-      wakeGain.gain.setValueAtTime(.035, now);
-      wakeGain.gain.exponentialRampToValueAtTime(.0001, now + .45);
-      wakeTone.connect(wakeGain).connect(context.destination);
-      wakeTone.start(now);
-      wakeTone.stop(now + .46);
-
-      // The warm-up tone may be clipped by Bluetooth. This second, louder tone is the audible ping.
-      const pingGain = context.createGain();
-      const pingTone = context.createOscillator();
-      pingTone.type = 'sine';
-      pingTone.frequency.setValueAtTime(880, now + .55);
-      pingTone.frequency.exponentialRampToValueAtTime(1320, now + .76);
-      pingGain.gain.setValueAtTime(.0001, now);
-      pingGain.gain.setValueAtTime(.0001, now + .54);
-      pingGain.gain.exponentialRampToValueAtTime(.3, now + .58);
-      pingGain.gain.exponentialRampToValueAtTime(.0001, now + .88);
-      pingTone.connect(pingGain).connect(context.destination);
-      pingTone.start(now + .55);
-      pingTone.stop(now + .9);
-
-      await new Promise(resolve => setTimeout(resolve, 1800));
-      return context;
-    } catch (_) {
-      context.close().catch(() => {});
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      return null;
+  let alertSoundUrl = '';
+  function createAlertSoundUrl() {
+    if (alertSoundUrl) return alertSoundUrl;
+    const sampleRate = 44100;
+    const duration = .9;
+    const samples = Math.floor(sampleRate * duration);
+    const buffer = new ArrayBuffer(44 + samples * 2);
+    const view = new DataView(buffer);
+    const write = (offset, value) => [...value].forEach((char, index) => view.setUint8(offset + index, char.charCodeAt(0)));
+    write(0, 'RIFF'); view.setUint32(4, 36 + samples * 2, true); write(8, 'WAVE'); write(12, 'fmt ');
+    view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+    view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+    write(36, 'data'); view.setUint32(40, samples * 2, true);
+    for (let index = 0; index < samples; index += 1) {
+      const time = index / sampleRate;
+      const frequency = time < .42 ? 880 : 1175;
+      const localTime = time < .42 ? time : time - .42;
+      const attack = Math.min(1, localTime / .025);
+      const decay = Math.exp(-4.8 * localTime);
+      const signal = Math.sin(2 * Math.PI * frequency * time) * attack * decay * .72;
+      view.setInt16(44 + index * 2, Math.max(-1, Math.min(1, signal)) * 32767, true);
     }
+    alertSoundUrl = URL.createObjectURL(new Blob([buffer], { type: 'audio/wav' }));
+    return alertSoundUrl;
   }
-  async function speakJapanese(text) { if (!text || !('speechSynthesis' in window)) { toast('Thiết bị này không hỗ trợ đọc tiếng Nhật.'); return; } speechSynthesis.cancel(); const wakeContext = await playSpeakerWakeChime(); const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'ja-JP'; utterance.rate = .82; speechSynthesis.speak(utterance); if (wakeContext) setTimeout(() => wakeContext.close().catch(() => {}), 1800); }
+  async function playSpeakerAlert() {
+    const audio = new Audio(createAlertSoundUrl());
+    audio.preload = 'auto';
+    audio.volume = .85;
+    await new Promise(resolve => {
+      let finished = false;
+      const finish = () => { if (finished) return; finished = true; resolve(); };
+      audio.addEventListener('ended', finish, { once: true });
+      audio.addEventListener('error', finish, { once: true });
+      const attempt = audio.play();
+      if (attempt) attempt.catch(finish);
+      setTimeout(finish, 1400);
+    });
+    await new Promise(resolve => setTimeout(resolve, 700));
+  }
+  async function speakJapanese(text) { if (!text || !('speechSynthesis' in window)) { toast('Thiết bị này không hỗ trợ đọc tiếng Nhật.'); return; } speechSynthesis.cancel(); await playSpeakerAlert(); const utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'ja-JP'; utterance.rate = .82; speechSynthesis.speak(utterance); }
   function showAnalysisConnection(status, message) { const panel = $('[data-analysis-connection]'); const login = $('[data-analysis-login]'); panel.hidden = false; $('[data-inspector-empty]').hidden = true; login.hidden = status !== 401; const missingKey = /not configured|OPENAI_API_KEY/i.test(message || ''); $('[data-analysis-error]').textContent = status === 401 ? 'Phiên đăng nhập Google chưa hợp lệ. Đăng nhập rồi bấm Thử lại.' : missingKey ? 'Bạn đã đăng nhập. Máy chủ chưa có OPENAI_API_KEY nên chưa thể phân tích. Quản trị viên cần thêm key vào secrets/live-designer.env và khởi động lại portal.' : status === 503 ? `OpenAI tạm thời chưa phản hồi. ${message || 'Vui lòng thử lại sau.'}` : `Không thể kết nối API phân tích. ${message || 'Kiểm tra mạng rồi thử lại.'}`; const extraction = $('[data-connection-panel]'); extraction.hidden = false; }
   function rememberLoginReturn() { const target = `${window.location.pathname}${window.location.search}${window.location.hash}`; document.cookie = `PORTAL_LOGIN_RETURN=${encodeURIComponent(target)}; Max-Age=600; Path=/; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`; }
 
