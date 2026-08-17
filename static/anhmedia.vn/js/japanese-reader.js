@@ -40,10 +40,25 @@
     catch (_) { return {}; }
   }
   function applyDisplaySettings(settings) {
-    root.classList.toggle('is-reader-large', Boolean(settings.large));
+    const scale = Math.max(0, Math.min(3, Number.isFinite(Number(settings.scale)) ? Number(settings.scale) : (settings.large ? 1 : 0)));
+    root.classList.remove('is-reader-large', 'is-reader-larger', 'is-reader-largest');
+    if (scale === 1) root.classList.add('is-reader-large');
+    if (scale === 2) root.classList.add('is-reader-larger');
+    if (scale === 3) root.classList.add('is-reader-largest');
     root.classList.toggle('is-reader-bold', Boolean(settings.bold));
-    $('[data-reader-size]').setAttribute('aria-pressed', String(Boolean(settings.large)));
+    $('[data-reader-scale]').textContent = `${100 + scale * 15}%`;
+    $('[data-reader-smaller]').disabled = scale === 0;
+    $('[data-reader-larger]').disabled = scale === 3;
     $('[data-reader-bold]').setAttribute('aria-pressed', String(Boolean(settings.bold)));
+  }
+  function changeReaderScale(change) {
+    const settings = loadDisplaySettings();
+    const current = Number.isFinite(Number(settings.scale)) ? Number(settings.scale) : (settings.large ? 1 : 0);
+    settings.scale = Math.max(0, Math.min(3, current + change));
+    delete settings.large;
+    localStorage.setItem(displayStorageKey, JSON.stringify(settings));
+    applyDisplaySettings(settings);
+    toast(`Cỡ chữ đọc: ${100 + settings.scale * 15}%.`);
   }
   function toggleDisplaySetting(name) {
     const settings = loadDisplaySettings();
@@ -322,7 +337,8 @@
   document.addEventListener('selectionchange', () => requestAnimationFrame(updateSelection));
   libraryToggle.addEventListener('click', () => setLibraryOpen(!root.classList.contains('is-library-open')));
   $$('[data-library-close]').forEach(button => button.addEventListener('click', () => setLibraryOpen(false)));
-  $('[data-reader-size]').addEventListener('click', () => toggleDisplaySetting('large'));
+  $('[data-reader-smaller]').addEventListener('click', () => changeReaderScale(-1));
+  $('[data-reader-larger]').addEventListener('click', () => changeReaderScale(1));
   $('[data-reader-bold]').addEventListener('click', () => toggleDisplaySetting('bold'));
   $$('[data-google-login], [data-analysis-login]').forEach(link => link.addEventListener('click', rememberLoginReturn));
   analyzeButton.addEventListener('click', analyzeSelection); $('[data-analyze-popover]').addEventListener('click', analyzeSelection);

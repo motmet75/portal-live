@@ -15,7 +15,7 @@
   <style>.jp-document-search{max-width:780px;margin:12px auto;position:relative}.jp-document-search>input,.jp-memory-search{width:100%;padding:12px 14px;border:1px solid #dfe5e1;border-radius:10px;background:#fff;font-size:14px}.jp-search-results{max-height:240px;display:grid;gap:5px;padding:8px;border:1px solid #dfe5e1;border-radius:10px;background:#fff;overflow:auto;box-shadow:0 12px 35px #1f302c1c}.jp-search-results>small{padding:5px;color:#6c7774}.jp-search-results button{display:grid;grid-template-columns:65px 1fr;gap:8px;padding:8px;border:0;border-radius:7px;background:#f5f7f4;text-align:left}.jp-search-results button b{color:#315f55}.jp-search-results button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}mark[data-temp-search]{padding:1px 2px;border-radius:3px;background:#ffd95c;animation:jpSearchPulse 1.8s ease}@keyframes jpSearchPulse{50%{box-shadow:0 0 0 7px #ffd95c55}}.jp-memory-tools{display:flex;gap:12px;align-items:center;margin-top:18px}.jp-memory-tools label{flex:1}.jp-session-actions{flex-wrap:wrap}</style>
   <style>.jp-usage-notice{max-width:780px;margin:12px auto;padding:11px 14px;border:1px solid #d9c38f;border-radius:10px;background:#fff8e6;color:#5d5237;font-size:12px;line-height:1.55}.jp-usage-notice strong{color:#315f55}.jp-usage-notice a{color:#9a5548;font-weight:800}.jp-selection-popover.is-over-limit{background:#8b3f36}.jp-selection-popover.is-over-limit button{display:none}</style>
   <style>.jp-inspector{overflow-y:auto!important;overscroll-behavior:contain;scrollbar-gutter:stable}.jp-inspector::-webkit-scrollbar{width:10px}.jp-inspector::-webkit-scrollbar-thumb{border:2px solid transparent;border-radius:999px;background:#9fb4ac;background-clip:padding-box}.jp-analysis__head-actions{display:flex;align-items:center;gap:7px}.jp-analysis__head .jp-save-top{padding:8px 10px;border:1px solid var(--green)!important;border-radius:8px;background:var(--green)!important;color:#fff;font-size:11px!important;font-weight:800}.jp-show-analysis:disabled{opacity:.45}@media(max-width:720px){.jp-document-bar .jp-actions{display:grid;gap:5px}.jp-document-bar .jp-actions button{padding:7px 9px;font-size:11px}}</style>
-  <link rel="stylesheet" href="/anhmedia.vn/css/japanese-reader-layout.css?v=20260817-6">
+  <link rel="stylesheet" href="/anhmedia.vn/css/japanese-reader-layout.css?v=20260817-7">
 </head>
 <body>
 <div class="jp-app" data-jp-reader>
@@ -26,7 +26,7 @@
       <button class="jp-nav is-active" type="button" data-view="reader">Tài liệu</button>
       <button class="jp-nav" type="button" data-view="memory">Từ đã lưu <b data-memory-count>0</b></button>
     </nav>
-    <div class="jp-accessibility" aria-label="Hỗ trợ thị lực"><span>Hiển thị</span><button type="button" data-reader-size aria-pressed="false" title="Tăng cỡ chữ">A＋</button><button type="button" data-reader-bold aria-pressed="false" title="Làm đậm toàn bộ chữ"><b>B</b></button></div>
+    <div class="jp-accessibility" aria-label="Hỗ trợ thị lực"><span>Hiển thị</span><button type="button" data-reader-smaller title="Thu nhỏ chữ" aria-label="Thu nhỏ chữ">A−</button><output data-reader-scale aria-live="polite">100%</output><button type="button" data-reader-larger title="Phóng to chữ" aria-label="Phóng to chữ">A＋</button><button type="button" data-reader-bold aria-pressed="false" title="Làm đậm toàn bộ chữ"><b>B</b></button></div>
     <div class="jp-account">
       <span class="jp-sync"><i></i> Bản nháp cục bộ</span>
       <div class="jp-user" th:if="${session.SPRING_SECURITY_CONTEXT != null}"><span>Đang học:</span><strong th:text="${session.SPRING_SECURITY_CONTEXT.authentication.name}">user@example.com</strong><a href="/logout">Đăng xuất</a></div>
@@ -104,6 +104,6 @@
   <button class="jp-library-backdrop" type="button" data-library-close aria-label="Đóng thư viện" hidden></button>
   <div class="jp-toast" data-toast hidden></div>
 </div>
-<script src="/anhmedia.vn/js/japanese-reader.js?v=20260817-20" defer></script>
+<script src="/anhmedia.vn/js/japanese-reader.js?v=20260817-21" defer></script>
 </body>
 </html>
