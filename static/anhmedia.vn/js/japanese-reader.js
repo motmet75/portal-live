@@ -250,7 +250,7 @@
     analyzeButton.firstChild.textContent = 'Đang phân tích… ';
     try {
       const response = await fetch('/api/japanese-learning/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: selectedText, mode: 'selection' }) });
-      if (!response.ok) { const body = await response.text(); let message = body; try { message = JSON.parse(body).error || body; } catch (_) {} const error = new Error(message || 'analysis endpoint unavailable'); error.status = response.status; throw error; }
+      if (!response.ok) { const body = await response.text(); let message = body; try { message = JSON.parse(body).error || body; } catch (_) { if (/^\s*<(!doctype|html)/i.test(body)) message = `Máy chủ gặp lỗi nội bộ (HTTP ${response.status}). Vui lòng thử lại sau hoặc liên hệ quản trị viên.`; } const error = new Error(message || 'analysis endpoint unavailable'); error.status = response.status; throw error; }
       currentAnalysis = await response.json();
       recordAnalysis();
       $('[data-analysis-connection]').hidden = true;
@@ -300,8 +300,9 @@
     const form = new FormData(); form.append('file', file); form.append('language', 'jpn');
     if (userId && tokenId) { form.append('userId', userId); form.append('tokenId', tokenId); }
     try {
-      const response = await fetch('/api/extract-text', { method: 'POST', body: form }); const data = await response.json();
+      const response = await fetch('/api/extract-text', { method: 'POST', body: form });
       if (response.status === 401) { $('[data-connection-panel]').hidden = false; throw new Error('Hãy đăng nhập Google hoặc nhập token máy chủ.'); }
+      const rawBody = await response.text(); let data = {}; try { data = JSON.parse(rawBody); } catch (_) { data = { error: /^\s*<(!doctype|html)/i.test(rawBody) ? `Máy chủ gặp lỗi nội bộ (HTTP ${response.status}). Vui lòng thử lại sau hoặc liên hệ quản trị viên.` : rawBody }; }
       if (!response.ok || data.status !== 'success') throw new Error(data.error || 'Không thể trích xuất');
       currentDocumentId = Date.now(); currentPages = splitIntoPages(data.text || ''); currentPageIndex = 0; $('[data-document-title]').value = file.name.replace(/\.pdf$/i, ''); renderPage(0, false);
       state.documents.unshift({ id: currentDocumentId, title: $('[data-document-title]').value, pages: currentPages, currentPage: 0, bookmarks: [], updatedAt: new Date().toISOString() }); persist(); renderPage(0, false); toast(`Đã chia tài liệu thành ${currentPages.length} trang học.`);
