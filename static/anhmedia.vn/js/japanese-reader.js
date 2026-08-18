@@ -20,15 +20,76 @@
   let lowerLimitCandidate = null;
   let lowerLimitConfirmations = 0;
   let quotaPollTimer = null;
+  const quotaSessionKey = 'anhmedia.jp-reader.server-quota.v3';
+  let selectedText = '';
+  let savedRange = null;
+  let currentAnalysis = null;
+  let hasUnsavedAnalysis = false;
+  let state = loadState();
+  let currentDocumentId = null;
+  let currentPageIndex = 0;
+  let currentPages = [editor.innerHTML];
+  let bookmarkExcerpt = '';
+  let bookmarkRange = null;
+  let documentSearchTerm = '';
+  let memorySearchTerm = '';
+  let activeSpeech = null;
 
-  const quotaSessionKey = 'anhmedia.jp-reader.server-quota.v2';
+  function setLibraryOpen(open) {
+    root.classList.toggle('is-library-open', open);
+    libraryToggle.setAttribute('aria-expanded', String(open));
+    libraryBackdrop.hidden = !open;
+    document.body.style.overflow = open ? 'hidden' : '';
+  }
 
+  function loadDisplaySettings() {
+    try { return JSON.parse(localStorage.getItem(displayStorageKey)) || {}; }
+    catch (_) { return {}; }
+  }
+  function applyDisplaySettings(settings) {
+    const scale = Math.max(0, Math.min(3, Number.isFinite(Number(settings.scale)) ? Number(settings.scale) : (settings.large ? 1 : 0)));
+    root.classList.remove('is-reader-large', 'is-reader-larger', 'is-reader-largest');
+    if (scale === 1) root.classList.add('is-reader-large');
+    if (scale === 2) root.classList.add('is-reader-larger');
+    if (scale === 3) root.classList.add('is-reader-largest');
+    root.classList.toggle('is-reader-bold', Boolean(settings.bold));
+    $('[data-reader-scale]').textContent = `${100 + scale * 15}%`;
+    $('[data-reader-smaller]').disabled = scale === 0;
+    $('[data-reader-larger]').disabled = scale === 3;
+    $('[data-reader-bold]').setAttribute('aria-pressed', String(Boolean(settings.bold)));
+  }
+  function changeReaderScale(change) {
+    const settings = loadDisplaySettings();
+    const current = Number.isFinite(Number(settings.scale)) ? Number(settings.scale) : (settings.large ? 1 : 0);
+    settings.scale = Math.max(0, Math.min(3, current + change));
+    delete settings.large;
+    localStorage.setItem(displayStorageKey, JSON.stringify(settings));
+    applyDisplaySettings(settings);
+    toast(`Cỡ chữ đọc: ${100 + settings.scale * 15}%.`);
+  }
+  function toggleDisplaySetting(name) {
+    const settings = loadDisplaySettings();
+    settings[name] = !settings[name];
+    localStorage.setItem(displayStorageKey, JSON.stringify(settings));
+    applyDisplaySettings(settings);
+    toast(settings[name] ? (name === 'large' ? 'Đã tăng cỡ chữ toàn trang.' : 'Đã bật chữ đậm toàn trang.') : (name === 'large' ? 'Đã về cỡ chữ tiêu chuẩn.' : 'Đã tắt chữ đậm toàn trang.'));
+  }
+
+  function loadState() {
+    try { const value = JSON.parse(localStorage.getItem(storageKey)) || {}; return { documents: value.documents || [], memories: value.memories || [], analyses: value.analyses || [], savedWords: value.savedWords || [] }; }
+    catch (_) { return { documents: [], memories: [], analyses: [], savedWords: [] }; }
+  }
+  function persist() { localStorage.setItem(storageKey, JSON.stringify(state)); renderDocuments(); renderMemory(); renderMemoryNotes(); }
+  function toast(message) { const el = $('[data-toast]'); el.textContent = message; el.hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(() => { el.hidden = true; }, 2400); }
   function loadLastServerQuota() {
     try {
       const value = JSON.parse(sessionStorage.getItem(quotaSessionKey) || 'null');
-      if (!value || !Number.isFinite(Number(value.limit)) || !Number.isFinite(Number(value.remaining))) return;
-      dailyAnalysisLimit = Math.max(0, Number(value.limit));
-      serverRemaining = Math.max(0, Number(value.remaining));
+      if (!value) return;
+      const limit = Number(value.limit);
+      const remaining = Number(value.remaining);
+      if (!Number.isFinite(limit) || !Number.isFinite(remaining)) return;
+      dailyAnalysisLimit = Math.max(0, limit);
+      serverRemaining = Math.max(0, remaining);
       usageLoaded = true;
     } catch (_) {}
   }
@@ -48,6 +109,21 @@
     return usageLoaded && serverRemaining !== null ? serverRemaining : null;
   }
 
+  function scheduleQuotaPollIfNeeded() {
+    if (quotaPollTimer) {
+      clearTimeout(quotaPollTimer);
+      quotaPollTimer = null;
+    }
+
+    if (!usageLoaded || serverRemaining === null || serverRemaining > 0) return;
+
+    quotaPollTimer = setTimeout(async () => {
+      quotaPollTimer = null;
+      await refreshDailyUsage();
+      scheduleQuotaPollIfNeeded();
+    }, 15000);
+  }
+
   function renderDailyUsage() {
     const remainingEl = $('[data-daily-remaining]');
     const limitEl = $('[data-daily-limit]');
@@ -61,6 +137,7 @@
 
     if (remainingEl) remainingEl.textContent = String(serverRemaining);
     if (limitEl) limitEl.textContent = String(dailyAnalysisLimit);
+
     analyzeButton.disabled =
         !selectedText ||
         selectedText.length > maxSelectionCharacters ||
@@ -80,8 +157,8 @@
     if (!Number.isFinite(limit) || !Number.isFinite(remaining) || limit < 0 || remaining < 0) return false;
 
     /*
-     * Protect against a transient/stale response that suddenly drops a known
-     * higher server quota. Require the same lower limit 3 times before accepting.
+     * If we already have a higher valid server limit, ignore one/two lower
+     * responses. This protects against stale/cached 10/10 responses.
      */
     if (usageLoaded && dailyAnalysisLimit !== null && limit < dailyAnalysisLimit) {
       if (lowerLimitCandidate === limit) lowerLimitConfirmations += 1;
@@ -129,27 +206,10 @@
       const usage = await response.json();
       if (requestId !== usageRequestSerial) return;
 
-      const limit = Number(usage.limit);
-      const remaining = Number(usage.remaining);
-      acceptServerQuota(limit, remaining);
+      acceptServerQuota(Number(usage.limit), Number(usage.remaining));
     } catch (_) {
       if (!usageLoaded) renderDailyUsage();
     }
-  }
-
-  function scheduleQuotaPollIfNeeded() {
-    if (quotaPollTimer) {
-      clearTimeout(quotaPollTimer);
-      quotaPollTimer = null;
-    }
-
-    if (!usageLoaded || serverRemaining === null || serverRemaining > 0) return;
-
-    quotaPollTimer = setTimeout(async () => {
-      quotaPollTimer = null;
-      await refreshDailyUsage();
-      scheduleQuotaPollIfNeeded();
-    }, 15000);
   }
 
   function refreshQuotaOnReturn() {
@@ -313,8 +373,16 @@
   async function analyzeSelection() {
     if (!selectedText) return;
     if (selectedText.length > maxSelectionCharacters) { toast(`Đoạn quá dài. Chỉ chọn tối đa ${maxSelectionCharacters} ký tự, khoảng 1/4 trang A4.`); return; }
-    if (!usageLoaded) { toast('Đang tải hạn mức từ máy chủ. Vui lòng thử lại sau một chút.'); return; }
-    if (remainingAnalyses() === 0) { toast(`Bạn đã dùng hết ${dailyAnalysisLimit} lượt hôm nay. Liên hệ AnhMedia để mở rộng hạn mức.`); return; }
+    if (!usageLoaded) {
+      toast('Đang tải hạn mức từ máy chủ. Vui lòng thử lại sau.');
+      refreshDailyUsage();
+      return;
+    }
+    if (remainingAnalyses() === 0) {
+      toast(`Bạn đã dùng hết ${dailyAnalysisLimit} lượt hôm nay. Hệ thống đang tự kiểm tra hạn mức mới.`);
+      refreshDailyUsage();
+      return;
+    }
     if (currentAnalysis && hasUnsavedAnalysis && currentAnalysis.source !== selectedText) {
       const savePrevious = window.confirm('Bạn chưa lưu kết quả phân tích trước. Nhấn OK để lưu trước khi phân tích đoạn mới, hoặc Hủy để bỏ kết quả cũ.');
       if (savePrevious) remember();
