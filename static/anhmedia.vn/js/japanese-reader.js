@@ -555,6 +555,33 @@
     });
   }
   $('#jp-file').addEventListener('change', event => extractFile(event.target.files[0]));
+  analyzeButton.addEventListener('click', analyzeSelection);
+  document.addEventListener('selectionchange', updateSelection);
+  editor.addEventListener('touchend', () => setTimeout(updateSelection, 0));
+  $('[data-analyze-popover]').addEventListener('click', () => analyzeSelection());
+  libraryToggle.addEventListener('click', () => setLibraryOpen(!root.classList.contains('is-library-open')));
+  $$('[data-library-close]').forEach(button => button.addEventListener('click', () => setLibraryOpen(false)));
+  $('[data-new-document]').addEventListener('click', () => {
+    storeCurrentPage();
+    currentDocumentId = null;
+    currentPages = ['<p></p>'];
+    currentPageIndex = 0;
+    $('[data-document-title]').value = 'Tài liệu chưa đặt tên';
+    renderPage(0, false);
+    if (window.innerWidth <= 1100) setLibraryOpen(false);
+    toast('Đã tạo tài liệu mới. Dán nội dung rồi lưu để thêm vào thư viện.');
+  });
+  $('[data-login-open]')?.addEventListener('click', () => { rememberLoginReturn(); setLoginOpen(true); });
+  $$('[data-login-close]').forEach(button => button.addEventListener('click', () => setLoginOpen(false)));
+  $('[data-google-login]')?.addEventListener('click', rememberLoginReturn);
+  $('[data-reader-login]')?.addEventListener('submit', submitReaderLogin);
+  $('[data-close-analysis]').addEventListener('click', () => { $('[data-analysis]').hidden = true; $('[data-inspector-empty]').hidden = false; updateShowAnalysisToggle(); });
+  $('[data-show-analysis]').addEventListener('click', () => {
+    if (!currentAnalysis) return;
+    const analysisPanel = $('[data-analysis]');
+    if (analysisPanel.hidden) { $('[data-inspector]').scrollTop = 0; renderAnalysis(); }
+    else { analysisPanel.hidden = true; $('[data-inspector-empty]').hidden = false; updateShowAnalysisToggle(); }
+  });
   $('[data-toggle-connection]').addEventListener('click', () => { const panel = $('[data-connection-panel]'); panel.hidden = !panel.hidden; });
   $('[data-close-analysis-connection]')?.addEventListener('click', () => { $('[data-analysis-connection]').hidden = true; if (!currentAnalysis) $('[data-inspector-empty]').hidden = false; });
   $('[data-retry-analysis]').addEventListener('click', analyzeSelection);
