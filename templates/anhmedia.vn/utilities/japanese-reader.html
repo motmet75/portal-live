@@ -88,6 +88,201 @@
     @keyframes jpWaitSpin{to{transform:rotate(360deg)}}
   </style>
 
+
+  <style>
+    .jp-user a.jp-logout-clear{
+      min-width:38px;
+      height:38px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border:1px solid #d7a9a0;
+      border-radius:9px;
+      background:#fff!important;
+      color:#9a3f34!important;
+      box-shadow:none!important;
+      opacity:1!important;
+      filter:none!important;
+      backdrop-filter:none!important;
+      text-decoration:none;
+      font-weight:800;
+    }
+    .jp-user a.jp-logout-clear:hover,
+    .jp-user a.jp-logout-clear:focus{
+      background:#fbe9e5!important;
+      border-color:#c97869;
+      outline:none;
+    }
+    .jp-login-required{
+      max-width:780px;
+      margin:12px auto;
+      padding:12px 14px;
+      border:1px solid #b9d5ca;
+      border-radius:10px;
+      background:#eef7f3;
+      color:#315f55;
+      font-size:12px;
+      line-height:1.55;
+    }
+    .jp-login-required strong{display:block;margin-bottom:3px}
+    .jp-login-required button{
+      margin-top:8px;
+      padding:8px 11px;
+      border:1px solid #9fbeb2;
+      border-radius:8px;
+      background:#fff;
+      color:#315f55;
+      font-weight:800;
+      cursor:pointer;
+    }
+  </style>
+
+
+  <style>
+    .jp-login-required{
+      font-size:14px!important;
+      text-align:center;
+      border-width:2px!important;
+    }
+    .jp-login-required strong{
+      font-size:17px;
+      color:#244f46;
+    }
+  </style>
+
+
+  <style>
+    .jp-login-marketing{
+      display:grid;
+      grid-template-columns:minmax(0,1.08fr) minmax(280px,.92fr);
+      gap:20px;
+      max-width:900px!important;
+      padding:22px!important;
+      text-align:left!important;
+      background:linear-gradient(135deg,#eef8f4,#fffaf0)!important;
+    }
+    .jp-login-marketing__intro>strong{
+      display:inline-block;
+      margin-bottom:8px;
+      padding:5px 9px;
+      border-radius:999px;
+      background:#dcefe7;
+      color:#315f55!important;
+      font-size:12px!important;
+    }
+    .jp-login-marketing__intro h2{
+      margin:4px 0 10px;
+      color:#1e2726;
+      font-size:24px;
+      line-height:1.25;
+    }
+    .jp-login-marketing__intro ul{
+      margin:0;
+      padding-left:20px;
+      color:#40504c;
+      line-height:1.65;
+    }
+    .jp-login-marketing__intro li{margin:4px 0}
+    .jp-login-marketing__intro p{
+      margin:12px 0 0;
+      color:#6c7774;
+      font-size:12px;
+    }
+    .jp-login-marketing__intro button{
+      margin-top:14px!important;
+      padding:10px 15px!important;
+      border:0!important;
+      background:#315f55!important;
+      color:#fff!important;
+      font-size:13px;
+    }
+    .jp-login-marketing__sample{
+      padding:18px;
+      border:1px solid #dce6e1;
+      border-radius:14px;
+      background:#fff;
+      box-shadow:0 12px 30px rgba(40,70,62,.08);
+    }
+    .jp-login-marketing__sample>small{
+      color:#9a5548;
+      font-size:10px;
+      font-weight:800;
+      letter-spacing:.12em;
+    }
+    .jp-login-marketing__jp{
+      margin:8px 0 14px!important;
+      color:#1e2726!important;
+      font:600 22px/1.6 "Noto Serif JP",serif!important;
+    }
+    .jp-login-marketing__row{
+      padding:10px 0;
+      border-top:1px solid #edf0ee;
+    }
+    .jp-login-marketing__row b,
+    .jp-login-marketing__row span{
+      display:block;
+    }
+    .jp-login-marketing__row b{
+      margin-bottom:3px;
+      color:#315f55;
+      font-size:10px;
+      text-transform:uppercase;
+    }
+    .jp-login-marketing__row span{
+      color:#596763;
+      font-size:12px;
+    }
+    .jp-login-marketing__words{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:7px;
+      margin-top:9px;
+    }
+    .jp-login-marketing__words span{
+      padding:9px;
+      border-radius:9px;
+      background:#f5f7f4;
+    }
+    .jp-login-marketing__words b,
+    .jp-login-marketing__words small{
+      display:block;
+    }
+    .jp-login-marketing__words b{
+      color:#1e2726;
+      font-family:"Noto Serif JP",serif;
+    }
+    .jp-login-marketing__words small{
+      margin-top:3px;
+      color:#6c7774;
+      font-size:9px;
+      line-height:1.4;
+    }
+    .jp-login-marketing__note{
+      margin-top:10px;
+      padding:9px 10px;
+      border-radius:9px;
+      background:#fff8e6;
+    }
+    .jp-login-marketing__note b,
+    .jp-login-marketing__note span{
+      display:block;
+    }
+    .jp-login-marketing__note b{
+      color:#795a0c;
+      font-size:10px;
+    }
+    .jp-login-marketing__note span{
+      margin-top:3px;
+      color:#5d5237;
+      font-size:11px;
+    }
+    @media(max-width:760px){
+      .jp-login-marketing{grid-template-columns:1fr}
+      .jp-login-marketing__intro h2{font-size:21px}
+      .jp-login-marketing__words{grid-template-columns:1fr}
+    }
+  </style>
+
 </head>
 <body>
 <div class="jp-app" data-jp-reader>
@@ -109,7 +304,7 @@
     <div class="jp-accessibility" aria-label="Hỗ trợ thị lực"><span class="visually-hidden">Hiển thị</span><button type="button" data-reader-smaller title="Thu nhỏ chữ" aria-label="Thu nhỏ chữ">A−</button><output data-reader-scale aria-live="polite">100%</output><button type="button" data-reader-larger title="Phóng to chữ" aria-label="Phóng to chữ">A＋</button><button type="button" data-reader-bold aria-pressed="false" title="Làm đậm toàn bộ chữ"><b>B</b></button></div>
     <div class="jp-account">
       <span class="jp-sync jp-icon-btn" title="Bản nháp cục bộ" aria-label="Bản nháp cục bộ"><i></i><b class="visually-hidden">Bản nháp cục bộ</b></span>
-      <div class="jp-user" th:if="${session.SPRING_SECURITY_CONTEXT != null}"><span class="visually-hidden">Đang học:</span><strong th:text="${session.SPRING_SECURITY_CONTEXT.authentication.name}">user@example.com</strong><a class="jp-icon-btn" href="/logout" title="Đăng xuất" aria-label="Đăng xuất"><span aria-hidden="true">⎋</span><b class="visually-hidden">Đăng xuất</b></a></div>
+      <div class="jp-user" th:if="${session.SPRING_SECURITY_CONTEXT != null}"><span class="visually-hidden">Đang học:</span><strong th:text="${session.SPRING_SECURITY_CONTEXT.authentication.name}">user@example.com</strong><a class="jp-icon-btn jp-logout-clear" href="/logout" data-reader-logout title="Đăng xuất" aria-label="Đăng xuất"><span aria-hidden="true">⎋</span><b class="visually-hidden">Đăng xuất</b></a></div>
       <button class="jp-google jp-icon-btn" type="button" data-login-open th:if="${session.SPRING_SECURITY_CONTEXT == null}" title="Đăng nhập" aria-label="Đăng nhập">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285f4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.9h5.4a4.6 4.6 0 0 1-2 3v2.5h3.3c1.9-1.8 2.9-4.4 2.9-7.4Z"/><path fill="#34a853" d="M12 22c2.7 0 5-.9 6.7-2.4l-3.3-2.5c-.9.6-2 1-3.4 1a5.9 5.9 0 0 1-5.5-4.1H3.1v2.6A10 10 0 0 0 12 22Z"/><path fill="#fbbc05" d="M6.5 14a6 6 0 0 1 0-3.9V7.4H3.1a10 10 0 0 0 0 9.2L6.5 14Z"/><path fill="#ea4335" d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.9-2.8A9.7 9.7 0 0 0 3.1 7.4l3.4 2.7A5.9 5.9 0 0 1 12 6Z"/></svg>
         <b class="visually-hidden">Đăng nhập</b>
@@ -144,6 +339,42 @@
         </div>
 
         <div class="jp-document-search"><input type="search" data-document-search placeholder="Tìm chữ trong toàn bộ tài liệu…" aria-label="Tìm trong tài liệu"><div class="jp-search-results" data-document-search-results hidden></div></div>
+        <div class="jp-login-required jp-login-marketing" data-login-required th:if="${session.SPRING_SECURITY_CONTEXT == null}">
+          <div class="jp-login-marketing__intro">
+            <strong>Hãy đăng nhập với Google để dùng thử miễn phí.</strong>
+            <h2>Học ngay câu tiếng Nhật bạn yêu thích 🇯🇵</h2>
+            <ul>
+              <li>Tự động tách câu thành từ vựng và từ điển ngay trong câu.</li>
+              <li>Hiển thị Kanji, Hiragana và cách đọc dễ theo dõi.</li>
+              <li>Xem từ vựng xuất hiện trong câu và nghĩa từng từ.</li>
+              <li>Lưu từ vựng theo từng bài học để ôn tập lại.</li>
+              <li>Tải tài liệu PDF lên để học, ghi chú và xem lại bài đã học.</li>
+            </ul>
+            <p>Học từ chính tài liệu bạn yêu thích — đọc, phân tích, ghi nhớ và xem lại.</p>
+            <button type="button" data-google-login-inline>Đăng nhập với Google</button>
+          </div>
+
+          <div class="jp-login-marketing__sample" aria-label="Ví dụ phân tích câu tiếng Nhật">
+            <small>VÍ DỤ PHÂN TÍCH</small>
+            <p class="jp-login-marketing__jp">日本語を勉強するのが好きです。</p>
+
+            <div class="jp-login-marketing__row">
+              <b>Hiragana</b>
+              <span>にほんご を べんきょう する の が すき です。</span>
+            </div>
+
+            <div class="jp-login-marketing__words">
+              <span><b>日本語</b><small>にほんご · tiếng Nhật</small></span>
+              <span><b>勉強</b><small>べんきょう · học tập</small></span>
+              <span><b>好き</b><small>すき · yêu thích</small></span>
+            </div>
+
+            <div class="jp-login-marketing__note">
+              <b>✓ Lưu từ vựng</b>
+              <span>日本語 · 勉強 · 好き</span>
+            </div>
+          </div>
+        </div>
         <div class="jp-usage-notice"><strong>Giới hạn sử dụng:</strong> Mỗi lần chọn tối đa 500 ký tự (khoảng 1/4 trang A4). Bạn có <b data-daily-remaining>...</b>/<b data-daily-limit>...</b> lượt phân tích hôm nay. Cần thêm lượt? <a href="/#lien-he" target="_blank" rel="noopener noreferrer">Liên hệ AnhMedia để mở rộng hạn mức</a>.</div>
 
         <div class="jp-editor-tools" role="toolbar" aria-label="Định dạng tài liệu">
@@ -218,6 +449,6 @@
 
   <div class="jp-toast" data-toast hidden></div>
 </div>
-<script src="/anhmedia.vn/js/japanese-reader.js?v=20260818-analysis-popup-9" defer></script>
+<script src="/anhmedia.vn/js/japanese-reader.js?v=20260818-google-only-12" defer></script>
 </body>
 </html>
