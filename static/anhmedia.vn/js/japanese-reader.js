@@ -287,6 +287,16 @@
     if (currentAnalysis) { prepareAnalysisResult(currentAnalysis); hasUnsavedAnalysis = true; renderAnalysis(); }
   }
 
+  function updateShowAnalysisToggle() {
+    const button = $('[data-show-analysis]');
+    if (!button) return;
+    const visible = !$('[data-analysis]').hidden;
+    const icon = button.querySelector('span');
+    if (icon) icon.textContent = visible ? '🙈' : '📖';
+    button.title = visible ? 'Ẩn kết quả' : 'Hiện kết quả';
+    button.setAttribute('aria-label', visible ? 'Ẩn kết quả' : 'Hiện kết quả');
+  }
+
   function renderAnalysis() {
     if (!currentAnalysis) return;
     const analysisWords = currentAnalysis.words || currentAnalysis.vocabulary || [];
@@ -301,6 +311,7 @@
     $('[data-study-note]').value = currentAnalysis.note || '';
     $('[data-note-count]').textContent = String((currentAnalysis.note || '').length);
     $('[data-show-analysis]').disabled = false;
+    updateShowAnalysisToggle();
   }
 
   function prepareAnalysisResult(result) { const existing = (state.analyses || []).find(item => item.source === result.source && item.documentId === currentDocumentId && item.pageIndex === currentPageIndex); result.sessionId = existing?.sessionId || `session-${Date.now()}`; result.savedAt = new Date().toISOString(); result.documentId = currentDocumentId; result.pageIndex = currentPageIndex; }
@@ -393,8 +404,13 @@
   $('[data-reader-login]')?.addEventListener('submit', submitReaderLogin);
   $('[data-home-link]').addEventListener('click', event => { event.preventDefault(); if (window.confirm('Bạn có chắc muốn rời bài học và trở về trang chủ?')) window.location.assign(event.currentTarget.href); });
   analyzeButton.addEventListener('click', analyzeSelection); $('[data-analyze-popover]').addEventListener('click', analyzeSelection);
-  $('[data-close-analysis]').addEventListener('click', () => { $('[data-analysis]').hidden = true; $('[data-inspector-empty]').hidden = false; });
-  $('[data-show-analysis]').addEventListener('click', () => { if (!currentAnalysis) return; $('[data-inspector]').scrollTop = 0; renderAnalysis(); });
+  $('[data-close-analysis]').addEventListener('click', () => { $('[data-analysis]').hidden = true; $('[data-inspector-empty]').hidden = false; updateShowAnalysisToggle(); });
+  $('[data-show-analysis]').addEventListener('click', () => {
+    if (!currentAnalysis) return;
+    const analysisPanel = $('[data-analysis]');
+    if (analysisPanel.hidden) { $('[data-inspector]').scrollTop = 0; renderAnalysis(); }
+    else { analysisPanel.hidden = true; $('[data-inspector-empty]').hidden = false; updateShowAnalysisToggle(); }
+  });
   $('#jp-file').addEventListener('change', event => extractFile(event.target.files[0]));
   $('[data-toggle-connection]').addEventListener('click', () => { const panel = $('[data-connection-panel]'); panel.hidden = !panel.hidden; });
   $('[data-close-analysis-connection]')?.addEventListener('click', () => { $('[data-analysis-connection]').hidden = true; if (!currentAnalysis) $('[data-inspector-empty]').hidden = false; });
@@ -414,6 +430,6 @@
   $$('[data-page-prev]').forEach(button => button.addEventListener('click', () => renderPage(currentPageIndex - 1))); $$('[data-page-next]').forEach(button => button.addEventListener('click', () => renderPage(currentPageIndex + 1)));
   $$('[data-page-go]').forEach(button => button.addEventListener('click', () => goToPage(button.closest('[data-page-nav]').querySelector('[data-page-input]').value))); $$('[data-page-input]').forEach(input => input.addEventListener('keydown', event => { if (event.key === 'Enter') goToPage(event.currentTarget.value); })); $$('[data-page-bookmark]').forEach(button => button.addEventListener('click', () => addBookmark(button.closest('[data-page-nav]').querySelector('[data-bookmark-note]').value)));
   $$('[data-view]').forEach(button => button.addEventListener('click', () => setView(button.dataset.view === 'memory'))); $('[data-back-reader]').addEventListener('click', () => setView(false));
-  document.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); analyzeSelection(); } if (event.key === 'Escape' && root.classList.contains('is-library-open')) setLibraryOpen(false); if (event.key === 'Escape') setLoginOpen(false); });
-  applyDisplaySettings(loadDisplaySettings()); renderDailyUsage(); refreshDailyUsage(); renderDocuments(); renderMemory(); renderMemoryNotes(); renderPage(0, false);
+  document.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); analyzeSelection(); } if (event.key === 'Escape' && root.classList.contains('is-library-open')) setLibraryOpen(false); if (event.key === 'Escape') setLoginOpen(false); if (event.key === 'Escape' && !$('[data-analysis]').hidden) { $('[data-analysis]').hidden = true; $('[data-inspector-empty]').hidden = false; updateShowAnalysisToggle(); } });
+  applyDisplaySettings(loadDisplaySettings()); renderDailyUsage(); refreshDailyUsage(); renderDocuments(); renderMemory(); renderMemoryNotes(); renderPage(0, false); updateShowAnalysisToggle();
 })();
