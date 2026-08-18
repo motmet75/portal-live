@@ -11,16 +11,12 @@
   const libraryBackdrop = $('.jp-library-backdrop');
   const storageKey = 'anhmedia.jp-reader.v1';
   const displayStorageKey = 'anhmedia.jp-reader.display.v1';
-  const usageStorageKey = 'anhmedia.jp-reader.analysis-usage.v1';
   const maxSelectionCharacters = 500;
   let dailyAnalysisLimit = null;
   let serverRemaining = null;
   let usageLoaded = false;
   let usageRequestSerial = 0;
-  let lowerLimitCandidate = null;
-  let lowerLimitConfirmations = 0;
   let quotaPollTimer = null;
-  const quotaSessionKey = 'anhmedia.jp-reader.server-quota.v3';
   let selectedText = '';
   let savedRange = null;
   let currentAnalysis = null;
@@ -86,47 +82,8 @@
   }
   function persist() { localStorage.setItem(storageKey, JSON.stringify(state)); renderDocuments(); renderMemory(); renderMemoryNotes(); }
   function toast(message) { const el = $('[data-toast]'); el.textContent = message; el.hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(() => { el.hidden = true; }, 2400); }
-  function loadLastServerQuota() {
-    try {
-      const value = JSON.parse(sessionStorage.getItem(quotaSessionKey) || 'null');
-      if (!value) return;
-      const limit = Number(value.limit);
-      const remaining = Number(value.remaining);
-      if (!Number.isFinite(limit) || !Number.isFinite(remaining)) return;
-      dailyAnalysisLimit = Math.max(0, limit);
-      serverRemaining = Math.max(0, remaining);
-      usageLoaded = true;
-    } catch (_) {}
-  }
-
-  function saveLastServerQuota() {
-    if (!usageLoaded || dailyAnalysisLimit === null || serverRemaining === null) return;
-    try {
-      sessionStorage.setItem(quotaSessionKey, JSON.stringify({
-        limit: dailyAnalysisLimit,
-        remaining: serverRemaining,
-        savedAt: Date.now()
-      }));
-    } catch (_) {}
-  }
-
   function remainingAnalyses() {
     return usageLoaded && serverRemaining !== null ? serverRemaining : null;
-  }
-
-  function scheduleQuotaPollIfNeeded() {
-    if (quotaPollTimer) {
-      clearTimeout(quotaPollTimer);
-      quotaPollTimer = null;
-    }
-
-    if (!usageLoaded || serverRemaining === null || serverRemaining > 0) return;
-
-    quotaPollTimer = setTimeout(async () => {
-      quotaPollTimer = null;
-      await refreshDailyUsage();
-      scheduleQuotaPollIfNeeded();
-    }, 15000);
   }
 
   function renderDailyUsage() {
@@ -144,6 +101,7 @@
     if (limitEl) limitEl.textContent = String(dailyAnalysisLimit);
 
     analyzeButton.disabled =
+        analysisInProgress ||
         !selectedText ||
         selectedText.length > maxSelectionCharacters ||
         serverRemaining <= 0;
@@ -151,36 +109,22 @@
     scheduleQuotaPollIfNeeded();
   }
 
+  /*
+   * Do not decrement quota locally.
+   * After a successful analysis, ask the server for the new authoritative value.
+   */
   function recordAnalysis() {
-    if (!usageLoaded || serverRemaining === null) return;
-    serverRemaining = Math.max(0, serverRemaining - 1);
-    saveLastServerQuota();
-    renderDailyUsage();
+    refreshDailyUsage();
   }
 
   function acceptServerQuota(limit, remaining) {
-    if (!Number.isFinite(limit) || !Number.isFinite(remaining) || limit < 0 || remaining < 0) return false;
+    if (!Number.isFinite(limit) || !Number.isFinite(remaining)) return false;
+    if (limit < 0 || remaining < 0) return false;
 
-    /*
-     * If we already have a higher valid server limit, ignore one/two lower
-     * responses. This protects against stale/cached 10/10 responses.
-     */
-    if (usageLoaded && dailyAnalysisLimit !== null && limit < dailyAnalysisLimit) {
-      if (lowerLimitCandidate === limit) lowerLimitConfirmations += 1;
-      else {
-        lowerLimitCandidate = limit;
-        lowerLimitConfirmations = 1;
-      }
-      if (lowerLimitConfirmations < 3) return false;
-    } else {
-      lowerLimitCandidate = null;
-      lowerLimitConfirmations = 0;
-    }
-
-    dailyAnalysisLimit = Math.max(0, limit);
-    serverRemaining = Math.max(0, Math.min(remaining, dailyAnalysisLimit));
+    dailyAnalysisLimit = limit;
+    serverRemaining = remaining;
     usageLoaded = true;
-    saveLastServerQuota();
+
     renderDailyUsage();
     return true;
   }
@@ -192,6 +136,7 @@
       const response = await fetch(
           `/api/japanese-learning/usage?_=${Date.now()}-${requestId}`,
           {
+            method: 'GET',
             headers: {
               Accept: 'application/json',
               'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -202,83 +147,56 @@
           }
       );
 
-      if (requestId !== usageRequestSerial) return;
+      if (requestId !== usageRequestSerial) return false;
+
+      if (response.status === 401) {
+        dailyAnalysisLimit = null;
+        serverRemaining = null;
+        usageLoaded = false;
+        renderDailyUsage();
+        return false;
+      }
+
       if (!response.ok) {
-        if (response.status === 401) {
-          dailyAnalysisLimit = null;
-          serverRemaining = null;
-          usageLoaded = false;
-          try { sessionStorage.removeItem(quotaSessionKey); } catch (_) {}
-          renderDailyUsage();
-          return;
-        }
+        /*
+         * Network/server error: keep the last valid server quota.
+         * Never replace 49/60 with 0/10 or 10/10.
+         */
         if (!usageLoaded) renderDailyUsage();
-        return;
+        return false;
       }
 
       const usage = await response.json();
-      if (requestId !== usageRequestSerial) return;
+      if (requestId !== usageRequestSerial) return false;
 
-      acceptServerQuota(Number(usage.limit), Number(usage.remaining));
+      return acceptServerQuota(
+          Number(usage.limit),
+          Number(usage.remaining)
+      );
     } catch (_) {
       if (!usageLoaded) renderDailyUsage();
+      return false;
     }
+  }
+
+  function scheduleQuotaPollIfNeeded() {
+    if (quotaPollTimer) {
+      clearTimeout(quotaPollTimer);
+      quotaPollTimer = null;
+    }
+
+    if (!usageLoaded || serverRemaining === null || serverRemaining > 0) return;
+
+    quotaPollTimer = setTimeout(async () => {
+      quotaPollTimer = null;
+      await refreshDailyUsage();
+      scheduleQuotaPollIfNeeded();
+    }, 5000);
   }
 
   function refreshQuotaOnReturn() {
     refreshDailyUsage();
   }
-
-
-  async function logoutReaderStayHere(event) {
-    if (event) event.preventDefault();
-
-    try {
-      await fetch('/logout', {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest'
-        },
-        cache: 'no-store'
-      });
-    } catch (_) {
-      /*
-       * Some Spring Security configurations expose logout as GET.
-       * Retry with GET before reloading the current page.
-       */
-      try {
-        await fetch('/logout', {
-          method: 'GET',
-          credentials: 'same-origin',
-          headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-          },
-          cache: 'no-store'
-        });
-      } catch (_) {}
-    }
-
-    try {
-      sessionStorage.removeItem(quotaSessionKey);
-    } catch (_) {}
-
-    dailyAnalysisLimit = null;
-    serverRemaining = null;
-    usageLoaded = false;
-
-    window.location.reload();
-  }
-
-  function requireGoogleLoginForAnalysis() {
-    const loginButton = $('[data-login-open]');
-    if (loginButton) {
-      setLoginOpen(true);
-      return;
-    }
-    openGoogleLoginPopup();
-  }
-
 
   function escapeHtml(value) { const el = document.createElement('div'); el.textContent = value || ''; return el.innerHTML; }
   function textToHtml(text) { return String(text || '').split(/\n\s*\n/).filter(Boolean).map(part => `<p>${escapeHtml(part).replace(/\n/g, '<br>')}</p>`).join(''); }
@@ -584,14 +502,19 @@
     if (!selectedText) return;
     if (selectedText.length > maxSelectionCharacters) { toast(`Đoạn quá dài. Chỉ chọn tối đa ${maxSelectionCharacters} ký tự, khoảng 1/4 trang A4.`); return; }
     if (!usageLoaded) {
-      toast('Hãy đăng nhập với Google để sử dụng miễn phí.');
-      requireGoogleLoginForAnalysis();
-      return;
+      const quotaReady = await refreshDailyUsage();
+      if (!quotaReady) {
+        toast('Hãy đăng nhập với Google để sử dụng miễn phí.');
+        requireGoogleLoginForAnalysis();
+        return;
+      }
     }
     if (remainingAnalyses() === 0) {
-      toast(`Bạn đã dùng hết ${dailyAnalysisLimit} lượt hôm nay. Hệ thống đang tự kiểm tra hạn mức mới.`);
-      refreshDailyUsage();
-      return;
+      await refreshDailyUsage();
+      if (remainingAnalyses() === 0) {
+        toast(`Bạn đã dùng hết ${dailyAnalysisLimit} lượt hôm nay.`);
+        return;
+      }
     }
     if (currentAnalysis && hasUnsavedAnalysis && currentAnalysis.source !== selectedText) {
       const savePrevious = window.confirm('Bạn chưa lưu kết quả phân tích trước. Nhấn OK để lưu trước khi phân tích đoạn mới, hoặc Hủy để bỏ kết quả cũ.');
@@ -827,7 +750,6 @@
     if (!document.hidden) refreshQuotaOnReturn();
   });
 
-  loadLastServerQuota();
   applyDisplaySettings(loadDisplaySettings());
   renderDailyUsage();
   refreshDailyUsage();
