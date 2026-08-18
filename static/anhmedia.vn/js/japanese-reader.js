@@ -233,6 +233,18 @@
     return { ...first, source: text };
   }
 
+  async function fetchAnalysisWithRetry(payload, attempt = 1, maxAttempts = 3) {
+    try {
+      const response = await fetch('/api/japanese-learning/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      if (!response.ok) { const body = await response.text(); let message = body; try { message = JSON.parse(body).error || body; } catch (_) { if (/^\s*<(!doctype|html)/i.test(body)) message = `Máy chủ gặp lỗi nội bộ (HTTP ${response.status}). Vui lòng thử lại sau hoặc liên hệ quản trị viên.`; } const error = new Error(message || 'analysis endpoint unavailable'); error.status = response.status; throw error; }
+      return await response.json();
+    } catch (error) {
+      const retryable = !error.status || error.status >= 500;
+      if (retryable && attempt < maxAttempts) { await new Promise(resolve => setTimeout(resolve, 500 * attempt)); return fetchAnalysisWithRetry(payload, attempt + 1, maxAttempts); }
+      throw error;
+    }
+  }
+
   async function analyzeSelection() {
     if (!selectedText) return;
     if (selectedText.length > maxSelectionCharacters) { toast(`Đoạn quá dài. Chỉ chọn tối đa ${maxSelectionCharacters} ký tự, khoảng 1/4 trang A4.`); return; }
@@ -253,9 +265,7 @@
     const analyzeSpinner = analyzeButton.querySelector('[data-analyze-spinner]');
     if (analyzeSpinner) analyzeSpinner.hidden = false;
     try {
-      const response = await fetch('/api/japanese-learning/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: selectedText, mode: 'selection' }) });
-      if (!response.ok) { const body = await response.text(); let message = body; try { message = JSON.parse(body).error || body; } catch (_) { if (/^\s*<(!doctype|html)/i.test(body)) message = `Máy chủ gặp lỗi nội bộ (HTTP ${response.status}). Vui lòng thử lại sau hoặc liên hệ quản trị viên.`; } const error = new Error(message || 'analysis endpoint unavailable'); error.status = response.status; throw error; }
-      currentAnalysis = await response.json();
+      currentAnalysis = await fetchAnalysisWithRetry({ text: selectedText, mode: 'selection' });
       recordAnalysis();
       $('[data-analysis-connection]').hidden = true;
     } catch (error) {
@@ -387,6 +397,7 @@
   $('[data-show-analysis]').addEventListener('click', () => { if (!currentAnalysis) return; $('[data-inspector]').scrollTop = 0; renderAnalysis(); });
   $('#jp-file').addEventListener('change', event => extractFile(event.target.files[0]));
   $('[data-toggle-connection]').addEventListener('click', () => { const panel = $('[data-connection-panel]'); panel.hidden = !panel.hidden; });
+  $('[data-close-analysis-connection]')?.addEventListener('click', () => { $('[data-analysis-connection]').hidden = true; if (!currentAnalysis) $('[data-inspector-empty]').hidden = false; });
   $('[data-retry-analysis]').addEventListener('click', analyzeSelection);
   $('[data-save-document]').addEventListener('click', saveDocument); $$('[data-remember]').forEach(button => button.addEventListener('click', remember));
   $('[data-vocabulary]').addEventListener('click', event => { const saveButton = event.target.closest('[data-save-word]'); if (saveButton) saveWord(Number(saveButton.dataset.saveWord)); const speakButton = event.target.closest('[data-speak-word]'); if (speakButton) { const word = (currentAnalysis.words || [])[Number(speakButton.dataset.speakWord)]; speakJapanese(word?.reading || word?.word); } });
