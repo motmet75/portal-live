@@ -81,7 +81,85 @@
     try { const value = JSON.parse(localStorage.getItem(storageKey)) || {}; return { documents: value.documents || [], memories: value.memories || [], analyses: value.analyses || [], savedWords: value.savedWords || [] }; }
     catch (_) { return { documents: [], memories: [], analyses: [], savedWords: [] }; }
   }
-  function persist() { localStorage.setItem(storageKey, JSON.stringify(state)); renderDocuments(); renderMemory(); renderMemoryNotes(); }
+  function persist() {
+    localStorage.setItem(storageKey, JSON.stringify(state));
+    renderDocuments();
+    renderMemory();
+    renderMemoryNotes();
+    syncToServer();
+  }
+
+  function mergeStates(local, server) {
+    if (!server) return local;
+    const mergeArray = (localArr, serverArr, keyFn, dateFn) => {
+      const map = new Map();
+      const addToMap = (item) => {
+        const key = keyFn(item);
+        const existing = map.get(key);
+        if (!existing) {
+          map.set(key, item);
+        } else {
+          const dateE = new Date(dateFn(existing) || 0);
+          const dateI = new Date(dateFn(item) || 0);
+          if (dateI > dateE) {
+            map.set(key, item);
+          }
+        }
+      };
+      (localArr || []).forEach(addToMap);
+      (serverArr || []).forEach(addToMap);
+      return Array.from(map.values());
+    };
+
+    return {
+      documents: mergeArray(local.documents, server.documents, doc => doc.id, doc => doc.updatedAt),
+      memories: mergeArray(local.memories, server.memories, mem => mem.sessionId || mem.id, mem => mem.savedAt || mem.nextReview),
+      analyses: mergeArray(local.analyses, server.analyses, an => an.sessionId, an => an.savedAt),
+      savedWords: mergeArray(local.savedWords, server.savedWords, w => `${w.sessionId}|${w.word}`, w => w.savedAt)
+    };
+  }
+
+  async function syncToServer() {
+    if (!usageLoaded) return;
+    try {
+      await fetch('/api/japanese-learning/state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ state: JSON.stringify(state) })
+      });
+    } catch (err) {
+      console.error('Failed to sync state to server', err);
+    }
+  }
+
+  let stateSynced = false;
+  async function triggerInitialStateSync() {
+    if (stateSynced || !usageLoaded) return;
+    try {
+      const response = await fetch(`/api/japanese-learning/state?_=${Date.now()}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.state) {
+          const serverState = JSON.parse(data.state);
+          state = mergeStates(state, serverState);
+          localStorage.setItem(storageKey, JSON.stringify(state));
+          renderDocuments();
+          renderMemory();
+          renderMemoryNotes();
+          renderPage(currentPageIndex, false);
+          // Push merged state back to server
+          await fetch('/api/japanese-learning/state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ state: JSON.stringify(state) })
+          });
+        }
+        stateSynced = true;
+      }
+    } catch (err) {
+      console.error('Failed initial state sync', err);
+    }
+  }
   function toast(message) { const el = $('[data-toast]'); el.textContent = message; el.hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(() => { el.hidden = true; }, 2400); }
   function remainingAnalyses() {
     return usageLoaded && serverRemaining !== null ? serverRemaining : null;
@@ -170,10 +248,14 @@
       const usage = await response.json();
       if (requestId !== usageRequestSerial) return false;
 
-      return acceptServerQuota(
+      const accepted = acceptServerQuota(
           Number(usage.limit),
           Number(usage.remaining)
       );
+      if (accepted) {
+        triggerInitialStateSync();
+      }
+      return accepted;
     } catch (_) {
       if (!usageLoaded) renderDailyUsage();
       return false;
