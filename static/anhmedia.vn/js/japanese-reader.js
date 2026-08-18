@@ -120,7 +120,7 @@
 
   function acceptServerQuota(limit, remaining) {
     if (!Number.isFinite(limit) || !Number.isFinite(remaining)) return false;
-    if (limit < 0 || remaining < 0) return false;
+    if (limit < 0 || remaining < 0 || remaining > limit) return false;
 
     dailyAnalysisLimit = limit;
     serverRemaining = remaining;
@@ -464,6 +464,8 @@
     if (seconds) seconds.textContent = '0';
     if (modal) modal.hidden = false;
 
+    document.body.classList.add('jp-analysis-locked');
+
     analyzeButton.disabled = true;
     $$('[data-analyze-popover]').forEach(button => { button.disabled = true; });
 
@@ -485,6 +487,8 @@
     }
 
     if (modal) modal.hidden = true;
+
+    document.body.classList.remove('jp-analysis-locked');
 
     $$('[data-analyze-popover]').forEach(button => { button.disabled = false; });
 
@@ -550,20 +554,31 @@
     if (analysisInProgress) { toast('Đang phân tích đoạn hiện tại. Vui lòng chờ kết quả.'); return; }
     if (!selectedText) return;
     if (selectedText.length > maxSelectionCharacters) { toast(`Đoạn quá dài. Chỉ chọn tối đa ${maxSelectionCharacters} ký tự, khoảng 1/4 trang A4.`); return; }
-    if (!usageLoaded) {
-      const quotaReady = await refreshDailyUsage();
-      if (!quotaReady) {
-        toast('Hãy đăng nhập với Google để sử dụng miễn phí.');
-        requireGoogleLoginForAnalysis();
-        return;
-      }
+
+    /*
+     * SERVER FIRST:
+     * Always fetch /usage immediately before every analysis.
+     * Do not trust local/offline quota as the decision source.
+     */
+    const quotaReady = await refreshDailyUsage();
+
+    if (!quotaReady) {
+      toast('Không lấy được hạn mức mới từ máy chủ. Vui lòng kiểm tra đăng nhập hoặc kết nối.');
+      if (!usageLoaded) requireGoogleLoginForAnalysis();
+      return;
     }
-    if (remainingAnalyses() === 0) {
-      await refreshDailyUsage();
-      if (remainingAnalyses() === 0) {
-        toast(`Bạn đã dùng hết ${dailyAnalysisLimit} lượt hôm nay.`);
-        return;
-      }
+
+    const serverLimitBeforeAnalysis = dailyAnalysisLimit;
+    const serverRemainingBeforeAnalysis = serverRemaining;
+
+    if (serverRemainingBeforeAnalysis === null || serverLimitBeforeAnalysis === null) {
+      toast('Máy chủ chưa trả về hạn mức hợp lệ. Vui lòng thử lại.');
+      return;
+    }
+
+    if (serverRemainingBeforeAnalysis <= 0) {
+      toast(`Bạn đã dùng hết ${serverLimitBeforeAnalysis} lượt hôm nay.`);
+      return;
     }
     if (currentAnalysis && hasUnsavedAnalysis && currentAnalysis.source !== selectedText) {
       const savePrevious = window.confirm('Bạn chưa lưu kết quả phân tích trước. Nhấn OK để lưu trước khi phân tích đoạn mới, hoặc Hủy để bỏ kết quả cũ.');
@@ -583,9 +598,11 @@
     if (analyzeSpinner) analyzeSpinner.hidden = false;
     try {
       currentAnalysis = await fetchAnalysisWithRetry({ text: selectedText, mode: 'selection' });
-      recordAnalysis();
       $('[data-analysis-connection]').hidden = true;
     } catch (error) {
+      if (error.status === 429) {
+        await refreshDailyUsage();
+      }
       showAnalysisConnection(error.status || 0, error.message);
       if (/パイロット|微量|燃料|点火/.test(selectedText)) {
         currentAnalysis = sampleAnalysis(selectedText);
@@ -833,6 +850,19 @@
   $$('[data-page-label]').forEach(button => button.addEventListener('click', () => { const value = window.prompt(`Đến trang số (1–${currentPages.length}):`, String(currentPageIndex + 1)); if (value !== null) goToPage(value); }));
   $$('[data-page-bookmark]').forEach(button => button.addEventListener('click', () => { const note = window.prompt('Ghi chú để nhớ đoạn này:', ''); if (note !== null) addBookmark(note); }));
   $$('[data-view]').forEach(button => button.addEventListener('click', () => setView(button.dataset.view === 'memory'))); $('[data-back-reader]').addEventListener('click', () => setView(false));
+  document.addEventListener('touchmove', event => {
+    if (analysisInProgress) event.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('click', event => {
+    if (!analysisInProgress) return;
+    const modal = $('[data-analysis-wait]');
+    if (modal && !modal.contains(event.target)) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }, true);
+
   document.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); analyzeSelection(); } if (event.key === 'Escape' && root.classList.contains('is-library-open')) setLibraryOpen(false); if (event.key === 'Escape') setLoginOpen(false); if (event.key === 'Escape' && !$('[data-analysis]').hidden) { $('[data-analysis]').hidden = true; $('[data-inspector-empty]').hidden = false; updateShowAnalysisToggle(); } });
   $('[data-reader-logout]')?.addEventListener('click', event => { event.preventDefault(); logoutReaderStayHere(event); });
   document.addEventListener('click', event => {
@@ -847,6 +877,10 @@
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) refreshQuotaOnReturn();
   });
+
+  analyzeButton.classList.remove('is-loading');
+  const initialAnalyzeSpinner = analyzeButton.querySelector('[data-analyze-spinner]');
+  if (initialAnalyzeSpinner) initialAnalyzeSpinner.hidden = true;
 
   applyDisplaySettings(loadDisplaySettings());
   renderDailyUsage();

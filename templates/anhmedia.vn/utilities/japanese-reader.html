@@ -617,6 +617,187 @@
     .jp-pdf-auth-error{padding:8px!important;border-radius:7px;background:#f8e7e3;color:#8b3f36!important}
   </style>
 
+
+  <style>
+    .jp-inline-page-nav{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+      gap:7px;
+      margin:12px 0;
+      padding:9px 10px;
+      border:1px solid #dfe5e1;
+      border-radius:10px;
+      background:#fffefa;
+    }
+    .jp-inline-page-nav button{
+      min-height:36px;
+      padding:7px 11px;
+      border:1px solid #d7e0dc;
+      border-radius:8px;
+      background:#fff;
+      color:#315f55;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .jp-inline-page-nav button:disabled{
+      opacity:.38;
+      cursor:default;
+    }
+    .jp-inline-page-nav__label{
+      min-width:100px;
+    }
+    .jp-inline-page-nav .jp-page-bookmark{
+      width:38px!important;
+      min-width:38px!important;
+      padding:0!important;
+      font-size:18px!important;
+    }
+    @media(max-width:720px){
+      .jp-inline-page-nav{
+        gap:5px;
+        padding:7px;
+      }
+      .jp-inline-page-nav button{
+        min-height:34px;
+        padding:6px 8px;
+        font-size:11px;
+      }
+      .jp-inline-page-nav__label{
+        min-width:82px;
+      }
+    }
+  </style>
+
+
+  <style>
+    /* Analysis lock: block the whole view until the request finishes */
+    body.jp-analysis-locked{
+      overflow:hidden!important;
+      touch-action:none!important;
+    }
+
+    body.jp-analysis-locked [data-jp-reader]{
+      pointer-events:none!important;
+      user-select:none!important;
+      -webkit-user-select:none!important;
+    }
+
+    body.jp-analysis-locked [data-analysis-wait]{
+      pointer-events:auto!important;
+      user-select:text!important;
+      -webkit-user-select:text!important;
+    }
+
+    .jp-analysis-wait{
+      position:fixed!important;
+      inset:0!important;
+      z-index:2147483647!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      width:100vw!important;
+      height:100vh!important;
+      min-height:100vh!important;
+      padding:18px!important;
+      background:rgba(15,23,21,.72)!important;
+      overscroll-behavior:none!important;
+      touch-action:none!important;
+      pointer-events:auto!important;
+    }
+
+    .jp-analysis-wait[hidden]{
+      display:none!important;
+    }
+
+    .jp-analysis-wait__card{
+      pointer-events:auto!important;
+      max-height:calc(100vh - 36px)!important;
+      overflow:auto!important;
+      -webkit-overflow-scrolling:touch;
+    }
+
+    /* Idle analyze button must never spin */
+    [data-analyze-selection]:not(.is-loading) [data-analyze-spinner]{
+      display:none!important;
+    }
+
+    [data-analyze-selection].is-loading [data-analyze-spinner]{
+      display:inline-flex!important;
+    }
+
+    [data-analyze-selection].is-loading [data-analyze-icon]{
+      display:none!important;
+    }
+  </style>
+
+
+  <style>
+    /* Relative page navigation: always visible in normal document flow */
+    .jp-relative-nav{
+      position:relative!important;
+      inset:auto!important;
+      z-index:2!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      flex-wrap:wrap!important;
+      gap:8px!important;
+      width:100%!important;
+      margin:12px 0!important;
+      padding:10px!important;
+      overflow:visible!important;
+      border:1px solid #cfdad5!important;
+      border-radius:10px!important;
+      background:#f7faf8!important;
+      transform:none!important;
+      -webkit-transform:none!important;
+      visibility:visible!important;
+      opacity:1!important;
+    }
+    .jp-relative-nav button{
+      position:relative!important;
+      display:inline-flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      min-height:38px!important;
+      padding:8px 12px!important;
+      border:1px solid #c7d6d0!important;
+      border-radius:8px!important;
+      background:#fff!important;
+      color:#244f46!important;
+      font-size:12px!important;
+      font-weight:800!important;
+      visibility:visible!important;
+      opacity:1!important;
+      pointer-events:auto!important;
+      -webkit-appearance:none!important;
+      appearance:none!important;
+    }
+    .jp-relative-nav button:disabled{opacity:.38!important;pointer-events:none!important}
+    .jp-relative-nav__label{min-width:105px!important;color:#111!important}
+    .jp-relative-nav__bookmark{
+      min-width:108px!important;
+      color:#7a5b0c!important;
+      border-color:#e1cf8d!important;
+      background:#fff8d8!important;
+    }
+    @media(max-width:720px){
+      .jp-relative-nav{
+        display:grid!important;
+        grid-template-columns:1fr auto 1fr!important;
+        gap:6px!important;
+        padding:8px!important;
+      }
+      .jp-relative-nav__prev{grid-column:1!important}
+      .jp-relative-nav__label{grid-column:2!important;min-width:84px!important}
+      .jp-relative-nav__next{grid-column:3!important}
+      .jp-relative-nav__bookmark{grid-column:1/-1!important;width:100%!important;min-width:0!important}
+      .jp-relative-nav button{min-height:40px!important;font-size:12px!important}
+    }
+  </style>
+
 </head>
 <body>
 <div class="jp-app" data-jp-reader>
@@ -717,11 +898,22 @@
           <span class="jp-tool-hint">Bôi chọn một câu hoặc đoạn ngắn để bắt đầu</span>
         </div>
       </div>
-
+      <div class="jp-relative-nav jp-relative-nav--top" data-page-nav aria-label="Điều hướng trang phía trên">
+        <button type="button" class="jp-relative-nav__prev" data-page-prev>← Trước</button>
+        <button type="button" class="jp-relative-nav__label" data-page-label>Trang 1 / 1</button>
+        <button type="button" class="jp-relative-nav__next" data-page-next>Sau →</button>
+        <button type="button" class="jp-relative-nav__bookmark" data-page-bookmark disabled title="Lưu dấu trang" aria-label="Lưu dấu trang">🔖 Dấu trang</button>
+      </div>
       <article class="jp-paper" contenteditable="true" spellcheck="false" data-editor aria-label="Nội dung tiếng Nhật có thể chỉnh sửa">
         <p>パイロットインジェクタから微量（熱量比1%以下）の液体燃料を噴射し副室内のガスを着火する．</p>
         <p>パイロット燃料は微量だが点火プラグに比し約8 000倍という強力な着火エネルギーを有するため燃焼が安定し効率が向上する．</p>
       </article>
+      <div class="jp-relative-nav jp-relative-nav--bottom" data-page-nav aria-label="Điều hướng trang phía dưới">
+        <button type="button" class="jp-relative-nav__prev" data-page-prev>← Trước</button>
+        <button type="button" class="jp-relative-nav__label" data-page-label>Trang 1 / 1</button>
+        <button type="button" class="jp-relative-nav__next" data-page-next>Sau →</button>
+        <button type="button" class="jp-relative-nav__bookmark" data-page-bookmark disabled title="Lưu dấu trang" aria-label="Lưu dấu trang">🔖 Dấu trang</button>
+      </div>
 
       <div class="jp-floating-toolbar" data-floating-toolbar role="toolbar" aria-label="Điều hướng trang, tô màu và đánh dấu">
         <button type="button" data-page-prev title="Trang trước" aria-label="Trang trước">‹</button>
@@ -805,6 +997,6 @@
 
   <div class="jp-toast" data-toast hidden></div>
 </div>
-<script src="/anhmedia.vn/js/japanese-reader.js?v=20260818-pdf-auth-popup-18" defer></script>
+<script src="/anhmedia.vn/js/japanese-reader.js?v=20260818-relative-nav-21" defer></script>
 </body>
 </html>
