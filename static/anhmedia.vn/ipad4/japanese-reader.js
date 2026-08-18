@@ -22,46 +22,157 @@
     xhr.send(body === null ? null : JSON.stringify(body));
   }
 
+  function uploadExtractFile(file, callback) {
+    if (!window.FormData) {
+      callback(0, null, 'FormData not supported');
+      return;
+    }
+    var xhr = new XMLHttpRequest();
+    var form = new FormData();
+    form.append('file', file);
+    form.append('language', 'jpn');
+
+    var userId = byId('extractUserId') ? String(byId('extractUserId').value || '').replace(/^\s+|\s+$/g, '') : '';
+    var token = byId('extractToken') ? String(byId('extractToken').value || '').replace(/^\s+|\s+$/g, '') : '';
+    if (userId) form.append('userId', userId);
+    if (token) form.append('tokenId', token);
+
+    xhr.open('POST', '/api/extract-text', true);
+    xhr.setRequestHeader('Accept', 'application/json,text/plain,*/*');
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState !== 4) return;
+      var data = null;
+      try { data = JSON.parse(xhr.responseText || '{}'); } catch (ignore) {}
+      callback(xhr.status, data, xhr.responseText);
+    };
+    xhr.send(form);
+  }
+
+  function extractTextFromResponse(data, raw) {
+    if (data) {
+      if (typeof data.text === 'string') return data.text;
+      if (typeof data.content === 'string') return data.content;
+      if (typeof data.result === 'string') return data.result;
+      if (data.data && typeof data.data.text === 'string') return data.data.text;
+    }
+    if (raw && !/^\s*</.test(raw)) return raw;
+    return '';
+  }
+
+  function handlePdfUpload() {
+    var input = byId('pdfFile');
+    var progress = byId('uploadProgress');
+    if (!input || !input.files || !input.files.length) {
+      status.innerHTML = 'Hãy chọn PDF hoặc ảnh trước.';
+      return;
+    }
+
+    var file = input.files[0];
+    progress.style.display = 'block';
+    progress.innerHTML = 'Đang trích xuất văn bản...';
+    byId('uploadPdf').disabled = true;
+
+    uploadExtractFile(file, function (code, data, raw) {
+      byId('uploadPdf').disabled = false;
+
+      if (code !== 200 || (data && data.status && data.status !== 'success')) {
+        progress.style.display = 'none';
+        status.innerHTML = code === 401 || code === 403
+            ? 'Token trích xuất PDF chưa đúng hoặc chưa được cấp quyền.'
+            : 'Không thể trích xuất PDF. HTTP ' + code + '.';
+        return;
+      }
+
+      var text = extractTextFromResponse(data, raw);
+      text = String(text || '').replace(/^\s+|\s+$/g, '');
+      if (!text) {
+        progress.style.display = 'none';
+        status.innerHTML = 'Máy chủ không trả về văn bản từ PDF.';
+        return;
+      }
+
+      editor.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
+      progress.innerHTML = 'Đã trích xuất văn bản.';
+      window.setTimeout(function () { progress.style.display = 'none'; }, 1600);
+      status.innerHTML = 'Đã tải PDF. Bôi chọn một câu rồi nhấn Phân tích.';
+    });
+  }
+
   // ---- daily analysis quota (value comes from the server-rendered template / JPA, no hardcoded default) ----
   var dailyLimitEl = byId('dailyLimit');
   var dailyRemainingEl = byId('dailyRemaining');
   var dailyAnalysisLimit = null;
   var serverRemaining = null;
   var usageLoaded = false;
+  var usageRequestSerial = 0;
 
-  function remainingAnalyses() { return usageLoaded ? serverRemaining : null; }
+  function remainingAnalyses() {
+    return usageLoaded && serverRemaining !== null ? serverRemaining : null;
+  }
 
   function renderDailyUsage() {
-    if (!usageLoaded) {
+    if (!usageLoaded || dailyAnalysisLimit === null || serverRemaining === null) {
       if (dailyRemainingEl) dailyRemainingEl.innerHTML = '...';
       if (dailyLimitEl) dailyLimitEl.innerHTML = '...';
       if (byId('analyze')) byId('analyze').disabled = true;
       return;
     }
+
     if (dailyRemainingEl) dailyRemainingEl.innerHTML = String(serverRemaining);
     if (dailyLimitEl) dailyLimitEl.innerHTML = String(dailyAnalysisLimit);
     if (byId('analyze')) byId('analyze').disabled = serverRemaining <= 0;
   }
 
   function recordAnalysis() {
-    if (!usageLoaded) return;
+    if (!usageLoaded || serverRemaining === null) return;
     serverRemaining = Math.max(0, serverRemaining - 1);
     renderDailyUsage();
   }
 
   function refreshDailyUsage() {
-    usageLoaded = false;
-    renderDailyUsage();
-    request('GET', '/api/japanese-learning/usage?t=' + new Date().getTime(), null, function (code, data) {
-      if (code !== 200 || !data) return;
+    var requestId = ++usageRequestSerial;
+    var url = '/api/japanese-learning/usage?_=' + new Date().getTime() + '-' + requestId;
+    var xhr = new XMLHttpRequest();
+
+    xhr.open('GET', url, true);
+    xhr.setRequestHeader('Accept', 'application/json');
+    try { xhr.setRequestHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); } catch (ignoreCache) {}
+    try { xhr.setRequestHeader('Pragma', 'no-cache'); } catch (ignorePragma) {}
+
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState !== 4) return;
+
+      /* Ignore an older request that finished after a newer request. */
+      if (requestId !== usageRequestSerial) return;
+
+      var data = null;
+      try { data = JSON.parse(xhr.responseText || '{}'); } catch (ignoreJson) {}
+
+      if (xhr.status !== 200 || !data) {
+        /*
+         * Important: if we already have a valid server quota, KEEP IT.
+         * Never fall back to 0/10, 10/10, or HTML values.
+         */
+        if (!usageLoaded) renderDailyUsage();
+        return;
+      }
+
       var limit = parseInt(data.limit, 10);
       var remaining = parseInt(data.remaining, 10);
-      if (isNaN(limit) || isNaN(remaining)) return;
-      dailyAnalysisLimit = Math.max(0, limit);
-      serverRemaining = Math.max(0, remaining);
+
+      if (isNaN(limit) || isNaN(remaining) || limit < 0 || remaining < 0) {
+        if (!usageLoaded) renderDailyUsage();
+        return;
+      }
+
+      /* Server is the only authority for quota. */
+      dailyAnalysisLimit = limit;
+      serverRemaining = Math.min(remaining, limit);
       usageLoaded = true;
       renderDailyUsage();
-    });
+    };
+
+    xhr.send(null);
   }
 
   function selectedText() {
@@ -102,6 +213,29 @@
     var tokens = result.tokens || []; var html = ''; var i;
     for (i = 0; i < tokens.length; i += 1) html += '<button class="token" type="button" data-reading="' + escapeHtml(tokens[i].reading || tokens[i].surface) + '"><b>' + escapeHtml(tokens[i].surface) + '</b><small>' + escapeHtml(tokens[i].reading || '') + ' · ' + escapeHtml(tokens[i].romaji || '') + '</small></button>';
     byId('tokens').innerHTML = html;
+
+    var words = result.words || result.vocabulary || [];
+    var wordHtml = '', w, word, reading, romaji, meaningEn, meaningVi, onReading, kunReading;
+    for (w = 0; w < words.length; w += 1) {
+      word = words[w] || {};
+      reading = word.reading || '';
+      romaji = word.romaji || '';
+      meaningEn = word.meaningEn || word.meaning || '';
+      meaningVi = word.meaningVi || '';
+      onReading = word.onReading || '';
+      kunReading = word.kunReading || '';
+
+      wordHtml += '<div class="word-card">' +
+          '<b>' + escapeHtml(word.word || '') + '</b>' +
+          '<small>' + escapeHtml(reading) + (romaji ? ' · ' + escapeHtml(romaji) : '') + '</small>' +
+          (onReading || kunReading ? '<em>On ' + escapeHtml(onReading || '—') + ' · Kun ' + escapeHtml(kunReading || '—') + '</em>' : '') +
+          (meaningEn ? '<em>EN: ' + escapeHtml(meaningEn) + '</em>' : '') +
+          (meaningVi ? '<em>VI: ' + escapeHtml(meaningVi) + '</em>' : '') +
+          '<button type="button" data-word-reading="' + escapeHtml(reading || word.word || '') + '">&#9654; Nghe</button>' +
+          '</div>';
+    }
+    if (byId('words')) byId('words').innerHTML = wordHtml || '<small>Chưa có danh sách từ nên nhớ.</small>';
+
     showResultPanel();
     status.innerHTML = 'Đã phân tích xong đoạn được chọn.';
   }
@@ -134,7 +268,7 @@
     if (remainingAnalyses() === 0) { status.innerHTML = 'Bạn đã dùng hết ' + dailyAnalysisLimit + ' lượt phân tích hôm nay. Vui lòng liên hệ AnhMedia để mở rộng hạn mức.'; return; }
     currentText = text; status.innerHTML = 'Đang phân tích…'; byId('analyze').disabled = true;
     performAnalyzeRequest(text, 1, 3, function (code, data, raw) {
-      if (code === 200 && data) { recordAnalysis(); render(data); byId('analyze').disabled = remainingAnalyses() === 0; refreshDailyUsage(); return; }
+      if (code === 200 && data) { recordAnalysis(); render(data); byId('analyze').disabled = !usageLoaded || remainingAnalyses() === 0; refreshDailyUsage(); return; }
       byId('analyze').disabled = false;
       if (code === 401) { status.innerHTML = 'Bạn cần đăng nhập trước khi phân tích.'; openLogin(); refreshDailyUsage(); return; }
       status.innerHTML = friendlyErrorMessage(code, data, raw);
@@ -161,6 +295,7 @@
     });
   }
 
+  on(byId('uploadPdf'), 'click', handlePdfUpload);
   on(byId('analyze'), 'click', analyze); on(byId('speakSelection'), 'click', function () { var text = selectedText() || currentText; if (!text) status.innerHTML = 'Hãy chọn đoạn cần đọc.'; else speak(text); });
   on(byId('speakResult'), 'click', function () { speak(currentResult ? currentResult.source : ''); }); on(byId('saveResult'), 'click', saveResult);
   on(byId('clearText'), 'click', function () { if (window.confirm('Xóa nội dung đang đọc?')) editor.innerHTML = ''; });
@@ -168,6 +303,7 @@
   on(byId('loginOpen'), 'click', openLogin); on(byId('loginClose'), 'click', closeLogin); on(byId('loginShade'), 'click', closeLogin); on(byId('loginForm'), 'submit', login);
   on(byId('homeLink'), 'click', function (event) { if (!window.confirm('Bạn có chắc muốn trở về trang chủ?')) event.preventDefault(); });
   on(byId('tokens'), 'click', function (event) { var target = event.target; while (target && target !== this && !target.getAttribute('data-reading')) target = target.parentNode; if (target && target.getAttribute('data-reading')) speak(target.getAttribute('data-reading')); });
+  on(byId('words'), 'click', function (event) { var target = event.target; while (target && target !== this && !target.getAttribute('data-word-reading')) target = target.parentNode; if (target && target.getAttribute('data-word-reading')) speak(target.getAttribute('data-word-reading')); });
   on(byId('savedList'), 'click', function (event) { var target = event.target; var saved = loadSaved(); if (target.getAttribute('data-saved') !== null) speak(saved[Number(target.getAttribute('data-saved'))].source); if (target.getAttribute('data-remove') !== null) { saved.splice(Number(target.getAttribute('data-remove')), 1); localStorage.setItem(storageKey, JSON.stringify(saved)); showSaved(); } });
   on(byId('toggleResult'), 'click', function () { if (!currentResult) return; if (byId('analysisResult').style.display === 'none') showResultPanel(); else hideResultPanel(); });
   on(byId('closeResult'), 'click', hideResultPanel);
@@ -176,5 +312,10 @@
   showSaved();
   renderDailyUsage();
   refreshDailyUsage();
+
+  /* Old iPad Safari may restore pages from its back-forward cache. Re-check quota. */
+  on(window, 'pageshow', function () { refreshDailyUsage(); });
+  on(window, 'focus', function () { refreshDailyUsage(); });
+
   updateToggleResultButton();
 }());
