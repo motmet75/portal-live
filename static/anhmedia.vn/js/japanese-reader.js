@@ -553,7 +553,7 @@
     $$('[data-view]').forEach(button => {
       button.classList.toggle('is-active', button.dataset.view === (memory ? 'memory' : 'reader'));
     });
-  });
+  }
   $('#jp-file').addEventListener('change', event => extractFile(event.target.files[0]));
   $('[data-toggle-connection]').addEventListener('click', () => { const panel = $('[data-connection-panel]'); panel.hidden = !panel.hidden; });
   $('[data-close-analysis-connection]')?.addEventListener('click', () => { $('[data-analysis-connection]').hidden = true; if (!currentAnalysis) $('[data-inspector-empty]').hidden = false; });
