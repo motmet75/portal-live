@@ -34,6 +34,8 @@
   let documentSearchTerm = '';
   let memorySearchTerm = '';
   let activeSpeech = null;
+  let readerScrollTop = 0;
+  let memoryScrollTop = 0;
 
   function setLibraryOpen(open) {
     root.classList.toggle('is-library-open', open);
@@ -524,26 +526,33 @@
   function editSession(sessionId) { const item = state.analyses.find(entry => entry.sessionId === sessionId); if (!item) return; const value = window.prompt('Sửa bản dịch/ghi chú của đoạn:', item.translation || ''); if (value === null) return; item.translation = value.trim(); persist(); if (currentAnalysis?.sessionId === sessionId) { currentAnalysis.translation = item.translation; renderAnalysis(); } }
   function deleteSession(sessionId) { if (!window.confirm('Xóa phiên phân tích và các từ đã lưu trong phiên này?')) return; state.analyses = state.analyses.filter(item => item.sessionId !== sessionId); state.savedWords = state.savedWords.filter(item => item.sessionId !== sessionId); state.memories = state.memories.filter(item => item.sessionId !== sessionId); persist(); toast('Đã xóa phiên học.'); }
   function reopenSession(sessionId) { const analysis = state.analyses.find(item => item.sessionId === sessionId); if (!analysis) return; const doc = state.documents.find(item => item.id === analysis.documentId); if (doc) { currentDocumentId = doc.id; currentPages = doc.pages || [doc.html || '<p></p>']; $('[data-document-title]').value = doc.title; renderPage(analysis.pageIndex || 0, false); } currentAnalysis = { ...analysis }; hasUnsavedAnalysis = false; selectedText = analysis.source || ''; setView(false); renderAnalysis(); toast(`Đã trở lại trang ${(analysis.pageIndex || 0) + 1}.`); }
-  function setView(memory) { $('[data-reader-view]').hidden = memory; $('[data-inspector]').hidden = memory; $('[data-library]').hidden = memory; $('[data-memory-view]').hidden = !memory; $$('.jp-nav').forEach((el, index) => el.classList.toggle('is-active', Boolean(index) === memory)); }
+  function setView(memory) {
+    const readerView = $('[data-reader-view]');
+    const memoryView = $('[data-memory-view]');
 
-  document.addEventListener('selectionchange', () => requestAnimationFrame(updateSelection));
-  libraryToggle.addEventListener('click', () => setLibraryOpen(!root.classList.contains('is-library-open')));
-  $$('[data-library-close]').forEach(button => button.addEventListener('click', () => setLibraryOpen(false)));
-  $('[data-reader-smaller]').addEventListener('click', () => changeReaderScale(-1));
-  $('[data-reader-larger]').addEventListener('click', () => changeReaderScale(1));
-  $('[data-reader-bold]').addEventListener('click', () => toggleDisplaySetting('bold'));
-  $$('[data-google-login], [data-analysis-login]').forEach(link => link.addEventListener('click', rememberLoginReturn));
-  $('[data-login-open]')?.addEventListener('click', () => setLoginOpen(true));
-  $$('[data-login-close]').forEach(button => button.addEventListener('click', () => setLoginOpen(false)));
-  $('[data-reader-login]')?.addEventListener('submit', submitReaderLogin);
-  $('[data-home-link]').addEventListener('click', event => { event.preventDefault(); if (window.confirm('Bạn có chắc muốn rời bài học và trở về trang chủ?')) window.location.assign(event.currentTarget.href); });
-  analyzeButton.addEventListener('click', analyzeSelection); $('[data-analyze-popover]').addEventListener('click', analyzeSelection);
-  $('[data-close-analysis]').addEventListener('click', () => { $('[data-analysis]').hidden = true; $('[data-inspector-empty]').hidden = false; updateShowAnalysisToggle(); });
-  $('[data-show-analysis]').addEventListener('click', () => {
-    if (!currentAnalysis) return;
-    const analysisPanel = $('[data-analysis]');
-    if (analysisPanel.hidden) { $('[data-inspector]').scrollTop = 0; renderAnalysis(); }
-    else { analysisPanel.hidden = true; $('[data-inspector-empty]').hidden = false; updateShowAnalysisToggle(); }
+    if (memory) {
+      readerScrollTop = readerView ? readerView.scrollTop : 0;
+      if (readerView) readerView.hidden = true;
+      $('[data-inspector]').hidden = true;
+      $('[data-library]').hidden = true;
+      if (memoryView) {
+        memoryView.hidden = false;
+        requestAnimationFrame(() => { memoryView.scrollTop = memoryScrollTop; });
+      }
+    } else {
+      memoryScrollTop = memoryView ? memoryView.scrollTop : 0;
+      if (memoryView) memoryView.hidden = true;
+      if (readerView) {
+        readerView.hidden = false;
+        requestAnimationFrame(() => { readerView.scrollTop = readerScrollTop; });
+      }
+      $('[data-inspector]').hidden = false;
+      $('[data-library]').hidden = false;
+    }
+
+    $$('[data-view]').forEach(button => {
+      button.classList.toggle('is-active', button.dataset.view === (memory ? 'memory' : 'reader'));
+    });
   });
   $('#jp-file').addEventListener('change', event => extractFile(event.target.files[0]));
   $('[data-toggle-connection]').addEventListener('click', () => { const panel = $('[data-connection-panel]'); panel.hidden = !panel.hidden; });

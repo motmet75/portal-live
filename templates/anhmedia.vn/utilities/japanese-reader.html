@@ -36,6 +36,30 @@
   <style>
     .jp-page-nav--bottom{margin-top:16px;margin-bottom:8px}
   </style>
+
+  <style>
+    /* Keep Reader and Saved Words scroll positions independent */
+    .jp-reader[data-reader-view],
+    .jp-memory[data-memory-view]{
+      height:calc(100vh - 70px);
+      overflow-y:auto;
+      overscroll-behavior:contain;
+      scrollbar-gutter:stable;
+    }
+
+    .jp-memory[data-memory-view]{
+      grid-column:1/-1;
+    }
+
+    @media(max-width:720px){
+      .jp-reader[data-reader-view],
+      .jp-memory[data-memory-view]{
+        height:calc(100vh - 70px);
+        -webkit-overflow-scrolling:touch;
+      }
+    }
+  </style>
+
 </head>
 <body>
 <div class="jp-app" data-jp-reader>
@@ -158,6 +182,6 @@
   </div>
   <div class="jp-toast" data-toast hidden></div>
 </div>
-<script src="/anhmedia.vn/js/japanese-reader.js?v=20260818-quota-safe-6" defer></script>
+<script src="/anhmedia.vn/js/japanese-reader.js?v=20260818-independent-scroll-7" defer></script>
 </body>
 </html>
