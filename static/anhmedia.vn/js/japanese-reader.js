@@ -35,6 +35,7 @@
   let analysisWaitStartedAt = 0;
   let readerScrollTop = 0;
   let memoryScrollTop = 0;
+  let pendingPdfAuth = false;
 
   function setLibraryOpen(open) {
     root.classList.toggle('is-library-open', open);
@@ -192,6 +193,54 @@
       await refreshDailyUsage();
       scheduleQuotaPollIfNeeded();
     }, 5000);
+  }
+
+  async function logoutReaderStayHere(event) {
+    if (event) event.preventDefault();
+
+    /*
+     * Keep reader documents/memory in localStorage.
+     * Only terminate the authenticated server session.
+     */
+    let loggedOut = false;
+
+    try {
+      const response = await fetch('/logout', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        redirect: 'manual',
+        cache: 'no-store'
+      });
+      loggedOut = response.ok || response.type === 'opaqueredirect' || response.status === 0;
+    } catch (_) {}
+
+    if (!loggedOut) {
+      try {
+        const response = await fetch('/logout', {
+          method: 'GET',
+          credentials: 'same-origin',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          redirect: 'manual',
+          cache: 'no-store'
+        });
+        loggedOut = response.ok || response.type === 'opaqueredirect' || response.status === 0;
+      } catch (_) {}
+    }
+
+    dailyAnalysisLimit = null;
+    serverRemaining = null;
+    usageLoaded = false;
+
+    /*
+     * reload() keeps the user on this exact Japanese reader URL.
+     * No window.location assignment to /home or backend redirect target.
+     */
+    window.location.reload();
   }
 
   function refreshQuotaOnReturn() {
@@ -590,6 +639,46 @@
 
   function saveWord(index, silent = false) { const item = (currentAnalysis?.words || currentAnalysis?.vocabulary || [])[index]; if (!item || !currentAnalysis?.sessionId) return; const word = item.word || item[0] || ''; if (!state.savedWords.some(entry => entry.sessionId === currentAnalysis.sessionId && entry.word === word)) state.savedWords.unshift({ ...item, word, sessionId: currentAnalysis.sessionId, source: currentAnalysis.source, savedAt: new Date().toISOString() }); persist(); renderAnalysis(); if (!silent) toast(`Đã lưu từ ${word}.`); }
 
+  function setPdfAuthOpen(open) {
+    const modal = $('[data-pdf-auth-modal]');
+    if (!modal) return;
+    modal.hidden = !open;
+    if (open) {
+      const user = $('[data-user-id]')?.value || '';
+      const token = $('[data-token-id]')?.value || '';
+      $('[data-pdf-auth-user]').value = user;
+      $('[data-pdf-auth-token]').value = token;
+      $('[data-pdf-auth-error]').hidden = true;
+      setTimeout(() => $('[data-pdf-auth-user]')?.focus(), 30);
+    }
+  }
+
+  function confirmPdfAuth() {
+    const user = String($('[data-pdf-auth-user]')?.value || '').trim();
+    const token = String($('[data-pdf-auth-token]')?.value || '').trim();
+    const error = $('[data-pdf-auth-error]');
+
+    if (!user || !token) {
+      if (error) {
+        error.textContent = 'Vui lòng nhập đầy đủ User ID và Token OCR.';
+        error.hidden = false;
+      }
+      return;
+    }
+
+    $('[data-user-id]').value = user;
+    $('[data-token-id]').value = token;
+
+    try {
+      sessionStorage.setItem('anhmedia.jp-reader.ocr-user', user);
+      sessionStorage.setItem('anhmedia.jp-reader.ocr-token', token);
+    } catch (_) {}
+
+    setPdfAuthOpen(false);
+    pendingPdfAuth = true;
+    $('#jp-file').click();
+  }
+
   async function extractFile(file) {
     if (!file) return;
     const userId = $('[data-user-id]').value.trim(); const tokenId = $('[data-token-id]').value;
@@ -687,6 +776,15 @@
       button.classList.toggle('is-active', button.dataset.view === (memory ? 'memory' : 'reader'));
     });
   }
+  $('[data-pdf-upload-open]')?.addEventListener('click', event => {
+    event.preventDefault();
+    setPdfAuthOpen(true);
+  });
+  $$('[data-pdf-auth-close], [data-pdf-auth-cancel]').forEach(button => {
+    button.addEventListener('click', () => setPdfAuthOpen(false));
+  });
+  $('[data-pdf-auth-confirm]')?.addEventListener('click', confirmPdfAuth);
+
   $('#jp-file').addEventListener('change', event => extractFile(event.target.files[0]));
   analyzeButton.addEventListener('click', analyzeSelection);
   document.addEventListener('selectionchange', updateSelection);
@@ -736,7 +834,7 @@
   $$('[data-page-bookmark]').forEach(button => button.addEventListener('click', () => { const note = window.prompt('Ghi chú để nhớ đoạn này:', ''); if (note !== null) addBookmark(note); }));
   $$('[data-view]').forEach(button => button.addEventListener('click', () => setView(button.dataset.view === 'memory'))); $('[data-back-reader]').addEventListener('click', () => setView(false));
   document.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); analyzeSelection(); } if (event.key === 'Escape' && root.classList.contains('is-library-open')) setLibraryOpen(false); if (event.key === 'Escape') setLoginOpen(false); if (event.key === 'Escape' && !$('[data-analysis]').hidden) { $('[data-analysis]').hidden = true; $('[data-inspector-empty]').hidden = false; updateShowAnalysisToggle(); } });
-  $('[data-reader-logout]')?.addEventListener('click', logoutReaderStayHere);
+  $('[data-reader-logout]')?.addEventListener('click', event => { event.preventDefault(); logoutReaderStayHere(event); });
   document.addEventListener('click', event => {
     const googleButton = event.target.closest('[data-google-login-inline]');
     if (!googleButton) return;
@@ -753,6 +851,13 @@
   applyDisplaySettings(loadDisplaySettings());
   renderDailyUsage();
   refreshDailyUsage();
+  try {
+    const rememberedOcrUser = sessionStorage.getItem('anhmedia.jp-reader.ocr-user') || '';
+    const rememberedOcrToken = sessionStorage.getItem('anhmedia.jp-reader.ocr-token') || '';
+    if ($('[data-user-id]')) $('[data-user-id]').value = rememberedOcrUser;
+    if ($('[data-token-id]')) $('[data-token-id]').value = rememberedOcrToken;
+  } catch (_) {}
+
   renderDocuments();
   renderMemory();
   renderMemoryNotes();

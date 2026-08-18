@@ -510,6 +510,113 @@
     }
   </style>
 
+
+  <style>
+    /* Mobile Safari: page navigation and bookmark must remain visible */
+    .jp-floating-toolbar{
+      position:fixed!important;
+      left:8px!important;
+      right:8px!important;
+      bottom:calc(8px + env(safe-area-inset-bottom, 0px))!important;
+      transform:none!important;
+      -webkit-transform:none!important;
+      z-index:2147483000!important;
+      width:auto!important;
+      max-width:none!important;
+      min-height:48px!important;
+      display:flex!important;
+      align-items:center!important;
+      justify-content:center!important;
+      visibility:visible!important;
+      opacity:1!important;
+      pointer-events:auto!important;
+      overflow:visible!important;
+      background:#1e2726!important;
+      border-radius:14px!important;
+      box-shadow:0 8px 24px rgba(0,0,0,.28)!important;
+    }
+
+    .jp-floating-toolbar [data-page-prev],
+    .jp-floating-toolbar [data-page-next],
+    .jp-floating-toolbar [data-page-label],
+    .jp-floating-toolbar [data-page-bookmark]{
+      display:inline-flex!important;
+      visibility:visible!important;
+      align-items:center!important;
+      justify-content:center!important;
+      flex:0 0 auto!important;
+    }
+
+    .jp-floating-toolbar [data-page-prev],
+    .jp-floating-toolbar [data-page-next]{
+      width:38px!important;
+      min-width:38px!important;
+      height:38px!important;
+      color:#fff!important;
+      font-size:21px!important;
+    }
+
+    .jp-floating-toolbar [data-page-label]{
+      min-width:92px!important;
+      height:38px!important;
+      padding:0 8px!important;
+      color:#fff!important;
+      font-size:12px!important;
+      font-weight:800!important;
+      white-space:nowrap!important;
+    }
+
+    .jp-floating-toolbar [data-page-bookmark]{
+      width:40px!important;
+      min-width:40px!important;
+      height:38px!important;
+      color:#fff!important;
+      font-size:20px!important;
+      opacity:1!important;
+    }
+
+    .jp-floating-toolbar [data-page-bookmark]:disabled{
+      opacity:.5!important;
+    }
+
+    @media(max-width:720px){
+      .jp-floating-toolbar .swatch,
+      .jp-floating-toolbar [data-highlight="transparent"],
+      .jp-floating-toolbar__divider{
+        display:none!important;
+      }
+
+      .jp-reader[data-reader-view]{
+        padding-bottom:calc(96px + env(safe-area-inset-bottom, 0px))!important;
+      }
+    }
+
+    @supports (-webkit-touch-callout:none){
+      .jp-floating-toolbar{
+        bottom:calc(10px + constant(safe-area-inset-bottom, 0px))!important;
+        bottom:calc(10px + env(safe-area-inset-bottom, 0px))!important;
+      }
+    }
+  </style>
+
+
+  <style>
+    .jp-pdf-auth-modal{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;padding:18px}
+    .jp-pdf-auth-modal[hidden]{display:none!important}
+    .jp-pdf-auth-modal__backdrop{position:absolute;inset:0;border:0;background:rgba(20,30,28,.52)}
+    .jp-pdf-auth-card{position:relative;z-index:1;width:min(420px,94vw);padding:20px;border-radius:14px;background:#fffefa;box-shadow:0 24px 70px rgba(0,0,0,.28)}
+    .jp-pdf-auth-card>small{color:#315f55;font-size:10px;font-weight:800;letter-spacing:.12em}
+    .jp-pdf-auth-card h2{margin:5px 0 7px;font-size:21px}
+    .jp-pdf-auth-card p{margin:0 0 12px;color:#6c7774;font-size:12px;line-height:1.5}
+    .jp-pdf-auth-card label{display:block;margin:10px 0;color:#40504c;font-size:11px;font-weight:700}
+    .jp-pdf-auth-card input{display:block;width:100%;height:40px;margin-top:4px;padding:8px 10px;border:1px solid #d8e1dd;border-radius:8px;background:#fff}
+    .jp-pdf-auth-close{position:absolute;right:9px;top:8px;width:32px;height:32px;border:0;background:transparent;color:#9a5548;font-size:22px}
+    .jp-pdf-auth-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+    .jp-pdf-auth-actions button{padding:9px 12px;border:1px solid #d8e1dd;border-radius:8px;background:#fff;color:#315f55;font-weight:800}
+    .jp-pdf-auth-actions .primary{background:#315f55;color:#fff;border-color:#315f55}
+    .jp-pdf-auth-error{padding:8px!important;border-radius:7px;background:#f8e7e3;color:#8b3f36!important}
+  </style>
+
 </head>
 <body>
 <div class="jp-app" data-jp-reader>
@@ -542,10 +649,10 @@
   <main class="jp-workspace">
     <aside class="jp-library" data-library aria-label="Thư viện">
       <div class="jp-library__head"><div><small>THƯ VIỆN CỦA BẠN</small><h1>Tài liệu &amp; dấu trang</h1></div><div class="jp-library__head-actions"><a class="jp-library-home" href="/" data-home-link title="Trang chủ" aria-label="Trang chủ"><span aria-hidden="true">⌂</span><b>Trang chủ</b></a><button type="button" data-new-document aria-label="Tạo tài liệu">＋</button><button class="jp-library-close" type="button" data-library-close aria-label="Đóng thư viện">×</button></div></div>
-      <label class="jp-upload" for="jp-file">
+      <button class="jp-upload" type="button" data-pdf-upload-open>
         <input id="jp-file" type="file" accept="application/pdf,image/png,image/jpeg" hidden>
-        <span>PDF</span><strong>Tải PDF tiếng Nhật</strong><small>Chỉ trích xuất chữ. Không tự phân tích toàn bộ.</small>
-      </label>
+        <span>PDF</span><strong>Tải PDF tiếng Nhật</strong><small>Nhập User ID &amp; Token OCR trước khi tải.</small>
+      </button>
       <div class="jp-upload-progress" data-upload-progress hidden><span></span><p>Đang trích xuất văn bản…</p></div>
       <div class="jp-documents" data-document-list></div>
       <div class="jp-extract-auth">
@@ -674,8 +781,30 @@
     </div>
   </div>
 
+
+  <div class="jp-pdf-auth-modal" data-pdf-auth-modal hidden role="dialog" aria-modal="true" aria-labelledby="jpPdfAuthTitle">
+    <button class="jp-pdf-auth-modal__backdrop" type="button" data-pdf-auth-close aria-label="Đóng"></button>
+    <section class="jp-pdf-auth-card">
+      <button class="jp-pdf-auth-close" type="button" data-pdf-auth-close aria-label="Đóng">×</button>
+      <small>TRÍCH XUẤT PDF</small>
+      <h2 id="jpPdfAuthTitle">Nhập thông tin xác thực</h2>
+      <p>Nhập User ID và Token OCR trước khi chọn PDF/ảnh cần tải.</p>
+      <label>User ID
+        <input type="text" data-pdf-auth-user autocomplete="username" placeholder="anhmedia">
+      </label>
+      <label>Token OCR
+        <input type="password" data-pdf-auth-token autocomplete="current-password" placeholder="Token máy chủ">
+      </label>
+      <p class="jp-pdf-auth-error" data-pdf-auth-error hidden></p>
+      <div class="jp-pdf-auth-actions">
+        <button type="button" data-pdf-auth-cancel>Hủy</button>
+        <button class="primary" type="button" data-pdf-auth-confirm>Tiếp tục chọn PDF</button>
+      </div>
+    </section>
+  </div>
+
   <div class="jp-toast" data-toast hidden></div>
 </div>
-<script src="/anhmedia.vn/js/japanese-reader.js?v=20260818-ajax-logout-15" defer></script>
+<script src="/anhmedia.vn/js/japanese-reader.js?v=20260818-pdf-auth-popup-18" defer></script>
 </body>
 </html>
