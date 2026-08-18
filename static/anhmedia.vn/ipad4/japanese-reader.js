@@ -125,6 +125,28 @@
     });
   }
 
+  function updateToggleResultButton() {
+    var button = byId('toggleResult');
+    var panel = byId('analysisResult');
+    if (!button || !panel) return;
+    button.disabled = !currentResult;
+    button.innerHTML = panel.style.display === 'none' ? 'Hiện kết quả' : 'Ẩn kết quả';
+  }
+
+  function showResultPanel() {
+    var panel = byId('analysisResult');
+    if (!panel) return;
+    panel.style.display = 'block';
+    updateToggleResultButton();
+  }
+
+  function hideResultPanel() {
+    var panel = byId('analysisResult');
+    if (!panel) return;
+    panel.style.display = 'none';
+    updateToggleResultButton();
+  }
+
   function render(result) {
     currentResult = result;
     byId('ruby').innerHTML = result.ruby || escapeHtml(result.source || ''); byId('hiragana').innerHTML = escapeHtml(result.hira || '');
