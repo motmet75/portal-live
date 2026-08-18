@@ -247,7 +247,11 @@
     $('[data-show-analysis]').disabled = true;
     popover.hidden = true;
     analyzeButton.disabled = true;
-    analyzeButton.firstChild.textContent = 'Đang phân tích… ';
+    analyzeButton.classList.add('is-loading');
+    analyzeButton.title = 'Đang phân tích…';
+    analyzeButton.setAttribute('aria-label', 'Đang phân tích…');
+    const analyzeSpinner = analyzeButton.querySelector('[data-analyze-spinner]');
+    if (analyzeSpinner) analyzeSpinner.hidden = false;
     try {
       const response = await fetch('/api/japanese-learning/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: selectedText, mode: 'selection' }) });
       if (!response.ok) { const body = await response.text(); let message = body; try { message = JSON.parse(body).error || body; } catch (_) { if (/^\s*<(!doctype|html)/i.test(body)) message = `Máy chủ gặp lỗi nội bộ (HTTP ${response.status}). Vui lòng thử lại sau hoặc liên hệ quản trị viên.`; } const error = new Error(message || 'analysis endpoint unavailable'); error.status = response.status; throw error; }
@@ -263,7 +267,10 @@
         toast(error.status === 401 ? 'Hãy đăng nhập Google để phân tích.' : 'API máy chủ chưa sẵn sàng. Đoạn đã chọn vẫn được giữ.');
       }
     } finally {
-      analyzeButton.firstChild.textContent = 'Phân tích đoạn chọn ';
+      analyzeButton.classList.remove('is-loading');
+      analyzeButton.title = 'Phân tích đoạn chọn (⌘/Ctrl+Enter)';
+      analyzeButton.setAttribute('aria-label', 'Phân tích đoạn chọn (⌘/Ctrl+Enter)');
+      if (analyzeSpinner) analyzeSpinner.hidden = true;
       await refreshDailyUsage();
       analyzeButton.disabled = !selectedText || selectedText.length > maxSelectionCharacters || remainingAnalyses() === 0;
     }

@@ -15,25 +15,47 @@
   <style>.jp-document-search{max-width:780px;margin:12px auto;position:relative}.jp-document-search>input,.jp-memory-search{width:100%;padding:12px 14px;border:1px solid #dfe5e1;border-radius:10px;background:#fff;font-size:14px}.jp-search-results{max-height:240px;display:grid;gap:5px;padding:8px;border:1px solid #dfe5e1;border-radius:10px;background:#fff;overflow:auto;box-shadow:0 12px 35px #1f302c1c}.jp-search-results>small{padding:5px;color:#6c7774}.jp-search-results button{display:grid;grid-template-columns:65px 1fr;gap:8px;padding:8px;border:0;border-radius:7px;background:#f5f7f4;text-align:left}.jp-search-results button b{color:#315f55}.jp-search-results button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}mark[data-temp-search]{padding:1px 2px;border-radius:3px;background:#ffd95c;animation:jpSearchPulse 1.8s ease}@keyframes jpSearchPulse{50%{box-shadow:0 0 0 7px #ffd95c55}}.jp-memory-tools{display:flex;gap:12px;align-items:center;margin-top:18px}.jp-memory-tools label{flex:1}.jp-session-actions{flex-wrap:wrap}</style>
   <style>.jp-usage-notice{max-width:780px;margin:12px auto;padding:11px 14px;border:1px solid #d9c38f;border-radius:10px;background:#fff8e6;color:#5d5237;font-size:12px;line-height:1.55}.jp-usage-notice strong{color:#315f55}.jp-usage-notice a{color:#9a5548;font-weight:800}.jp-selection-popover.is-over-limit{background:#8b3f36}.jp-selection-popover.is-over-limit button{display:none}</style>
   <style>.jp-inspector{overflow-y:auto!important;overscroll-behavior:contain;scrollbar-gutter:stable}.jp-inspector::-webkit-scrollbar{width:10px}.jp-inspector::-webkit-scrollbar-thumb{border:2px solid transparent;border-radius:999px;background:#9fb4ac;background-clip:padding-box}.jp-analysis__head-actions{display:flex;align-items:center;gap:7px}.jp-analysis__head .jp-save-top{padding:8px 10px;border:1px solid var(--green)!important;border-radius:8px;background:var(--green)!important;color:#fff;font-size:11px!important;font-weight:800}.jp-show-analysis:disabled{opacity:.45}@media(max-width:720px){.jp-document-bar .jp-actions{display:grid;gap:5px}.jp-document-bar .jp-actions button{padding:7px 9px;font-size:11px}}</style>
+  <style>
+    .visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .jp-icon-btn{display:inline-flex;align-items:center;justify-content:center;gap:0;position:relative;min-width:38px;height:38px;padding:0 9px;font-size:16px;line-height:1}
+    .jp-brand.jp-icon-btn{font-size:19px;cursor:default}
+    .jp-topbar-actions{display:flex;align-items:center;gap:6px;margin:0 4px}
+    .jp-topbar-actions .jp-show-analysis{border:1px solid #dfe5e1;border-radius:8px;background:#fff;color:#315f55}
+    .jp-topbar-actions .jp-show-analysis:disabled{opacity:.4}
+    .jp-topbar-actions .primary.jp-icon-btn{border-radius:8px;width:38px}
+    .jp-badge{position:absolute;top:2px;right:2px;min-width:15px;height:15px;padding:0 3px;border-radius:999px;background:#9a5548;color:#fff;font-size:9px;font-weight:800;line-height:15px;text-align:center}
+    .jp-icon-btn__icon,.jp-icon-btn__spinner{display:inline-flex;align-items:center;justify-content:center}
+    .jp-icon-btn__spinner{width:15px;height:15px;border:2px solid #ffffff66;border-top-color:#fff;border-radius:50%;animation:jpSpin .7s linear infinite}
+    .primary.jp-icon-btn.is-loading{cursor:progress}
+    .primary.jp-icon-btn.is-loading .jp-icon-btn__icon{display:none}
+    @keyframes jpSpin{to{transform:rotate(360deg)}}
+  </style>
   <link rel="stylesheet" href="/anhmedia.vn/css/japanese-reader-layout.css?v=20260817-8">
 </head>
 <body>
 <div class="jp-app" data-jp-reader>
   <header class="jp-topbar">
-    <a class="jp-home" href="/" data-home-link title="Về trang chủ"><span>⌂</span><b>Trang chủ</b></a>
-    <div class="jp-brand"><span>言</span><strong>Kotoba Studio</strong></div>
-    <button class="jp-library-toggle" type="button" data-library-toggle aria-expanded="false"><span>☰</span> Tài liệu</button>
+    <a class="jp-home jp-icon-btn" href="/" data-home-link title="Về trang chủ" aria-label="Về trang chủ"><span aria-hidden="true">⌂</span><b class="visually-hidden">Trang chủ</b></a>
+    <div class="jp-brand jp-icon-btn" title="Kotoba Studio" aria-label="Kotoba Studio"><span aria-hidden="true">言</span><strong class="visually-hidden">Kotoba Studio</strong></div>
+    <button class="jp-library-toggle jp-icon-btn" type="button" data-library-toggle aria-expanded="false" title="Thư viện tài liệu" aria-label="Thư viện tài liệu"><span aria-hidden="true">☰</span><b class="visually-hidden">Tài liệu</b></button>
     <nav aria-label="Điều hướng tài liệu">
-      <button class="jp-nav is-active" type="button" data-view="reader">Tài liệu</button>
-      <button class="jp-nav" type="button" data-view="memory">Từ đã lưu <b data-memory-count>0</b></button>
+      <button class="jp-nav jp-icon-btn is-active" type="button" data-view="reader" title="Tài liệu" aria-label="Tài liệu"><span aria-hidden="true">📄</span><b class="visually-hidden">Tài liệu</b></button>
+      <button class="jp-nav jp-icon-btn" type="button" data-view="memory" title="Từ đã lưu" aria-label="Từ đã lưu"><span aria-hidden="true">⭐</span><b class="visually-hidden">Từ đã lưu</b><b class="jp-badge" data-memory-count>0</b></button>
     </nav>
-    <div class="jp-accessibility" aria-label="Hỗ trợ thị lực"><span>Hiển thị</span><button type="button" data-reader-smaller title="Thu nhỏ chữ" aria-label="Thu nhỏ chữ">A−</button><output data-reader-scale aria-live="polite">100%</output><button type="button" data-reader-larger title="Phóng to chữ" aria-label="Phóng to chữ">A＋</button><button type="button" data-reader-bold aria-pressed="false" title="Làm đậm toàn bộ chữ"><b>B</b></button></div>
+    <div class="jp-topbar-actions" aria-label="Công cụ phân tích đoạn chọn">
+      <button class="jp-show-analysis jp-icon-btn" type="button" data-show-analysis disabled title="Hiện kết quả" aria-label="Hiện kết quả"><span aria-hidden="true">📖</span></button>
+      <button class="primary jp-icon-btn" type="button" data-analyze-selection disabled title="Phân tích đoạn chọn (⌘/Ctrl+Enter)" aria-label="Phân tích đoạn chọn (⌘/Ctrl+Enter)">
+        <span class="jp-icon-btn__icon" data-analyze-icon aria-hidden="true">🔍</span>
+        <span class="jp-icon-btn__spinner" data-analyze-spinner hidden aria-hidden="true"></span>
+      </button>
+    </div>
+    <div class="jp-accessibility" aria-label="Hỗ trợ thị lực"><span class="visually-hidden">Hiển thị</span><button type="button" data-reader-smaller title="Thu nhỏ chữ" aria-label="Thu nhỏ chữ">A−</button><output data-reader-scale aria-live="polite">100%</output><button type="button" data-reader-larger title="Phóng to chữ" aria-label="Phóng to chữ">A＋</button><button type="button" data-reader-bold aria-pressed="false" title="Làm đậm toàn bộ chữ"><b>B</b></button></div>
     <div class="jp-account">
-      <span class="jp-sync"><i></i> Bản nháp cục bộ</span>
-      <div class="jp-user" th:if="${session.SPRING_SECURITY_CONTEXT != null}"><span>Đang học:</span><strong th:text="${session.SPRING_SECURITY_CONTEXT.authentication.name}">user@example.com</strong><a href="/logout">Đăng xuất</a></div>
-      <button class="jp-google" type="button" data-login-open th:if="${session.SPRING_SECURITY_CONTEXT == null}">
+      <span class="jp-sync jp-icon-btn" title="Bản nháp cục bộ" aria-label="Bản nháp cục bộ"><i></i><b class="visually-hidden">Bản nháp cục bộ</b></span>
+      <div class="jp-user" th:if="${session.SPRING_SECURITY_CONTEXT != null}"><span class="visually-hidden">Đang học:</span><strong th:text="${session.SPRING_SECURITY_CONTEXT.authentication.name}">user@example.com</strong><a class="jp-icon-btn" href="/logout" title="Đăng xuất" aria-label="Đăng xuất"><span aria-hidden="true">⎋</span><b class="visually-hidden">Đăng xuất</b></a></div>
+      <button class="jp-google jp-icon-btn" type="button" data-login-open th:if="${session.SPRING_SECURITY_CONTEXT == null}" title="Đăng nhập" aria-label="Đăng nhập">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285f4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.9h5.4a4.6 4.6 0 0 1-2 3v2.5h3.3c1.9-1.8 2.9-4.4 2.9-7.4Z"/><path fill="#34a853" d="M12 22c2.7 0 5-.9 6.7-2.4l-3.3-2.5c-.9.6-2 1-3.4 1a5.9 5.9 0 0 1-5.5-4.1H3.1v2.6A10 10 0 0 0 12 22Z"/><path fill="#fbbc05" d="M6.5 14a6 6 0 0 1 0-3.9V7.4H3.1a10 10 0 0 0 0 9.2L6.5 14Z"/><path fill="#ea4335" d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.9-2.8A9.7 9.7 0 0 0 3.1 7.4l3.4 2.7A5.9 5.9 0 0 1 12 6Z"/></svg>
-        Đăng nhập
+        <b class="visually-hidden">Đăng nhập</b>
       </button>
     </div>
   </header>
@@ -61,7 +83,7 @@
       <div class="jp-control-dock" data-control-dock>
         <div class="jp-document-bar">
           <div><small data-document-meta>TÀI LIỆU MẪU · 2 ĐOẠN</small><input data-document-title value="Động cơ khí — Pilot ignition" aria-label="Tên tài liệu"></div>
-          <div class="jp-actions"><button type="button" data-save-document>Lưu bản nháp</button><button class="jp-show-analysis" type="button" data-show-analysis disabled>Hiện kết quả</button><button class="primary" type="button" data-analyze-selection disabled>Phân tích đoạn chọn <span>⌘↵</span></button></div>
+          <div class="jp-actions"><button type="button" data-save-document>Lưu bản nháp</button></div>
         </div>
 
         <nav class="jp-page-nav jp-page-nav--top" data-page-nav aria-label="Điều hướng trang phía trên"><button type="button" data-page-prev>← Trang trước</button><span data-page-label>Trang 1 / 1</span><button type="button" data-page-next>Trang sau →</button><label class="jp-page-jump">Đến trang <input type="number" min="1" value="1" data-page-input aria-label="Số trang phía trên"><button type="button" data-page-go>Đi</button></label><label class="jp-bookmark-compose"><input data-bookmark-note maxlength="240" placeholder="Ghi chú để nhớ đoạn này"><button class="jp-page-bookmark" type="button" data-page-bookmark disabled>☆ Lưu dấu</button></label></nav>
