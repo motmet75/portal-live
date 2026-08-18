@@ -204,6 +204,14 @@
 
       if (requestId !== usageRequestSerial) return;
       if (!response.ok) {
+        if (response.status === 401) {
+          dailyAnalysisLimit = null;
+          serverRemaining = null;
+          usageLoaded = false;
+          try { sessionStorage.removeItem(quotaSessionKey); } catch (_) {}
+          renderDailyUsage();
+          return;
+        }
         if (!usageLoaded) renderDailyUsage();
         return;
       }
@@ -220,6 +228,57 @@
   function refreshQuotaOnReturn() {
     refreshDailyUsage();
   }
+
+
+  async function logoutReaderStayHere(event) {
+    if (event) event.preventDefault();
+
+    try {
+      await fetch('/logout', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        cache: 'no-store'
+      });
+    } catch (_) {
+      /*
+       * Some Spring Security configurations expose logout as GET.
+       * Retry with GET before reloading the current page.
+       */
+      try {
+        await fetch('/logout', {
+          method: 'GET',
+          credentials: 'same-origin',
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          cache: 'no-store'
+        });
+      } catch (_) {}
+    }
+
+    try {
+      sessionStorage.removeItem(quotaSessionKey);
+    } catch (_) {}
+
+    dailyAnalysisLimit = null;
+    serverRemaining = null;
+    usageLoaded = false;
+
+    window.location.reload();
+  }
+
+  function requireGoogleLoginForAnalysis() {
+    const loginButton = $('[data-login-open]');
+    if (loginButton) {
+      setLoginOpen(true);
+      return;
+    }
+    openGoogleLoginPopup();
+  }
+
 
   function escapeHtml(value) { const el = document.createElement('div'); el.textContent = value || ''; return el.innerHTML; }
   function textToHtml(text) { return String(text || '').split(/\n\s*\n/).filter(Boolean).map(part => `<p>${escapeHtml(part).replace(/\n/g, '<br>')}</p>`).join(''); }
@@ -306,7 +365,7 @@
     if (isAppleTouchDevice()) { startJapaneseSpeech(text); return; }
     playSpeakerAlert().then(() => startJapaneseSpeech(`。　。　${text}`));
   }
-  function showAnalysisConnection(status, message) { const panel = $('[data-analysis-connection]'); const login = $('[data-analysis-login]'); const contact = $('[data-analysis-contact]'); panel.hidden = false; $('[data-inspector-empty]').hidden = true; login.hidden = status !== 401; contact.hidden = status !== 429; const missingKey = /not configured|OPENAI_API_KEY/i.test(message || ''); $('[data-analysis-error]').textContent = status === 401 ? 'Phiên đăng nhập Google chưa hợp lệ. Đăng nhập rồi bấm Thử lại.' : status === 429 ? `Bạn đã dùng hết ${dailyAnalysisLimit} lượt phân tích hôm nay. Vui lòng liên hệ AnhMedia để mở rộng hạn mức.` : missingKey ? 'Bạn đã đăng nhập. Máy chủ chưa có OPENAI_API_KEY nên chưa thể phân tích. Quản trị viên cần thêm key vào secrets/live-designer.env và khởi động lại portal.' : status === 503 ? `OpenAI tạm thời chưa phản hồi. ${message || 'Vui lòng thử lại sau.'}` : `Không thể kết nối API phân tích. ${message || 'Kiểm tra mạng rồi thử lại.'}`; const extraction = $('[data-connection-panel]'); extraction.hidden = false; }
+  function showAnalysisConnection(status, message) { const panel = $('[data-analysis-connection]'); const login = $('[data-analysis-login]'); const contact = $('[data-analysis-contact]'); panel.hidden = false; $('[data-inspector-empty]').hidden = true; login.hidden = status !== 401; contact.hidden = status !== 429; const missingKey = /not configured|OPENAI_API_KEY/i.test(message || ''); $('[data-analysis-error]').textContent = status === 401 ? 'Hãy đăng nhập với Google để sử dụng miễn phí.' : status === 429 ? `Bạn đã dùng hết ${dailyAnalysisLimit} lượt phân tích hôm nay. Vui lòng liên hệ AnhMedia để mở rộng hạn mức.` : missingKey ? 'Bạn đã đăng nhập. Máy chủ chưa có OPENAI_API_KEY nên chưa thể phân tích. Quản trị viên cần thêm key vào secrets/live-designer.env và khởi động lại portal.' : status === 503 ? `OpenAI tạm thời chưa phản hồi. ${message || 'Vui lòng thử lại sau.'}` : `Không thể kết nối API phân tích. ${message || 'Kiểm tra mạng rồi thử lại.'}`; const extraction = $('[data-connection-panel]'); extraction.hidden = false; }
   function rememberLoginReturn() { const target = `${window.location.pathname}${window.location.search}${window.location.hash}`; document.cookie = `PORTAL_LOGIN_RETURN=${encodeURIComponent(target)}; Max-Age=600; Path=/; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`; }
   function setLoginOpen(open) { const modal = $('[data-login-modal]'); if (!modal) return; modal.hidden = !open; document.body.style.overflow = open ? 'hidden' : ''; if (open) setTimeout(() => modal.querySelector('input')?.focus(), 30); }
   let googleLoginPopup = null;
@@ -525,8 +584,8 @@
     if (!selectedText) return;
     if (selectedText.length > maxSelectionCharacters) { toast(`Đoạn quá dài. Chỉ chọn tối đa ${maxSelectionCharacters} ký tự, khoảng 1/4 trang A4.`); return; }
     if (!usageLoaded) {
-      toast('Đang tải hạn mức từ máy chủ. Vui lòng thử lại sau.');
-      refreshDailyUsage();
+      toast('Hãy đăng nhập với Google để sử dụng miễn phí.');
+      requireGoogleLoginForAnalysis();
       return;
     }
     if (remainingAnalyses() === 0) {
@@ -754,6 +813,14 @@
   $$('[data-page-bookmark]').forEach(button => button.addEventListener('click', () => { const note = window.prompt('Ghi chú để nhớ đoạn này:', ''); if (note !== null) addBookmark(note); }));
   $$('[data-view]').forEach(button => button.addEventListener('click', () => setView(button.dataset.view === 'memory'))); $('[data-back-reader]').addEventListener('click', () => setView(false));
   document.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); analyzeSelection(); } if (event.key === 'Escape' && root.classList.contains('is-library-open')) setLibraryOpen(false); if (event.key === 'Escape') setLoginOpen(false); if (event.key === 'Escape' && !$('[data-analysis]').hidden) { $('[data-analysis]').hidden = true; $('[data-inspector-empty]').hidden = false; updateShowAnalysisToggle(); } });
+  $('[data-reader-logout]')?.addEventListener('click', logoutReaderStayHere);
+  document.addEventListener('click', event => {
+    const googleButton = event.target.closest('[data-google-login-inline]');
+    if (!googleButton) return;
+    event.preventDefault();
+    openGoogleLoginPopup();
+  });
+
   window.addEventListener('pageshow', refreshQuotaOnReturn);
   window.addEventListener('focus', refreshQuotaOnReturn);
   document.addEventListener('visibilitychange', () => {
