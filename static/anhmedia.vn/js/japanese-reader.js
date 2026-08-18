@@ -306,6 +306,107 @@
   function showAnalysisConnection(status, message) { const panel = $('[data-analysis-connection]'); const login = $('[data-analysis-login]'); const contact = $('[data-analysis-contact]'); panel.hidden = false; $('[data-inspector-empty]').hidden = true; login.hidden = status !== 401; contact.hidden = status !== 429; const missingKey = /not configured|OPENAI_API_KEY/i.test(message || ''); $('[data-analysis-error]').textContent = status === 401 ? 'Phiên đăng nhập Google chưa hợp lệ. Đăng nhập rồi bấm Thử lại.' : status === 429 ? `Bạn đã dùng hết ${dailyAnalysisLimit} lượt phân tích hôm nay. Vui lòng liên hệ AnhMedia để mở rộng hạn mức.` : missingKey ? 'Bạn đã đăng nhập. Máy chủ chưa có OPENAI_API_KEY nên chưa thể phân tích. Quản trị viên cần thêm key vào secrets/live-designer.env và khởi động lại portal.' : status === 503 ? `OpenAI tạm thời chưa phản hồi. ${message || 'Vui lòng thử lại sau.'}` : `Không thể kết nối API phân tích. ${message || 'Kiểm tra mạng rồi thử lại.'}`; const extraction = $('[data-connection-panel]'); extraction.hidden = false; }
   function rememberLoginReturn() { const target = `${window.location.pathname}${window.location.search}${window.location.hash}`; document.cookie = `PORTAL_LOGIN_RETURN=${encodeURIComponent(target)}; Max-Age=600; Path=/; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`; }
   function setLoginOpen(open) { const modal = $('[data-login-modal]'); if (!modal) return; modal.hidden = !open; document.body.style.overflow = open ? 'hidden' : ''; if (open) setTimeout(() => modal.querySelector('input')?.focus(), 30); }
+  let googleLoginPopup = null;
+  let googleLoginPollTimer = null;
+  let googleLoginTimeoutTimer = null;
+
+  function currentReaderUrl() {
+    return `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  }
+
+  function clearGoogleLoginWatch() {
+    if (googleLoginPollTimer) {
+      clearInterval(googleLoginPollTimer);
+      googleLoginPollTimer = null;
+    }
+    if (googleLoginTimeoutTimer) {
+      clearTimeout(googleLoginTimeoutTimer);
+      googleLoginTimeoutTimer = null;
+    }
+  }
+
+  async function readerSessionIsAuthenticated() {
+    try {
+      const response = await fetch(`/api/japanese-learning/usage?_login=${Date.now()}`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          Pragma: 'no-cache'
+        },
+        cache: 'no-store',
+        credentials: 'same-origin'
+      });
+      return response.ok;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function finishGooglePopupLogin() {
+    clearGoogleLoginWatch();
+    try {
+      if (googleLoginPopup && !googleLoginPopup.closed) googleLoginPopup.close();
+    } catch (_) {}
+    googleLoginPopup = null;
+    setLoginOpen(false);
+
+    /* Reload exactly the current Japanese-reading URL, never /home. */
+    window.location.replace(currentReaderUrl());
+  }
+
+  function watchGooglePopupLogin() {
+    clearGoogleLoginWatch();
+
+    googleLoginPollTimer = setInterval(async () => {
+      if (await readerSessionIsAuthenticated()) {
+        finishGooglePopupLogin();
+        return;
+      }
+
+      /* User may close/cancel the Google popup. Keep reader page untouched. */
+      try {
+        if (!googleLoginPopup || googleLoginPopup.closed) {
+          clearGoogleLoginWatch();
+          googleLoginPopup = null;
+        }
+      } catch (_) {}
+    }, 1000);
+
+    googleLoginTimeoutTimer = setTimeout(() => {
+      clearGoogleLoginWatch();
+      try {
+        if (googleLoginPopup && !googleLoginPopup.closed) googleLoginPopup.close();
+      } catch (_) {}
+      googleLoginPopup = null;
+    }, 180000);
+  }
+
+  function openGoogleLoginPopup(event) {
+    if (event) event.preventDefault();
+
+    rememberLoginReturn();
+
+    const width = 520;
+    const height = 700;
+    const left = Math.max(0, Math.round((window.screen.width - width) / 2));
+    const top = Math.max(0, Math.round((window.screen.height - height) / 2));
+    const features = `popup=yes,width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`;
+
+    googleLoginPopup = window.open(
+        '/oauth2/authorization/google',
+        'anhmedia-google-login',
+        features
+    );
+
+    if (!googleLoginPopup) {
+      toast('Trình duyệt đang chặn cửa sổ đăng nhập Google. Hãy cho phép popup rồi thử lại.');
+      return;
+    }
+
+    try { googleLoginPopup.focus(); } catch (_) {}
+    watchGooglePopupLogin();
+  }
   async function submitReaderLogin(event) {
     event.preventDefault();
     const form = event.currentTarget; const error = $('[data-login-error]'); const submit = form.querySelector('[type="submit"]'); const data = new FormData(form);
@@ -573,7 +674,8 @@
   });
   $('[data-login-open]')?.addEventListener('click', () => { rememberLoginReturn(); setLoginOpen(true); });
   $$('[data-login-close]').forEach(button => button.addEventListener('click', () => setLoginOpen(false)));
-  $('[data-google-login]')?.addEventListener('click', rememberLoginReturn);
+  $('[data-google-login]')?.addEventListener('click', openGoogleLoginPopup);
+  $('[data-analysis-login]')?.addEventListener('click', openGoogleLoginPopup);
   $('[data-reader-login]')?.addEventListener('submit', submitReaderLogin);
   $('[data-close-analysis]').addEventListener('click', () => { $('[data-analysis]').hidden = true; $('[data-inspector-empty]').hidden = false; updateShowAnalysisToggle(); });
   $('[data-show-analysis]').addEventListener('click', () => {
