@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kotoba Studio — Đọc tài liệu tiếng Nhật</title>
   <meta name="description" content="Không gian đọc PDF tiếng Nhật, phân tích đoạn chọn và ôn từ vựng từng bước.">
-  <link rel="stylesheet" href="/anhmedia.vn/css/japanese-reader.css?v=20260818-3">
+  <link rel="stylesheet" href="/anhmedia.vn/css/japanese-reader.css?v=20260817-2">
   <style>.jp-word{min-width:160px}.jp-word b,.jp-word small,.jp-word span,.jp-word em{display:block}.jp-word span{margin-top:5px;color:#9a5548;font-size:10px}.jp-word em{margin-top:4px;color:#315f55;font-size:11px;font-style:normal}.jp-word button,.jp-session-actions button,.jp-session-words button{margin:8px 4px 0 0;padding:6px 9px;border:1px solid #ccdcd6;border-radius:7px;background:#e1eee9;color:#315f55;font-size:10px;font-weight:700}.jp-word button:disabled{opacity:.65}.jp-session-actions{display:flex;gap:5px}.jp-session-words{display:grid;gap:7px;margin-top:14px}.jp-session-words>span{padding:9px;border-radius:8px;background:#f5f7f4}.jp-session-words b,.jp-session-words small,.jp-session-words em,.jp-session-words i{display:block}.jp-session-words em,.jp-session-words i{margin-top:3px;font-size:10px;font-style:normal;color:#6c7774}.jp-spelling-line{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;padding-top:10px;border-top:1px dashed #dfe5e1}.jp-spelling{position:relative;padding:7px 28px 7px 9px;border:1px solid #dfe5e1;border-radius:8px;background:#f5f7f4;color:var(--ink);text-align:left;cursor:pointer}.jp-spelling:after{content:"▶";position:absolute;right:8px;top:50%;transform:translateY(-50%);color:#315f55;font-size:9px}.jp-spelling:hover,.jp-spelling:focus{border-color:#6d9b8f;background:#e1eee9;outline:none}.jp-spelling:active{transform:scale(.97)}.jp-spelling b,.jp-spelling small{display:block}.jp-spelling b{font-family:"Noto Serif JP",serif}.jp-spelling small{margin-top:2px;color:#9a5548;font-size:10px}</style>
   <style>.jp-kanji-breakdown{display:flex!important;flex-wrap:wrap;gap:5px;margin-top:8px!important}.jp-kanji-char{min-width:72px;padding:7px;border-radius:7px;background:#fff8e6;font-style:normal}.jp-kanji-char strong,.jp-kanji-char small,.jp-kanji-char em{display:block}.jp-kanji-char strong{font:600 21px "Noto Serif JP",serif;color:#1e2726}.jp-kanji-char small,.jp-kanji-char em{margin-top:2px;font-size:9px!important;color:#6c7774!important}</style>
   <style>.jp-page-nav{max-width:780px;margin:14px auto 0;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px}.jp-page-nav--top{margin-bottom:14px}.jp-page-nav button{padding:9px 13px;border:1px solid #dfe5e1;border-radius:8px;background:#fff;color:#315f55;font-weight:700}.jp-page-nav button:disabled{opacity:.35}.jp-page-nav span{min-width:100px;text-align:center;color:#6c7774;font-size:12px}.jp-page-jump{display:flex;align-items:center;gap:5px}.jp-page-jump input{width:58px;padding:8px;border:1px solid #dfe5e1;border-radius:8px;text-align:center}.jp-bookmark-compose{display:flex;gap:5px}.jp-bookmark-compose input{width:min(240px,45vw);padding:8px;border:1px solid #dfe5e1;border-radius:8px}.jp-page-bookmark.is-active{background:#fff0a8;color:#795a0c}</style>
@@ -89,7 +89,7 @@
 
         <nav class="jp-page-nav jp-page-nav--top" data-page-nav aria-label="Điều hướng trang phía trên"><button type="button" data-page-prev>← Trang trước</button><span data-page-label>Trang 1 / 1</span><button type="button" data-page-next>Trang sau →</button><label class="jp-page-jump">Đến trang <input type="number" min="1" value="1" data-page-input aria-label="Số trang phía trên"><button type="button" data-page-go>Đi</button></label><label class="jp-bookmark-compose"><input data-bookmark-note maxlength="240" placeholder="Ghi chú để nhớ đoạn này"><button class="jp-page-bookmark" type="button" data-page-bookmark disabled>☆ Lưu dấu</button></label></nav>
         <div class="jp-document-search"><input type="search" data-document-search placeholder="Tìm chữ trong toàn bộ tài liệu…" aria-label="Tìm trong tài liệu"><div class="jp-search-results" data-document-search-results hidden></div></div>
-        <div class="jp-usage-notice"><strong>Giới hạn sử dụng:</strong> Mỗi lần chọn tối đa 500 ký tự (khoảng 1/4 trang A4). Bạn có <b data-daily-remaining th:text="${analysisDailyRemaining}">10</b>/<b data-daily-limit th:text="${analysisDailyLimit}">10</b> lượt phân tích hôm nay. Cần thêm lượt? <a href="/#lien-he" target="_blank" rel="noopener noreferrer">Liên hệ AnhMedia để mở rộng hạn mức</a>.</div>
+        <div class="jp-usage-notice"><strong>Giới hạn sử dụng:</strong> Mỗi lần chọn tối đa 500 ký tự (khoảng 1/4 trang A4). Bạn có <b data-daily-remaining>...</b>/<b data-daily-limit>...</b> lượt phân tích hôm nay. Cần thêm lượt? <a href="/#lien-he" target="_blank" rel="noopener noreferrer">Liên hệ AnhMedia để mở rộng hạn mức</a>.</div>
 
         <div class="jp-editor-tools" role="toolbar" aria-label="Định dạng tài liệu">
           <select data-font aria-label="Phông chữ"><option value="serif">Mincho</option><option value="sans">Gothic</option><option value="rounded">Rounded</option></select>
@@ -103,29 +103,7 @@
         <p>パイロットインジェクタから微量（熱量比1%以下）の液体燃料を噴射し副室内のガスを着火する．</p>
         <p>パイロット燃料は微量だが点火プラグに比し約8 000倍という強力な着火エネルギーを有するため燃焼が安定し効率が向上する．</p>
       </article>
-
-      <nav class="jp-page-nav jp-page-nav--bottom" data-page-nav aria-label="Điều hướng trang phía dưới">
-        <button type="button" data-page-prev>← Trang trước</button>
-        <span data-page-label>Trang 1 / 1</span>
-        <button type="button" data-page-next>Trang sau →</button>
-        <label class="jp-page-jump">
-          Đến trang
-          <input type="number" min="1" value="1" data-page-input aria-label="Số trang phía dưới">
-          <button type="button" data-page-go>Đi</button>
-        </label>
-      </nav>
-
       <div class="jp-selection-popover" data-selection-popover hidden><span data-selection-preview></span><button type="button" data-analyze-popover>この文を学ぶ</button></div>
-
-      <nav class="jp-page-floating" data-page-nav aria-label="Điều hướng trang nổi">
-        <button type="button" data-page-prev title="Trang trước" aria-label="Trang trước">←</button>
-        <span data-page-label>Trang 1 / 1</span>
-        <button type="button" data-page-next title="Trang sau" aria-label="Trang sau">→</button>
-        <label class="jp-page-floating__jump" title="Đến trang">
-          <input type="number" min="1" value="1" data-page-input aria-label="Số trang">
-          <button type="button" data-page-go aria-label="Đi đến trang">Đi</button>
-        </label>
-      </nav>
     </section>
 
     <aside class="jp-inspector" data-inspector>
@@ -161,6 +139,6 @@
   </div>
   <div class="jp-toast" data-toast hidden></div>
 </div>
-<script src="/anhmedia.vn/js/japanese-reader.js?v=20260817-23" defer></script>
+<script src="/anhmedia.vn/js/japanese-reader.js?v=20260818-quota-fix-1" defer></script>
 </body>
 </html>
