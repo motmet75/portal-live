@@ -3,62 +3,161 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, user-scalable=yes">
-  <title>Japanese Reader — iPad 4</title>
-  <meta name="description" content="Trình đọc và học tiếng Nhật tương thích trình duyệt iPad cũ.">
-  <link rel="stylesheet" href="/anhmedia.vn/ipad4/japanese-reader.css?v=20260817-1">
-  <style>
-    .quota{margin:0 0 10px;padding:9px 11px;border:1px solid #d9c38f;background:#fff8e6;color:#5d5237;font-size:12px;line-height:1.5}
-    .quota b{color:#315f55}
-    .quota a{color:#9a5548;font-weight:bold}
-    .result-head{display:block;overflow:hidden;margin:0 0 6px}
-    .result-head h2{float:left;margin:0}
-    #closeResult{float:right;width:28px;height:28px;padding:0;border:0;background:transparent;color:#9a5548;font-size:18px;line-height:26px;text-align:center;cursor:pointer}
-    .connection-notice{margin:10px 0 0;padding:9px 11px;border:1px solid #e8c98b;background:#fff8e6;color:#5d5237;font-size:11px;line-height:1.5}
-  </style>
+  <title>Kotoba Studio — iPad 4</title>
+  <meta name="description" content="Trình đọc và học tiếng Nhật tương thích trình duyệt Safari cũ trên iPad 4.">
+  <link rel="stylesheet" href="/anhmedia.vn/ipad4/japanese-reader.css?v=20260818-4">
 </head>
 <body>
-<header class="bar">
-  <a class="home" href="/" id="homeLink">&#8962; Trang chủ</a>
-  <strong><i>言</i> Japanese Reader</strong>
-  <button type="button" id="textSize">A+</button>
-  <button type="button" id="loginOpen" th:if="${session.SPRING_SECURITY_CONTEXT == null}">Đăng nhập</button>
-  <span class="user" th:if="${session.SPRING_SECURITY_CONTEXT != null}" th:text="${session.SPRING_SECURITY_CONTEXT.authentication.name}">user</span>
-</header>
+<div id="app">
+  <header class="bar">
+    <a class="home" href="/" id="homeLink">&#8962;</a>
+    <strong class="brand"><i>言</i> Kotoba</strong>
+    <button type="button" id="libraryToggle">Tài liệu</button>
+    <button type="button" id="textSize">A+</button>
+    <button type="button" id="loginOpen" th:if="${session.SPRING_SECURITY_CONTEXT == null}">Đăng nhập</button>
+    <span class="user" th:if="${session.SPRING_SECURITY_CONTEXT != null}" th:text="${session.SPRING_SECURITY_CONTEXT.authentication.name}">user</span>
+    <div class="clear"></div>
+  </header>
 
-<main>
-  <section class="paper-panel">
-    <div class="intro"><small>CHẾ ĐỘ TƯƠNG THÍCH IPAD 4</small><h1>Đọc từng đoạn ngắn</h1><p>Dán nội dung tiếng Nhật, bôi chọn tối đa 500 ký tự rồi nhấn Phân tích.</p></div>
-    <p class="quota">Bạn có <b id="dailyRemaining" th:text="${analysisDailyRemaining}">10</b>/<b id="dailyLimit" th:text="${analysisDailyLimit}">10</b> lượt phân tích hôm nay. Cần thêm lượt? <a href="/#lien-he">Liên hệ AnhMedia</a>.</p>
-    <div class="tools"><button type="button" id="analyze">Phân tích đoạn chọn</button><button type="button" id="speakSelection">&#9654; Đọc đoạn chọn</button><button type="button" id="toggleResult" disabled>Hiện kết quả</button><button type="button" id="clearText">Xóa trang</button></div>
-    <div id="editor" class="paper" contenteditable="true" role="textbox" aria-multiline="true">パイロット燃料は微量だが点火プラグに比し約8 000倍という強力な着火エネルギーを有するため燃焼が安定し効率が向上する．</div>
-    <p class="status" id="status">Bôi chọn một câu tiếng Nhật để bắt đầu.</p>
-  </section>
-
-  <aside class="result" id="result">
-    <div class="result-head"><h2>Kết quả phân tích</h2><button type="button" id="closeResult" aria-label="Ẩn kết quả">&times;</button></div>
-    <div id="emptyResult">Chưa có kết quả.</div>
-    <div id="analysisResult" style="display:none">
-      <label>Kanji + cách đọc</label><div class="ruby" id="ruby"></div>
-      <label>Hiragana tự nhiên</label><p class="hiragana" id="hiragana"></p>
-      <button type="button" class="speak" id="speakResult">&#9654; Nghe lại câu</button>
-      <label>Từng từ — chạm để nghe</label><div class="tokens" id="tokens"></div>
-      <label>Nghĩa tiếng Việt</label><p id="translationVi"></p>
-      <label>Nghĩa tiếng Anh</label><p id="translation"></p>
-      <button type="button" id="saveResult">Lưu kết quả</button>
+  <div id="library" class="library" style="display:none">
+    <div class="library-head">
+      <strong>THƯ VIỆN</strong>
+      <button type="button" id="libraryClose">&times;</button>
     </div>
-    <p class="connection-notice">Không nhập OpenAI API key cá nhân vào trình duyệt. Key phải được cấu hình an toàn trên máy chủ.</p>
-  </aside>
 
-  <section class="saved"><h2>Kết quả đã lưu</h2><div id="savedList"></div></section>
-</main>
+    <label class="field">Tên tài liệu
+      <input type="text" id="documentTitle" value="Tài liệu tiếng Nhật">
+    </label>
 
-<div class="modal" id="loginModal" style="display:none" th:if="${session.SPRING_SECURITY_CONTEXT == null}">
-  <button class="shade" type="button" id="loginShade" aria-label="Đóng"></button>
-  <section class="login-card"><button class="close" type="button" id="loginClose">&times;</button><small>IPAD 4 LOGIN</small><h2>Đăng nhập tài khoản</h2><p>Dùng username hoặc email và mật khẩu.</p>
-    <form id="loginForm"><label>Tài khoản<input name="email" autocomplete="username" required></label><label>Mật khẩu<input type="password" name="password" autocomplete="current-password" required></label><p class="error" id="loginError" style="display:none"></p><button type="submit" id="loginSubmit">Đăng nhập</button></form>
-  </section>
+    <div class="library-actions">
+      <button type="button" id="newDocument">Tài liệu mới</button>
+      <button type="button" id="saveDocument">Lưu tài liệu</button>
+    </div>
+
+    <label class="field">Tìm trong tài liệu
+      <input type="search" id="documentSearch" placeholder="Nhập chữ tiếng Nhật...">
+    </label>
+    <div id="searchResults" class="search-results"></div>
+
+    <h3>Tài liệu đã lưu</h3>
+    <div id="documentList" class="document-list"></div>
+
+    <h3>Dấu trang</h3>
+    <div id="bookmarkList" class="bookmark-list"></div>
+  </div>
+
+  <main>
+    <section class="paper-panel">
+      <div class="intro">
+        <small>CHẾ ĐỘ TƯƠNG THÍCH IPAD 4</small>
+        <h1>Đọc tài liệu tiếng Nhật</h1>
+        <p>Dán nội dung, chia trang, bôi chọn tối đa 500 ký tự rồi phân tích.</p>
+      </div>
+
+      <p class="quota">
+        Bạn có <b id="dailyRemaining" th:text="${analysisDailyRemaining}">10</b>/<b id="dailyLimit" th:text="${analysisDailyLimit}">10</b>
+        lượt phân tích hôm nay. <a href="/#lien-he">Liên hệ AnhMedia</a>.
+      </p>
+
+      <div class="tools">
+        <button type="button" id="analyze" class="primary">Phân tích</button>
+        <button type="button" id="speakSelection">&#9654; Đọc</button>
+        <button type="button" id="toggleResult" disabled>Kết quả</button>
+        <button type="button" id="splitPages">Chia trang</button>
+        <button type="button" id="clearText">Xóa</button>
+      </div>
+
+      <div class="page-nav top-nav">
+        <button type="button" class="pagePrev">&larr;</button>
+        <span class="pageLabel">Trang 1 / 1</span>
+        <button type="button" class="pageNext">&rarr;</button>
+        <label>Đến
+          <input class="pageInput" type="number" min="1" value="1">
+        </label>
+        <button type="button" class="pageGo">Đi</button>
+      </div>
+
+      <div class="bookmark-compose">
+        <input type="text" id="bookmarkNote" maxlength="240" placeholder="Ghi chú dấu trang">
+        <button type="button" id="addBookmark">&#9734; Lưu dấu</button>
+      </div>
+
+      <div id="editor" class="paper" contenteditable="true" role="textbox" aria-multiline="true">パイロット燃料は微量だが点火プラグに比し約8 000倍という強力な着火エネルギーを有するため燃焼が安定し効率が向上する．</div>
+
+      <div class="page-nav bottom-nav">
+        <button type="button" class="pagePrev">&larr; Trang trước</button>
+        <span class="pageLabel">Trang 1 / 1</span>
+        <button type="button" class="pageNext">Trang sau &rarr;</button>
+        <label>Đến
+          <input class="pageInput" type="number" min="1" value="1">
+        </label>
+        <button type="button" class="pageGo">Đi</button>
+      </div>
+
+      <p class="status" id="status">Bôi chọn một câu tiếng Nhật để bắt đầu.</p>
+    </section>
+
+    <aside class="result" id="result">
+      <div class="result-head">
+        <h2>Kết quả phân tích</h2>
+        <button type="button" id="closeResult">&times;</button>
+      </div>
+
+      <div id="emptyResult">Chưa có kết quả.</div>
+      <div id="analysisResult" style="display:none">
+        <label>Kanji + cách đọc</label>
+        <div class="ruby" id="ruby"></div>
+
+        <label>Hiragana tự nhiên</label>
+        <p class="hiragana" id="hiragana"></p>
+        <button type="button" class="speak" id="speakResult">&#9654; Nghe lại câu</button>
+
+        <label>Từng từ — chạm để nghe</label>
+        <div class="tokens" id="tokens"></div>
+
+        <label>Nghĩa tiếng Việt</label>
+        <p id="translationVi"></p>
+
+        <label>Nghĩa tiếng Anh</label>
+        <p id="translation"></p>
+
+        <button type="button" id="saveResult">Lưu kết quả</button>
+      </div>
+
+      <p class="connection-notice">
+        Không nhập OpenAI API key vào trình duyệt. Key phải nằm trên máy chủ.
+      </p>
+    </aside>
+
+    <section class="saved">
+      <h2>Kết quả đã lưu</h2>
+      <div id="savedList"></div>
+    </section>
+  </main>
+
+  <div class="floating-nav" id="floatingNav">
+    <button type="button" class="pagePrev">&larr;</button>
+    <span class="pageLabel">1 / 1</span>
+    <button type="button" class="pageNext">&rarr;</button>
+    <input class="pageInput" type="number" min="1" value="1">
+    <button type="button" class="pageGo">Đi</button>
+  </div>
+
+  <div class="modal" id="loginModal" style="display:none" th:if="${session.SPRING_SECURITY_CONTEXT == null}">
+    <button class="shade" type="button" id="loginShade" aria-label="Đóng"></button>
+    <section class="login-card">
+      <button class="close" type="button" id="loginClose">&times;</button>
+      <small>KOTOBA LOGIN</small>
+      <h2>Đăng nhập tài khoản</h2>
+      <form id="loginForm">
+        <label>Tài khoản<input name="email" autocomplete="username" required></label>
+        <label>Mật khẩu<input type="password" name="password" autocomplete="current-password" required></label>
+        <p class="error" id="loginError" style="display:none"></p>
+        <button type="submit" id="loginSubmit">Đăng nhập</button>
+      </form>
+    </section>
+  </div>
 </div>
-
-<script src="/anhmedia.vn/ipad4/japanese-reader.js?v=20260817-2"></script>
+<script src="/anhmedia.vn/ipad4/japanese-reader.js?v=20260818-4"></script>
 </body>
 </html>
