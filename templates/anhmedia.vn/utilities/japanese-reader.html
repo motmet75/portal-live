@@ -32,6 +32,10 @@
     @keyframes jpSpin{to{transform:rotate(360deg)}}
   </style>
   <link rel="stylesheet" href="/anhmedia.vn/css/japanese-reader-layout.css?v=20260817-8">
+
+  <style>
+    .jp-page-nav--bottom{margin-top:16px;margin-bottom:8px}
+  </style>
 </head>
 <body>
 <div class="jp-app" data-jp-reader>
@@ -103,6 +107,21 @@
         <p>パイロットインジェクタから微量（熱量比1%以下）の液体燃料を噴射し副室内のガスを着火する．</p>
         <p>パイロット燃料は微量だが点火プラグに比し約8 000倍という強力な着火エネルギーを有するため燃焼が安定し効率が向上する．</p>
       </article>
+
+      <nav class="jp-page-nav jp-page-nav--bottom" data-page-nav aria-label="Điều hướng trang phía dưới">
+        <button type="button" data-page-prev>← Trang trước</button>
+        <span data-page-label>Trang 1 / 1</span>
+        <button type="button" data-page-next>Trang sau →</button>
+        <label class="jp-page-jump">
+          Đến trang
+          <input type="number" min="1" value="1" data-page-input aria-label="Số trang phía dưới">
+          <button type="button" data-page-go>Đi</button>
+        </label>
+        <label class="jp-bookmark-compose">
+          <input data-bookmark-note maxlength="240" placeholder="Ghi chú để nhớ đoạn này">
+          <button class="jp-page-bookmark" type="button" data-page-bookmark disabled>☆ Lưu dấu</button>
+        </label>
+      </nav>
       <div class="jp-selection-popover" data-selection-popover hidden><span data-selection-preview></span><button type="button" data-analyze-popover>この文を学ぶ</button></div>
     </section>
 
