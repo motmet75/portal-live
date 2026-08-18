@@ -34,6 +34,9 @@
   let documentSearchTerm = '';
   let memorySearchTerm = '';
   let activeSpeech = null;
+  let analysisInProgress = false;
+  let analysisWaitTimer = null;
+  let analysisWaitStartedAt = 0;
   let readerScrollTop = 0;
   let memoryScrollTop = 0;
 
@@ -423,6 +426,50 @@
     } catch (loginError) { error.textContent = loginError.message || 'Không thể đăng nhập. Vui lòng thử lại.'; error.hidden = false; submit.disabled = false; submit.textContent = 'Đăng nhập'; }
   }
 
+  function openAnalysisWait(text) {
+    const modal = $('[data-analysis-wait]');
+    const source = $('[data-analysis-wait-source]');
+    const seconds = $('[data-analysis-wait-seconds]');
+
+    analysisInProgress = true;
+    analysisWaitStartedAt = Date.now();
+
+    if (source) source.textContent = text || '';
+    if (seconds) seconds.textContent = '0';
+    if (modal) modal.hidden = false;
+
+    analyzeButton.disabled = true;
+    $$('[data-analyze-popover]').forEach(button => { button.disabled = true; });
+
+    if (analysisWaitTimer) clearInterval(analysisWaitTimer);
+    analysisWaitTimer = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - analysisWaitStartedAt) / 1000);
+      if (seconds) seconds.textContent = String(elapsed);
+    }, 1000);
+  }
+
+  function closeAnalysisWait() {
+    const modal = $('[data-analysis-wait]');
+
+    analysisInProgress = false;
+
+    if (analysisWaitTimer) {
+      clearInterval(analysisWaitTimer);
+      analysisWaitTimer = null;
+    }
+
+    if (modal) modal.hidden = true;
+
+    $$('[data-analyze-popover]').forEach(button => { button.disabled = false; });
+
+    const remaining = remainingAnalyses();
+    analyzeButton.disabled =
+        !usageLoaded ||
+        !selectedText ||
+        selectedText.length > maxSelectionCharacters ||
+        remaining === 0;
+  }
+
   function updateSelection() {
     const selection = window.getSelection();
     const text = selection && selection.rangeCount ? selection.toString().trim() : '';
@@ -433,7 +480,7 @@
     bookmarkRange = selection.getRangeAt(0).cloneRange();
     savedRange = selection.getRangeAt(0).cloneRange();
     const overLimit = text.length > maxSelectionCharacters;
-    analyzeButton.disabled = overLimit || !usageLoaded || remainingAnalyses() === 0;
+    analyzeButton.disabled = analysisInProgress || overLimit || !usageLoaded || remainingAnalyses() === 0;
     popover.classList.toggle('is-over-limit', overLimit);
     $('[data-selection-preview]').textContent = overLimit ? `Đoạn chọn có ${text.length} ký tự. Vui lòng chọn tối đa ${maxSelectionCharacters} ký tự.` : selectedText;
     const rect = savedRange.getBoundingClientRect();
@@ -474,6 +521,7 @@
   }
 
   async function analyzeSelection() {
+    if (analysisInProgress) { toast('Đang phân tích đoạn hiện tại. Vui lòng chờ kết quả.'); return; }
     if (!selectedText) return;
     if (selectedText.length > maxSelectionCharacters) { toast(`Đoạn quá dài. Chỉ chọn tối đa ${maxSelectionCharacters} ký tự, khoảng 1/4 trang A4.`); return; }
     if (!usageLoaded) {
@@ -496,6 +544,7 @@
     $('[data-show-analysis]').disabled = true;
     popover.hidden = true;
     analyzeButton.disabled = true;
+    openAnalysisWait(selectedText);
     analyzeButton.classList.add('is-loading');
     analyzeButton.title = 'Đang phân tích…';
     analyzeButton.setAttribute('aria-label', 'Đang phân tích…');
@@ -514,6 +563,7 @@
         toast(error.status === 401 ? 'Hãy đăng nhập Google để phân tích.' : 'API máy chủ chưa sẵn sàng. Đoạn đã chọn vẫn được giữ.');
       }
     } finally {
+      closeAnalysisWait();
       analyzeButton.classList.remove('is-loading');
       analyzeButton.title = 'Phân tích đoạn chọn (⌘/Ctrl+Enter)';
       analyzeButton.setAttribute('aria-label', 'Phân tích đoạn chọn (⌘/Ctrl+Enter)');
