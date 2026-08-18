@@ -22,30 +22,51 @@
     xhr.send(body === null ? null : JSON.stringify(body));
   }
 
-  function uploadExtractFile(file, callback) {
-    if (!window.FormData) {
-      callback(0, null, 'FormData not supported');
-      return;
-    }
-    var xhr = new XMLHttpRequest();
-    var form = new FormData();
-    form.append('file', file);
-    form.append('language', 'jpn');
+  function normalizeResourceUrl(url) {
+    var value = String(url || '').replace(/^\s+|\s+$/g, '');
+    var match;
 
+    if (!value) return '';
+
+    /*
+     * Convert common Google Drive share links to a direct-download URL.
+     * Example:
+     * https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+     */
+    match = value.match(/^https?:\/\/drive\.google\.com\/file\/d\/([^\/?#]+)/i);
+    if (match && match[1]) {
+      return 'https://drive.google.com/uc?export=download&id=' + encodeURIComponent(match[1]);
+    }
+
+    match = value.match(/^https?:\/\/drive\.google\.com\/open\?[^#]*[?&]id=([^&#]+)/i);
+    if (match && match[1]) {
+      return 'https://drive.google.com/uc?export=download&id=' + encodeURIComponent(match[1]);
+    }
+
+    return value;
+  }
+
+  function requestExtractFromUrl(resourceUrl, callback) {
     var userId = byId('extractUserId') ? String(byId('extractUserId').value || '').replace(/^\s+|\s+$/g, '') : '';
     var token = byId('extractToken') ? String(byId('extractToken').value || '').replace(/^\s+|\s+$/g, '') : '';
-    if (userId) form.append('userId', userId);
-    if (token) form.append('tokenId', token);
-
-    xhr.open('POST', '/api/extract-text', true);
-    xhr.setRequestHeader('Accept', 'application/json,text/plain,*/*');
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState !== 4) return;
-      var data = null;
-      try { data = JSON.parse(xhr.responseText || '{}'); } catch (ignore) {}
-      callback(xhr.status, data, xhr.responseText);
+    var payload = {
+      resourceUrl: resourceUrl,
+      url: resourceUrl,
+      language: 'jpn'
     };
-    xhr.send(form);
+
+    if (userId) payload.userId = userId;
+    if (token) payload.tokenId = token;
+
+    /*
+     * Server endpoint required:
+     * POST /api/extract-text/url
+     * JSON: { resourceUrl, language, userId?, tokenId? }
+     *
+     * The server downloads the public URL. This avoids old iPad Safari CORS,
+     * TLS and large-file limitations.
+     */
+    request('POST', '/api/extract-text/url?_=' + new Date().getTime(), payload, callback);
   }
 
   function extractTextFromResponse(data, raw) {
@@ -60,150 +81,48 @@
   }
 
   function handlePdfUpload() {
-    var input = byId('pdfFile');
+    var input = byId('resourceUrl');
     var progress = byId('uploadProgress');
-    if (!input || !input.files || !input.files.length) {
-      status.innerHTML = 'Hãy chọn PDF hoặc ảnh trước.';
+    var resourceUrl = normalizeResourceUrl(input ? input.value : '');
+
+    if (!resourceUrl || !/^https?:\/\//i.test(resourceUrl)) {
+      status.innerHTML = 'Hãy dán URL công khai bắt đầu bằng http:// hoặc https://.';
       return;
     }
 
-    var file = input.files[0];
     progress.style.display = 'block';
-    progress.innerHTML = 'Đang trích xuất văn bản...';
+    progress.innerHTML = 'Đang tải tài nguyên từ URL và trích xuất văn bản...';
     byId('uploadPdf').disabled = true;
 
-    uploadExtractFile(file, function (code, data, raw) {
+    requestExtractFromUrl(resourceUrl, function (code, data, raw) {
+      var text;
+
       byId('uploadPdf').disabled = false;
 
       if (code !== 200 || (data && data.status && data.status !== 'success')) {
         progress.style.display = 'none';
-        status.innerHTML = code === 401 || code === 403
-            ? 'Token trích xuất PDF chưa đúng hoặc chưa được cấp quyền.'
-            : 'Không thể trích xuất PDF. HTTP ' + code + '.';
+        if (code === 401 || code === 403) {
+          status.innerHTML = 'Không có quyền đọc URL hoặc token trích xuất chưa đúng.';
+        } else {
+          status.innerHTML = 'Không thể đọc tài nguyên từ URL. HTTP ' + code + '.';
+        }
         return;
       }
 
-      var text = extractTextFromResponse(data, raw);
+      text = extractTextFromResponse(data, raw);
       text = String(text || '').replace(/^\s+|\s+$/g, '');
+
       if (!text) {
         progress.style.display = 'none';
-        status.innerHTML = 'Máy chủ không trả về văn bản từ PDF.';
+        status.innerHTML = 'Máy chủ đã tải URL nhưng không tìm thấy văn bản.';
         return;
       }
 
       editor.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
-      progress.innerHTML = 'Đã trích xuất văn bản.';
+      progress.innerHTML = 'Đã tải và trích xuất văn bản.';
       window.setTimeout(function () { progress.style.display = 'none'; }, 1600);
-      status.innerHTML = 'Đã tải PDF. Bôi chọn một câu rồi nhấn Phân tích.';
+      status.innerHTML = 'Đã đọc tài nguyên. Bôi chọn một câu rồi nhấn Phân tích.';
     });
-  }
-
-  // ---- daily analysis quota (value comes from the server-rendered template / JPA, no hardcoded default) ----
-  var dailyLimitEl = byId('dailyLimit');
-  var dailyRemainingEl = byId('dailyRemaining');
-  var dailyAnalysisLimit = null;
-  var serverRemaining = null;
-  var usageLoaded = false;
-  var usageRequestSerial = 0;
-
-  function remainingAnalyses() {
-    return usageLoaded && serverRemaining !== null ? serverRemaining : null;
-  }
-
-  function renderDailyUsage() {
-    if (!usageLoaded || dailyAnalysisLimit === null || serverRemaining === null) {
-      if (dailyRemainingEl) dailyRemainingEl.innerHTML = '...';
-      if (dailyLimitEl) dailyLimitEl.innerHTML = '...';
-      if (byId('analyze')) byId('analyze').disabled = true;
-      return;
-    }
-
-    if (dailyRemainingEl) dailyRemainingEl.innerHTML = String(serverRemaining);
-    if (dailyLimitEl) dailyLimitEl.innerHTML = String(dailyAnalysisLimit);
-    if (byId('analyze')) byId('analyze').disabled = serverRemaining <= 0;
-  }
-
-  function recordAnalysis() {
-    if (!usageLoaded || serverRemaining === null) return;
-    serverRemaining = Math.max(0, serverRemaining - 1);
-    renderDailyUsage();
-  }
-
-  function refreshDailyUsage() {
-    var requestId = ++usageRequestSerial;
-    var url = '/api/japanese-learning/usage?_=' + new Date().getTime() + '-' + requestId;
-    var xhr = new XMLHttpRequest();
-
-    xhr.open('GET', url, true);
-    xhr.setRequestHeader('Accept', 'application/json');
-    try { xhr.setRequestHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); } catch (ignoreCache) {}
-    try { xhr.setRequestHeader('Pragma', 'no-cache'); } catch (ignorePragma) {}
-
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState !== 4) return;
-
-      /* Ignore an older request that finished after a newer request. */
-      if (requestId !== usageRequestSerial) return;
-
-      var data = null;
-      try { data = JSON.parse(xhr.responseText || '{}'); } catch (ignoreJson) {}
-
-      if (xhr.status !== 200 || !data) {
-        /*
-         * Important: if we already have a valid server quota, KEEP IT.
-         * Never fall back to 0/10, 10/10, or HTML values.
-         */
-        if (!usageLoaded) renderDailyUsage();
-        return;
-      }
-
-      var limit = parseInt(data.limit, 10);
-      var remaining = parseInt(data.remaining, 10);
-
-      if (isNaN(limit) || isNaN(remaining) || limit < 0 || remaining < 0) {
-        if (!usageLoaded) renderDailyUsage();
-        return;
-      }
-
-      /* Server is the only authority for quota. */
-      dailyAnalysisLimit = limit;
-      serverRemaining = Math.min(remaining, limit);
-      usageLoaded = true;
-      renderDailyUsage();
-    };
-
-    xhr.send(null);
-  }
-
-  function selectedText() {
-    var selection = window.getSelection ? window.getSelection() : null;
-    var text = selection ? String(selection.toString()).replace(/^\s+|\s+$/g, '') : '';
-    return text;
-  }
-  function speak(text) {
-    if (!text || !window.speechSynthesis || !window.SpeechSynthesisUtterance) { status.innerHTML = 'Thiết bị không hỗ trợ đọc giọng nói.'; return; }
-    window.speechSynthesis.cancel();
-    var utterance = new SpeechSynthesisUtterance(text); utterance.lang = 'ja-JP'; utterance.rate = 0.78; window.speechSynthesis.speak(utterance);
-  }
-
-  // ---- show / hide result panel (smart toggle button + close button + Esc key) ----
-  function updateToggleResultButton() {
-    var btn = byId('toggleResult');
-    if (!btn) return;
-    var visible = !!currentResult && byId('analysisResult').style.display !== 'none';
-    btn.innerHTML = visible ? 'Ẩn kết quả' : 'Hiện kết quả';
-    btn.disabled = !currentResult;
-  }
-  function showResultPanel() {
-    if (!currentResult) return;
-    byId('emptyResult').style.display = 'none';
-    byId('analysisResult').style.display = 'block';
-    updateToggleResultButton();
-  }
-  function hideResultPanel() {
-    byId('analysisResult').style.display = 'none';
-    byId('emptyResult').style.display = 'block';
-    updateToggleResultButton();
   }
 
   function render(result) {
@@ -310,12 +229,14 @@
   on(document, 'keydown', function (event) { var code = event.keyCode || event.which; if (code === 27 && byId('analysisResult').style.display !== 'none') hideResultPanel(); });
 
   showSaved();
+  loadLastServerQuota();
   renderDailyUsage();
   refreshDailyUsage();
 
   /* Old iPad Safari may restore pages from its back-forward cache. Re-check quota. */
   on(window, 'pageshow', function () { refreshDailyUsage(); });
   on(window, 'focus', function () { refreshDailyUsage(); });
+  on(document, 'visibilitychange', function () { if (!document.hidden) refreshDailyUsage(); });
 
   updateToggleResultButton();
 }());
