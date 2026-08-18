@@ -497,11 +497,19 @@
   $$('[data-page-go]').forEach(button => button.addEventListener('click', () => goToPage(button.closest('[data-page-nav]').querySelector('[data-page-input]').value))); $$('[data-page-input]').forEach(input => input.addEventListener('keydown', event => { if (event.key === 'Enter') goToPage(event.currentTarget.value); })); $$('[data-page-bookmark]').forEach(button => button.addEventListener('click', () => addBookmark(button.closest('[data-page-nav]').querySelector('[data-bookmark-note]').value)));
   $$('[data-view]').forEach(button => button.addEventListener('click', () => setView(button.dataset.view === 'memory'))); $('[data-back-reader]').addEventListener('click', () => setView(false));
   document.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); analyzeSelection(); } if (event.key === 'Escape' && root.classList.contains('is-library-open')) setLibraryOpen(false); if (event.key === 'Escape') setLoginOpen(false); if (event.key === 'Escape' && !$('[data-analysis]').hidden) { $('[data-analysis]').hidden = true; $('[data-inspector-empty]').hidden = false; updateShowAnalysisToggle(); } });
-  loadLastServerQuota(); applyDisplaySettings(loadDisplaySettings()); renderDailyUsage(); refreshDailyUsage(); renderDocuments(); renderMemory(); renderMemoryNotes(); renderPage(0, false); updateShowAnalysisToggle();
-})()  window.addEventListener('pageshow', refreshQuotaOnReturn);
-window.addEventListener('focus', refreshQuotaOnReturn);
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) refreshQuotaOnReturn();
-});
+  window.addEventListener('pageshow', refreshQuotaOnReturn);
+  window.addEventListener('focus', refreshQuotaOnReturn);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) refreshQuotaOnReturn();
+  });
 
-;
+  loadLastServerQuota();
+  applyDisplaySettings(loadDisplaySettings());
+  renderDailyUsage();
+  refreshDailyUsage();
+  renderDocuments();
+  renderMemory();
+  renderMemoryNotes();
+  renderPage(0, false);
+  updateShowAnalysisToggle();
+})();
