@@ -16,110 +16,146 @@
   let dailyAnalysisLimit = null;
   let serverRemaining = null;
   let usageLoaded = false;
-  let selectedText = '';
-  let savedRange = null;
-  let currentAnalysis = null;
-  let hasUnsavedAnalysis = false;
-  let state = loadState();
-  let currentDocumentId = null;
-  let currentPageIndex = 0;
-  let currentPages = [editor.innerHTML];
-  let bookmarkExcerpt = '';
-  let bookmarkRange = null;
-  let documentSearchTerm = '';
-  let memorySearchTerm = '';
-  let activeSpeech = null;
+  let usageRequestSerial = 0;
+  let lowerLimitCandidate = null;
+  let lowerLimitConfirmations = 0;
+  let quotaPollTimer = null;
 
-  function setLibraryOpen(open) {
-    root.classList.toggle('is-library-open', open);
-    libraryToggle.setAttribute('aria-expanded', String(open));
-    libraryBackdrop.hidden = !open;
-    document.body.style.overflow = open ? 'hidden' : '';
+  const quotaSessionKey = 'anhmedia.jp-reader.server-quota.v2';
+
+  function loadLastServerQuota() {
+    try {
+      const value = JSON.parse(sessionStorage.getItem(quotaSessionKey) || 'null');
+      if (!value || !Number.isFinite(Number(value.limit)) || !Number.isFinite(Number(value.remaining))) return;
+      dailyAnalysisLimit = Math.max(0, Number(value.limit));
+      serverRemaining = Math.max(0, Number(value.remaining));
+      usageLoaded = true;
+    } catch (_) {}
   }
 
-  function loadDisplaySettings() {
-    try { return JSON.parse(localStorage.getItem(displayStorageKey)) || {}; }
-    catch (_) { return {}; }
-  }
-  function applyDisplaySettings(settings) {
-    const scale = Math.max(0, Math.min(3, Number.isFinite(Number(settings.scale)) ? Number(settings.scale) : (settings.large ? 1 : 0)));
-    root.classList.remove('is-reader-large', 'is-reader-larger', 'is-reader-largest');
-    if (scale === 1) root.classList.add('is-reader-large');
-    if (scale === 2) root.classList.add('is-reader-larger');
-    if (scale === 3) root.classList.add('is-reader-largest');
-    root.classList.toggle('is-reader-bold', Boolean(settings.bold));
-    $('[data-reader-scale]').textContent = `${100 + scale * 15}%`;
-    $('[data-reader-smaller]').disabled = scale === 0;
-    $('[data-reader-larger]').disabled = scale === 3;
-    $('[data-reader-bold]').setAttribute('aria-pressed', String(Boolean(settings.bold)));
-  }
-  function changeReaderScale(change) {
-    const settings = loadDisplaySettings();
-    const current = Number.isFinite(Number(settings.scale)) ? Number(settings.scale) : (settings.large ? 1 : 0);
-    settings.scale = Math.max(0, Math.min(3, current + change));
-    delete settings.large;
-    localStorage.setItem(displayStorageKey, JSON.stringify(settings));
-    applyDisplaySettings(settings);
-    toast(`Cỡ chữ đọc: ${100 + settings.scale * 15}%.`);
-  }
-  function toggleDisplaySetting(name) {
-    const settings = loadDisplaySettings();
-    settings[name] = !settings[name];
-    localStorage.setItem(displayStorageKey, JSON.stringify(settings));
-    applyDisplaySettings(settings);
-    toast(settings[name] ? (name === 'large' ? 'Đã tăng cỡ chữ toàn trang.' : 'Đã bật chữ đậm toàn trang.') : (name === 'large' ? 'Đã về cỡ chữ tiêu chuẩn.' : 'Đã tắt chữ đậm toàn trang.'));
+  function saveLastServerQuota() {
+    if (!usageLoaded || dailyAnalysisLimit === null || serverRemaining === null) return;
+    try {
+      sessionStorage.setItem(quotaSessionKey, JSON.stringify({
+        limit: dailyAnalysisLimit,
+        remaining: serverRemaining,
+        savedAt: Date.now()
+      }));
+    } catch (_) {}
   }
 
-  function loadState() {
-    try { const value = JSON.parse(localStorage.getItem(storageKey)) || {}; return { documents: value.documents || [], memories: value.memories || [], analyses: value.analyses || [], savedWords: value.savedWords || [] }; }
-    catch (_) { return { documents: [], memories: [], analyses: [], savedWords: [] }; }
+  function remainingAnalyses() {
+    return usageLoaded && serverRemaining !== null ? serverRemaining : null;
   }
-  function persist() { localStorage.setItem(storageKey, JSON.stringify(state)); renderDocuments(); renderMemory(); renderMemoryNotes(); }
-  function toast(message) { const el = $('[data-toast]'); el.textContent = message; el.hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(() => { el.hidden = true; }, 2400); }
-  function usageDate() { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date()); }
-  function loadDailyUsage() { try { const usage = JSON.parse(localStorage.getItem(usageStorageKey)) || {}; return usage.date === usageDate() ? usage : { date: usageDate(), count: 0 }; } catch (_) { return { date: usageDate(), count: 0 }; } }
-  function remainingAnalyses() { return usageLoaded ? serverRemaining : null; }
+
   function renderDailyUsage() {
     const remainingEl = $('[data-daily-remaining]');
     const limitEl = $('[data-daily-limit]');
-    if (!usageLoaded) {
+
+    if (!usageLoaded || dailyAnalysisLimit === null || serverRemaining === null) {
       if (remainingEl) remainingEl.textContent = '...';
       if (limitEl) limitEl.textContent = '...';
       analyzeButton.disabled = true;
       return;
     }
+
     if (remainingEl) remainingEl.textContent = String(serverRemaining);
     if (limitEl) limitEl.textContent = String(dailyAnalysisLimit);
-    analyzeButton.disabled = !selectedText || selectedText.length > maxSelectionCharacters || serverRemaining <= 0;
+    analyzeButton.disabled =
+        !selectedText ||
+        selectedText.length > maxSelectionCharacters ||
+        serverRemaining <= 0;
+
+    scheduleQuotaPollIfNeeded();
   }
+
   function recordAnalysis() {
-    if (!usageLoaded) return;
+    if (!usageLoaded || serverRemaining === null) return;
     serverRemaining = Math.max(0, serverRemaining - 1);
+    saveLastServerQuota();
     renderDailyUsage();
   }
-  async function refreshDailyUsage() {
-    usageLoaded = false;
+
+  function acceptServerQuota(limit, remaining) {
+    if (!Number.isFinite(limit) || !Number.isFinite(remaining) || limit < 0 || remaining < 0) return false;
+
+    /*
+     * Protect against a transient/stale response that suddenly drops a known
+     * higher server quota. Require the same lower limit 3 times before accepting.
+     */
+    if (usageLoaded && dailyAnalysisLimit !== null && limit < dailyAnalysisLimit) {
+      if (lowerLimitCandidate === limit) lowerLimitConfirmations += 1;
+      else {
+        lowerLimitCandidate = limit;
+        lowerLimitConfirmations = 1;
+      }
+      if (lowerLimitConfirmations < 3) return false;
+    } else {
+      lowerLimitCandidate = null;
+      lowerLimitConfirmations = 0;
+    }
+
+    dailyAnalysisLimit = Math.max(0, limit);
+    serverRemaining = Math.max(0, Math.min(remaining, dailyAnalysisLimit));
+    usageLoaded = true;
+    saveLastServerQuota();
     renderDailyUsage();
+    return true;
+  }
+
+  async function refreshDailyUsage() {
+    const requestId = ++usageRequestSerial;
+
     try {
-      const response = await fetch('/api/japanese-learning/usage', {
-        headers: { Accept: 'application/json' },
-        cache: 'no-store',
-        credentials: 'same-origin'
-      });
-      if (!response.ok) return;
+      const response = await fetch(
+          `/api/japanese-learning/usage?_=${Date.now()}-${requestId}`,
+          {
+            headers: {
+              Accept: 'application/json',
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              Pragma: 'no-cache'
+            },
+            cache: 'no-store',
+            credentials: 'same-origin'
+          }
+      );
+
+      if (requestId !== usageRequestSerial) return;
+      if (!response.ok) {
+        if (!usageLoaded) renderDailyUsage();
+        return;
+      }
+
       const usage = await response.json();
+      if (requestId !== usageRequestSerial) return;
+
       const limit = Number(usage.limit);
       const remaining = Number(usage.remaining);
-      if (!Number.isFinite(limit) || !Number.isFinite(remaining)) return;
-      dailyAnalysisLimit = Math.max(0, limit);
-      serverRemaining = Math.max(0, remaining);
-      usageLoaded = true;
-      renderDailyUsage();
+      acceptServerQuota(limit, remaining);
     } catch (_) {
-      usageLoaded = false;
-      renderDailyUsage();
+      if (!usageLoaded) renderDailyUsage();
     }
   }
+
+  function scheduleQuotaPollIfNeeded() {
+    if (quotaPollTimer) {
+      clearTimeout(quotaPollTimer);
+      quotaPollTimer = null;
+    }
+
+    if (!usageLoaded || serverRemaining === null || serverRemaining > 0) return;
+
+    quotaPollTimer = setTimeout(async () => {
+      quotaPollTimer = null;
+      await refreshDailyUsage();
+      scheduleQuotaPollIfNeeded();
+    }, 15000);
+  }
+
+  function refreshQuotaOnReturn() {
+    refreshDailyUsage();
+  }
+
   function escapeHtml(value) { const el = document.createElement('div'); el.textContent = value || ''; return el.innerHTML; }
   function textToHtml(text) { return String(text || '').split(/\n\s*\n/).filter(Boolean).map(part => `<p>${escapeHtml(part).replace(/\n/g, '<br>')}</p>`).join(''); }
   function splitIntoPages(text) {
@@ -461,5 +497,11 @@
   $$('[data-page-go]').forEach(button => button.addEventListener('click', () => goToPage(button.closest('[data-page-nav]').querySelector('[data-page-input]').value))); $$('[data-page-input]').forEach(input => input.addEventListener('keydown', event => { if (event.key === 'Enter') goToPage(event.currentTarget.value); })); $$('[data-page-bookmark]').forEach(button => button.addEventListener('click', () => addBookmark(button.closest('[data-page-nav]').querySelector('[data-bookmark-note]').value)));
   $$('[data-view]').forEach(button => button.addEventListener('click', () => setView(button.dataset.view === 'memory'))); $('[data-back-reader]').addEventListener('click', () => setView(false));
   document.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); analyzeSelection(); } if (event.key === 'Escape' && root.classList.contains('is-library-open')) setLibraryOpen(false); if (event.key === 'Escape') setLoginOpen(false); if (event.key === 'Escape' && !$('[data-analysis]').hidden) { $('[data-analysis]').hidden = true; $('[data-inspector-empty]').hidden = false; updateShowAnalysisToggle(); } });
-  applyDisplaySettings(loadDisplaySettings()); renderDailyUsage(); refreshDailyUsage(); renderDocuments(); renderMemory(); renderMemoryNotes(); renderPage(0, false); updateShowAnalysisToggle();
-})();
+  loadLastServerQuota(); applyDisplaySettings(loadDisplaySettings()); renderDailyUsage(); refreshDailyUsage(); renderDocuments(); renderMemory(); renderMemoryNotes(); renderPage(0, false); updateShowAnalysisToggle();
+})()  window.addEventListener('pageshow', refreshQuotaOnReturn);
+window.addEventListener('focus', refreshQuotaOnReturn);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) refreshQuotaOnReturn();
+});
+
+;
