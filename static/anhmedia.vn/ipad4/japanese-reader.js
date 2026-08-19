@@ -2,7 +2,8 @@
   'use strict';
   window.onerror=function(msg,url,line){var s=document.getElementById('jsStatus');if(s){s.innerHTML='Lỗi JS dòng '+line+': '+String(msg);}return false;};
 
-  var STORAGE_KEY='anhmedia.jp-reader.ipad4.v1';
+  var STORAGE_KEY='anhmedia.jp-reader.v1';
+  var LEGACY_IPAD_STORAGE_KEY='anhmedia.jp-reader.ipad4.v1';
   var appState={documents:[],analyses:[],savedWords:[]};
   var currentPages=[];
   var currentPage=0;
@@ -27,17 +28,69 @@
   function hide(el){addClass(el,'hidden');}
   function toast(msg){var t=id('toast');t.innerHTML=esc(msg);t.style.display='block';clearTimeout(t._timer);t._timer=setTimeout(function(){t.style.display='none';},2600);}
 
+  function normalizeState(v){
+    if(!v)v={};
+    return {
+      documents:v.documents||[],
+      memories:v.memories||[],
+      analyses:v.analyses||[],
+      savedWords:v.savedWords||[]
+    };
+  }
+  function mergeDocuments(a,b){
+    var out=[],seen={},i,d,key;
+    a=a||[];b=b||[];
+    for(i=0;i<a.length;i++){
+      d=a[i];key=String(d.id||d.title||('a'+i));
+      if(!seen[key]){seen[key]=1;out.push(d);}
+    }
+    for(i=0;i<b.length;i++){
+      d=b[i];key=String(d.id||d.title||('b'+i));
+      if(!seen[key]){seen[key]=1;out.push(d);}
+    }
+    return out;
+  }
+  function mergeSimple(a,b,keyName){
+    var out=[],seen={},i,d,key;
+    a=a||[];b=b||[];
+    for(i=0;i<a.length;i++){
+      d=a[i];key=String(d[keyName]||d.id||d.word||i);
+      if(!seen[key]){seen[key]=1;out.push(d);}
+    }
+    for(i=0;i<b.length;i++){
+      d=b[i];key=String(d[keyName]||d.id||d.word||('b'+i));
+      if(!seen[key]){seen[key]=1;out.push(d);}
+    }
+    return out;
+  }
   function loadState(){
+    var normal=null,legacy=null,raw,oldRaw;
     try{
-      var raw=localStorage.getItem(STORAGE_KEY);
-      if(raw){var v=JSON.parse(raw);if(v)appState=v;}
+      raw=localStorage.getItem(STORAGE_KEY);
+      if(raw)normal=JSON.parse(raw);
     }catch(e){}
-    if(!appState.documents)appState.documents=[];
-    if(!appState.analyses)appState.analyses=[];
-    if(!appState.savedWords)appState.savedWords=[];
+    try{
+      oldRaw=localStorage.getItem(LEGACY_IPAD_STORAGE_KEY);
+      if(oldRaw)legacy=JSON.parse(oldRaw);
+    }catch(e){}
+
+    normal=normalizeState(normal);
+    legacy=normalizeState(legacy);
+
+    appState={
+      documents:mergeDocuments(normal.documents,legacy.documents),
+      memories:mergeSimple(normal.memories,legacy.memories,'sessionId'),
+      analyses:mergeSimple(normal.analyses,legacy.analyses,'sessionId'),
+      savedWords:mergeSimple(normal.savedWords,legacy.savedWords,'word')
+    };
+
+    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));}catch(e){}
   }
   function saveState(){
-    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));}catch(e){}
+    try{
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));
+      localStorage.setItem(LEGACY_IPAD_STORAGE_KEY,JSON.stringify(appState));
+    }catch(e){}
     renderLibrary();
     renderMemory();
   }
@@ -163,11 +216,15 @@
     renderPage(currentPage);
   }
   function renderLibrary(){
-    var box=id('docList'),html='',i,d;
+    var box=id('docList'),html='',i,d,pages,bookmarks;
     for(i=0;i<appState.documents.length;i++){
       d=appState.documents[i];
-      html+='<div class="doc-item"><b>'+esc(d.title)+'</b><div class="small">'+((d.pages||[]).length)+' trang · '+((d.bookmarks||[]).length)+' dấu trang</div>'+
-          '<button data-open-doc="'+d.id+'">Mở</button><button data-del-doc="'+d.id+'">Xóa</button></div>';
+      pages=d.pages&&d.pages.length?d.pages:(d.html?[d.html]:['']);
+      bookmarks=d.bookmarks||[];
+      html+='<div class="doc-item"><b>'+esc(d.title||'Tài liệu')+'</b>'+
+          '<div class="small">'+pages.length+' trang · '+bookmarks.length+' dấu trang</div>'+
+          '<button data-open-doc="'+esc(String(d.id))+'">Mở</button>'+
+          '<button data-del-doc="'+esc(String(d.id))+'">Xóa</button></div>';
     }
     box.innerHTML=html||'<div class="small">Chưa có tài liệu đã lưu.</div>';
   }
@@ -175,8 +232,11 @@
     var d=findDoc(docId);
     if(!d)return;
     currentDocId=d.id;
-    currentPages=d.pages&&d.pages.length?d.pages:[''];
+    if(d.pages&&d.pages.length)currentPages=d.pages;
+    else if(d.html)currentPages=[d.html];
+    else currentPages=[''];
     currentPage=Number(d.currentPage)||0;
+    if(currentPage<0||currentPage>=currentPages.length)currentPage=0;
     id('docTitle').value=d.title||'Tài liệu';
     renderPage(currentPage);
     setView('reader');
@@ -190,13 +250,28 @@
     saveState();
   }
   function renderMemory(){
-    var q=trim(id('memorySearch').value).toLowerCase(),html='',i,a,w,j;
+    var q=trim(id('memorySearch').value).toLowerCase(),html='',i,a,w,j,word,reading,vi,en;
+    for(i=0;i<appState.savedWords.length;i++){
+      w=appState.savedWords[i];
+      word=w.word||w[0]||'';
+      reading=w.reading||'';
+      vi=w.meaningVi||'';
+      en=w.meaningEn||w.meaning||w[1]||'';
+      if(q && (word+' '+reading+' '+vi+' '+en).toLowerCase().indexOf(q)<0)continue;
+      html+='<div class="memory-item"><b>'+esc(word)+'</b>'+
+          '<div class="small">'+esc(reading)+'</div>'+
+          '<div class="small">VI: '+esc(vi||'—')+'</div>'+
+          '<div class="small">EN: '+esc(en||'—')+'</div>'+
+          '</div>';
+    }
     for(i=0;i<appState.analyses.length;i++){
       a=appState.analyses[i];
       if(q&&String(a.source||'').toLowerCase().indexOf(q)<0&&String(a.translationVi||'').toLowerCase().indexOf(q)<0)continue;
       html+='<div class="memory-item"><b>'+esc(a.source||'')+'</b><div class="small">'+esc(a.translationVi||'')+'</div>';
       w=a.words||a.vocabulary||[];
-      for(j=0;j<w.length;j++)html+='<div class="small">'+esc(w[j].word||w[j][0]||'')+' · '+esc(w[j].reading||'')+' · '+esc(w[j].meaningVi||w[j].meaningEn||'')+'</div>';
+      for(j=0;j<w.length;j++){
+        html+='<div class="small">'+esc(w[j].word||w[j][0]||'')+' · '+esc(w[j].reading||'')+' · '+esc(w[j].meaningVi||w[j].meaningEn||'')+'</div>';
+      }
       html+='</div>';
     }
     id('memoryList').innerHTML=html||'<div class="small">Chưa có nội dung đã lưu.</div>';
@@ -233,10 +308,24 @@
     id('hiraganaText').innerHTML=esc(a.hira||a.hiragana||'');
     id('translationVi').innerHTML=esc(a.translationVi||'');
     id('translationEn').innerHTML=esc(a.translation||'');
-    var words=a.words||a.vocabulary||[],html='',i,w;
+    var words=a.words||a.vocabulary||[],html='',i,w,word,reading,vi,en,saved;
     for(i=0;i<words.length;i++){
       w=words[i];
-      html+='<span class="word"><b>'+esc(w.word||w[0]||'')+'</b><span>'+esc(w.reading||'')+'</span><em>'+esc(w.meaningVi||w.meaningEn||w.meaning||'')+'</em></span>';
+      word=w.word||w.surface||w[0]||'';
+      reading=w.reading||w.hiragana||'';
+      vi=w.meaningVi||w.translationVi||'';
+      en=w.meaningEn||w.meaning||w.translation||w[1]||'';
+      saved=wordAlreadySaved(word,reading);
+      html+='<span class="word'+(saved?' saved':'')+'">'+
+          '<b class="surface">'+esc(word)+'</b>'+
+          '<span class="reading">'+esc(reading||'—')+'</span>'+
+          '<span class="meaning-vi"><b>VI:</b> '+esc(vi||'—')+'</span>'+
+          '<span class="meaning-en"><b>EN:</b> '+esc(en||'—')+'</span>'+
+          '<span class="word-actions">'+
+          '<button type="button" class="speak-word-btn" data-word-index="'+i+'">▶ Đọc</button>'+
+          '<button type="button" class="save-word-btn" data-save-word-index="'+i+'">'+(saved?'✓ Đã lưu':'＋ Lưu từ')+'</button>'+
+          '</span>'+
+          '</span>';
     }
     id('wordList').innerHTML=html||'<span class="small">Không có từ vựng.</span>';
     show(id('analysisPanel'));
@@ -264,13 +353,79 @@
       });
     });
   }
+
+  function speakWordByIndex(index){
+    if(!currentAnalysis)return;
+    var words=currentAnalysis.words||currentAnalysis.vocabulary||[];
+    var w=words[index];
+    if(!w)return;
+    var text=w.reading||w.word||w[0]||'';
+    if(!text)return;
+    if(!window.speechSynthesis){toast('Safari này không hỗ trợ đọc giọng.');return;}
+    try{
+      window.speechSynthesis.cancel();
+      var u=new SpeechSynthesisUtterance(text);
+      u.lang='ja-JP';
+      u.rate=.78;
+      window.speechSynthesis.speak(u);
+    }catch(e){
+      toast('Không phát được cách đọc từ này.');
+    }
+  }
+  function wordAlreadySaved(word,reading){
+    var i,w;
+    for(i=0;i<appState.savedWords.length;i++){
+      w=appState.savedWords[i];
+      if(String(w.word||w[0]||'')===String(word||'') &&
+          String(w.reading||'')===String(reading||''))return true;
+    }
+    return false;
+  }
+  function saveWordByIndex(index){
+    if(!currentAnalysis)return;
+    var words=currentAnalysis.words||currentAnalysis.vocabulary||[];
+    var w=words[index];
+    if(!w)return;
+    var word=w.word||w[0]||'';
+    var reading=w.reading||'';
+    if(wordAlreadySaved(word,reading)){
+      toast('Từ này đã được lưu.');
+      return;
+    }
+    appState.savedWords.unshift({
+      word:word,
+      reading:reading,
+      meaningVi:w.meaningVi||'',
+      meaningEn:w.meaningEn||w.meaning||w[1]||'',
+      source:currentAnalysis.source||'',
+      savedAt:new Date().toISOString()
+    });
+    saveState();
+    renderAnalysis(currentAnalysis);
+    toast('Đã lưu từ '+word+'.');
+  }
+
   function saveAnalysis(){
     if(!currentAnalysis)return;
     currentAnalysis.savedAt=new Date().toISOString();
     appState.analyses.unshift(currentAnalysis);
     if(appState.analyses.length>100)appState.analyses.length=100;
-    var words=currentAnalysis.words||currentAnalysis.vocabulary||[],i;
-    for(i=0;i<words.length;i++)appState.savedWords.unshift(words[i]);
+    var words=currentAnalysis.words||currentAnalysis.vocabulary||[],i,w,word,reading;
+    for(i=0;i<words.length;i++){
+      w=words[i];
+      word=w.word||w[0]||'';
+      reading=w.reading||'';
+      if(!wordAlreadySaved(word,reading)){
+        appState.savedWords.unshift({
+          word:word,
+          reading:reading,
+          meaningVi:w.meaningVi||'',
+          meaningEn:w.meaningEn||w.meaning||w[1]||'',
+          source:currentAnalysis.source||'',
+          savedAt:new Date().toISOString()
+        });
+      }
+    }
     saveState();
     toast('Đã lưu để ôn.');
   }
@@ -429,6 +584,15 @@
     els=qsa('.bookmarkBtn');
     for(i=0;i<els.length;i++)els[i].onclick=addBookmark;
 
+    id('wordList').onclick=function(e){
+      e=e||window.event;
+      var t=e.target||e.srcElement;
+      var speakIndex=t.getAttribute('data-word-index');
+      var saveIndex=t.getAttribute('data-save-word-index');
+      if(speakIndex!==null&&speakIndex!=='')speakWordByIndex(parseInt(speakIndex,10));
+      if(saveIndex!==null&&saveIndex!=='')saveWordByIndex(parseInt(saveIndex,10));
+    };
+
     id('docList').onclick=function(e){
       e=e||window.event;
       var t=e.target||e.srcElement;
@@ -439,7 +603,7 @@
     };
   }
   function init(){
-    var statusEl=id('jsStatus');if(statusEl){statusEl.innerHTML='JavaScript iPad 4: OK';}
+    var statusEl=id('jsStatus');if(statusEl){statusEl.innerHTML='JavaScript iPad 4: OK · Thư viện dùng chung';}
     loadState();
     currentPages=[id('editor').value];
     renderLibrary();renderMemory();renderPage(0);
