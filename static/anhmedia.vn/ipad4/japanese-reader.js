@@ -1,5 +1,6 @@
 (function(){
   'use strict';
+  window.onerror=function(msg,url,line){var s=document.getElementById('jsStatus');if(s){s.innerHTML='Lỗi JS dòng '+line+': '+String(msg);}return false;};
 
   var STORAGE_KEY='anhmedia.jp-reader.ipad4.v1';
   var appState={documents:[],analyses:[],savedWords:[]};
@@ -213,7 +214,7 @@
     analyzing=true;updateAnalyzeButtons();
     id('waitText').innerHTML=esc(text);
     id('waitSeconds').innerHTML='0';
-    id('waitOverlay').style.display='block';
+    id('waitOverlay').style.display='block';addClass(id('waitOverlay'),'is-open');
     document.body.style.overflow='hidden';
     var start=new Date().getTime();
     clearInterval(waitTimer);
@@ -222,7 +223,7 @@
   function closeWait(){
     analyzing=false;
     clearInterval(waitTimer);waitTimer=null;
-    id('waitOverlay').style.display='none';
+    id('waitOverlay').style.display='none';removeClass(id('waitOverlay'),'is-open');
     document.body.style.overflow='';
     updateAnalyzeButtons();
   }
@@ -322,9 +323,9 @@
       id('ocrUser').value=sessionStorage.getItem('anhmedia.jp-reader.ocr-user')||'';
       id('ocrToken').value=sessionStorage.getItem('anhmedia.jp-reader.ocr-token')||'';
     }catch(e){}
-    id('pdfModal').style.display='block';
+    id('pdfModal').style.display='block';addClass(id('pdfModal'),'is-open');
   }
-  function closePdf(){id('pdfModal').style.display='none';}
+  function closePdf(){id('pdfModal').style.display='none';removeClass(id('pdfModal'),'is-open');}
   function pdfCreds(){
     var u=trim(id('ocrUser').value),t=trim(id('ocrToken').value);
     if(!u||!t){id('pdfError').innerHTML='Vui lòng nhập đầy đủ User ID và Token OCR.';return null;}
@@ -438,6 +439,7 @@
     };
   }
   function init(){
+    var statusEl=id('jsStatus');if(statusEl){statusEl.innerHTML='JavaScript iPad 4: OK';}
     loadState();
     currentPages=[id('editor').value];
     renderLibrary();renderMemory();renderPage(0);
