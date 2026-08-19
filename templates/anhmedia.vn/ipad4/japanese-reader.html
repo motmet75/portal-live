@@ -130,6 +130,42 @@
     }
   </style>
 
+
+  <style>
+    .word{
+      cursor:pointer;
+      -webkit-tap-highlight-color:rgba(49,95,85,.18);
+    }
+    .word:active{
+      background:#eef7f3;
+    }
+    .word .word-cell{
+      display:block;
+      margin-bottom:7px;
+      padding:8px;
+      border:1px solid #e2e7e4;
+      border-radius:6px;
+      background:#f8faf8;
+    }
+    .word .surface{
+      display:block;
+      font-size:23px;
+      line-height:1.35;
+    }
+    .word .reading{
+      display:block;
+      margin-top:5px;
+      color:#9a5548;
+      font-size:13px;
+      line-height:1.4;
+    }
+    .word .reading b{
+      display:inline;
+      font-size:10px;
+      color:#6c7774;
+    }
+  </style>
+
 </head>
 <body>
 <div id="app"><div id="jsStatus">Đang khởi động JavaScript iPad 4…</div>
@@ -137,7 +173,7 @@
     <div class="brand">言 Kotoba Studio Lite</div>
     <div class="top-actions">
       <button id="googleBtn">Google</button>
-      <button id="analyzeBtn" disabled>Phân tích</button>
+      <button id="analyzeBtn" type="button" disabled>Phân tích</button>
       <button id="logoutBtn">⎋ Thoát</button>
     </div>
     <div class="clear"></div>
@@ -181,7 +217,7 @@
       <button id="saveDocBtn">Lưu tài liệu</button>
       <button id="pdfBtn">PDF / URL</button>
       <button id="speakBtn">▶ Đọc đoạn chọn</button>
-      <button id="analyzeBtn2" class="primary" disabled>Phân tích đoạn chọn</button>
+      <button id="analyzeBtn2" class="primary" type="button" disabled>Phân tích đoạn chọn</button>
     </div>
 
     <div class="page-nav">
@@ -571,9 +607,12 @@
         vi=w.meaningVi||w.translationVi||'';
         en=w.meaningEn||w.meaning||w.translation||w[1]||'';
         saved=wordAlreadySaved(word,reading);
-        html+='<span class="word'+(saved?' saved':'')+'">'+
+
+        html+='<span class="word'+(saved?' saved':'')+'" data-speak-card-index="'+i+'" title="Chạm để đọc '+esc(word)+'">'+
+                '<span class="word-cell">'+
                 '<b class="surface">'+esc(word)+'</b>'+
-                '<span class="reading">'+esc(reading||'—')+'</span>'+
+                '<span class="reading"><b>ひらがな:</b> '+esc(reading||'—')+'</span>'+
+                '</span>'+
                 '<span class="meaning-vi"><b>VI:</b> '+esc(vi||'—')+'</span>'+
                 '<span class="meaning-en"><b>EN:</b> '+esc(en||'—')+'</span>'+
                 '<span class="word-actions">'+
@@ -807,13 +846,23 @@
       renderPage(0);setView('reader');
     }
 
+    function bindAnalyzeButton(buttonId){
+      var b=id(buttonId);
+      if(!b)return;
+      b.onclick=function(e){
+        if(e&&e.preventDefault)e.preventDefault();
+        analyze();
+        return false;
+      };
+    }
+
     function bind(){
       id('editor').onmouseup=getSelectedText;
       id('editor').onkeyup=getSelectedText;
       id('editor').ontouchend=function(){setTimeout(getSelectedText,100);};
 
-      id('analyzeBtn').onclick=analyze;
-      id('analyzeBtn2').onclick=analyze;
+      bindAnalyzeButton('analyzeBtn');
+      bindAnalyzeButton('analyzeBtn2');
       id('saveAnalysisBtn').onclick=saveAnalysis;
       id('speakBtn').onclick=speakSelection;
       id('saveDocBtn').onclick=saveDocument;
@@ -842,10 +891,33 @@
       id('wordList').onclick=function(e){
         e=e||window.event;
         var t=e.target||e.srcElement;
-        var speakIndex=t.getAttribute('data-word-index');
-        var saveIndex=t.getAttribute('data-save-word-index');
-        if(speakIndex!==null&&speakIndex!=='')speakWordByIndex(parseInt(speakIndex,10));
-        if(saveIndex!==null&&saveIndex!=='')saveWordByIndex(parseInt(saveIndex,10));
+        var speakIndex=t.getAttribute?t.getAttribute('data-word-index'):null;
+        var saveIndex=t.getAttribute?t.getAttribute('data-save-word-index'):null;
+        var node=t;
+        var cardIndex=null;
+
+        if(speakIndex!==null&&speakIndex!==''){
+          if(e.stopPropagation)e.stopPropagation();
+          speakWordByIndex(parseInt(speakIndex,10));
+          return;
+        }
+
+        if(saveIndex!==null&&saveIndex!==''){
+          if(e.stopPropagation)e.stopPropagation();
+          saveWordByIndex(parseInt(saveIndex,10));
+          return;
+        }
+
+        while(node&&node!==id('wordList')){
+          if(node.getAttribute){
+            cardIndex=node.getAttribute('data-speak-card-index');
+            if(cardIndex!==null&&cardIndex!==''){
+              speakWordByIndex(parseInt(cardIndex,10));
+              return;
+            }
+          }
+          node=node.parentNode;
+        }
       };
 
       id('docList').onclick=function(e){

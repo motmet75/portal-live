@@ -316,9 +316,12 @@
       vi=w.meaningVi||w.translationVi||'';
       en=w.meaningEn||w.meaning||w.translation||w[1]||'';
       saved=wordAlreadySaved(word,reading);
-      html+='<span class="word'+(saved?' saved':'')+'">'+
+
+      html+='<span class="word'+(saved?' saved':'')+'" data-speak-card-index="'+i+'" title="Chạm để đọc '+esc(word)+'">'+
+          '<span class="word-cell">'+
           '<b class="surface">'+esc(word)+'</b>'+
-          '<span class="reading">'+esc(reading||'—')+'</span>'+
+          '<span class="reading"><b>ひらがな:</b> '+esc(reading||'—')+'</span>'+
+          '</span>'+
           '<span class="meaning-vi"><b>VI:</b> '+esc(vi||'—')+'</span>'+
           '<span class="meaning-en"><b>EN:</b> '+esc(en||'—')+'</span>'+
           '<span class="word-actions">'+
@@ -552,13 +555,23 @@
     renderPage(0);setView('reader');
   }
 
+  function bindAnalyzeButton(buttonId){
+    var b=id(buttonId);
+    if(!b)return;
+    b.onclick=function(e){
+      if(e&&e.preventDefault)e.preventDefault();
+      analyze();
+      return false;
+    };
+  }
+
   function bind(){
     id('editor').onmouseup=getSelectedText;
     id('editor').onkeyup=getSelectedText;
     id('editor').ontouchend=function(){setTimeout(getSelectedText,100);};
 
-    id('analyzeBtn').onclick=analyze;
-    id('analyzeBtn2').onclick=analyze;
+    bindAnalyzeButton('analyzeBtn');
+    bindAnalyzeButton('analyzeBtn2');
     id('saveAnalysisBtn').onclick=saveAnalysis;
     id('speakBtn').onclick=speakSelection;
     id('saveDocBtn').onclick=saveDocument;
@@ -587,10 +600,33 @@
     id('wordList').onclick=function(e){
       e=e||window.event;
       var t=e.target||e.srcElement;
-      var speakIndex=t.getAttribute('data-word-index');
-      var saveIndex=t.getAttribute('data-save-word-index');
-      if(speakIndex!==null&&speakIndex!=='')speakWordByIndex(parseInt(speakIndex,10));
-      if(saveIndex!==null&&saveIndex!=='')saveWordByIndex(parseInt(saveIndex,10));
+      var speakIndex=t.getAttribute?t.getAttribute('data-word-index'):null;
+      var saveIndex=t.getAttribute?t.getAttribute('data-save-word-index'):null;
+      var node=t;
+      var cardIndex=null;
+
+      if(speakIndex!==null&&speakIndex!==''){
+        if(e.stopPropagation)e.stopPropagation();
+        speakWordByIndex(parseInt(speakIndex,10));
+        return;
+      }
+
+      if(saveIndex!==null&&saveIndex!==''){
+        if(e.stopPropagation)e.stopPropagation();
+        saveWordByIndex(parseInt(saveIndex,10));
+        return;
+      }
+
+      while(node&&node!==id('wordList')){
+        if(node.getAttribute){
+          cardIndex=node.getAttribute('data-speak-card-index');
+          if(cardIndex!==null&&cardIndex!==''){
+            speakWordByIndex(parseInt(cardIndex,10));
+            return;
+          }
+        }
+        node=node.parentNode;
+      }
     };
 
     id('docList').onclick=function(e){
