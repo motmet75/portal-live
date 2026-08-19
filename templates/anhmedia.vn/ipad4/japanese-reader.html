@@ -158,6 +158,22 @@
     .doc-item .small{line-height:1.45}
   </style>
 
+
+  <style>
+    .word .pronunciation{
+      display:block;
+      margin-top:4px;
+      color:#315f55;
+      font-size:12px;
+      line-height:1.4;
+    }
+    .word .pronunciation b{
+      display:inline;
+      color:#6c7774;
+      font-size:10px;
+    }
+  </style>
+
 </head>
 <body>
 <div id="app"><div id="jsStatus">Đang khởi động JavaScript iPad 4…</div>
@@ -597,16 +613,17 @@
       saveState();
     }
     function renderMemory(){
-      var q=trim(id('memorySearch').value).toLowerCase(),html='',i,a,w,j,word,reading,vi,en;
+      var q=trim(id('memorySearch').value).toLowerCase(),html='',i,a,w,j,word,reading,romaji,vi,en;
       for(i=0;i<appState.savedWords.length;i++){
         w=appState.savedWords[i];
         word=w.word||w[0]||'';
         reading=w.reading||'';
+        romaji=w.romaji||w.pronunciation||'';
         vi=w.meaningVi||'';
         en=w.meaningEn||w.meaning||w[1]||'';
-        if(q && (word+' '+reading+' '+vi+' '+en).toLowerCase().indexOf(q)<0)continue;
+        if(q && (word+' '+reading+' '+romaji+' '+vi+' '+en).toLowerCase().indexOf(q)<0)continue;
         html+='<div class="memory-item"><b>'+esc(word)+'</b>'+
-                '<div class="small">'+esc(reading)+'</div>'+
+                '<div class="small">'+esc(reading)+'</div>'+ '<div class="small">Phát âm: '+esc(romaji||'—')+'</div>'+
                 '<div class="small">VI: '+esc(vi||'—')+'</div>'+
                 '<div class="small">EN: '+esc(en||'—')+'</div>'+
                 '</div>';
@@ -655,11 +672,12 @@
       id('hiraganaText').innerHTML=esc(a.hira||a.hiragana||'');
       id('translationVi').innerHTML=esc(a.translationVi||'');
       id('translationEn').innerHTML=esc(a.translation||'');
-      var words=a.words||a.vocabulary||[],html='',i,w,word,reading,vi,en,saved;
+      var words=a.words||a.vocabulary||[],html='',i,w,word,reading,romaji,vi,en,saved;
       for(i=0;i<words.length;i++){
         w=words[i];
         word=w.word||w.surface||w[0]||'';
         reading=w.reading||w.hiragana||'';
+        romaji=w.romaji||w.pronunciation||'';
         vi=w.meaningVi||w.translationVi||'';
         en=w.meaningEn||w.meaning||w.translation||w[1]||'';
         saved=wordAlreadySaved(word,reading);
@@ -668,6 +686,7 @@
                 '<span class="word-cell">'+
                 '<b class="surface">'+esc(word)+'</b>'+
                 '<span class="reading"><b>ひらがな:</b> '+esc(reading||'—')+'</span>'+
+                '<span class="pronunciation"><b>Phát âm:</b> '+esc(romaji||'—')+'</span>'+
                 '</span>'+
                 '<span class="meaning-vi"><b>VI:</b> '+esc(vi||'—')+'</span>'+
                 '<span class="meaning-en"><b>EN:</b> '+esc(en||'—')+'</span>'+
@@ -745,6 +764,7 @@
       appState.savedWords.unshift({
         word:word,
         reading:reading,
+        romaji:w.romaji||w.pronunciation||'',
         meaningVi:w.meaningVi||'',
         meaningEn:w.meaningEn||w.meaning||w[1]||'',
         source:currentAnalysis.source||'',
@@ -769,6 +789,7 @@
           appState.savedWords.unshift({
             word:word,
             reading:reading,
+            romaji:w.romaji||w.pronunciation||'',
             meaningVi:w.meaningVi||'',
             meaningEn:w.meaningEn||w.meaning||w[1]||'',
             source:currentAnalysis.source||'',
