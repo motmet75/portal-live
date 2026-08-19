@@ -1,264 +1,452 @@
-(function () {
+(function(){
   'use strict';
-  var editor = document.getElementById('editor');
-  var status = document.getElementById('status');
-  var currentText = '';
-  var currentResult = null;
-  var storageKey = 'anhmedia.jp-reader.ipad4.v1';
 
-  function byId(id) { return document.getElementById(id); }
-  function on(el, name, fn) { if (el) el.addEventListener(name, fn, false); }
-  function escapeHtml(value) { var div = document.createElement('div'); div.appendChild(document.createTextNode(value || '')); return div.innerHTML; }
+  var STORAGE_KEY='anhmedia.jp-reader.ipad4.v1';
+  var appState={documents:[],analyses:[],savedWords:[]};
+  var currentPages=[];
+  var currentPage=0;
+  var currentDocId=null;
+  var currentAnalysis=null;
+  var selectedText='';
+  var quotaLimit=null;
+  var quotaRemaining=null;
+  var usageLoaded=false;
+  var analyzing=false;
+  var waitTimer=null;
+  var loginPopup=null;
+  var loginPoll=null;
 
-  function request(method, url, body, callback) {
-    var xhr = new XMLHttpRequest();
-    xhr.open(method, url, true); xhr.setRequestHeader('Accept', 'application/json');
-    if (body !== null) xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState !== 4) return;
-      var data = null; try { data = JSON.parse(xhr.responseText || '{}'); } catch (ignore) {}
-      callback(xhr.status, data, xhr.responseText);
+  function id(x){return document.getElementById(x);}
+  function qsa(sel){return document.querySelectorAll(sel);}
+  function trim(s){return String(s||'').replace(/^\s+|\s+$/g,'');}
+  function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function addClass(el,c){if(el&&(' '+el.className+' ').indexOf(' '+c+' ')<0)el.className+=(el.className?' ':'')+c;}
+  function removeClass(el,c){if(el)el.className=(' '+el.className+' ').replace(' '+c+' ',' ').replace(/^\s+|\s+$/g,'');}
+  function show(el){removeClass(el,'hidden');}
+  function hide(el){addClass(el,'hidden');}
+  function toast(msg){var t=id('toast');t.innerHTML=esc(msg);t.style.display='block';clearTimeout(t._timer);t._timer=setTimeout(function(){t.style.display='none';},2600);}
+
+  function loadState(){
+    try{
+      var raw=localStorage.getItem(STORAGE_KEY);
+      if(raw){var v=JSON.parse(raw);if(v)appState=v;}
+    }catch(e){}
+    if(!appState.documents)appState.documents=[];
+    if(!appState.analyses)appState.analyses=[];
+    if(!appState.savedWords)appState.savedWords=[];
+  }
+  function saveState(){
+    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));}catch(e){}
+    renderLibrary();
+    renderMemory();
+  }
+  function xhr(method,url,body,headers,done){
+    var x=new XMLHttpRequest();
+    x.open(method,url,true);
+    x.withCredentials=true;
+    if(headers){for(var k in headers){if(headers.hasOwnProperty(k))x.setRequestHeader(k,headers[k]);}}
+    x.onreadystatechange=function(){
+      if(x.readyState===4)done(x.status,x.responseText,x);
     };
-    xhr.send(body === null ? null : JSON.stringify(body));
+    try{x.send(body||null);}catch(e){done(0,'',x);}
   }
+  function jsonParse(s){try{return JSON.parse(s);}catch(e){return null;}}
 
-  function normalizeResourceUrl(url) {
-    var value = String(url || '').replace(/^\s+|\s+$/g, '');
-    var match;
-
-    if (!value) return '';
-
-    /*
-     * Convert common Google Drive share links to a direct-download URL.
-     * Example:
-     * https://drive.google.com/file/d/FILE_ID/view?usp=sharing
-     */
-    match = value.match(/^https?:\/\/drive\.google\.com\/file\/d\/([^\/?#]+)/i);
-    if (match && match[1]) {
-      return 'https://drive.google.com/uc?export=download&id=' + encodeURIComponent(match[1]);
-    }
-
-    match = value.match(/^https?:\/\/drive\.google\.com\/open\?[^#]*[?&]id=([^&#]+)/i);
-    if (match && match[1]) {
-      return 'https://drive.google.com/uc?export=download&id=' + encodeURIComponent(match[1]);
-    }
-
-    return value;
+  function renderQuota(){
+    id('remaining').innerHTML=usageLoaded?String(quotaRemaining):'...';
+    id('limit').innerHTML=usageLoaded?String(quotaLimit):'...';
+    updateAnalyzeButtons();
+    id('loginBox').style.display=usageLoaded?'none':'block';
   }
-
-  function requestExtractFromUrl(resourceUrl, callback) {
-    var userId = byId('extractUserId') ? String(byId('extractUserId').value || '').replace(/^\s+|\s+$/g, '') : '';
-    var token = byId('extractToken') ? String(byId('extractToken').value || '').replace(/^\s+|\s+$/g, '') : '';
-    var payload = {
-      resourceUrl: resourceUrl,
-      url: resourceUrl,
-      language: 'jpn'
-    };
-
-    if (userId) payload.userId = userId;
-    if (token) payload.tokenId = token;
-
-    /*
-     * Server endpoint required:
-     * POST /api/extract-text/url
-     * JSON: { resourceUrl, language, userId?, tokenId? }
-     *
-     * The server downloads the public URL. This avoids old iPad Safari CORS,
-     * TLS and large-file limitations.
-     */
-    request('POST', '/api/extract-text/url?_=' + new Date().getTime(), payload, callback);
-  }
-
-  function extractTextFromResponse(data, raw) {
-    if (data) {
-      if (typeof data.text === 'string') return data.text;
-      if (typeof data.content === 'string') return data.content;
-      if (typeof data.result === 'string') return data.result;
-      if (data.data && typeof data.data.text === 'string') return data.data.text;
-    }
-    if (raw && !/^\s*</.test(raw)) return raw;
-    return '';
-  }
-
-  function handlePdfUpload() {
-    var input = byId('resourceUrl');
-    var progress = byId('uploadProgress');
-    var resourceUrl = normalizeResourceUrl(input ? input.value : '');
-
-    if (!resourceUrl || !/^https?:\/\//i.test(resourceUrl)) {
-      status.innerHTML = 'Hãy dán URL công khai bắt đầu bằng http:// hoặc https://.';
-      return;
-    }
-
-    progress.style.display = 'block';
-    progress.innerHTML = 'Đang tải tài nguyên từ URL và trích xuất văn bản...';
-    byId('uploadPdf').disabled = true;
-
-    requestExtractFromUrl(resourceUrl, function (code, data, raw) {
-      var text;
-
-      byId('uploadPdf').disabled = false;
-
-      if (code !== 200 || (data && data.status && data.status !== 'success')) {
-        progress.style.display = 'none';
-        if (code === 401 || code === 403) {
-          status.innerHTML = 'Không có quyền đọc URL hoặc token trích xuất chưa đúng.';
-        } else {
-          status.innerHTML = 'Không thể đọc tài nguyên từ URL. HTTP ' + code + '.';
+  function refreshQuota(cb){
+    xhr('GET','/api/japanese-learning/usage?_='+new Date().getTime(),null,{
+      'Accept':'application/json',
+      'Cache-Control':'no-cache'
+    },function(status,text){
+      if(status===200){
+        var d=jsonParse(text);
+        if(d&&isFinite(Number(d.limit))&&isFinite(Number(d.remaining))){
+          quotaLimit=Number(d.limit);
+          quotaRemaining=Number(d.remaining);
+          usageLoaded=true;
+          renderQuota();
+          if(cb)cb(true);
+          return;
         }
-        return;
       }
-
-      text = extractTextFromResponse(data, raw);
-      text = String(text || '').replace(/^\s+|\s+$/g, '');
-
-      if (!text) {
-        progress.style.display = 'none';
-        status.innerHTML = 'Máy chủ đã tải URL nhưng không tìm thấy văn bản.';
-        return;
-      }
-
-      editor.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
-      progress.innerHTML = 'Đã tải và trích xuất văn bản.';
-      window.setTimeout(function () { progress.style.display = 'none'; }, 1600);
-      status.innerHTML = 'Đã đọc tài nguyên. Bôi chọn một câu rồi nhấn Phân tích.';
+      if(status===401){usageLoaded=false;quotaLimit=null;quotaRemaining=null;renderQuota();}
+      if(cb)cb(false);
     });
   }
-
-  function updateToggleResultButton() {
-    var button = byId('toggleResult');
-    var panel = byId('analysisResult');
-    if (!button || !panel) return;
-    button.disabled = !currentResult;
-    button.innerHTML = panel.style.display === 'none' ? 'Hiện kết quả' : 'Ẩn kết quả';
+  function updateAnalyzeButtons(){
+    var ok=usageLoaded&&!analyzing&&selectedText.length>1&&selectedText.length<=500&&Number(quotaRemaining)>0;
+    id('analyzeBtn').disabled=!ok;
+    id('analyzeBtn2').disabled=!ok;
   }
 
-  function showResultPanel() {
-    var panel = byId('analysisResult');
-    if (!panel) return;
-    panel.style.display = 'block';
-    updateToggleResultButton();
-  }
-
-  function hideResultPanel() {
-    var panel = byId('analysisResult');
-    if (!panel) return;
-    panel.style.display = 'none';
-    updateToggleResultButton();
-  }
-
-  function render(result) {
-    currentResult = result;
-    byId('ruby').innerHTML = result.ruby || escapeHtml(result.source || ''); byId('hiragana').innerHTML = escapeHtml(result.hira || '');
-    byId('translationVi').innerHTML = escapeHtml(result.translationVi || ''); byId('translation').innerHTML = escapeHtml(result.translation || '');
-    var tokens = result.tokens || []; var html = ''; var i;
-    for (i = 0; i < tokens.length; i += 1) html += '<button class="token" type="button" data-reading="' + escapeHtml(tokens[i].reading || tokens[i].surface) + '"><b>' + escapeHtml(tokens[i].surface) + '</b><small>' + escapeHtml(tokens[i].reading || '') + ' · ' + escapeHtml(tokens[i].romaji || '') + '</small></button>';
-    byId('tokens').innerHTML = html;
-
-    var words = result.words || result.vocabulary || [];
-    var wordHtml = '', w, word, reading, romaji, meaningEn, meaningVi, onReading, kunReading;
-    for (w = 0; w < words.length; w += 1) {
-      word = words[w] || {};
-      reading = word.reading || '';
-      romaji = word.romaji || '';
-      meaningEn = word.meaningEn || word.meaning || '';
-      meaningVi = word.meaningVi || '';
-      onReading = word.onReading || '';
-      kunReading = word.kunReading || '';
-
-      wordHtml += '<div class="word-card">' +
-          '<b>' + escapeHtml(word.word || '') + '</b>' +
-          '<small>' + escapeHtml(reading) + (romaji ? ' · ' + escapeHtml(romaji) : '') + '</small>' +
-          (onReading || kunReading ? '<em>On ' + escapeHtml(onReading || '—') + ' · Kun ' + escapeHtml(kunReading || '—') + '</em>' : '') +
-          (meaningEn ? '<em>EN: ' + escapeHtml(meaningEn) + '</em>' : '') +
-          (meaningVi ? '<em>VI: ' + escapeHtml(meaningVi) + '</em>' : '') +
-          '<button type="button" data-word-reading="' + escapeHtml(reading || word.word || '') + '">&#9654; Nghe</button>' +
-          '</div>';
+  function getSelectedText(){
+    var t=id('editor');
+    var start=t.selectionStart;
+    var end=t.selectionEnd;
+    if(typeof start==='number'&&typeof end==='number'&&end>start){
+      selectedText=trim(t.value.substring(start,end));
+    }else{
+      selectedText='';
     }
-    if (byId('words')) byId('words').innerHTML = wordHtml || '<small>Chưa có danh sách từ nên nhớ.</small>';
-
-    showResultPanel();
-    status.innerHTML = 'Đã phân tích xong đoạn được chọn.';
+    updateAnalyzeButtons();
+  }
+  function splitPages(text){
+    text=trim(text);
+    if(!text)return [''];
+    var hard=text.split(/\f+/);
+    if(hard.length>1)return hard;
+    var pages=[],pos=0,size=1800;
+    while(pos<text.length){pages.push(text.substring(pos,pos+size));pos+=size;}
+    return pages.length?pages:[''];
+  }
+  function storeCurrentPage(){
+    if(!currentPages.length)currentPages=[''];
+    currentPages[currentPage]=id('editor').value;
+  }
+  function renderPage(n){
+    storeCurrentPage();
+    if(n<0)n=0;
+    if(n>=currentPages.length)n=currentPages.length-1;
+    currentPage=n;
+    id('editor').value=currentPages[currentPage]||'';
+    var labels=qsa('.page-label'),i;
+    for(i=0;i<labels.length;i++)labels[i].innerHTML='Trang '+(currentPage+1)+' / '+currentPages.length;
+    var prev=qsa('.prevBtn'),next=qsa('.nextBtn');
+    for(i=0;i<prev.length;i++)prev[i].disabled=currentPage===0;
+    for(i=0;i<next.length;i++)next[i].disabled=currentPage>=currentPages.length-1;
+    var doc=findDoc(currentDocId);
+    var marks=doc&&doc.bookmarks?doc.bookmarks:[];
+    var active=false;
+    for(i=0;i<marks.length;i++)if(marks[i].page===currentPage)active=true;
+    var b=qsa('.bookmarkBtn');
+    for(i=0;i<b.length;i++){
+      b[i].disabled=!doc;
+      b[i].innerHTML=active?'🔖 Đã lưu dấu':'🔖 Dấu trang';
+    }
+    selectedText='';
+    updateAnalyzeButtons();
+  }
+  function findDoc(docId){
+    var i;
+    for(i=0;i<appState.documents.length;i++)if(String(appState.documents[i].id)===String(docId))return appState.documents[i];
+    return null;
+  }
+  function saveDocument(){
+    storeCurrentPage();
+    var title=trim(id('docTitle').value)||'Tài liệu chưa đặt tên';
+    if(currentDocId===null)currentDocId=new Date().getTime();
+    var doc=findDoc(currentDocId);
+    if(!doc){
+      doc={id:currentDocId,title:title,pages:currentPages,bookmarks:[],currentPage:currentPage,updatedAt:new Date().toISOString()};
+      appState.documents.unshift(doc);
+    }else{
+      doc.title=title;doc.pages=currentPages;doc.currentPage=currentPage;doc.updatedAt=new Date().toISOString();
+    }
+    saveState();
+    renderPage(currentPage);
+    toast('Đã lưu tài liệu.');
+  }
+  function addBookmark(){
+    var doc=findDoc(currentDocId);
+    if(!doc){toast('Hãy lưu tài liệu trước.');return;}
+    var note=window.prompt('Ghi chú dấu trang:','');
+    if(note===null)return;
+    if(!doc.bookmarks)doc.bookmarks=[];
+    doc.bookmarks.push({id:'m'+new Date().getTime(),page:currentPage,note:trim(note)||'Dấu trang',savedAt:new Date().toISOString()});
+    saveState();
+    renderPage(currentPage);
+  }
+  function renderLibrary(){
+    var box=id('docList'),html='',i,d;
+    for(i=0;i<appState.documents.length;i++){
+      d=appState.documents[i];
+      html+='<div class="doc-item"><b>'+esc(d.title)+'</b><div class="small">'+((d.pages||[]).length)+' trang · '+((d.bookmarks||[]).length)+' dấu trang</div>'+
+          '<button data-open-doc="'+d.id+'">Mở</button><button data-del-doc="'+d.id+'">Xóa</button></div>';
+    }
+    box.innerHTML=html||'<div class="small">Chưa có tài liệu đã lưu.</div>';
+  }
+  function openDocument(docId){
+    var d=findDoc(docId);
+    if(!d)return;
+    currentDocId=d.id;
+    currentPages=d.pages&&d.pages.length?d.pages:[''];
+    currentPage=Number(d.currentPage)||0;
+    id('docTitle').value=d.title||'Tài liệu';
+    renderPage(currentPage);
+    setView('reader');
+  }
+  function deleteDocument(docId){
+    if(!window.confirm('Xóa tài liệu này?'))return;
+    var out=[],i;
+    for(i=0;i<appState.documents.length;i++)if(String(appState.documents[i].id)!==String(docId))out.push(appState.documents[i]);
+    appState.documents=out;
+    if(String(currentDocId)===String(docId))currentDocId=null;
+    saveState();
+  }
+  function renderMemory(){
+    var q=trim(id('memorySearch').value).toLowerCase(),html='',i,a,w,j;
+    for(i=0;i<appState.analyses.length;i++){
+      a=appState.analyses[i];
+      if(q&&String(a.source||'').toLowerCase().indexOf(q)<0&&String(a.translationVi||'').toLowerCase().indexOf(q)<0)continue;
+      html+='<div class="memory-item"><b>'+esc(a.source||'')+'</b><div class="small">'+esc(a.translationVi||'')+'</div>';
+      w=a.words||a.vocabulary||[];
+      for(j=0;j<w.length;j++)html+='<div class="small">'+esc(w[j].word||w[j][0]||'')+' · '+esc(w[j].reading||'')+' · '+esc(w[j].meaningVi||w[j].meaningEn||'')+'</div>';
+      html+='</div>';
+    }
+    id('memoryList').innerHTML=html||'<div class="small">Chưa có nội dung đã lưu.</div>';
   }
 
-  // ---- friendly error messages (never dump a raw Tomcat/server HTML error page to the user) ----
-  function friendlyErrorMessage(code, data, raw) {
-    if (data && data.error) return escapeHtml(data.error);
-    if (code === 503) return 'OpenAI tạm thời chưa phản hồi. Vui lòng thử lại sau.';
-    if (code === 429) return 'Bạn đã dùng hết ' + dailyAnalysisLimit + ' lượt phân tích hôm nay. Vui lòng liên hệ AnhMedia để mở rộng hạn mức.';
-    if (raw && /^\s*</.test(raw)) return 'Máy chủ gặp lỗi nội bộ (HTTP ' + code + '). Vui lòng thử lại sau hoặc liên hệ quản trị viên.';
-    return 'Không thể kết nối máy chủ phân tích.';
+  function setView(name){
+    hide(id('readerView'));hide(id('memoryView'));hide(id('libraryView'));
+    removeClass(id('readerTab'),'active');removeClass(id('memoryTab'),'active');removeClass(id('libraryTab'),'active');
+    if(name==='memory'){show(id('memoryView'));addClass(id('memoryTab'),'active');renderMemory();}
+    else if(name==='library'){show(id('libraryView'));addClass(id('libraryTab'),'active');renderLibrary();}
+    else{show(id('readerView'));addClass(id('readerTab'),'active');}
   }
 
-  // ---- silently retry up to 2 times (3 attempts total) before surfacing an error; only for network/5xx failures ----
-  function performAnalyzeRequest(text, attempt, maxAttempts, onDone) {
-    request('POST', '/api/japanese-learning/analyze', { text: text, mode: 'selection' }, function (code, data, raw) {
-      var retryable = code === 0 || code >= 500;
-      if (retryable && attempt < maxAttempts) {
-        window.setTimeout(function () { performAnalyzeRequest(text, attempt + 1, maxAttempts, onDone); }, 500 * attempt);
-        return;
+  function openWait(text){
+    analyzing=true;updateAnalyzeButtons();
+    id('waitText').innerHTML=esc(text);
+    id('waitSeconds').innerHTML='0';
+    id('waitOverlay').style.display='block';
+    document.body.style.overflow='hidden';
+    var start=new Date().getTime();
+    clearInterval(waitTimer);
+    waitTimer=setInterval(function(){id('waitSeconds').innerHTML=String(Math.floor((new Date().getTime()-start)/1000));},1000);
+  }
+  function closeWait(){
+    analyzing=false;
+    clearInterval(waitTimer);waitTimer=null;
+    id('waitOverlay').style.display='none';
+    document.body.style.overflow='';
+    updateAnalyzeButtons();
+  }
+  function renderAnalysis(a){
+    currentAnalysis=a;
+    id('sourceText').innerHTML=esc(a.source||selectedText);
+    id('hiraganaText').innerHTML=esc(a.hira||a.hiragana||'');
+    id('translationVi').innerHTML=esc(a.translationVi||'');
+    id('translationEn').innerHTML=esc(a.translation||'');
+    var words=a.words||a.vocabulary||[],html='',i,w;
+    for(i=0;i<words.length;i++){
+      w=words[i];
+      html+='<span class="word"><b>'+esc(w.word||w[0]||'')+'</b><span>'+esc(w.reading||'')+'</span><em>'+esc(w.meaningVi||w.meaningEn||w.meaning||'')+'</em></span>';
+    }
+    id('wordList').innerHTML=html||'<span class="small">Không có từ vựng.</span>';
+    show(id('analysisPanel'));
+  }
+  function analyze(){
+    if(analyzing||selectedText.length<2)return;
+    if(selectedText.length>500){toast('Chỉ chọn tối đa 500 ký tự.');return;}
+    refreshQuota(function(ok){
+      if(!ok){toast('Không lấy được hạn mức từ máy chủ.');return;}
+      if(Number(quotaRemaining)<=0){toast('Bạn đã hết lượt phân tích hôm nay.');return;}
+      openWait(selectedText);
+      xhr('POST','/api/japanese-learning/analyze',JSON.stringify({text:selectedText,mode:'selection'}),{'Content-Type':'application/json','Accept':'application/json'},function(status,text){
+        var d=jsonParse(text);
+        if(status===200&&d){
+          if(!d.source)d.source=selectedText;
+          renderAnalysis(d);
+        }else if(status===401){
+          toast('Hãy đăng nhập Google để phân tích.');
+        }else if(status===429){
+          toast('Bạn đã hết hạn mức hôm nay.');
+        }else{
+          toast(d&&d.error?d.error:'Không thể phân tích.');
+        }
+        refreshQuota(function(){closeWait();});
+      });
+    });
+  }
+  function saveAnalysis(){
+    if(!currentAnalysis)return;
+    currentAnalysis.savedAt=new Date().toISOString();
+    appState.analyses.unshift(currentAnalysis);
+    if(appState.analyses.length>100)appState.analyses.length=100;
+    var words=currentAnalysis.words||currentAnalysis.vocabulary||[],i;
+    for(i=0;i<words.length;i++)appState.savedWords.unshift(words[i]);
+    saveState();
+    toast('Đã lưu để ôn.');
+  }
+  function speakSelection(){
+    if(!selectedText){toast('Hãy chọn một đoạn tiếng Nhật.');return;}
+    if(!window.speechSynthesis){toast('Safari này không hỗ trợ đọc giọng.');return;}
+    try{
+      window.speechSynthesis.cancel();
+      var u=new SpeechSynthesisUtterance(selectedText);
+      u.lang='ja-JP';u.rate=.82;
+      window.speechSynthesis.speak(u);
+    }catch(e){toast('Không phát được giọng tiếng Nhật.');}
+  }
+
+  function rememberReturn(){
+    try{
+      var target=window.location.pathname+window.location.search+window.location.hash;
+      document.cookie='PORTAL_LOGIN_RETURN='+encodeURIComponent(target)+'; Max-Age=600; Path=/; SameSite=Lax';
+    }catch(e){}
+  }
+  function openGoogle(){
+    rememberReturn();
+    var w=520,h=700,left=Math.max(0,Math.round((screen.width-w)/2)),top=Math.max(0,Math.round((screen.height-h)/2));
+    loginPopup=window.open('/oauth2/authorization/google','anhmedia-google-login','width='+w+',height='+h+',left='+left+',top='+top+',resizable=yes,scrollbars=yes');
+    if(!loginPopup){window.location.href='/oauth2/authorization/google';return;}
+    clearInterval(loginPoll);
+    loginPoll=setInterval(function(){
+      refreshQuota(function(ok){
+        if(ok){
+          clearInterval(loginPoll);
+          try{loginPopup.close();}catch(e){}
+          window.location.reload();
+        }
+      });
+    },1500);
+  }
+  function logout(){
+    xhr('POST','/logout',null,{'X-Requested-With':'XMLHttpRequest'},function(status){
+      if(status===0||status>=400){
+        xhr('GET','/logout',null,{'X-Requested-With':'XMLHttpRequest'},function(){window.location.reload();});
+      }else{
+        window.location.reload();
       }
-      onDone(code, data, raw);
     });
   }
 
-  function analyze() {
-    var text = selectedText(); if (!text) { status.innerHTML = 'Hãy bôi chọn một câu hoặc đoạn ngắn trước.'; return; }
-    if (text.length > 500) { status.innerHTML = 'Đoạn quá dài. Chỉ chọn tối đa 500 ký tự.'; return; }
-    if (!usageLoaded) { status.innerHTML = 'Đang tải hạn mức từ máy chủ. Vui lòng thử lại sau một chút.'; refreshDailyUsage(); return; }
-    if (remainingAnalyses() === 0) { status.innerHTML = 'Bạn đã dùng hết ' + dailyAnalysisLimit + ' lượt phân tích hôm nay. Vui lòng liên hệ AnhMedia để mở rộng hạn mức.'; return; }
-    currentText = text; status.innerHTML = 'Đang phân tích…'; byId('analyze').disabled = true;
-    performAnalyzeRequest(text, 1, 3, function (code, data, raw) {
-      if (code === 200 && data) { recordAnalysis(); render(data); byId('analyze').disabled = !usageLoaded || remainingAnalyses() === 0; refreshDailyUsage(); return; }
-      byId('analyze').disabled = false;
-      if (code === 401) { status.innerHTML = 'Bạn cần đăng nhập trước khi phân tích.'; openLogin(); refreshDailyUsage(); return; }
-      status.innerHTML = friendlyErrorMessage(code, data, raw);
-      refreshDailyUsage();
+  function openPdf(){
+    id('pdfError').innerHTML='';
+    try{
+      id('ocrUser').value=sessionStorage.getItem('anhmedia.jp-reader.ocr-user')||'';
+      id('ocrToken').value=sessionStorage.getItem('anhmedia.jp-reader.ocr-token')||'';
+    }catch(e){}
+    id('pdfModal').style.display='block';
+  }
+  function closePdf(){id('pdfModal').style.display='none';}
+  function pdfCreds(){
+    var u=trim(id('ocrUser').value),t=trim(id('ocrToken').value);
+    if(!u||!t){id('pdfError').innerHTML='Vui lòng nhập đầy đủ User ID và Token OCR.';return null;}
+    try{sessionStorage.setItem('anhmedia.jp-reader.ocr-user',u);sessionStorage.setItem('anhmedia.jp-reader.ocr-token',t);}catch(e){}
+    return {userId:u,tokenId:t};
+  }
+  function applyExtractedText(text,title){
+    currentDocId=new Date().getTime();
+    currentPages=splitPages(text);
+    currentPage=0;
+    id('docTitle').value=title||'Tài liệu PDF';
+    var d={id:currentDocId,title:id('docTitle').value,pages:currentPages,currentPage:0,bookmarks:[],updatedAt:new Date().toISOString()};
+    appState.documents.unshift(d);
+    saveState();
+    closePdf();
+    setView('reader');
+    renderPage(0);
+    toast('Đã tải và chia tài liệu thành '+currentPages.length+' trang.');
+  }
+  function uploadPdfUrl(){
+    var c=pdfCreds();if(!c)return;
+    var url=trim(id('pdfUrl').value);
+    if(!url){id('pdfError').innerHTML='Nhập URL PDF/ảnh công khai.';return;}
+    id('pdfError').innerHTML='Đang tải tài liệu...';
+    xhr('POST','/api/extract-text/url',JSON.stringify({resourceUrl:url,language:'jpn',userId:c.userId,tokenId:c.tokenId}),{'Content-Type':'application/json','Accept':'application/json'},function(status,text){
+      var d=jsonParse(text);
+      if(status===200&&d&&d.status==='success'){applyExtractedText(d.text||'','Tài liệu từ URL');}
+      else id('pdfError').innerHTML=esc(d&&d.error?d.error:'Không thể trích xuất URL.');
     });
   }
-
-  function loadSaved() { try { return JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch (ignore) { return []; } }
-  function showSaved() {
-    var saved = loadSaved(); var html = ''; var i;
-    for (i = 0; i < saved.length; i += 1) html += '<article><b>' + escapeHtml(saved[i].source) + '</b><p>' + escapeHtml(saved[i].translationVi || '') + '</p><button type="button" data-saved="' + i + '">&#9654; Đọc lại</button><button type="button" data-remove="' + i + '">Xóa</button></article>';
-    byId('savedList').innerHTML = html || '<p>Chưa có kết quả đã lưu.</p>';
+  function uploadPdfFile(){
+    var c=pdfCreds();if(!c)return;
+    var file=id('pdfFile').files&&id('pdfFile').files[0];
+    if(!file){id('pdfError').innerHTML='Hãy chọn PDF/ảnh trước.';return;}
+    if(!window.FormData){id('pdfError').innerHTML='Safari này không hỗ trợ FormData. Hãy dùng URL công khai.';return;}
+    var form=new FormData();
+    form.append('file',file);
+    form.append('language','jpn');
+    form.append('userId',c.userId);
+    form.append('tokenId',c.tokenId);
+    id('pdfError').innerHTML='Đang trích xuất...';
+    var x=new XMLHttpRequest();
+    x.open('POST','/api/extract-text',true);
+    x.withCredentials=true;
+    x.onreadystatechange=function(){
+      if(x.readyState===4){
+        var d=jsonParse(x.responseText);
+        if(x.status===200&&d&&d.status==='success')applyExtractedText(d.text||'',file.name||'Tài liệu PDF');
+        else id('pdfError').innerHTML=esc(d&&d.error?d.error:'Không thể trích xuất file.');
+      }
+    };
+    try{x.send(form);}catch(e){id('pdfError').innerHTML='Không gửi được file. Hãy dùng URL công khai.';}
   }
-  function saveResult() { if (!currentResult) return; var saved = loadSaved(); saved.unshift(currentResult); if (saved.length > 30) saved.length = 30; localStorage.setItem(storageKey, JSON.stringify(saved)); showSaved(); status.innerHTML = 'Đã lưu kết quả trên iPad này.'; }
-  function openLogin() { if (byId('loginModal')) byId('loginModal').style.display = 'block'; }
-  function closeLogin() { if (byId('loginModal')) byId('loginModal').style.display = 'none'; }
-  function login(event) {
-    event.preventDefault(); var form = byId('loginForm'); var email = form.elements.email.value.replace(/^\s+|\s+$/g, ''); var pass = form.elements.password.value; var error = byId('loginError');
-    if (!email || !pass) { error.innerHTML = 'Vui lòng nhập tài khoản và mật khẩu.'; error.style.display = 'block'; return; }
-    byId('loginSubmit').disabled = true; byId('loginSubmit').innerHTML = 'Đang đăng nhập…'; error.style.display = 'none';
-    request('POST', '/api/login-act', { id: 0, firstName: '', lastName: '', user: email, pass: pass, address: '', district: '', city: '', province: '', email: email, phoneNumber: '', selectedAddress: '000', zipcode: '000', note: '000' }, function (code, user) {
-      if (code === 200 && user && Number(user.id) > 0) { if (user.pass === 'mfa') window.location.href = '/dang-nhap'; else window.location.reload(); return; }
-      error.innerHTML = 'Sai tài khoản hoặc mật khẩu.'; error.style.display = 'block'; byId('loginSubmit').disabled = false; byId('loginSubmit').innerHTML = 'Đăng nhập';
-    });
+  function searchCurrent(){
+    var q=trim(id('searchBox').value).toLowerCase();
+    if(!q)return;
+    var i,text;
+    storeCurrentPage();
+    for(i=0;i<currentPages.length;i++){
+      text=String(currentPages[i]||'').toLowerCase();
+      if(text.indexOf(q)>=0){renderPage(i);toast('Tìm thấy ở trang '+(i+1)+'.');return;}
+    }
+    toast('Không tìm thấy.');
+  }
+  function newDocument(){
+    storeCurrentPage();
+    currentDocId=null;currentPages=[''];currentPage=0;
+    id('docTitle').value='Tài liệu chưa đặt tên';
+    renderPage(0);setView('reader');
   }
 
-  on(byId('uploadPdf'), 'click', handlePdfUpload);
-  on(byId('analyze'), 'click', analyze); on(byId('speakSelection'), 'click', function () { var text = selectedText() || currentText; if (!text) status.innerHTML = 'Hãy chọn đoạn cần đọc.'; else speak(text); });
-  on(byId('speakResult'), 'click', function () { speak(currentResult ? currentResult.source : ''); }); on(byId('saveResult'), 'click', saveResult);
-  on(byId('clearText'), 'click', function () { if (window.confirm('Xóa nội dung đang đọc?')) editor.innerHTML = ''; });
-  on(byId('textSize'), 'click', function () { document.body.className = document.body.className === 'large' ? '' : 'large'; });
-  on(byId('loginOpen'), 'click', openLogin); on(byId('loginClose'), 'click', closeLogin); on(byId('loginShade'), 'click', closeLogin); on(byId('loginForm'), 'submit', login);
-  on(byId('homeLink'), 'click', function (event) { if (!window.confirm('Bạn có chắc muốn trở về trang chủ?')) event.preventDefault(); });
-  on(byId('tokens'), 'click', function (event) { var target = event.target; while (target && target !== this && !target.getAttribute('data-reading')) target = target.parentNode; if (target && target.getAttribute('data-reading')) speak(target.getAttribute('data-reading')); });
-  on(byId('words'), 'click', function (event) { var target = event.target; while (target && target !== this && !target.getAttribute('data-word-reading')) target = target.parentNode; if (target && target.getAttribute('data-word-reading')) speak(target.getAttribute('data-word-reading')); });
-  on(byId('savedList'), 'click', function (event) { var target = event.target; var saved = loadSaved(); if (target.getAttribute('data-saved') !== null) speak(saved[Number(target.getAttribute('data-saved'))].source); if (target.getAttribute('data-remove') !== null) { saved.splice(Number(target.getAttribute('data-remove')), 1); localStorage.setItem(storageKey, JSON.stringify(saved)); showSaved(); } });
-  on(byId('toggleResult'), 'click', function () { if (!currentResult) return; if (byId('analysisResult').style.display === 'none') showResultPanel(); else hideResultPanel(); });
-  on(byId('closeResult'), 'click', hideResultPanel);
-  on(document, 'keydown', function (event) { var code = event.keyCode || event.which; if (code === 27 && byId('analysisResult').style.display !== 'none') hideResultPanel(); });
+  function bind(){
+    id('editor').onmouseup=getSelectedText;
+    id('editor').onkeyup=getSelectedText;
+    id('editor').ontouchend=function(){setTimeout(getSelectedText,100);};
 
-  showSaved();
-  loadLastServerQuota();
-  renderDailyUsage();
-  refreshDailyUsage();
+    id('analyzeBtn').onclick=analyze;
+    id('analyzeBtn2').onclick=analyze;
+    id('saveAnalysisBtn').onclick=saveAnalysis;
+    id('speakBtn').onclick=speakSelection;
+    id('saveDocBtn').onclick=saveDocument;
+    id('pdfBtn').onclick=openPdf;
+    id('pdfCancelBtn').onclick=closePdf;
+    id('pdfUrlBtn').onclick=uploadPdfUrl;
+    id('pdfFileBtn').onclick=uploadPdfFile;
+    id('googleBtn').onclick=openGoogle;
+    id('googleBtn2').onclick=openGoogle;
+    id('logoutBtn').onclick=logout;
+    id('readerTab').onclick=function(){setView('reader');};
+    id('memoryTab').onclick=function(){setView('memory');};
+    id('libraryTab').onclick=function(){setView('library');};
+    id('newDocBtn').onclick=newDocument;
+    id('homeBtn').onclick=function(){window.location.href='/';};
+    id('memorySearch').onkeyup=renderMemory;
+    id('searchBox').onkeydown=function(e){e=e||window.event;if((e.keyCode||e.which)===13)searchCurrent();};
 
-  /* Old iPad Safari may restore pages from its back-forward cache. Re-check quota. */
-  on(window, 'pageshow', function () { refreshDailyUsage(); });
-  on(window, 'focus', function () { refreshDailyUsage(); });
-  on(document, 'visibilitychange', function () { if (!document.hidden) refreshDailyUsage(); });
+    var i,els=qsa('.prevBtn');
+    for(i=0;i<els.length;i++)els[i].onclick=function(){renderPage(currentPage-1);};
+    els=qsa('.nextBtn');
+    for(i=0;i<els.length;i++)els[i].onclick=function(){renderPage(currentPage+1);};
+    els=qsa('.bookmarkBtn');
+    for(i=0;i<els.length;i++)els[i].onclick=addBookmark;
 
-  updateToggleResultButton();
-}());
+    id('docList').onclick=function(e){
+      e=e||window.event;
+      var t=e.target||e.srcElement;
+      var open=t.getAttribute('data-open-doc');
+      var del=t.getAttribute('data-del-doc');
+      if(open)openDocument(open);
+      if(del)deleteDocument(del);
+    };
+  }
+  function init(){
+    loadState();
+    currentPages=[id('editor').value];
+    renderLibrary();renderMemory();renderPage(0);
+    bind();
+    refreshQuota();
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',init,false);
+  }else{
+    init();
+  }
+})();

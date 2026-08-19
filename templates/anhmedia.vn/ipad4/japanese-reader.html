@@ -1,99 +1,192 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, user-scalable=yes">
-  <title>Japanese Reader — iPad 4</title>
-  <meta name="description" content="Trình đọc và học tiếng Nhật tương thích trình duyệt iPad cũ.">
-  <link rel="stylesheet" href="/anhmedia.vn/ipad4/japanese-reader.css?v=20260817-1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <title>Kotoba Studio Lite - iPad 4</title>
   <style>
-    .quota{margin:0 0 10px;padding:9px 11px;border:1px solid #d9c38f;background:#fff8e6;color:#5d5237;font-size:12px;line-height:1.5}
-    .quota b{color:#315f55}
-    .quota a{color:#9a5548;font-weight:bold}
-    .result-head{display:block;overflow:hidden;margin:0 0 6px}
-    .result-head h2{float:left;margin:0}
-    #closeResult{float:right;width:28px;height:28px;padding:0;border:0;background:transparent;color:#9a5548;font-size:18px;line-height:26px;text-align:center;cursor:pointer}
-    .connection-notice{margin:10px 0 0;padding:9px 11px;border:1px solid #e8c98b;background:#fff8e6;color:#5d5237;font-size:11px;line-height:1.5}
-  </style>
-
-  <style>
-    .upload-box{margin:0 0 10px;padding:10px;border:1px dashed #aab8b3;background:#fff}
-    .upload-box label{display:block;margin-bottom:6px;color:#315f55}
-    .upload-box input{display:block;width:100%;margin-bottom:7px}
-    .upload-box button{padding:8px 10px;border:1px solid #ccd8d3;background:#e1eee9;color:#315f55;font-weight:bold}
-    .upload-note{margin:6px 0 0;color:#6c7774;font-size:11px;line-height:1.4}
-    .upload-progress{margin-top:7px;padding:7px;background:#fff8e6;color:#5d5237;font-size:11px}
-    .word-breakdown{overflow:hidden;margin-top:8px}
-    .word-card{float:left;min-width:125px;margin:0 6px 6px 0;padding:8px;border:1px solid #dfe5e1;background:#fff}
-    .word-card b,.word-card small,.word-card em{display:block}
-    .word-card small{margin-top:3px;color:#6c7774}
-    .word-card em{margin-top:3px;color:#315f55;font-size:11px;font-style:normal}
-    .word-card button{margin-top:6px;padding:5px 7px;border:1px solid #ccd8d3;background:#e1eee9;color:#315f55}
-    .word-clear{clear:both}
-    .saved label{display:block;margin:8px 0;color:#6c7774;font-size:11px;font-weight:bold}
-    .saved label input{display:block;width:100%;height:36px;margin-top:4px;padding:7px;border:1px solid #dfe5e1}
+    html,body{margin:0;padding:0;background:#f3f4f1;color:#202826;font-family:Arial,"Helvetica Neue",sans-serif}
+    button,input,textarea{font:inherit}
+    button{cursor:pointer}
+    #app{max-width:1024px;margin:0 auto;background:#fff;min-height:100vh}
+    .topbar{padding:8px;background:#263b36;color:#fff;overflow:hidden}
+    .brand{float:left;font-weight:bold;font-size:18px;line-height:40px}
+    .top-actions{float:right}
+    .top-actions button{margin-left:5px;min-height:38px;border:1px solid #cfd9d5;border-radius:6px;background:#fff;color:#263b36;font-weight:bold}
+    #logoutBtn{color:#111;border:2px solid #b74d3e;background:#fff}
+    .clear{clear:both}
+    .tabs{padding:8px;border-bottom:1px solid #ddd;background:#fafaf8}
+    .tabs button{padding:9px 12px;margin-right:5px;border:1px solid #ccd7d2;border-radius:6px;background:#fff;font-weight:bold}
+    .tabs button.active{background:#315f55;color:#fff}
+    .panel{padding:10px}
+    .notice{padding:10px;margin-bottom:10px;border:1px solid #d8c17b;border-radius:7px;background:#fff8dc;font-size:13px}
+    .login-box{padding:12px;margin-bottom:10px;border:2px solid #b8d2c8;border-radius:8px;background:#eef8f3;text-align:center}
+    .login-box h2{margin:0 0 6px;font-size:19px}
+    .login-box p{margin:4px 0 10px;line-height:1.45}
+    .login-box button{padding:10px 14px;border:0;border-radius:6px;background:#315f55;color:#fff;font-weight:bold}
+    .toolbar,.page-nav{padding:8px;margin:8px 0;border:1px solid #d7dfdc;border-radius:7px;background:#f8faf8}
+    .toolbar input{box-sizing:border-box;width:100%;padding:9px;border:1px solid #ccd7d2;border-radius:5px}
+    .page-nav{text-align:center}
+    .page-nav button{padding:8px 10px;margin:2px;border:1px solid #cbd7d2;border-radius:6px;background:#fff;color:#244f46;font-weight:bold}
+    .page-nav button:disabled{opacity:.4}
+    .page-label{display:inline-block;min-width:90px;padding:8px;font-weight:bold}
+    .doc-title{box-sizing:border-box;width:100%;padding:9px;margin-bottom:8px;border:1px solid #ccd7d2;border-radius:6px;font-weight:bold}
+    #editor{box-sizing:border-box;width:100%;min-height:330px;padding:14px;border:1px solid #cfd9d5;border-radius:7px;background:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-size:20px;line-height:1.8;resize:vertical}
+    .action-row{margin:8px 0}
+    .action-row button{padding:9px 12px;margin:2px;border:1px solid #cbd7d2;border-radius:6px;background:#fff;font-weight:bold}
+    .action-row .primary{background:#315f55;color:#fff;border-color:#315f55}
+    .library{padding:10px;border:1px solid #d8e0dd;border-radius:7px;background:#fafbf9}
+    .library h3{margin:2px 0 8px}
+    .doc-item,.memory-item{padding:9px;margin:6px 0;border:1px solid #d8e0dd;border-radius:6px;background:#fff}
+    .doc-item button,.memory-item button{margin:3px;padding:6px 8px}
+    .small{font-size:12px;color:#66736f}
+    #analysisPanel{padding:12px;margin-top:10px;border:1px solid #cbd8d3;border-radius:8px;background:#fff}
+    #analysisPanel h3{margin-top:0}
+    .block{padding:9px;margin:7px 0;border:1px solid #e1e5e2;border-radius:6px;background:#f8faf8}
+    .word{display:inline-block;vertical-align:top;min-width:130px;margin:4px;padding:8px;border:1px solid #d9e0dd;border-radius:6px;background:#fff}
+    .word b,.word span,.word em{display:block}
+    .word em{font-style:normal;color:#315f55;font-size:12px}
+    .word button{margin-top:5px;padding:5px 7px}
+    #waitOverlay,#pdfModal{position:fixed;left:0;top:0;right:0;bottom:0;z-index:99999;background:rgba(20,28,26,.72);display:none}
+    .modal-card{position:relative;max-width:520px;margin:70px auto 0;padding:18px;border-radius:8px;background:#fff}
+    .modal-card input{box-sizing:border-box;width:100%;padding:9px;margin:5px 0 10px;border:1px solid #ccd7d2;border-radius:5px}
+    .modal-card button{padding:9px 12px;margin:4px;border:1px solid #cbd7d2;border-radius:6px;background:#fff;font-weight:bold}
+    .modal-card .primary{background:#315f55;color:#fff}
+    .spinner{width:34px;height:34px;margin:0 auto 10px;border:4px solid #d9e3df;border-top-color:#315f55;border-radius:50%;-webkit-animation:spin .8s linear infinite;animation:spin .8s linear infinite}
+    @-webkit-keyframes spin{to{-webkit-transform:rotate(360deg)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    #toast{position:fixed;left:10px;right:10px;bottom:12px;z-index:100000;padding:10px;border-radius:6px;background:#263b36;color:#fff;text-align:center;display:none}
+    .hidden{display:none!important}
+    @media(max-width:700px){
+      .brand{float:none;line-height:30px}
+      .top-actions{float:none;margin-top:6px}
+      .top-actions button{margin:2px}
+      #editor{min-height:280px;font-size:18px}
+      .modal-card{margin:35px 10px 0}
+    }
   </style>
 </head>
 <body>
-<header class="bar">
-  <a class="home" href="/" id="homeLink">&#8962; Trang chủ</a>
-  <strong><i>言</i> Japanese Reader</strong>
-  <button type="button" id="textSize">A+</button>
-  <button type="button" id="loginOpen" th:if="${session.SPRING_SECURITY_CONTEXT == null}">Đăng nhập</button>
-  <span class="user" th:if="${session.SPRING_SECURITY_CONTEXT != null}" th:text="${session.SPRING_SECURITY_CONTEXT.authentication.name}">user</span>
-</header>
-
-<main>
-  <section class="paper-panel">
-    <div class="intro"><small>CHẾ ĐỘ TƯƠNG THÍCH IPAD 4</small><h1>Đọc từng đoạn ngắn</h1><p>Dán nội dung tiếng Nhật, bôi chọn tối đa 500 ký tự rồi nhấn Phân tích.</p></div>
-    <p class="quota">Bạn có <b id="dailyRemaining">...</b>/<b id="dailyLimit">...</b> lượt phân tích hôm nay. Cần thêm lượt? <a href="/#lien-he">Liên hệ AnhMedia</a>.</p>
-    <div class="upload-box">
-      <label for="resourceUrl"><b>PDF / ảnh từ URL công khai</b></label>
-      <input id="resourceUrl" type="url" autocapitalize="off" autocorrect="off"
-             placeholder="https://drive.google.com/... hoặc https://example.com/file.pdf">
-      <button type="button" id="uploadPdf">Đọc từ URL</button>
-      <p class="upload-note">Dán link tải công khai. Google Drive phải được chia sẻ “Anyone with the link”. Máy chủ sẽ tải tài nguyên rồi trích xuất chữ Nhật.</p>
-      <div id="uploadProgress" class="upload-progress" style="display:none">Đang trích xuất văn bản...</div>
+<div id="app">
+  <div class="topbar">
+    <div class="brand">言 Kotoba Studio Lite</div>
+    <div class="top-actions">
+      <button id="googleBtn">Google</button>
+      <button id="analyzeBtn" disabled>Phân tích</button>
+      <button id="logoutBtn">⎋ Thoát</button>
     </div>
-    <div class="tools"><button type="button" id="analyze">Phân tích đoạn chọn</button><button type="button" id="speakSelection">&#9654; Đọc đoạn chọn</button><button type="button" id="toggleResult" disabled>Hiện kết quả</button><button type="button" id="clearText">Xóa trang</button></div>
-    <div id="editor" class="paper" contenteditable="true" role="textbox" aria-multiline="true">パイロット燃料は微量だが点火プラグに比し約8 000倍という強力な着火エネルギーを有するため燃焼が安定し効率が向上する．</div>
-    <p class="status" id="status">Bôi chọn một câu tiếng Nhật để bắt đầu.</p>
-  </section>
+    <div class="clear"></div>
+  </div>
 
-  <aside class="result" id="result">
-    <div class="result-head"><h2>Kết quả phân tích</h2><button type="button" id="closeResult" aria-label="Ẩn kết quả">&times;</button></div>
-    <div id="emptyResult">Chưa có kết quả.</div>
-    <div id="analysisResult" style="display:none">
-      <label>Kanji + cách đọc</label><div class="ruby" id="ruby"></div>
-      <label>Hiragana tự nhiên</label><p class="hiragana" id="hiragana"></p>
-      <button type="button" class="speak" id="speakResult">&#9654; Nghe lại câu</button>
-      <label>Từng từ — chạm để nghe</label><div class="tokens" id="tokens"></div>
-      <label>Từ nên nhớ</label>
-      <div class="word-breakdown" id="words"></div>
-      <div class="word-clear"></div>
-      <label>Nghĩa tiếng Việt</label><p id="translationVi"></p>
-      <label>Nghĩa tiếng Anh</label><p id="translation"></p>
-      <button type="button" id="saveResult">Lưu kết quả</button>
+  <div class="tabs">
+    <button id="readerTab" class="active">Tài liệu</button>
+    <button id="memoryTab">Từ đã lưu</button>
+    <button id="libraryTab">Thư viện</button>
+  </div>
+
+  <div id="readerView" class="panel">
+    <div id="loginBox" class="login-box">
+      <h2>Hãy đăng nhập với Google để dùng thử miễn phí</h2>
+      <p>Học ngay câu tiếng Nhật bạn yêu thích. Tách từ, Hiragana, nghĩa từ, lưu từ vựng và học lại từ tài liệu PDF.</p>
+      <button id="googleBtn2">Đăng nhập với Google</button>
     </div>
-    <p class="connection-notice">Không nhập OpenAI API key cá nhân vào trình duyệt. Key phải được cấu hình an toàn trên máy chủ.</p>
-  </aside>
 
-  <section class="saved">
-    <h2>Kết quả đã lưu</h2><div id="savedList"></div>
-    <h2>Token trích xuất PDF</h2>
-    <label>User ID<input id="extractUserId" type="text" placeholder="anhmedia"></label>
-    <label>Token OCR<input id="extractToken" type="password" placeholder="Token máy chủ"></label>
-    <p class="connection-notice">Token này chỉ dùng cho /api/extract-text.</p>
-  </section>
-</main>
+    <div class="notice">
+      Giới hạn sử dụng: <b id="remaining">...</b>/<b id="limit">...</b> lượt phân tích hôm nay.
+    </div>
 
-<div class="modal" id="loginModal" style="display:none" th:if="${session.SPRING_SECURITY_CONTEXT == null}">
-  <button class="shade" type="button" id="loginShade" aria-label="Đóng"></button>
-  <section class="login-card"><button class="close" type="button" id="loginClose">&times;</button><small>IPAD 4 LOGIN</small><h2>Đăng nhập tài khoản</h2><p>Dùng username hoặc email và mật khẩu.</p>
-    <form id="loginForm"><label>Tài khoản<input name="email" autocomplete="username" required></label><label>Mật khẩu<input type="password" name="password" autocomplete="current-password" required></label><p class="error" id="loginError" style="display:none"></p><button type="submit" id="loginSubmit">Đăng nhập</button></form>
-  </section>
+    <div class="toolbar">
+      <input id="searchBox" type="text" placeholder="Tìm trong tài liệu hiện tại">
+    </div>
+
+    <input id="docTitle" class="doc-title" value="Tài liệu mẫu iPad 4">
+
+    <div class="page-nav">
+      <button class="prevBtn">← Trước</button>
+      <span class="page-label">Trang 1 / 1</span>
+      <button class="nextBtn">Sau →</button>
+      <button class="bookmarkBtn">🔖 Dấu trang</button>
+    </div>
+
+    <textarea id="editor">パイロットインジェクタから微量（熱量比1%以下）の液体燃料を噴射し副室内のガスを着火する。
+
+パイロット燃料は微量だが点火プラグに比し約8000倍という強力な着火エネルギーを有するため燃焼が安定し効率が向上する。</textarea>
+
+    <div class="action-row">
+      <button id="saveDocBtn">Lưu tài liệu</button>
+      <button id="pdfBtn">PDF / URL</button>
+      <button id="speakBtn">▶ Đọc đoạn chọn</button>
+      <button id="analyzeBtn2" class="primary" disabled>Phân tích đoạn chọn</button>
+    </div>
+
+    <div class="page-nav">
+      <button class="prevBtn">← Trước</button>
+      <span class="page-label">Trang 1 / 1</span>
+      <button class="nextBtn">Sau →</button>
+      <button class="bookmarkBtn">🔖 Dấu trang</button>
+    </div>
+
+    <div id="analysisPanel" class="hidden">
+      <h3>Phân tích đoạn chọn</h3>
+      <div class="block"><b>Đoạn gốc</b><div id="sourceText"></div></div>
+      <div class="block"><b>Hiragana</b><div id="hiraganaText"></div></div>
+      <div class="block"><b>Nghĩa tiếng Việt</b><div id="translationVi"></div></div>
+      <div class="block"><b>Nghĩa tiếng Anh</b><div id="translationEn"></div></div>
+      <div class="block"><b>Từ vựng</b><div id="wordList"></div></div>
+      <div class="action-row">
+        <button id="saveAnalysisBtn">＋ Lưu để ôn</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="memoryView" class="panel hidden">
+    <h2>Từ và đoạn đã lưu</h2>
+    <input id="memorySearch" class="doc-title" placeholder="Tìm từ/câu đã lưu">
+    <div id="memoryList"></div>
+  </div>
+
+  <div id="libraryView" class="panel hidden">
+    <div class="library">
+      <h3>Thư viện tài liệu</h3>
+      <div class="action-row">
+        <button id="newDocBtn">＋ Tài liệu mới</button>
+        <button id="homeBtn">⌂ Trang chủ</button>
+      </div>
+      <div id="docList"></div>
+    </div>
+  </div>
 </div>
 
-<script src="/anhmedia.vn/ipad4/japanese-reader.js?v=20260818-resource-url-5"></script>
+<div id="waitOverlay">
+  <div class="modal-card">
+    <div class="spinner"></div>
+    <h3>Đang phân tích…</h3>
+    <div class="small">Đang phân tích đoạn gốc:</div>
+    <div id="waitText" class="block"></div>
+    <div>Thời gian: <b id="waitSeconds">0</b> giây</div>
+    <div class="small">Không thể thao tác trang cho đến khi hoàn tất.</div>
+  </div>
+</div>
+
+<div id="pdfModal">
+  <div class="modal-card">
+    <h3>Trích xuất PDF</h3>
+    <div class="small">Nhập User ID và Token OCR. Bạn có thể tải file hoặc dùng URL công khai.</div>
+    <label>User ID</label>
+    <input id="ocrUser" type="text" autocomplete="username">
+    <label>Token OCR</label>
+    <input id="ocrToken" type="password" autocomplete="current-password">
+    <label>URL PDF/ảnh công khai</label>
+    <input id="pdfUrl" type="text" placeholder="https://...">
+    <input id="pdfFile" type="file" accept="application/pdf,image/png,image/jpeg">
+    <div id="pdfError" class="small"></div>
+    <button id="pdfCancelBtn">Hủy</button>
+    <button id="pdfUrlBtn" class="primary">Tải từ URL</button>
+    <button id="pdfFileBtn" class="primary">Tải file đã chọn</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="/anhmedia.vn/js/japanese-reader-ipad4-lite.js?v=20260820-1"></script>
 </body>
 </html>
