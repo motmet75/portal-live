@@ -36,6 +36,7 @@
   let readerScrollTop = 0;
   let memoryScrollTop = 0;
   let pendingPdfAuth = false;
+  let pdfAuthPickerOpening = false;
 
   function setLibraryOpen(open) {
     root.classList.toggle('is-library-open', open);
@@ -752,30 +753,76 @@
     }
   }
 
-  function confirmPdfAuth() {
-    const user = String($('[data-pdf-auth-user]')?.value || '').trim();
-    const token = String($('[data-pdf-auth-token]')?.value || '').trim();
-    const error = $('[data-pdf-auth-error]');
+  function confirmPdfAuth(event) {
+    if (pdfAuthPickerOpening) return;
+    pdfAuthPickerOpening = true;
+    window.setTimeout(() => { pdfAuthPickerOpening = false; }, 700);
+
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    const userField = document.querySelector('[data-pdf-auth-user]');
+    const tokenField = document.querySelector('[data-pdf-auth-token]');
+    const error = document.querySelector('[data-pdf-auth-error]');
+    const fileInput = document.getElementById('jp-file');
+
+    const user = String(userField ? userField.value : '').trim();
+    const token = String(tokenField ? tokenField.value : '').trim();
 
     if (!user || !token) {
       if (error) {
         error.textContent = 'Vui lòng nhập đầy đủ User ID và Token OCR.';
         error.hidden = false;
       }
+      pdfAuthPickerOpening = false;
       return;
     }
 
-    $('[data-user-id]').value = user;
-    $('[data-token-id]').value = token;
+    const hiddenUser = document.querySelector('[data-user-id]');
+    const hiddenToken = document.querySelector('[data-token-id]');
+    if (hiddenUser) hiddenUser.value = user;
+    if (hiddenToken) hiddenToken.value = token;
 
     try {
       sessionStorage.setItem('anhmedia.jp-reader.ocr-user', user);
       sessionStorage.setItem('anhmedia.jp-reader.ocr-token', token);
     } catch (_) {}
 
-    setPdfAuthOpen(false);
+    if (error) error.hidden = true;
+
+    /*
+     * Keep this in the SAME synchronous user click.
+     * Safari may reject fileInput.click() if the input is display:none.
+     * The HTML now keeps it visually hidden instead.
+     */
     pendingPdfAuth = true;
-    $('#jp-file').click();
+
+    if (!fileInput) {
+      if (error) {
+        error.textContent = 'Không tìm thấy bộ chọn PDF.';
+        error.hidden = false;
+      }
+      pdfAuthPickerOpening = false;
+      return;
+    }
+
+    try {
+      if (typeof fileInput.showPicker === 'function') {
+        fileInput.showPicker();
+      } else {
+        fileInput.click();
+      }
+
+      setPdfAuthOpen(false);
+    } catch (pickerError) {
+      if (error) {
+        error.textContent = 'Safari chưa mở được bộ chọn PDF. Hãy chạm lại nút Tiếp tục chọn PDF.';
+        error.hidden = false;
+      }
+      pdfAuthPickerOpening = false;
+    }
   }
 
   async function extractFile(file) {
@@ -882,7 +929,14 @@
   $$('[data-pdf-auth-close], [data-pdf-auth-cancel]').forEach(button => {
     button.addEventListener('click', () => setPdfAuthOpen(false));
   });
-  $('[data-pdf-auth-confirm]')?.addEventListener('click', confirmPdfAuth);
+  const pdfAuthConfirmButton = document.querySelector('[data-pdf-auth-confirm]');
+  if (pdfAuthConfirmButton) {
+    pdfAuthConfirmButton.addEventListener('click', confirmPdfAuth, false);
+    pdfAuthConfirmButton.addEventListener('touchend', event => {
+      event.preventDefault();
+      confirmPdfAuth(event);
+    }, false);
+  }
 
   $('#jp-file').addEventListener('change', event => extractFile(event.target.files[0]));
   analyzeButton.addEventListener('click', analyzeSelection);
