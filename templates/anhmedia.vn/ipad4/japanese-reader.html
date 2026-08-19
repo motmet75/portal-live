@@ -132,38 +132,30 @@
 
 
   <style>
-    .word{
-      cursor:pointer;
-      -webkit-tap-highlight-color:rgba(49,95,85,.18);
+    .word{cursor:pointer;-webkit-tap-highlight-color:rgba(49,95,85,.18)}
+    .word:active{background:#eef7f3}
+    .word .word-cell{display:block;margin-bottom:7px;padding:8px;border:1px solid #e2e7e4;border-radius:6px;background:#f8faf8}
+    .word .surface{display:block;font-size:23px;line-height:1.35}
+    .word .reading{display:block;margin-top:5px;color:#9a5548;font-size:13px;line-height:1.4}
+    .word .reading b{display:inline;font-size:10px;color:#6c7774}
+  </style>
+
+
+  <style>
+    .offline-status{
+      padding:6px 8px;
+      border-bottom:1px solid #d8e0dd;
+      background:#f5f7f4;
+      color:#315f55;
+      font-size:11px;
+      text-align:center;
     }
-    .word:active{
-      background:#eef7f3;
+    .offline-status.offline{
+      background:#fff1cf;
+      color:#795a0c;
+      font-weight:bold;
     }
-    .word .word-cell{
-      display:block;
-      margin-bottom:7px;
-      padding:8px;
-      border:1px solid #e2e7e4;
-      border-radius:6px;
-      background:#f8faf8;
-    }
-    .word .surface{
-      display:block;
-      font-size:23px;
-      line-height:1.35;
-    }
-    .word .reading{
-      display:block;
-      margin-top:5px;
-      color:#9a5548;
-      font-size:13px;
-      line-height:1.4;
-    }
-    .word .reading b{
-      display:inline;
-      font-size:10px;
-      color:#6c7774;
-    }
+    .doc-item .small{line-height:1.45}
   </style>
 
 </head>
@@ -173,7 +165,7 @@
     <div class="brand">言 Kotoba Studio Lite</div>
     <div class="top-actions">
       <button id="googleBtn">Google</button>
-      <button id="analyzeBtn" type="button" disabled>Phân tích</button>
+      <button id="analyzeBtn" disabled>Phân tích</button>
       <button id="logoutBtn">⎋ Thoát</button>
     </div>
     <div class="clear"></div>
@@ -250,7 +242,7 @@
     <div class="library">
       <h3>Thư viện tài liệu</h3><div class="small">Dùng chung tài liệu đã lưu với bản đọc thông thường trên cùng trình duyệt.</div>
       <div class="action-row">
-        <button id="newDocBtn">＋ Tài liệu mới</button>
+        <button id="newDocBtn">＋ Tài liệu mới</button><button id="offlineBackupBtn">Sao lưu offline</button>
         <button id="homeBtn">⌂ Trang chủ</button>
       </div>
       <div id="docList"></div>
@@ -295,6 +287,7 @@
 
     var STORAGE_KEY='anhmedia.jp-reader.v1';
     var LEGACY_IPAD_STORAGE_KEY='anhmedia.jp-reader.ipad4.v1';
+    var OFFLINE_META_KEY='anhmedia.jp-reader.offline-meta.v1';
     var appState={documents:[],analyses:[],savedWords:[]};
     var currentPages=[];
     var currentPage=0;
@@ -378,12 +371,25 @@
       try{localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));}catch(e){}
     }
     function saveState(){
+      /*
+       * OFFLINE FIRST:
+       * Save immediately in localStorage. Server availability never blocks this.
+       */
       try{
         localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));
         localStorage.setItem(LEGACY_IPAD_STORAGE_KEY,JSON.stringify(appState));
-      }catch(e){}
+        localStorage.setItem(OFFLINE_META_KEY,JSON.stringify({
+          savedAt:new Date().toISOString(),
+          documents:appState.documents.length,
+          analyses:appState.analyses.length,
+          savedWords:appState.savedWords.length
+        }));
+      }catch(e){
+        toast('Không lưu được vào bộ nhớ Safari. Có thể bộ nhớ đã đầy.');
+      }
       renderLibrary();
       renderMemory();
+      updateOfflineStatus();
     }
     function xhr(method,url,body,headers,done){
       var x=new XMLHttpRequest();
@@ -396,6 +402,44 @@
       try{x.send(body||null);}catch(e){done(0,'',x);}
     }
     function jsonParse(s){try{return JSON.parse(s);}catch(e){return null;}}
+
+    function updateOfflineStatus(){
+      var el=id('offlineStatus');
+      if(!el)return;
+      var online=true;
+      if(typeof navigator.onLine!=='undefined')online=navigator.onLine;
+      var meta=null;
+      try{
+        var raw=localStorage.getItem(OFFLINE_META_KEY);
+        if(raw)meta=JSON.parse(raw);
+      }catch(e){}
+      var count=appState.documents?appState.documents.length:0;
+      if(online){
+        el.innerHTML='Offline library: '+count+' tài liệu đã lưu trên máy';
+        el.className='offline-status online';
+      }else{
+        el.innerHTML='ĐANG OFFLINE · '+count+' tài liệu vẫn dùng được';
+        el.className='offline-status offline';
+      }
+    }
+    function exportOfflineBackup(){
+      var data='';
+      try{data=JSON.stringify(appState,null,2);}catch(e){toast('Không tạo được bản sao lưu.');return;}
+      var textarea=document.createElement('textarea');
+      textarea.value=data;
+      textarea.setAttribute('readonly','readonly');
+      textarea.style.position='fixed';
+      textarea.style.left='-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try{
+        document.execCommand('copy');
+        toast('Đã sao chép bản sao lưu thư viện vào clipboard.');
+      }catch(e){
+        window.prompt('Sao chép nội dung backup này:',data);
+      }
+      document.body.removeChild(textarea);
+    }
 
     function renderQuota(){
       id('remaining').innerHTML=usageLoaded?String(quotaRemaining):'...';
@@ -487,14 +531,26 @@
       if(currentDocId===null)currentDocId=new Date().getTime();
       var doc=findDoc(currentDocId);
       if(!doc){
-        doc={id:currentDocId,title:title,pages:currentPages,bookmarks:[],currentPage:currentPage,updatedAt:new Date().toISOString()};
+        doc={
+          id:currentDocId,
+          title:title,
+          pages:currentPages,
+          bookmarks:[],
+          currentPage:currentPage,
+          updatedAt:new Date().toISOString(),
+          offline:true
+        };
         appState.documents.unshift(doc);
       }else{
-        doc.title=title;doc.pages=currentPages;doc.currentPage=currentPage;doc.updatedAt=new Date().toISOString();
+        doc.title=title;
+        doc.pages=currentPages;
+        doc.currentPage=currentPage;
+        doc.updatedAt=new Date().toISOString();
+        doc.offline=true;
       }
       saveState();
       renderPage(currentPage);
-      toast('Đã lưu tài liệu.');
+      toast('Đã lưu tài liệu offline trên iPad.');
     }
     function addBookmark(){
       var doc=findDoc(currentDocId);
@@ -513,11 +569,11 @@
         pages=d.pages&&d.pages.length?d.pages:(d.html?[d.html]:['']);
         bookmarks=d.bookmarks||[];
         html+='<div class="doc-item"><b>'+esc(d.title||'Tài liệu')+'</b>'+
-                '<div class="small">'+pages.length+' trang · '+bookmarks.length+' dấu trang</div>'+
+                '<div class="small">'+pages.length+' trang · '+bookmarks.length+' dấu trang · OFFLINE</div>'+
                 '<button data-open-doc="'+esc(String(d.id))+'">Mở</button>'+
                 '<button data-del-doc="'+esc(String(d.id))+'">Xóa</button></div>';
       }
-      box.innerHTML=html||'<div class="small">Chưa có tài liệu đã lưu.</div>';
+      box.innerHTML=html||'<div class="small">Chưa có tài liệu offline.</div>';
     }
     function openDocument(docId){
       var d=findDoc(docId);
@@ -608,7 +664,7 @@
         en=w.meaningEn||w.meaning||w.translation||w[1]||'';
         saved=wordAlreadySaved(word,reading);
 
-        html+='<span class="word'+(saved?' saved':'')+'" data-speak-card-index="'+i+'" title="Chạm để đọc '+esc(word)+'">'+
+        html+='<span class="word'+(saved?' saved':'')+'" data-speak-card-index="'+i+'" title="Chạm để đọc">'+
                 '<span class="word-cell">'+
                 '<b class="surface">'+esc(word)+'</b>'+
                 '<span class="reading"><b>ひらがな:</b> '+esc(reading||'—')+'</span>'+
@@ -846,23 +902,26 @@
       renderPage(0);setView('reader');
     }
 
-    function bindAnalyzeButton(buttonId){
-      var b=id(buttonId);
-      if(!b)return;
-      b.onclick=function(e){
-        if(e&&e.preventDefault)e.preventDefault();
-        analyze();
-        return false;
-      };
-    }
-
     function bind(){
       id('editor').onmouseup=getSelectedText;
       id('editor').onkeyup=getSelectedText;
       id('editor').ontouchend=function(){setTimeout(getSelectedText,100);};
 
-      bindAnalyzeButton('analyzeBtn');
-      bindAnalyzeButton('analyzeBtn2');
+      id('analyzeBtn').onclick=analyze;
+      id('analyzeBtn2').onclick=function(e){
+        if(e&&e.preventDefault)e.preventDefault();
+        if(id('analyzeBtn')&&typeof id('analyzeBtn').onclick==='function'){
+          return id('analyzeBtn').onclick();
+        }
+        return false;
+      };
+      id('analyzeBtn2').ontouchend=function(e){
+        if(e&&e.preventDefault)e.preventDefault();
+        if(id('analyzeBtn')&&typeof id('analyzeBtn').onclick==='function'){
+          id('analyzeBtn').onclick();
+        }
+        return false;
+      };
       id('saveAnalysisBtn').onclick=saveAnalysis;
       id('speakBtn').onclick=speakSelection;
       id('saveDocBtn').onclick=saveDocument;
@@ -877,6 +936,7 @@
       id('memoryTab').onclick=function(){setView('memory');};
       id('libraryTab').onclick=function(){setView('library');};
       id('newDocBtn').onclick=newDocument;
+      id('offlineBackupBtn').onclick=exportOfflineBackup;
       id('homeBtn').onclick=function(){window.location.href='/';};
       id('memorySearch').onkeyup=renderMemory;
       id('searchBox').onkeydown=function(e){e=e||window.event;if((e.keyCode||e.which)===13)searchCurrent();};
@@ -891,33 +951,10 @@
       id('wordList').onclick=function(e){
         e=e||window.event;
         var t=e.target||e.srcElement;
-        var speakIndex=t.getAttribute?t.getAttribute('data-word-index'):null;
-        var saveIndex=t.getAttribute?t.getAttribute('data-save-word-index'):null;
-        var node=t;
-        var cardIndex=null;
-
-        if(speakIndex!==null&&speakIndex!==''){
-          if(e.stopPropagation)e.stopPropagation();
-          speakWordByIndex(parseInt(speakIndex,10));
-          return;
-        }
-
-        if(saveIndex!==null&&saveIndex!==''){
-          if(e.stopPropagation)e.stopPropagation();
-          saveWordByIndex(parseInt(saveIndex,10));
-          return;
-        }
-
-        while(node&&node!==id('wordList')){
-          if(node.getAttribute){
-            cardIndex=node.getAttribute('data-speak-card-index');
-            if(cardIndex!==null&&cardIndex!==''){
-              speakWordByIndex(parseInt(cardIndex,10));
-              return;
-            }
-          }
-          node=node.parentNode;
-        }
+        var speakIndex=t.getAttribute('data-word-index');
+        var saveIndex=t.getAttribute('data-save-word-index');
+        if(speakIndex!==null&&speakIndex!=='')speakWordByIndex(parseInt(speakIndex,10));
+        if(saveIndex!==null&&saveIndex!=='')saveWordByIndex(parseInt(saveIndex,10));
       };
 
       id('docList').onclick=function(e){
@@ -935,7 +972,12 @@
       currentPages=[id('editor').value];
       renderLibrary();renderMemory();renderPage(0);
       bind();
+      updateOfflineStatus();
       refreshQuota();
+    }
+    if(window.addEventListener){
+      window.addEventListener('online',updateOfflineStatus,false);
+      window.addEventListener('offline',updateOfflineStatus,false);
     }
     if(document.readyState==='loading'){
       document.addEventListener('DOMContentLoaded',init,false);
