@@ -33,6 +33,7 @@
   var syncInProgress=false;
   var syncQueued=false;
   var LAST_DOC_KEY='anhmedia.jp-reader.ipad4.last-doc.v1';
+  var DEVICE_ID_KEY='anhmedia.jp-reader.device-id.v1';
 
   function id(x){return document.getElementById(x);}
   function qsa(sel){return document.querySelectorAll(sel);}
@@ -43,6 +44,13 @@
   function show(el){removeClass(el,'hidden');}
   function hide(el){addClass(el,'hidden');}
   function toast(msg){var t=id('toast');t.innerHTML=esc(msg);t.style.display='block';clearTimeout(t._timer);t._timer=setTimeout(function(){t.style.display='none';},2600);}
+  function deviceId(){
+    var value='';
+    try{value=localStorage.getItem(DEVICE_ID_KEY)||'';}catch(e){}
+    if(!value){value='ipad-'+new Date().getTime()+'-'+Math.floor(Math.random()*1000000);try{localStorage.setItem(DEVICE_ID_KEY,value);}catch(e){}}
+    return value;
+  }
+  function newDocumentId(){return deviceId()+'-'+new Date().getTime();}
 
   function normalizeState(v){
     if(!v)v={};
@@ -112,11 +120,12 @@
 
     try{localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));}catch(e){}
   }
-  function saveState(){
+  function saveState(skipDocumentCapture){
     /*
      * OFFLINE FIRST:
      * Save immediately in localStorage. Server availability never blocks this.
      */
+    if(!skipDocumentCapture)captureOpenDocumentForSync();
     try{
       localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));
       localStorage.setItem(LEGACY_IPAD_STORAGE_KEY,JSON.stringify(appState));
@@ -133,6 +142,16 @@
     renderMemory();
     updateOfflineStatus();
     syncStateToServer();
+  }
+  function captureOpenDocumentForSync(){
+    var editor=id('editor'),doc,title;
+    if(!editor||!currentPages||!currentPages.length)return;
+    storeCurrentPage();
+    if(currentDocId===null)currentDocId=newDocumentId();
+    doc=findDoc(currentDocId);
+    title=trim(id('docTitle').value)||'Tài liệu chưa đặt tên';
+    if(!doc){doc={id:currentDocId,bookmarks:[],offline:true};appState.documents.unshift(doc);}
+    doc.title=title;doc.pages=clonePages(currentPages);doc.currentPage=currentPage;doc.updatedAt=new Date().toISOString();doc.offline=true;
   }
   function mergeServerState(localState,serverState){
     function mergeByDate(localItems,serverItems,keyFn,dateFn){
@@ -543,7 +562,7 @@
   function saveDocument(){
     storeCurrentPage();
     var title=trim(id('docTitle').value)||'Tài liệu chưa đặt tên';
-    if(currentDocId===null)currentDocId=new Date().getTime();
+    if(currentDocId===null)currentDocId=newDocumentId();
     var doc=findDoc(currentDocId);
     if(!doc){
       doc={
@@ -563,7 +582,7 @@
       doc.updatedAt=new Date().toISOString();
       doc.offline=true;
     }
-    saveState();
+    saveState(true);
     clearDraftForDoc(currentDocId);
     undoStacks={};redoStacks={};
     resetHistoryForPage();
@@ -821,7 +840,7 @@
     for(i=0;i<appState.documents.length;i++)if(String(appState.documents[i].id)!==String(docId))out.push(appState.documents[i]);
     appState.documents=out;
     if(String(currentDocId)===String(docId))currentDocId=null;
-    saveState();
+    saveState(true);
   }
   function renderMemory(){
     var q=trim(id('memorySearch').value).toLowerCase(),html='',i,a,w,p,word,reading,romaji,vi,en,h;
@@ -992,10 +1011,19 @@
   }
   function renderAnalysis(a){
     currentAnalysis=a;
+    id('originalFullText').innerHTML=esc(a.source||selectedText);
     id('hiraganaText').innerHTML=esc(a.hira||a.hiragana||'');
     id('translationVi').innerHTML=esc(a.translationVi||'');
     id('translationEn').innerHTML=esc(a.translation||'');
-    var words=a.words||a.vocabulary||[],html='',readingHtml='',i,w,word,reading,romaji,vi,en,saved;
+    var words=a.words||a.vocabulary||[],tokens=a.tokens||words,html='',readingHtml='',i,w,word,reading,romaji,vi,en,saved;
+    for(i=0;i<tokens.length;i++){
+      w=tokens[i];word=w.surface||w.word||w[0]||'';reading=w.reading||w.hiragana||'';romaji=w.romaji||w.pronunciation||'';
+      readingHtml+='<span class="reading-unit" data-reading-token-index="'+i+'" title="Chạm để nghe; giữ để chọn chữ">'+
+          '<span class="unit-hira">'+esc(reading||'　')+'</span>'+
+          '<span class="unit-word">'+esc(word)+'</span>'+
+          '<span class="unit-romaji">Phát âm: '+esc(romaji||'—')+'</span>'+
+          '</span>';
+    }
     for(i=0;i<words.length;i++){
       w=words[i];
       word=w.word||w.surface||w[0]||'';
@@ -1004,12 +1032,6 @@
       vi=w.meaningVi||w.translationVi||'';
       en=w.meaningEn||w.meaning||w.translation||w[1]||'';
       saved=wordAlreadySaved(word,reading);
-
-      readingHtml+='<span class="reading-unit" data-reading-word-index="'+i+'" title="Chạm để nghe từ này">'+
-          '<span class="unit-hira">'+esc(reading||'　')+'</span>'+
-          '<span class="unit-word">'+esc(word)+'</span>'+
-          '<span class="unit-romaji">Phát âm: '+esc(romaji||'—')+'</span>'+
-          '</span>';
 
       html+='<span class="word'+(saved?' saved':'')+'" data-speak-card-index="'+i+'" title="Chạm để đọc">'+
           '<span class="word-cell">'+
@@ -1145,6 +1167,7 @@
   function openSavedAnalysis(index){
     var a=appState.analyses[index];
     if(!a)return;
+    reopenLearningDocument(a);
     currentAnalysis=a;selectedText=a.source||'';
     renderAnalysis(a);setView('reader');
     setTimeout(function(){try{id('analysisPanel').scrollIntoView(true);}catch(e){}},50);
@@ -1152,9 +1175,18 @@
   function openSavedPhrase(index){
     var p=appState.savedPhrases[index];
     if(!p||!p.analysis)return;
+    reopenLearningDocument(p);
     currentAnalysis=p.analysis;selectedText=p.source||'';
     renderAnalysis(p.analysis);setView('reader');
     setTimeout(function(){try{id('analysisPanel').scrollIntoView(true);}catch(e){}},50);
+  }
+  function reopenLearningDocument(item){
+    var doc=findDoc(item.documentId||(item.analysis&&item.analysis.documentId));
+    if(!doc)return;
+    currentDocId=doc.id;currentPages=doc.pages&&doc.pages.length?clonePages(doc.pages):[String(doc.html||'')];
+    currentPage=parseInt(item.pageIndex,10)||parseInt((item.analysis&&item.analysis.pageIndex),10)||0;
+    if(currentPage<0||currentPage>=currentPages.length)currentPage=0;
+    id('docTitle').value=doc.title||'Tài liệu';renderPage(currentPage,true);
   }
 
   function speakWordByIndex(index){
@@ -1163,6 +1195,13 @@
     var w=words[index];
     if(!w)return;
     speakJapaneseText(w.reading||w.word||w[0]||'');
+  }
+  function speakReadingTokenByIndex(index){
+    if(!currentAnalysis)return;
+    var tokens=currentAnalysis.tokens||currentAnalysis.words||currentAnalysis.vocabulary||[];
+    var token=tokens[index];
+    if(!token)return;
+    speakJapaneseText(token.surface||token.word||token.reading||token[0]||'');
   }
   function wordAlreadySaved(word,reading){
     var i,w;
@@ -1175,6 +1214,7 @@
   }
   function saveWordByIndex(index){
     if(!currentAnalysis)return;
+    captureOpenDocumentForSync();
     var words=currentAnalysis.words||currentAnalysis.vocabulary||[];
     var w=words[index];
     if(!w)return;
@@ -1190,7 +1230,7 @@
       romaji:w.romaji||w.pronunciation||'',
       meaningVi:w.meaningVi||'',
       meaningEn:w.meaningEn||w.meaning||w[1]||'',
-      source:currentAnalysis.source||'',
+      source:currentAnalysis.source||'',documentId:currentDocId,pageIndex:currentPage,
       savedAt:new Date().toISOString()
     });
     saveState();
@@ -1200,6 +1240,9 @@
 
   function saveAnalysis(){
     if(!currentAnalysis)return;
+    captureOpenDocumentForSync();
+    currentAnalysis.documentId=currentDocId;
+    currentAnalysis.pageIndex=currentPage;
     var source=currentAnalysis.source||selectedText||'',i,w,word,reading,exists=false;
     for(i=0;i<appState.analyses.length;i++){
       if(String(appState.analyses[i].source||'')===String(source)){exists=true;break;}
@@ -1219,7 +1262,7 @@
           word:word,reading:reading,romaji:w.romaji||w.pronunciation||'',
           meaningVi:w.meaningVi||w.translationVi||'',
           meaningEn:w.meaningEn||w.meaning||w.translation||w[1]||'',
-          source:source,savedAt:new Date().toISOString()
+          source:source,documentId:currentDocId,pageIndex:currentPage,savedAt:new Date().toISOString()
         });
       }
     }
@@ -1229,7 +1272,7 @@
         hiragana:analysisReading(currentAnalysis),romaji:analysisRomaji(currentAnalysis),
         translationVi:currentAnalysis.translationVi||'',
         translationEn:currentAnalysis.translation||currentAnalysis.translationEn||'',
-        analysis:currentAnalysis,savedAt:new Date().toISOString()
+        analysis:currentAnalysis,documentId:currentDocId,pageIndex:currentPage,savedAt:new Date().toISOString()
       });
     }
     saveState();
@@ -1609,10 +1652,11 @@
     };
     id('sourceText').onclick=function(e){
       e=e||window.event;
+      try{if(window.getSelection&&String(window.getSelection()).length)return;}catch(ignore){}
       var t=e.target||e.srcElement;
-      while(t&&t!==id('sourceText')&&(!t.getAttribute||t.getAttribute('data-reading-word-index')===null))t=t.parentNode;
+      while(t&&t!==id('sourceText')&&(!t.getAttribute||t.getAttribute('data-reading-token-index')===null))t=t.parentNode;
       if(!t||t===id('sourceText'))return;
-      speakWordByIndex(parseInt(t.getAttribute('data-reading-word-index'),10));
+      speakReadingTokenByIndex(parseInt(t.getAttribute('data-reading-token-index'),10));
     };
 
     id('docList').onclick=function(e){

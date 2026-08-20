@@ -12,6 +12,7 @@
   const storageKey = 'anhmedia.jp-reader.v1';
   const draftStorageKey = 'anhmedia.jp-reader.draft.v1';
   const displayStorageKey = 'anhmedia.jp-reader.display.v1';
+  const deviceIdStorageKey = 'anhmedia.jp-reader.device-id.v1';
   const maxSelectionCharacters = 500;
   let dailyAnalysisLimit = null;
   let serverRemaining = null;
@@ -87,7 +88,29 @@
     try { const value = JSON.parse(localStorage.getItem(storageKey)) || {}; return { documents: value.documents || [], memories: value.memories || [], analyses: value.analyses || [], savedWords: value.savedWords || [], savedPhrases: value.savedPhrases || [] }; }
     catch (_) { return { documents: [], memories: [], analyses: [], savedWords: [], savedPhrases: [] }; }
   }
-  function persist() {
+  function deviceId() {
+    let value = localStorage.getItem(deviceIdStorageKey);
+    if (!value) { value = `web-${Date.now()}-${Math.floor(Math.random() * 1000000)}`; localStorage.setItem(deviceIdStorageKey, value); }
+    return value;
+  }
+  function newDocumentId() { return `${deviceId()}-${Date.now()}`; }
+  function captureOpenDocumentForSync() {
+    if (!editor || !currentPages?.length) return;
+    storeCurrentPage();
+    if (!currentDocumentId) currentDocumentId = newDocumentId();
+    const existing = state.documents.find(item => item.id === currentDocumentId);
+    const documentState = {
+      id: currentDocumentId,
+      title: $('[data-document-title]').value.trim() || 'Tài liệu chưa đặt tên',
+      pages: [...currentPages],
+      currentPage: currentPageIndex,
+      bookmarks: existing?.bookmarks || [],
+      updatedAt: new Date().toISOString()
+    };
+    state.documents = [documentState, ...state.documents.filter(item => item.id !== currentDocumentId)];
+  }
+  function persist(skipDocumentCapture = false) {
+    if (!skipDocumentCapture) captureOpenDocumentForSync();
     localStorage.setItem(storageKey, JSON.stringify(state));
     renderDocuments();
     renderMemory();
@@ -212,14 +235,14 @@
       return;
     }
 
-    if (remainingEl) remainingEl.textContent = '∞';
-    if (limitEl) limitEl.textContent = '∞';
+    if (remainingEl) remainingEl.textContent = serverRemaining === Number.POSITIVE_INFINITY ? '∞' : String(serverRemaining);
+    if (limitEl) limitEl.textContent = dailyAnalysisLimit === Number.POSITIVE_INFINITY ? '∞' : String(dailyAnalysisLimit);
 
     analyzeButton.disabled =
         analysisInProgress ||
         !selectedText ||
         selectedText.length > maxSelectionCharacters ||
-        false;
+        Number(serverRemaining) <= 0;
 
     scheduleQuotaPollIfNeeded();
   }
@@ -779,7 +802,7 @@
     $('[data-inspector-empty]').hidden = true; $('[data-analysis]').hidden = false;
     $('[data-kanji-reading]').innerHTML = currentAnalysis.ruby || escapeHtml(currentAnalysis.annotatedText);
     $('[data-hiragana]').textContent = currentAnalysis.hira || currentAnalysis.hiragana;
-    $('[data-spelling-line]').innerHTML = (currentAnalysis.tokens || []).map((item, index) => { const surface = item.surface || item[0] || ''; const reading = item.reading || (/[ぁ-んー]+/.test(surface) ? surface : '—'); const romaji = item.romaji || item[1] || ''; return `<button class="jp-spelling" type="button" data-speak-token="${index}" aria-label="Nghe cách đọc ${escapeHtml(surface)}"><b>${escapeHtml(surface)}</b><small>${escapeHtml(reading)}${romaji ? ` · ${escapeHtml(romaji)}` : ''}</small></button>`; }).join('');
+    $('[data-spelling-line]').innerHTML = (currentAnalysis.tokens || []).map((item, index) => { const surface = item.surface || item[0] || ''; const reading = item.reading || (/[ぁ-んァ-ヶー]+/.test(surface) ? surface : '—'); const romaji = item.romaji || item[1] || ''; return `<button class="jp-spelling" type="button" data-speak-token="${index}" aria-label="Nghe cách đọc ${escapeHtml(surface)}"><small class="jp-token-hira">${escapeHtml(reading)}</small><b>${escapeHtml(surface)}</b><small class="jp-token-romaji">Phát âm: ${escapeHtml(romaji || '—')}</small></button>`; }).join('') || `<span>${escapeHtml(currentAnalysis.source || '')}</span>`;
     $('[data-translation]').textContent = currentAnalysis.translation;
     $('[data-translation-vi]').textContent = currentAnalysis.translationVi || 'Chưa có bản dịch tiếng Việt cho kết quả cũ.';
     $('[data-tokens]').innerHTML = (currentAnalysis.tokens || []).map(item => { const surface = item[0] || item.surface || ''; const word = analysisWords.find(entry => (entry.word || entry[0]) === surface || (entry.reading && entry.reading === item.reading)); const romaji = item.romaji || item[1] || word?.romaji || ''; const meaningEn = item.meaningEn || word?.meaningEn || word?.meaning || ''; const meaningVi = item.meaningVi || word?.meaningVi || ''; return `<span class="jp-token"><b>${escapeHtml(surface)}</b><small>${escapeHtml(romaji)}</small><em>${escapeHtml(meaningEn)}${meaningVi ? ` · ${escapeHtml(meaningVi)}` : ''}</em></span>`; }).join('');
@@ -790,7 +813,7 @@
     updateShowAnalysisToggle();
   }
 
-  function prepareAnalysisResult(result) { const existing = (state.analyses || []).find(item => item.source === result.source && item.documentId === currentDocumentId && item.pageIndex === currentPageIndex); result.sessionId = existing?.sessionId || `session-${Date.now()}`; result.savedAt = new Date().toISOString(); result.documentId = currentDocumentId; result.pageIndex = currentPageIndex; }
+  function prepareAnalysisResult(result) { captureOpenDocumentForSync(); const existing = (state.analyses || []).find(item => item.source === result.source && item.documentId === currentDocumentId && item.pageIndex === currentPageIndex); result.sessionId = existing?.sessionId || `session-${Date.now()}`; result.savedAt = new Date().toISOString(); result.documentId = currentDocumentId; result.pageIndex = currentPageIndex; }
   function saveAnalysisResult(result) { prepareAnalysisResult(result); state.analyses = [{ ...result }, ...(state.analyses || []).filter(item => item.sessionId !== result.sessionId)].slice(0, 100); persist(); }
 
   function discardCurrentAnalysis() { if (!currentAnalysis?.sessionId) return; const sessionId = currentAnalysis.sessionId; state.analyses = state.analyses.filter(item => item.sessionId !== sessionId); state.memories = state.memories.filter(item => item.sessionId !== sessionId); state.savedWords = state.savedWords.filter(item => item.sessionId !== sessionId); persist(); hasUnsavedAnalysis = false; }
@@ -894,12 +917,12 @@
       if (response.status === 401) { $('[data-connection-panel]').hidden = false; throw new Error('Hãy đăng nhập Google hoặc nhập token máy chủ.'); }
       const rawBody = await response.text(); let data = {}; try { data = JSON.parse(rawBody); } catch (_) { data = { error: /^\s*<(!doctype|html)/i.test(rawBody) ? `Máy chủ gặp lỗi nội bộ (HTTP ${response.status}). Vui lòng thử lại sau hoặc liên hệ quản trị viên.` : rawBody }; }
       if (!response.ok || data.status !== 'success') throw new Error(data.error || 'Không thể trích xuất');
-      currentDocumentId = Date.now(); currentPages = splitIntoPages(data.text || ''); currentPageIndex = 0; $('[data-document-title]').value = file.name.replace(/\.pdf$/i, ''); renderPage(0, false);
+      currentDocumentId = newDocumentId(); currentPages = splitIntoPages(data.text || ''); currentPageIndex = 0; $('[data-document-title]').value = file.name.replace(/\.pdf$/i, ''); renderPage(0, false);
       state.documents.unshift({ id: currentDocumentId, title: $('[data-document-title]').value, pages: currentPages, currentPage: 0, bookmarks: [], updatedAt: new Date().toISOString() }); persist(); renderPage(0, false); toast(`Đã chia tài liệu thành ${currentPages.length} trang học.`);
     } catch (error) { toast(error.message); } finally { progress.hidden = true; $('#jp-file').value = ''; }
   }
 
-  function saveDocument() { storeCurrentPage(); const title = $('[data-document-title]').value.trim() || 'Tài liệu chưa đặt tên'; const id = currentDocumentId || Date.now(); const existing = state.documents.find(item => item.id === id); currentDocumentId = id; const data = { id, title, pages: currentPages, currentPage: currentPageIndex, bookmarks: existing?.bookmarks || [], updatedAt: new Date().toISOString() }; state.documents = [data, ...state.documents.filter(item => item.id !== id)]; draftDirty = false; localStorage.removeItem(draftStorageKey); persist(); renderPage(currentPageIndex, false); toast(`Đã lưu trang ${currentPageIndex + 1}/${currentPages.length} vào tài khoản.`); }
+  function saveDocument() { storeCurrentPage(); const title = $('[data-document-title]').value.trim() || 'Tài liệu chưa đặt tên'; const id = currentDocumentId || newDocumentId(); const existing = state.documents.find(item => item.id === id); currentDocumentId = id; const data = { id, title, pages: currentPages, currentPage: currentPageIndex, bookmarks: existing?.bookmarks || [], updatedAt: new Date().toISOString() }; state.documents = [data, ...state.documents.filter(item => item.id !== id)]; draftDirty = false; localStorage.removeItem(draftStorageKey); persist(); renderPage(currentPageIndex, false); toast(`Đã lưu trang ${currentPageIndex + 1}/${currentPages.length} vào tài khoản.`); }
   function renderDocuments() { $('[data-document-list]').innerHTML = state.documents.slice(0, 8).map(item => { const bookmarks = normalizedBookmarks(item); const pages = [...new Set(bookmarks.map(mark => mark.page))].sort((a, b) => a - b); const tree = pages.map(page => { const marks = bookmarks.filter(mark => mark.page === page); return `<details class="jp-bookmark-page"><summary>Trang ${page + 1}<b>${marks.length}</b></summary><div>${marks.map(mark => `<article><button class="jp-bookmark-open" type="button" data-bookmark-document="${item.id}" data-bookmark-id="${escapeHtml(mark.id)}"><span>${escapeHtml(mark.note || 'Không có ghi chú')}</span>${mark.excerpt ? `<small>${escapeHtml(mark.excerpt)}</small>` : ''}</button><button class="jp-bookmark-delete" type="button" data-delete-bookmark="${escapeHtml(mark.id)}" data-bookmark-document="${item.id}" aria-label="Xóa dấu trang">×</button></article>`).join('')}</div></details>`; }).join(''); return `<article class="jp-document-row"><button class="jp-document" type="button" data-document-id="${item.id}"><strong>${escapeHtml(item.title)}</strong><small>${(item.pages || [item.html]).length} trang · ${bookmarks.length} dấu đoạn · ${new Date(item.updatedAt).toLocaleDateString('vi-VN')}</small></button><button class="jp-document-delete" type="button" data-delete-document="${item.id}" aria-label="Xóa ${escapeHtml(item.title)}" title="Xóa tài liệu">×</button>${bookmarks.length ? `<details class="jp-bookmark-tree"><summary>Dấu trang theo trang <b>${bookmarks.length}</b></summary><div class="jp-bookmark-list">${tree}</div></details>` : ''}</article>`; }).join(''); }
   function addBookmark(note) { const doc = state.documents.find(item => item.id === currentDocumentId); if (!doc) { toast('Hãy tải lên hoặc lưu tài liệu trước khi đánh dấu đoạn.'); return; } const cleanNote = String(note || '').trim(); if (!cleanNote) { toast('Nhập ghi chú để nhớ lý do đánh dấu đoạn này.'); return; } const id = `mark-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`; const anchorId = `anchor-${id}`; const excerpt = bookmarkExcerpt || editor.querySelector('p')?.innerText?.trim().slice(0, 300) || editor.innerText.trim().slice(0, 300); const anchor = document.createElement('span'); anchor.dataset.jpBookmarkAnchor = anchorId; anchor.className = 'jp-text-bookmark'; anchor.contentEditable = 'false'; anchor.title = cleanNote; anchor.textContent = '🔖'; if (bookmarkRange && editor.contains(bookmarkRange.commonAncestorContainer)) { const position = bookmarkRange.cloneRange(); position.collapse(true); position.insertNode(anchor); } else { (editor.querySelector('p') || editor).prepend(anchor); } storeCurrentPage(); normalizedBookmarks(doc).push({ id, anchorId, page: currentPageIndex, note: cleanNote.slice(0, 240), excerpt, savedAt: new Date().toISOString() }); doc.pages = currentPages; doc.currentPage = currentPageIndex; doc.updatedAt = new Date().toISOString(); persist(); renderPage(currentPageIndex, false); toast(`Đã lưu ghi chú tại trang ${currentPageIndex + 1}.`); }
   function deleteBookmark(documentId, bookmarkId) { const doc = state.documents.find(item => item.id === documentId); if (!doc) return; const mark = normalizedBookmarks(doc).find(item => item.id === bookmarkId); if (mark?.anchorId && doc.pages?.[mark.page]) { const holder = document.createElement('div'); holder.innerHTML = doc.pages[mark.page]; holder.querySelector(`[data-jp-bookmark-anchor="${mark.anchorId}"]`)?.remove(); doc.pages[mark.page] = holder.innerHTML; if (currentDocumentId === documentId && currentPageIndex === mark.page) currentPages[mark.page] = holder.innerHTML; } doc.bookmarks = normalizedBookmarks(doc).filter(item => item.id !== bookmarkId); persist(); if (currentDocumentId === documentId) renderPage(currentPageIndex, false); toast('Đã xóa dấu đoạn.'); }
@@ -912,7 +935,7 @@
     if (!doc || !window.confirm(`Xóa tài liệu “${doc.title}” khỏi lịch sử?`)) return;
     state.documents = state.documents.filter(item => item.id !== id);
     if (currentDocumentId === id) currentDocumentId = null;
-    persist();
+    persist(true);
     toast('Đã xóa tài liệu khỏi lịch sử. Các phiên học đã lưu vẫn được giữ.');
   }
   function remember() {
@@ -1032,7 +1055,7 @@
   editor.addEventListener('input', () => { draftDirty = true; clearTimeout(cacheDraft.timer); cacheDraft.timer = setTimeout(cacheDraft, 350); });
   $('[data-document-title]').addEventListener('input', () => { draftDirty = true; clearTimeout(cacheDraft.timer); cacheDraft.timer = setTimeout(cacheDraft, 350); });
   $('[data-vocabulary]').addEventListener('click', event => { const saveButton = event.target.closest('[data-save-word]'); if (saveButton) saveWord(Number(saveButton.dataset.saveWord)); const speakButton = event.target.closest('[data-speak-word]'); if (speakButton) { const word = (currentAnalysis.words || [])[Number(speakButton.dataset.speakWord)]; speakJapanese(word?.reading || word?.word); } });
-  $('[data-spelling-line]').addEventListener('click', event => { const button = event.target.closest('[data-speak-token]'); if (!button) return; const token = (currentAnalysis?.tokens || [])[Number(button.dataset.speakToken)]; speakJapanese(token?.reading || token?.surface || token?.[0]); });
+  $('[data-spelling-line]').addEventListener('click', event => { if (window.getSelection && String(window.getSelection()).length) return; const button = event.target.closest('[data-speak-token]'); if (!button) return; const token = (currentAnalysis?.tokens || [])[Number(button.dataset.speakToken)]; speakJapanese(token?.surface || token?.reading || token?.[0]); });
   $('[data-speak]').addEventListener('click', () => speakJapanese(currentAnalysis?.source));
   $('[data-memory-list]').addEventListener('click', event => { const open = event.target.closest('[data-open-session]'); if (open) reopenSession(open.dataset.openSession); const sentence = event.target.closest('[data-speak-session]'); if (sentence) speakJapanese(state.analyses.find(item => item.sessionId === sentence.dataset.speakSession)?.source); const speak = event.target.closest('[data-speak-saved-index]'); if (speak) { const word = state.savedWords[Number(speak.dataset.speakSavedIndex)]; speakJapanese(word?.reading || word?.word); } const editWord = event.target.closest('[data-edit-saved-index]'); if (editWord) editSavedWord(Number(editWord.dataset.editSavedIndex)); const deleteWord = event.target.closest('[data-delete-saved-index]'); if (deleteWord) deleteSavedWord(Number(deleteWord.dataset.deleteSavedIndex)); const edit = event.target.closest('[data-edit-session]'); if (edit) editSession(edit.dataset.editSession); const remove = event.target.closest('[data-delete-session]'); if (remove) deleteSession(remove.dataset.deleteSession); });
   $('[data-font]').addEventListener('change', event => { editor.classList.remove('font-sans','font-rounded'); if (event.target.value !== 'serif') editor.classList.add(`font-${event.target.value}`); });
