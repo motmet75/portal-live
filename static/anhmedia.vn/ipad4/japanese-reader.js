@@ -341,8 +341,15 @@
     if(!currentPages.length)currentPages=[''];
     currentPages[currentPage]=id('editor').value;
   }
-  function renderPage(n){
-    storeCurrentPage();
+  function renderPage(n,skipStoreExistingEditor){
+    /*
+     * IMPORTANT:
+     * When opening a different saved document, the editor still contains the
+     * previous/default page. Do NOT copy that old editor value into the new
+     * document before rendering it.
+     */
+    if(!skipStoreExistingEditor)storeCurrentPage();
+
     if(n<0)n=0;
     if(n>=currentPages.length)n=currentPages.length-1;
     currentPage=n;
@@ -376,12 +383,12 @@
       b[i].innerHTML=active?'🔖 Đã lưu dấu':'🔖 Dấu trang';
     }
 
-    /* Persist last page only. Never persist edited draft text here. */
     if(doc){
       doc.currentPage=currentPage;
       try{
         localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));
         localStorage.setItem(LEGACY_IPAD_STORAGE_KEY,JSON.stringify(appState));
+        localStorage.setItem(LAST_DOC_KEY,String(doc.id));
       }catch(e){}
     }
 
@@ -396,7 +403,9 @@
         else if(editor&&editor.scrollIntoView)editor.scrollIntoView(true);
         else window.scrollTo(0,0);
         if(editor)editor.scrollTop=0;
-      }catch(e){try{window.scrollTo(0,0);}catch(ignore){}}
+      }catch(e){
+        try{window.scrollTo(0,0);}catch(ignore){}
+      }
     },20);
   }
   function findDoc(docId){
@@ -552,33 +561,33 @@
   function openBookmarkFromLibrary(docId,pageIndex,button){
     if(!beginNavigationWait(button,'Đang mở dấu trang...'))return;
 
-    setTimeout(function(){
-      var d=findDoc(docId);
-      if(!d){endNavigationWait(button);return;}
+    var d=findDoc(docId);
+    if(!d){
+      endNavigationWait(button);
+      return;
+    }
 
-      currentDocId=d.id;
-      try{localStorage.setItem(LAST_DOC_KEY,String(d.id));}catch(e){}
-      try{localStorage.setItem(LAST_DOC_KEY,String(d.id));}catch(e){}
-      if(d.pages&&d.pages.length)currentPages=clonePages(d.pages);
-      else if(d.html)currentPages=[String(d.html)];
-      else currentPages=[''];
+    currentDocId=d.id;
+    try{localStorage.setItem(LAST_DOC_KEY,String(d.id));}catch(e){}
 
-      var draft=loadDraftForDoc(d.id);
-      if(draft&&draft.pages&&draft.pages.length)currentPages=clonePages(draft.pages);
+    if(d.pages&&d.pages.length)currentPages=clonePages(d.pages);
+    else if(d.html)currentPages=[String(d.html)];
+    else currentPages=[''];
 
-      currentPage=parseInt(pageIndex,10);
-      if(isNaN(currentPage)||currentPage<0||currentPage>=currentPages.length)currentPage=0;
+    var draft=loadDraftForDoc(d.id);
+    if(draft&&draft.pages&&draft.pages.length)currentPages=clonePages(draft.pages);
 
-      id('docTitle').value=(draft&&draft.title)?draft.title:(d.title||'Tài liệu');
-      updateDraftStatus(!!draft);
-      setView('reader');
-      renderPage(currentPage);
+    currentPage=parseInt(pageIndex,10);
+    if(isNaN(currentPage)||currentPage<0||currentPage>=currentPages.length)currentPage=0;
 
-      setTimeout(function(){
-        try{id('editor').scrollIntoView(true);}catch(e){}
-        endNavigationWait(button);
-      },140);
-    },30);
+    id('docTitle').value=(draft&&draft.title)?draft.title:(d.title||'Tài liệu');
+    updateDraftStatus(!!draft);
+    setView('reader');
+    renderPage(currentPage,true);
+
+    try{id('editor').scrollIntoView(true);}catch(e){}
+
+    setTimeout(function(){endNavigationWait(button);},0);
   }
 
   function renderLibrary(){
@@ -606,38 +615,42 @@
   function openDocument(docId,button){
     if(!beginNavigationWait(button,'Đang mở tài liệu...'))return;
 
-    setTimeout(function(){
-      var d=findDoc(docId);
-      if(!d){endNavigationWait(button);return;}
+    var d=findDoc(docId);
+    if(!d){
+      endNavigationWait(button);
+      return;
+    }
 
-      currentDocId=d.id;
-      var savedPages;
-      if(d.pages&&d.pages.length)savedPages=clonePages(d.pages);
-      else if(d.html)savedPages=[String(d.html)];
-      else savedPages=[''];
+    currentDocId=d.id;
+    try{localStorage.setItem(LAST_DOC_KEY,String(d.id));}catch(e){}
 
-      var draft=loadDraftForDoc(d.id);
-      if(draft&&draft.pages&&draft.pages.length){
-        currentPages=clonePages(draft.pages);
-        currentPage=parseInt(draft.currentPage,10);
-        id('docTitle').value=draft.title||d.title||'Tài liệu';
-        updateDraftStatus(true);
-      }else{
-        currentPages=savedPages;
-        currentPage=parseInt(d.currentPage,10);
-        id('docTitle').value=d.title||'Tài liệu';
-        updateDraftStatus(false);
-      }
+    var savedPages;
+    if(d.pages&&d.pages.length)savedPages=clonePages(d.pages);
+    else if(d.html)savedPages=[String(d.html)];
+    else savedPages=[''];
 
-      if(isNaN(currentPage))currentPage=0;
-      if(currentPage<0||currentPage>=currentPages.length)currentPage=0;
+    var draft=loadDraftForDoc(d.id);
+    if(draft&&draft.pages&&draft.pages.length){
+      currentPages=clonePages(draft.pages);
+      currentPage=parseInt(draft.currentPage,10);
+      id('docTitle').value=draft.title||d.title||'Tài liệu';
+      updateDraftStatus(true);
+    }else{
+      currentPages=savedPages;
+      currentPage=parseInt(d.currentPage,10);
+      id('docTitle').value=d.title||'Tài liệu';
+      updateDraftStatus(false);
+    }
 
-      undoStacks={};redoStacks={};
-      setView('reader');
-      renderPage(currentPage);
+    if(isNaN(currentPage))currentPage=0;
+    if(currentPage<0||currentPage>=currentPages.length)currentPage=0;
 
-      setTimeout(function(){endNavigationWait(button);},120);
-    },30);
+    undoStacks={};redoStacks={};
+    setView('reader');
+    renderPage(currentPage,true);
+
+    /* Release lock on next UI tick only, after the view has switched. */
+    setTimeout(function(){endNavigationWait(button);},0);
   }
   function deleteDocument(docId){
     if(!window.confirm('Xóa tài liệu này?'))return;
@@ -1234,28 +1247,35 @@
       if(saveIndex!==null&&saveIndex!=='')saveWordByIndex(parseInt(saveIndex,10));
     };
 
-    id('docList').onclick=function(e){
+    function handleLibraryActivate(e){
       e=e||window.event;
+      if(e&&e.preventDefault)e.preventDefault();
+
       var t=e.target||e.srcElement;
-      while(t&&t!==id('docList')&&!t.getAttribute)t=t.parentNode;
-      if(!t||!t.getAttribute)return;
+      while(t&&t!==id('docList')){
+        if(t.getAttribute){
+          var open=t.getAttribute('data-open-doc');
+          var del=t.getAttribute('data-del-doc');
+          var bdoc=t.getAttribute('data-bookmark-doc');
+          var bpage=t.getAttribute('data-bookmark-page');
 
-      var open=t.getAttribute('data-open-doc');
-      var del=t.getAttribute('data-del-doc');
-      var bdoc=t.getAttribute('data-bookmark-doc');
-      var bpage=t.getAttribute('data-bookmark-page');
+          if(open){openDocument(open,t);return false;}
+          if(del){
+            if(!navigationBusy)deleteDocument(del);
+            return false;
+          }
+          if(bdoc!==null&&bdoc!==''&&bpage!==null&&bpage!==''){
+            openBookmarkFromLibrary(bdoc,parseInt(bpage,10),t);
+            return false;
+          }
+        }
+        t=t.parentNode;
+      }
+      return false;
+    }
 
-      if(open){openDocument(open,t);return;}
-      if(del){
-        if(navigationBusy)return;
-        deleteDocument(del);
-        return;
-      }
-      if(bdoc!==null&&bdoc!==''&&bpage!==null&&bpage!==''){
-        openBookmarkFromLibrary(bdoc,parseInt(bpage,10),t);
-        return;
-      }
-    };
+    id('docList').onclick=handleLibraryActivate;
+    id('docList').ontouchend=handleLibraryActivate;
   }
   function init(){
     updateAuthButtons(false);
@@ -1283,7 +1303,7 @@
       currentPages=[id('editor').value||''];
       currentPage=0;
       updateDraftStatus(false);
-      renderPage(0);
+      renderPage(0,true);
     }
 
     refreshQuota();
