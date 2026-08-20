@@ -20,6 +20,7 @@
   let quotaPollTimer = null;
   let serverRevision = 0;
   let syncInProgress = false;
+  let syncQueued = false;
   let draftDirty = false;
   let selectedText = '';
   let savedRange = null;
@@ -83,8 +84,8 @@
   }
 
   function loadState() {
-    try { const value = JSON.parse(localStorage.getItem(storageKey)) || {}; return { documents: value.documents || [], memories: value.memories || [], analyses: value.analyses || [], savedWords: value.savedWords || [] }; }
-    catch (_) { return { documents: [], memories: [], analyses: [], savedWords: [] }; }
+    try { const value = JSON.parse(localStorage.getItem(storageKey)) || {}; return { documents: value.documents || [], memories: value.memories || [], analyses: value.analyses || [], savedWords: value.savedWords || [], savedPhrases: value.savedPhrases || [] }; }
+    catch (_) { return { documents: [], memories: [], analyses: [], savedWords: [], savedPhrases: [] }; }
   }
   function persist() {
     localStorage.setItem(storageKey, JSON.stringify(state));
@@ -120,41 +121,53 @@
       documents: mergeArray(local.documents, server.documents, doc => doc.id, doc => doc.updatedAt),
       memories: mergeArray(local.memories, server.memories, mem => mem.sessionId || mem.id, mem => mem.savedAt || mem.nextReview),
       analyses: mergeArray(local.analyses, server.analyses, an => an.sessionId, an => an.savedAt),
-      savedWords: mergeArray(local.savedWords, server.savedWords, w => `${w.word}|${w.reading || ''}`, w => w.savedAt)
+      savedWords: mergeArray(local.savedWords, server.savedWords, w => `${w.word}|${w.reading || ''}`, w => w.savedAt),
+      savedPhrases: mergeArray(local.savedPhrases, server.savedPhrases, phrase => phrase.id || phrase.source, phrase => phrase.savedAt)
     };
   }
 
   async function syncToServer(retry = true) {
-    if (!stateSynced || syncInProgress) return;
+    if (!stateSynced) return;
+    if (syncInProgress) { syncQueued = true; return; }
     syncInProgress = true;
+    let retryConflict = false;
     try {
       const response = await fetch('/api/japanese-learning/state', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({ state: JSON.stringify(state), baseRevision: serverRevision })
       });
       const data = await response.json().catch(() => ({}));
       if (response.status === 409 && data.state && retry) {
-        state = mergeStates(state, JSON.parse(data.state));
-        localStorage.setItem(storageKey, JSON.stringify(state));
-        serverRevision = Number(data.revision) || 0;
-        syncInProgress = false;
-        renderDocuments(); renderMemory(); renderMemoryNotes();
-        return syncToServer(false);
+        try {
+          state = mergeStates(state, JSON.parse(data.state));
+          localStorage.setItem(storageKey, JSON.stringify(state));
+          serverRevision = Number(data.revision) || 0;
+          renderDocuments(); renderMemory(); renderMemoryNotes();
+          retryConflict = true;
+        } catch (_) {}
       }
       if (response.ok) serverRevision = Number(data.revision) || serverRevision;
+      if (response.status === 401) stateSynced = false;
     } catch (err) {
       console.error('Failed to sync state to server', err);
     } finally {
       syncInProgress = false;
     }
+    if (retryConflict) return syncToServer(false);
+    if (syncQueued) { syncQueued = false; return syncToServer(true); }
   }
 
   let stateSynced = false;
   async function triggerInitialStateSync() {
     if (stateSynced) return;
     try {
-      const response = await fetch(`/api/japanese-learning/state?_=${Date.now()}`);
+      const response = await fetch(`/api/japanese-learning/state?_=${Date.now()}`, {
+        credentials: 'same-origin',
+        cache: 'no-store',
+        headers: { Accept: 'application/json', 'Cache-Control': 'no-cache' }
+      });
       if (response.ok) {
         const data = await response.json();
         serverRevision = Number(data.revision) || 0;
@@ -162,6 +175,15 @@
           const serverState = JSON.parse(data.state);
           state = mergeStates(state, serverState);
           localStorage.setItem(storageKey, JSON.stringify(state));
+          if (!draftDirty) {
+            const syncedDocument = state.documents.find(item => item.id === currentDocumentId) || state.documents[0];
+            if (syncedDocument) {
+              currentDocumentId = syncedDocument.id;
+              currentPages = syncedDocument.pages?.length ? syncedDocument.pages : [syncedDocument.html || '<p></p>'];
+              currentPageIndex = Math.max(0, Math.min(Number(syncedDocument.currentPage) || 0, currentPages.length - 1));
+              $('[data-document-title]').value = syncedDocument.title || 'Tài liệu';
+            }
+          }
           renderDocuments();
           renderMemory();
           renderMemoryNotes();

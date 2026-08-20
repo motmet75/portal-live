@@ -28,6 +28,10 @@
   var suppressEditorHistory=false;
   var navigationBusy=false;
   var lastBookmarkActionAt=0;
+  var serverRevision=0;
+  var stateSynced=false;
+  var syncInProgress=false;
+  var syncQueued=false;
   var LAST_DOC_KEY='anhmedia.jp-reader.ipad4.last-doc.v1';
 
   function id(x){return document.getElementById(x);}
@@ -128,6 +132,98 @@
     renderLibrary();
     renderMemory();
     updateOfflineStatus();
+    syncStateToServer();
+  }
+  function mergeServerState(localState,serverState){
+    function mergeByDate(localItems,serverItems,keyFn,dateFn){
+      var out=[],positions={},items=(localItems||[]).concat(serverItems||[]),i,item,key,position,existingDate,itemDate;
+      for(i=0;i<items.length;i++){
+        item=items[i];
+        key='$'+String(keyFn(item,i));
+        position=positions[key];
+        if(typeof position==='undefined'){
+          positions[key]=out.length;
+          out.push(item);
+        }else{
+          existingDate=new Date(dateFn(out[position])||0).getTime()||0;
+          itemDate=new Date(dateFn(item)||0).getTime()||0;
+          if(itemDate>existingDate)out[position]=item;
+        }
+      }
+      return out;
+    }
+    localState=normalizeState(localState);
+    serverState=normalizeState(serverState);
+    return {
+      documents:mergeByDate(localState.documents,serverState.documents,function(item,i){return item.id||item.title||i;},function(item){return item.updatedAt;}),
+      memories:mergeByDate(localState.memories,serverState.memories,function(item,i){return item.sessionId||item.id||i;},function(item){return item.savedAt||item.nextReview;}),
+      analyses:mergeByDate(localState.analyses,serverState.analyses,function(item,i){return item.sessionId||item.id||i;},function(item){return item.savedAt;}),
+      savedWords:mergeByDate(localState.savedWords,serverState.savedWords,function(item,i){return (item.word||i)+'|'+(item.reading||'');},function(item){return item.savedAt;}),
+      savedPhrases:mergeByDate(localState.savedPhrases,serverState.savedPhrases,function(item,i){return item.id||item.source||i;},function(item){return item.savedAt;})
+    };
+  }
+  function applySyncedState(){
+    var doc,draft,lastDocId;
+    try{
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));
+      localStorage.setItem(LEGACY_IPAD_STORAGE_KEY,JSON.stringify(appState));
+    }catch(e){}
+    renderLibrary();
+    renderMemory();
+    updateOfflineStatus();
+    doc=findDoc(currentDocId);
+    if(!doc){
+      try{lastDocId=localStorage.getItem(LAST_DOC_KEY);}catch(e){}
+      doc=findDoc(lastDocId)||(appState.documents.length?appState.documents[0]:null);
+      if(!doc)return;
+      currentDocId=doc.id;
+      currentPage=parseInt(doc.currentPage,10)||0;
+      try{localStorage.setItem(LAST_DOC_KEY,String(doc.id));}catch(e){}
+    }
+    draft=loadDraftForDoc(doc.id);
+    currentPages=draft&&draft.pages&&draft.pages.length?clonePages(draft.pages):(doc.pages&&doc.pages.length?clonePages(doc.pages):[String(doc.html||'')]);
+    if(currentPage>=currentPages.length)currentPage=currentPages.length-1;
+    if(currentPage<0)currentPage=0;
+    id('docTitle').value=draft&&draft.title?draft.title:(doc.title||'Tài liệu');
+    renderPage(currentPage,true);
+  }
+  function syncStateToServer(retry){
+    if(!stateSynced)return;
+    if(syncInProgress){syncQueued=true;return;}
+    syncInProgress=true;
+    updateOfflineStatus();
+    xhr('POST','/api/japanese-learning/state',JSON.stringify({state:JSON.stringify(appState),baseRevision:serverRevision}),{'Content-Type':'application/json','Accept':'application/json'},function(status,text){
+      var data=jsonParse(text)||{},serverState;
+      if(status===409&&data.state&&retry!==false){
+        try{serverState=JSON.parse(data.state);}catch(e){serverState=null;}
+        if(serverState){
+          appState=mergeServerState(appState,serverState);
+          serverRevision=Number(data.revision)||0;
+          applySyncedState();
+          syncInProgress=false;
+          syncStateToServer(false);
+          return;
+        }
+      }
+      if(status===200)serverRevision=Number(data.revision)||serverRevision;
+      if(status===401)stateSynced=false;
+      syncInProgress=false;
+      updateOfflineStatus();
+      if(syncQueued){syncQueued=false;syncStateToServer(true);}
+    });
+  }
+  function loadStateFromServer(){
+    if(stateSynced)return;
+    xhr('GET','/api/japanese-learning/state?_='+new Date().getTime(),null,{'Accept':'application/json','Cache-Control':'no-cache'},function(status,text){
+      var data=jsonParse(text)||{},serverState;
+      if(status!==200)return;
+      try{serverState=data.state?JSON.parse(data.state):{};}catch(e){serverState={};}
+      appState=mergeServerState(appState,serverState);
+      serverRevision=Number(data.revision)||0;
+      stateSynced=true;
+      applySyncedState();
+      syncStateToServer(true);
+    });
   }
   function xhr(method,url,body,headers,done){
     var x=new XMLHttpRequest();
@@ -153,7 +249,8 @@
     }catch(e){}
     var count=appState.documents?appState.documents.length:0;
     if(online){
-      el.innerHTML='Offline library: '+count+' tài liệu đã lưu trên máy';
+      if(stateSynced)el.innerHTML=(syncInProgress?'ĐANG ĐỒNG BỘ':'ĐÃ ĐỒNG BỘ TÀI KHOẢN')+' · '+count+' tài liệu cũng lưu offline';
+      else el.innerHTML='Offline library: '+count+' tài liệu đã lưu trên máy';
       el.className='offline-status online';
     }else{
       el.innerHTML='ĐANG OFFLINE · '+count+' tài liệu vẫn dùng được';
@@ -188,8 +285,8 @@
   }
 
   function renderQuota(){
-    id('remaining').innerHTML=usageLoaded?String(quotaRemaining):'...';
-    id('limit').innerHTML=usageLoaded?String(quotaLimit):'...';
+    id('remaining').innerHTML=usageLoaded&&quotaRemaining===Infinity?'∞':(usageLoaded?String(quotaRemaining):'...');
+    id('limit').innerHTML=usageLoaded&&quotaLimit===Infinity?'∞':(usageLoaded?String(quotaLimit):'...');
     updateAnalyzeButtons();
 
     if(usageLoaded){
@@ -207,11 +304,21 @@
     },function(status,text){
       if(status===200){
         var d=jsonParse(text);
+        if(d&&d.unlimited===true){
+          quotaLimit=Infinity;
+          quotaRemaining=Infinity;
+          usageLoaded=true;
+          renderQuota();
+          loadStateFromServer();
+          if(cb)cb(true);
+          return;
+        }
         if(d&&isFinite(Number(d.limit))&&isFinite(Number(d.remaining))){
           quotaLimit=Number(d.limit);
           quotaRemaining=Number(d.remaining);
           usageLoaded=true;
           renderQuota();
+          loadStateFromServer();
           if(cb)cb(true);
           return;
         }
@@ -1155,6 +1262,31 @@
       });
     },1500);
   }
+  function accountLogin(event){
+    if(event&&event.preventDefault)event.preventDefault();
+    var email=id('readerLoginEmail').value.replace(/^\s+|\s+$/g,'');
+    var pass=id('readerLoginPassword').value;
+    var error=id('readerLoginError');
+    var submit=id('readerLoginSubmit');
+    if(!email||!pass){error.innerHTML='Vui lòng nhập tài khoản và mật khẩu.';error.style.display='block';return false;}
+    rememberReturn();
+    error.style.display='none';submit.disabled=true;submit.innerHTML='Đang đăng nhập...';
+    xhr('POST','/api/login-act',JSON.stringify({id:0,firstName:'',lastName:'',user:email,pass:pass,address:'',district:'',city:'',province:'',email:email,phoneNumber:'',selectedAddress:'000',zipcode:'000',note:'000'}),{
+      'Accept':'application/json','Content-Type':'application/json'
+    },function(status,text){
+      var user=jsonParse(text);
+      if(status>=200&&status<300&&user&&Number(user.id)>0){
+        if(user.pass==='mfa'){window.location.href='/dang-nhap';return;}
+        refreshQuota(function(ok){
+          if(ok){window.location.reload();return;}
+          error.innerHTML='Sai tài khoản, mật khẩu hoặc phiên đăng nhập không được lưu.';error.style.display='block';submit.disabled=false;submit.innerHTML='Đăng nhập bằng tài khoản';
+        });
+        return;
+      }
+      error.innerHTML='Sai tài khoản hoặc mật khẩu.';error.style.display='block';submit.disabled=false;submit.innerHTML='Đăng nhập bằng tài khoản';
+    });
+    return false;
+  }
   function logout(){
     var b=id('logoutBtn');
     if(b){
@@ -1383,6 +1515,7 @@
     id('pdfFileBtn').onclick=uploadPdfFile;
     id('googleBtn').onclick=openGoogle;
     id('googleBtn2').onclick=openGoogle;
+    id('readerLoginForm').onsubmit=accountLogin;
     id('logoutBtn').onclick=logout;
     id('readerTab').onclick=function(){setView('reader');};
     id('memoryTab').onclick=function(){setView('memory');};
