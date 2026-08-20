@@ -413,6 +413,7 @@
     selectedStart=null;
     selectedEnd=null;
     selectedScrollTop=0;
+    hide(id('bookmarkHighlight'));
     updateAnalyzeButtons();
 
     setTimeout(function(){
@@ -635,6 +636,8 @@
             selectedEnd=mark.selectionEnd;
             selectedText=editor.value.substring(selectedStart,selectedEnd);
             selectedScrollTop=editor.scrollTop||0;
+            id('bookmarkHighlight').innerHTML='🔖 Đoạn đã đánh dấu: “'+esc(selectedText)+'”';
+            show(id('bookmarkHighlight'));
             updateAnalyzeButtons();
           }
         }catch(e){}

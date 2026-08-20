@@ -382,6 +382,19 @@
       background:#fff8dc!important;
       border-color:#d8c17b!important;
     }
+    #editor::selection{background:#ffd54f;color:#17211f}
+    #editor::-moz-selection{background:#ffd54f;color:#17211f}
+    .bookmark-highlight{
+      margin:8px 0 0;
+      padding:9px 11px;
+      border:2px solid #d5a900;
+      border-radius:6px;
+      background:#fff3a6;
+      color:#3f3400;
+      font-size:13px;
+      font-weight:bold;
+      line-height:1.45;
+    }
   </style>
 
 </head>
@@ -427,6 +440,7 @@
       <button id="bookmarkTopBtn" class="bookmarkBtn">🔖 Dấu trang</button>
     </div>
 
+    <div id="bookmarkHighlight" class="bookmark-highlight hidden" role="status"></div>
     <textarea id="editor">パイロットインジェクタから微量（熱量比1%以下）の液体燃料を噴射し副室内のガスを着火する。
 
 パイロット燃料は微量だが点火プラグに比し約8000倍という強力な着火エネルギーを有するため燃焼が安定し効率が向上する。</textarea>
@@ -942,6 +956,7 @@
       selectedStart=null;
       selectedEnd=null;
       selectedScrollTop=0;
+      hide(id('bookmarkHighlight'));
       updateAnalyzeButtons();
 
       setTimeout(function(){
@@ -1164,6 +1179,8 @@
               selectedEnd=mark.selectionEnd;
               selectedText=editor.value.substring(selectedStart,selectedEnd);
               selectedScrollTop=editor.scrollTop||0;
+              id('bookmarkHighlight').innerHTML='🔖 Đoạn đã đánh dấu: “'+esc(selectedText)+'”';
+              show(id('bookmarkHighlight'));
               updateAnalyzeButtons();
             }
           }catch(e){}
