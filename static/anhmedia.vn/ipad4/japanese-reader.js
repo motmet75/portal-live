@@ -341,8 +341,14 @@
     if(!currentPages.length)currentPages=[''];
     currentPages[currentPage]=id('editor').value;
   }
-  function renderPage(n){
-    storeCurrentPage();
+  function renderPage(n,skipStoreCurrentEditor){
+    /*
+     * When loading/opening a new document (especially after PDF extraction),
+     * the editor still contains the previous/sample text. Do not store that
+     * stale editor value into page 1 of the new document.
+     */
+    if(!skipStoreCurrentEditor)storeCurrentPage();
+
     if(n<0)n=0;
     if(n>=currentPages.length)n=currentPages.length-1;
     currentPage=n;
@@ -376,7 +382,6 @@
       b[i].innerHTML=active?'🔖 Đã lưu dấu':'🔖 Dấu trang';
     }
 
-    /* Persist last page only. Never persist edited draft text here. */
     if(doc){
       doc.currentPage=currentPage;
       try{
@@ -572,7 +577,7 @@
       id('docTitle').value=(draft&&draft.title)?draft.title:(d.title||'Tài liệu');
       updateDraftStatus(!!draft);
       setView('reader');
-      renderPage(currentPage);
+      renderPage(currentPage,true);
 
       setTimeout(function(){
         try{id('editor').scrollIntoView(true);}catch(e){}
@@ -634,7 +639,7 @@
 
       undoStacks={};redoStacks={};
       setView('reader');
-      renderPage(currentPage);
+      renderPage(currentPage,true);
 
       setTimeout(function(){endNavigationWait(button);},120);
     },30);
@@ -1158,16 +1163,40 @@
     return {userId:u,tokenId:t};
   }
   function applyExtractedText(text,title){
+    text=String(text||'');
     currentDocId=new Date().getTime();
-    currentPages=splitPages(text);
+    currentPages=clonePages(splitPages(text));
     currentPage=0;
+
     id('docTitle').value=title||'Tài liệu PDF';
-    var d={id:currentDocId,title:id('docTitle').value,pages:currentPages,currentPage:0,bookmarks:[],updatedAt:new Date().toISOString()};
+
+    var d={
+      id:currentDocId,
+      title:id('docTitle').value,
+      pages:clonePages(currentPages),
+      currentPage:0,
+      bookmarks:[],
+      updatedAt:new Date().toISOString(),
+      offline:true
+    };
+
     appState.documents.unshift(d);
-    saveState();
+
+    try{
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));
+      localStorage.setItem(LEGACY_IPAD_STORAGE_KEY,JSON.stringify(appState));
+      localStorage.setItem(LAST_DOC_KEY,String(currentDocId));
+    }catch(e){}
+
     closePdf();
     setView('reader');
-    renderPage(0);
+
+    /*
+     * CRITICAL: true means do not copy the old hardcoded/sample editor text
+     * into currentPages[0] before displaying the extracted PDF text.
+     */
+    renderPage(0,true);
+
     toast('Đã tải và chia tài liệu thành '+currentPages.length+' trang.');
   }
   function uploadPdfUrl(){
