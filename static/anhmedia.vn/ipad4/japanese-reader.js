@@ -992,7 +992,6 @@
   }
   function renderAnalysis(a){
     currentAnalysis=a;
-    id('sourceText').innerHTML=esc(a.source||selectedText);
     id('hiraganaText').innerHTML=esc(a.hira||a.hiragana||'');
     id('translationVi').innerHTML=esc(a.translationVi||'');
     id('translationEn').innerHTML=esc(a.translation||'');
@@ -1027,7 +1026,7 @@
           '</span>';
     }
     id('wordList').innerHTML=html||'<span class="small">Không có từ vựng.</span>';
-    id('readingWordList').innerHTML=readingHtml||'<span class="small">Không có dữ liệu tách từ.</span>';
+    id('sourceText').innerHTML=readingHtml||esc(a.source||selectedText);
     show(id('analysisPanel'));
   }
   function updateAnalysisConfirmCount(){
@@ -1608,11 +1607,11 @@
       if(speakIndex!==null&&speakIndex!=='')speakWordByIndex(parseInt(speakIndex,10));
       if(saveIndex!==null&&saveIndex!=='')saveWordByIndex(parseInt(saveIndex,10));
     };
-    id('readingWordList').onclick=function(e){
+    id('sourceText').onclick=function(e){
       e=e||window.event;
       var t=e.target||e.srcElement;
-      while(t&&t!==id('readingWordList')&&(!t.getAttribute||t.getAttribute('data-reading-word-index')===null))t=t.parentNode;
-      if(!t||t===id('readingWordList'))return;
+      while(t&&t!==id('sourceText')&&(!t.getAttribute||t.getAttribute('data-reading-word-index')===null))t=t.parentNode;
+      if(!t||t===id('sourceText'))return;
       speakWordByIndex(parseInt(t.getAttribute('data-reading-word-index'),10));
     };
 
