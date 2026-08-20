@@ -1,4 +1,444 @@
-(function(){
+<!DOCTYPE html>
+<html lang="vi">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <title>Kotoba Studio Lite Words - iPad 4</title>
+<style>
+  html,body{margin:0;padding:0;background:#f3f4f1;color:#202826;font-family:Arial,"Helvetica Neue",sans-serif}
+  button,input,textarea{font:inherit}
+  button{cursor:pointer}
+  #app{max-width:1024px;margin:0 auto;background:#fff;min-height:100vh}
+  .topbar{padding:8px;background:#263b36;color:#fff;overflow:hidden}
+  .brand{float:left;font-weight:bold;font-size:18px;line-height:40px}
+  .top-actions{float:right}
+  .top-actions button{margin-left:5px;min-height:38px;border:1px solid #cfd9d5;border-radius:6px;background:#fff;color:#263b36;font-weight:bold}
+  #logoutBtn{color:#111;border:2px solid #b74d3e;background:#fff}
+  .clear{clear:both}
+  .tabs{padding:8px;border-bottom:1px solid #ddd;background:#fafaf8}
+  .tabs button{padding:9px 12px;margin-right:5px;border:1px solid #ccd7d2;border-radius:6px;background:#fff;font-weight:bold}
+  .tabs button.active{background:#315f55;color:#fff}
+  .panel{padding:10px}
+  .notice{padding:10px;margin-bottom:10px;border:1px solid #d8c17b;border-radius:7px;background:#fff8dc;font-size:13px}
+  .login-box{padding:12px;margin-bottom:10px;border:2px solid #b8d2c8;border-radius:8px;background:#eef8f3;text-align:center}
+  .login-box h2{margin:0 0 6px;font-size:19px}
+  .login-box p{margin:4px 0 10px;line-height:1.45}
+  .login-box button{padding:10px 14px;border:0;border-radius:6px;background:#315f55;color:#fff;font-weight:bold}
+  .toolbar,.page-nav{padding:8px;margin:8px 0;border:1px solid #d7dfdc;border-radius:7px;background:#f8faf8}
+  .toolbar input{box-sizing:border-box;width:100%;padding:9px;border:1px solid #ccd7d2;border-radius:5px}
+  .page-nav{text-align:center}
+  .page-nav button{padding:8px 10px;margin:2px;border:1px solid #cbd7d2;border-radius:6px;background:#fff;color:#244f46;font-weight:bold}
+  .page-nav button:disabled{opacity:.4}
+  .page-label{display:inline-block;min-width:90px;padding:8px;font-weight:bold}
+  .doc-title{box-sizing:border-box;width:100%;padding:9px;margin-bottom:8px;border:1px solid #ccd7d2;border-radius:6px;font-weight:bold}
+  #editor{box-sizing:border-box;width:100%;min-height:330px;padding:14px;border:1px solid #cfd9d5;border-radius:7px;background:#fff;font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-size:20px;line-height:1.8;resize:vertical}
+  .action-row{margin:8px 0}
+  .action-row button{padding:9px 12px;margin:2px;border:1px solid #cbd7d2;border-radius:6px;background:#fff;font-weight:bold}
+  .action-row .primary{background:#315f55;color:#fff;border-color:#315f55}
+  .library{padding:10px;border:1px solid #d8e0dd;border-radius:7px;background:#fafbf9}
+  .library h3{margin:2px 0 8px}
+  .doc-item,.memory-item{padding:9px;margin:6px 0;border:1px solid #d8e0dd;border-radius:6px;background:#fff}
+  .doc-item button,.memory-item button{margin:3px;padding:6px 8px}
+  .small{font-size:12px;color:#66736f}
+  #analysisPanel{padding:12px;margin-top:10px;border:1px solid #cbd8d3;border-radius:8px;background:#fff}
+  #analysisPanel h3{margin-top:0}
+  .block{padding:9px;margin:7px 0;border:1px solid #e1e5e2;border-radius:6px;background:#f8faf8}
+  .word{display:inline-block;vertical-align:top;min-width:130px;margin:4px;padding:8px;border:1px solid #d9e0dd;border-radius:6px;background:#fff}
+  .word b,.word span,.word em{display:block}
+  .word em{font-style:normal;color:#315f55;font-size:12px}
+  .word button{margin-top:5px;padding:5px 7px}
+  #waitOverlay,#pdfModal{position:fixed;left:0;top:0;right:0;bottom:0;z-index:99999;background:rgba(20,28,26,.72);display:none}
+  .modal-card{position:relative;max-width:520px;margin:70px auto 0;padding:18px;border-radius:8px;background:#fff}
+  .modal-card input{box-sizing:border-box;width:100%;padding:9px;margin:5px 0 10px;border:1px solid #ccd7d2;border-radius:5px}
+  .modal-card button{padding:9px 12px;margin:4px;border:1px solid #cbd7d2;border-radius:6px;background:#fff;font-weight:bold}
+  .modal-card .primary{background:#315f55;color:#fff}
+  .spinner{width:34px;height:34px;margin:0 auto 10px;border:4px solid #d9e3df;border-top-color:#315f55;border-radius:50%;-webkit-animation:spin .8s linear infinite;animation:spin .8s linear infinite}
+  @-webkit-keyframes spin{to{-webkit-transform:rotate(360deg)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #toast{position:fixed;left:10px;right:10px;bottom:12px;z-index:100000;padding:10px;border-radius:6px;background:#263b36;color:#fff;text-align:center;display:none}
+  .hidden{display:none!important}
+  @media(max-width:700px){
+  .brand{float:none;line-height:30px}
+  .top-actions{float:none;margin-top:6px}
+  .top-actions button{margin:2px}
+  #editor{min-height:280px;font-size:18px}
+  .modal-card{margin:35px 10px 0}
+}
+</style>
+
+<style>
+  html,body,#app{min-height:100%;position:relative}
+  button,a,input,textarea{-webkit-tap-highlight-color:rgba(49,95,85,.22)}
+  button,a{position:relative;z-index:2;pointer-events:auto!important}
+  button{-webkit-appearance:none}
+  #waitOverlay,#pdfModal{display:none;pointer-events:auto}
+  #waitOverlay.is-open,#pdfModal.is-open{display:block!important}
+  #jsStatus{padding:5px 8px;background:#eef7f3;border-bottom:1px solid #bfd4cb;color:#315f55;font-size:11px;text-align:center}
+</style>
+
+
+<style>
+  .word{
+  display:inline-block;
+  vertical-align:top;
+  width:210px;
+  min-height:150px;
+  margin:5px;
+  padding:9px;
+  border:1px solid #d9e0dd;
+  border-radius:7px;
+  background:#fff;
+}
+  .word .surface{
+  display:block;
+  margin-bottom:4px;
+  font-family:"Hiragino Mincho ProN","Yu Mincho",serif;
+  font-size:22px;
+  color:#1e2726;
+}
+  .word .reading{
+  display:block;
+  margin-bottom:6px;
+  color:#9a5548;
+  font-size:14px;
+  font-weight:bold;
+}
+  .word .meaning-vi,.word .meaning-en{
+  display:block;
+  margin-top:4px;
+  font-size:12px;
+  line-height:1.4;
+}
+  .word .meaning-vi{color:#315f55}
+  .word .meaning-en{color:#6c7774}
+  .word .word-actions{margin-top:8px}
+  .word .word-actions button{
+  margin:2px 3px 2px 0;
+  padding:6px 8px;
+  border:1px solid #ccd8d3;
+  border-radius:5px;
+  background:#f5f7f4;
+  color:#315f55;
+  font-weight:bold;
+}
+  .word.saved .save-word-btn{
+  background:#e1eee9;
+  color:#315f55;
+}
+  @media(max-width:700px){
+  .word{display:block;width:auto;margin:6px 0}
+}
+</style>
+
+
+<style>
+  .word{cursor:pointer;-webkit-tap-highlight-color:rgba(49,95,85,.18)}
+  .word:active{background:#eef7f3}
+  .word .word-cell{display:block;margin-bottom:7px;padding:8px;border:1px solid #e2e7e4;border-radius:6px;background:#f8faf8}
+  .word .surface{display:block;font-size:23px;line-height:1.35}
+  .word .reading{display:block;margin-top:5px;color:#9a5548;font-size:13px;line-height:1.4}
+  .word .reading b{display:inline;font-size:10px;color:#6c7774}
+</style>
+
+
+<style>
+  .offline-status{
+  padding:6px 8px;
+  border-bottom:1px solid #d8e0dd;
+  background:#f5f7f4;
+  color:#315f55;
+  font-size:11px;
+  text-align:center;
+}
+  .offline-status.offline{
+  background:#fff1cf;
+  color:#795a0c;
+  font-weight:bold;
+}
+  .doc-item .small{line-height:1.45}
+</style>
+
+
+<style>
+  .word .pronunciation{
+  display:block;
+  margin-top:4px;
+  color:#315f55;
+  font-size:12px;
+  line-height:1.4;
+}
+  .word .pronunciation b{
+  display:inline;
+  color:#6c7774;
+  font-size:10px;
+}
+</style>
+
+<style>
+  .memory-section-title{margin:18px 0 8px;padding-bottom:5px;border-bottom:1px solid #d8e0dd;color:#315f55;font-size:14px}
+  .memory-jp{display:block;margin-bottom:5px;font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-size:18px}
+  .memory-actions{margin-top:8px}.memory-actions button{padding:6px 8px;margin:2px 4px 2px 0;border:1px solid #ccd8d3;border-radius:5px;background:#fff;color:#315f55;font-weight:bold}
+  .saved-phrase{border-left:4px solid #d9c38f}.saved-word{border-left:4px solid #9fc6b7}.saved-analysis{border-left:4px solid #9fb4d8}
+</style>
+
+<style>
+  #analysisConfirmModal{
+  position:fixed;
+  left:0;top:0;right:0;bottom:0;
+  z-index:99998;
+  display:none;
+  background:rgba(20,28,26,.72);
+}
+  #analysisConfirmModal.is-open{display:block!important}
+  #analysisConfirmText{
+    box-sizing:border-box;
+  width:100%;
+  min-height:180px;
+  margin:7px 0;
+  padding:10px;
+  border:1px solid #ccd7d2;
+  border-radius:6px;
+  background:#fff;
+  color:#1e2726;
+  font-family:"Hiragino Mincho ProN","Yu Mincho",serif;
+  font-size:18px;
+  line-height:1.7;
+  resize:vertical;
+}
+  #analysisConfirmCount{margin-bottom:6px;color:#315f55}
+  #analysisConfirmError{margin-bottom:8px;color:#8b3f36;font-weight:bold}
+</style>
+
+
+<style>
+  .page-nav .pageJump{
+  width:54px;
+  height:34px;
+  margin-left:4px;
+  padding:4px;
+  border:1px solid #cbd7d2;
+  border-radius:5px;
+  text-align:center;
+  background:#fff;
+  color:#244f46;
+}
+  .page-nav label{
+  display:inline-block;
+  margin:2px;
+  color:#66736f;
+  font-size:11px;
+}
+</style>
+
+
+<style>
+  .library-doc{padding:10px!important}
+  .library-doc-head>b{display:block;margin-bottom:4px;font-size:14px}
+  .bookmark-tree{
+    margin-top:8px;
+  border-left:2px solid #d8e4df;
+}
+  .bookmark-tree>summary,
+  .bookmark-page-group>summary{
+  padding:7px 8px;
+  color:#315f55;
+  font-size:11px;
+  font-weight:bold;
+  cursor:pointer;
+}
+  .bookmark-tree summary b{
+  display:inline-block;
+  min-width:18px;
+  margin-left:4px;
+  padding:1px 5px;
+  border-radius:9px;
+  background:#e1eee9;
+  text-align:center;
+}
+  .bookmark-tree-body{padding-left:8px}
+  .bookmark-page-group{
+  margin:4px 0;
+  border-left:1px dashed #ccdcd6;
+}
+  .bookmark-page-items{padding:0 5px 5px 8px}
+  .bookmark-tree-item{margin:5px 0}
+  .bookmark-open-btn{
+  display:block;
+  width:100%;
+  padding:8px 9px;
+  border:1px solid #e1d39b;
+  border-radius:7px;
+  background:#fff8d8;
+  color:#795a0c;
+  text-align:left;
+}
+  .bookmark-note{
+  display:block;
+  font-weight:bold;
+  font-size:11px;
+}
+  .bookmark-excerpt{
+  display:block;
+  margin-top:4px;
+  color:#6c7774;
+  font-size:10px;
+  line-height:1.45;
+  white-space:normal;
+}
+  .bookmark-empty{
+  padding:7px;
+  color:#6c7774;
+  font-size:10px;
+}
+</style>
+
+
+<style>
+  .draft-status{display:inline-block;margin:4px 2px;padding:6px 8px;border-radius:5px;font-size:11px;font-weight:bold}
+  .draft-status.saved{background:#eef7f3;color:#315f55}
+  .draft-status.dirty{background:#fff1cf;color:#795a0c}
+  #undoEditBtn,#redoEditBtn{min-width:88px}
+  .page-nav .pageJump{vertical-align:middle}
+</style>
+
+</head>
+<body>
+<div id="app"><div id="jsStatus">Đang khởi động JavaScript iPad 4…</div>
+  <div class="topbar">
+    <div class="brand">言 Kotoba Studio Lite</div>
+    <div class="top-actions">
+      <button id="googleBtn">Google</button>
+      <button id="analyzeBtn" disabled>Phân tích</button>
+      <button id="logoutBtn">⎋ Thoát</button>
+    </div>
+    <div class="clear"></div>
+  </div>
+
+  <div class="tabs">
+    <button id="readerTab" class="active">Tài liệu</button>
+    <button id="memoryTab">Từ đã lưu</button>
+    <button id="libraryTab">Thư viện</button>
+  </div>
+
+  <div id="readerView" class="panel">
+    <div id="loginBox" class="login-box">
+      <h2>Hãy đăng nhập với Google để dùng thử miễn phí</h2>
+      <p>Học ngay câu tiếng Nhật bạn yêu thích. Tách từ, Hiragana, nghĩa từ, lưu từ vựng và học lại từ tài liệu PDF.</p>
+      <button id="googleBtn2">Đăng nhập với Google</button>
+    </div>
+
+    <div class="notice">
+      Giới hạn sử dụng: <b id="remaining">...</b>/<b id="limit">...</b> lượt phân tích hôm nay.
+    </div>
+
+    <div class="toolbar">
+      <input id="searchBox" type="text" placeholder="Tìm trong tài liệu hiện tại">
+    </div>
+
+    <input id="docTitle" class="doc-title" value="Tài liệu mẫu iPad 4">
+
+      <div class="page-nav">
+        <button class="prevBtn">← Trước</button>
+        <span class="page-label">Trang 1 / 1</span> <input class="pageJump" type="number" min="1" value="1" aria-label="Số trang">
+        <button class="nextBtn">Sau →</button>
+        <button id="bookmarkTopBtn" class="bookmarkBtn">🔖 Dấu trang</button>
+      </div>
+
+      <textarea id="editor">パイロットインジェクタから微量（熱量比1%以下）の液体燃料を噴射し副室内のガスを着火する。
+
+パイロット燃料は微量だが点火プラグに比し約8000倍という強力な着火エネルギーを有するため燃焼が安定し効率が向上する。</textarea>
+
+      <div class="action-row">
+        <button id="saveDocBtn">Lưu tài liệu</button><button id="undoEditBtn" type="button" disabled>↶ Hoàn tác</button><button id="redoEditBtn" type="button" disabled>↷ Làm lại</button><span id="draftStatus" class="draft-status saved">Đã lưu</span>
+        <button id="pdfBtn">PDF / URL</button>
+        <button id="speakBtn">▶ Đọc đoạn chọn</button>
+        <button id="analyzeBtn2" class="primary" type="button" disabled>Phân tích đoạn chọn</button>
+      </div>
+
+      <div class="page-nav">
+        <button class="prevBtn">← Trước</button>
+        <span class="page-label">Trang 1 / 1</span> <input class="pageJump" type="number" min="1" value="1" aria-label="Số trang">
+        <button class="nextBtn">Sau →</button>
+        <button id="bookmarkBottomBtn" class="bookmarkBtn">🔖 Dấu trang</button>
+      </div>
+
+      <div id="analysisPanel" class="hidden">
+        <h3>Phân tích đoạn chọn</h3>
+        <div class="block"><b>Đoạn gốc</b><div id="sourceText"></div></div>
+        <div class="block"><b>Hiragana</b><div id="hiraganaText"></div></div>
+        <div class="block"><b>Nghĩa tiếng Việt</b><div id="translationVi"></div></div>
+        <div class="block"><b>Nghĩa tiếng Anh</b><div id="translationEn"></div></div>
+        <div class="block"><b>Từ vựng</b><div id="wordList"></div></div>
+        <div class="action-row">
+          <button id="saveAnalysisBtn">＋ Lưu tất cả để ôn</button><button id="savePhraseBtn">＋ Lưu câu / cụm từ</button><button id="readAnalysisBtn">▶ Đọc cả câu</button>
+        </div>
+      </div>
+  </div>
+
+  <div id="memoryView" class="panel hidden">
+    <h2>Từ và đoạn đã lưu</h2>
+    <input id="memorySearch" class="doc-title" placeholder="Tìm từ/câu đã lưu">
+      <div id="memoryList"></div>
+  </div>
+
+  <div id="libraryView" class="panel hidden">
+    <div class="library">
+      <h3>Thư viện tài liệu</h3><div class="small">Dùng chung tài liệu đã lưu với bản đọc thông thường trên cùng trình duyệt.</div>
+      <div class="action-row">
+        <button id="newDocBtn">＋ Tài liệu mới</button><button id="offlineBackupBtn">Sao lưu offline</button>
+        <button id="homeBtn">⌂ Trang chủ</button>
+      </div>
+      <div id="docList"></div>
+    </div>
+  </div>
+</div>
+
+
+<div id="analysisConfirmModal">
+  <div class="modal-card">
+    <h3>Xác nhận đoạn cần phân tích</h3>
+    <div class="small">Kiểm tra và chỉnh sửa nội dung trước khi gửi. Chỉ khi bấm “Xác nhận phân tích” hệ thống mới gọi máy chủ.</div>
+    <label>Nội dung phân tích</label>
+    <textarea id="analysisConfirmText" rows="9"></textarea>
+    <div id="analysisConfirmCount" class="small">0 / 500 ký tự</div>
+    <div id="analysisConfirmError" class="small"></div>
+    <button id="analysisConfirmCancel">Hủy</button>
+    <button id="analysisConfirmStart" class="primary">Xác nhận phân tích</button>
+  </div>
+</div>
+
+<div id="waitOverlay">
+  <div class="modal-card">
+    <div class="spinner"></div>
+    <h3>Đang phân tích…</h3>
+    <div class="small">Đang phân tích đoạn gốc:</div>
+    <div id="waitText" class="block"></div>
+    <div>Thời gian: <b id="waitSeconds">0</b> giây</div>
+    <div class="small">Không thể thao tác trang cho đến khi hoàn tất.</div>
+  </div>
+</div>
+
+<div id="pdfModal">
+  <div class="modal-card">
+    <h3>Trích xuất PDF</h3>
+    <div class="small">Nhập User ID và Token OCR. Bạn có thể tải file hoặc dùng URL công khai.</div>
+    <label>User ID</label>
+    <input id="ocrUser" type="text" autocomplete="username">
+      <label>Token OCR</label>
+      <input id="ocrToken" type="password" autocomplete="current-password">
+        <label>URL PDF/ảnh công khai</label>
+        <input id="pdfUrl" type="text" placeholder="https://...">
+          <input id="pdfFile" type="file" accept="application/pdf,image/png,image/jpeg">
+            <div id="pdfError" class="small"></div>
+            <button id="pdfCancelBtn">Hủy</button>
+            <button id="pdfUrlBtn" class="primary">Tải từ URL</button>
+            <button id="pdfFileBtn" class="primary">Tải file đã chọn</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script>
+  (function(){
   'use strict';
   window.onerror=function(msg,url,line){var s=document.getElementById('jsStatus');if(s){s.innerHTML='Lỗi JS dòng '+line+': '+String(msg);}return false;};
 
@@ -18,6 +458,11 @@
   var waitTimer=null;
   var loginPopup=null;
   var loginPoll=null;
+  var DRAFT_KEY='anhmedia.jp-reader.ipad4.drafts.v1';
+  var undoStacks={};
+  var redoStacks={};
+  var lastEditorValue='';
+  var suppressEditorHistory=false;
 
   function id(x){return document.getElementById(x);}
   function qsa(sel){return document.querySelectorAll(sel);}
@@ -30,1033 +475,1174 @@
   function toast(msg){var t=id('toast');t.innerHTML=esc(msg);t.style.display='block';clearTimeout(t._timer);t._timer=setTimeout(function(){t.style.display='none';},2600);}
 
   function normalizeState(v){
-    if(!v)v={};
-    return {
-      documents:v.documents||[],
-      memories:v.memories||[],
-      analyses:v.analyses||[],
-      savedWords:v.savedWords||[],
-      savedPhrases:v.savedPhrases||[]
-    };
-  }
+  if(!v)v={};
+  return {
+  documents:v.documents||[],
+  memories:v.memories||[],
+  analyses:v.analyses||[],
+  savedWords:v.savedWords||[],
+  savedPhrases:v.savedPhrases||[]
+};
+}
   function mergeDocuments(a,b){
-    var out=[],seen={},i,d,key;
-    a=a||[];b=b||[];
-    for(i=0;i<a.length;i++){
-      d=a[i];key=String(d.id||d.title||('a'+i));
-      if(!seen[key]){seen[key]=1;out.push(d);}
-    }
-    for(i=0;i<b.length;i++){
-      d=b[i];key=String(d.id||d.title||('b'+i));
-      if(!seen[key]){seen[key]=1;out.push(d);}
-    }
-    return out;
-  }
+  var out=[],seen={},i,d,key;
+  a=a||[];b=b||[];
+  for(i=0;i<a.length;i++){
+  d=a[i];key=String(d.id||d.title||('a'+i));
+  if(!seen[key]){seen[key]=1;out.push(d);}
+}
+  for(i=0;i<b.length;i++){
+  d=b[i];key=String(d.id||d.title||('b'+i));
+  if(!seen[key]){seen[key]=1;out.push(d);}
+}
+  return out;
+}
   function mergeSimple(a,b,keyName){
-    var out=[],seen={},i,d,key;
-    a=a||[];b=b||[];
-    for(i=0;i<a.length;i++){
-      d=a[i];key=String(d[keyName]||d.id||d.word||i);
-      if(!seen[key]){seen[key]=1;out.push(d);}
-    }
-    for(i=0;i<b.length;i++){
-      d=b[i];key=String(d[keyName]||d.id||d.word||('b'+i));
-      if(!seen[key]){seen[key]=1;out.push(d);}
-    }
-    return out;
-  }
+  var out=[],seen={},i,d,key;
+  a=a||[];b=b||[];
+  for(i=0;i<a.length;i++){
+  d=a[i];key=String(d[keyName]||d.id||d.word||i);
+  if(!seen[key]){seen[key]=1;out.push(d);}
+}
+  for(i=0;i<b.length;i++){
+  d=b[i];key=String(d[keyName]||d.id||d.word||('b'+i));
+  if(!seen[key]){seen[key]=1;out.push(d);}
+}
+  return out;
+}
   function loadState(){
-    var normal=null,legacy=null,raw,oldRaw;
-    try{
-      raw=localStorage.getItem(STORAGE_KEY);
-      if(raw)normal=JSON.parse(raw);
-    }catch(e){}
-    try{
-      oldRaw=localStorage.getItem(LEGACY_IPAD_STORAGE_KEY);
-      if(oldRaw)legacy=JSON.parse(oldRaw);
-    }catch(e){}
+  var normal=null,legacy=null,raw,oldRaw;
+  try{
+  raw=localStorage.getItem(STORAGE_KEY);
+  if(raw)normal=JSON.parse(raw);
+}catch(e){}
+  try{
+  oldRaw=localStorage.getItem(LEGACY_IPAD_STORAGE_KEY);
+  if(oldRaw)legacy=JSON.parse(oldRaw);
+}catch(e){}
 
-    normal=normalizeState(normal);
-    legacy=normalizeState(legacy);
+  normal=normalizeState(normal);
+  legacy=normalizeState(legacy);
 
-    appState={
-      documents:mergeDocuments(normal.documents,legacy.documents),
-      memories:mergeSimple(normal.memories,legacy.memories,'sessionId'),
-      analyses:mergeSimple(normal.analyses,legacy.analyses,'sessionId'),
-      savedWords:mergeSimple(normal.savedWords,legacy.savedWords,'word'),
-      savedPhrases:mergeSimple(normal.savedPhrases,legacy.savedPhrases,'source')
-    };
+  appState={
+  documents:mergeDocuments(normal.documents,legacy.documents),
+  memories:mergeSimple(normal.memories,legacy.memories,'sessionId'),
+  analyses:mergeSimple(normal.analyses,legacy.analyses,'sessionId'),
+  savedWords:mergeSimple(normal.savedWords,legacy.savedWords,'word'),
+  savedPhrases:mergeSimple(normal.savedPhrases,legacy.savedPhrases,'source')
+};
 
-    try{localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));}catch(e){}
-  }
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));}catch(e){}
+}
   function saveState(){
-    /*
-     * OFFLINE FIRST:
-     * Save immediately in localStorage. Server availability never blocks this.
-     */
-    try{
-      localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));
-      localStorage.setItem(LEGACY_IPAD_STORAGE_KEY,JSON.stringify(appState));
-      localStorage.setItem(OFFLINE_META_KEY,JSON.stringify({
-        savedAt:new Date().toISOString(),
-        documents:appState.documents.length,
-        analyses:appState.analyses.length,
-        savedWords:appState.savedWords.length
-      }));
-    }catch(e){
-      toast('Không lưu được vào bộ nhớ Safari. Có thể bộ nhớ đã đầy.');
-    }
-    renderLibrary();
-    renderMemory();
-    updateOfflineStatus();
-  }
+  /*
+   * OFFLINE FIRST:
+   * Save immediately in localStorage. Server availability never blocks this.
+   */
+  try{
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));
+  localStorage.setItem(LEGACY_IPAD_STORAGE_KEY,JSON.stringify(appState));
+  localStorage.setItem(OFFLINE_META_KEY,JSON.stringify({
+  savedAt:new Date().toISOString(),
+  documents:appState.documents.length,
+  analyses:appState.analyses.length,
+  savedWords:appState.savedWords.length
+}));
+}catch(e){
+  toast('Không lưu được vào bộ nhớ Safari. Có thể bộ nhớ đã đầy.');
+}
+  renderLibrary();
+  renderMemory();
+  updateOfflineStatus();
+}
   function xhr(method,url,body,headers,done){
-    var x=new XMLHttpRequest();
-    x.open(method,url,true);
-    x.withCredentials=true;
-    if(headers){for(var k in headers){if(headers.hasOwnProperty(k))x.setRequestHeader(k,headers[k]);}}
-    x.onreadystatechange=function(){
-      if(x.readyState===4)done(x.status,x.responseText,x);
-    };
-    try{x.send(body||null);}catch(e){done(0,'',x);}
-  }
+  var x=new XMLHttpRequest();
+  x.open(method,url,true);
+  x.withCredentials=true;
+  if(headers){for(var k in headers){if(headers.hasOwnProperty(k))x.setRequestHeader(k,headers[k]);}}
+  x.onreadystatechange=function(){
+  if(x.readyState===4)done(x.status,x.responseText,x);
+};
+  try{x.send(body||null);}catch(e){done(0,'',x);}
+}
   function jsonParse(s){try{return JSON.parse(s);}catch(e){return null;}}
 
   function updateOfflineStatus(){
-    var el=id('offlineStatus');
-    if(!el)return;
-    var online=true;
-    if(typeof navigator.onLine!=='undefined')online=navigator.onLine;
-    var meta=null;
-    try{
-      var raw=localStorage.getItem(OFFLINE_META_KEY);
-      if(raw)meta=JSON.parse(raw);
-    }catch(e){}
-    var count=appState.documents?appState.documents.length:0;
-    if(online){
-      el.innerHTML='Offline library: '+count+' tài liệu đã lưu trên máy';
-      el.className='offline-status online';
-    }else{
-      el.innerHTML='ĐANG OFFLINE · '+count+' tài liệu vẫn dùng được';
-      el.className='offline-status offline';
-    }
-  }
+  var el=id('offlineStatus');
+  if(!el)return;
+  var online=true;
+  if(typeof navigator.onLine!=='undefined')online=navigator.onLine;
+  var meta=null;
+  try{
+  var raw=localStorage.getItem(OFFLINE_META_KEY);
+  if(raw)meta=JSON.parse(raw);
+}catch(e){}
+  var count=appState.documents?appState.documents.length:0;
+  if(online){
+  el.innerHTML='Offline library: '+count+' tài liệu đã lưu trên máy';
+  el.className='offline-status online';
+}else{
+  el.innerHTML='ĐANG OFFLINE · '+count+' tài liệu vẫn dùng được';
+  el.className='offline-status offline';
+}
+}
   function exportOfflineBackup(){
-    var data='';
-    try{data=JSON.stringify(appState,null,2);}catch(e){toast('Không tạo được bản sao lưu.');return;}
-    var textarea=document.createElement('textarea');
-    textarea.value=data;
-    textarea.setAttribute('readonly','readonly');
-    textarea.style.position='fixed';
-    textarea.style.left='-9999px';
-    document.body.appendChild(textarea);
-    textarea.select();
-    try{
-      document.execCommand('copy');
-      toast('Đã sao chép bản sao lưu thư viện vào clipboard.');
-    }catch(e){
-      window.prompt('Sao chép nội dung backup này:',data);
-    }
-    document.body.removeChild(textarea);
-  }
+  var data='';
+  try{data=JSON.stringify(appState,null,2);}catch(e){toast('Không tạo được bản sao lưu.');return;}
+  var textarea=document.createElement('textarea');
+  textarea.value=data;
+  textarea.setAttribute('readonly','readonly');
+  textarea.style.position='fixed';
+  textarea.style.left='-9999px';
+  document.body.appendChild(textarea);
+  textarea.select();
+  try{
+  document.execCommand('copy');
+  toast('Đã sao chép bản sao lưu thư viện vào clipboard.');
+}catch(e){
+  window.prompt('Sao chép nội dung backup này:',data);
+}
+  document.body.removeChild(textarea);
+}
 
   function renderQuota(){
-    id('remaining').innerHTML=usageLoaded?String(quotaRemaining):'...';
-    id('limit').innerHTML=usageLoaded?String(quotaLimit):'...';
-    updateAnalyzeButtons();
-    id('loginBox').style.display=usageLoaded?'none':'block';
-  }
+  id('remaining').innerHTML=usageLoaded?String(quotaRemaining):'...';
+  id('limit').innerHTML=usageLoaded?String(quotaLimit):'...';
+  updateAnalyzeButtons();
+  id('loginBox').style.display=usageLoaded?'none':'block';
+}
   function refreshQuota(cb){
-    xhr('GET','/api/japanese-learning/usage?_='+new Date().getTime(),null,{
-      'Accept':'application/json',
-      'Cache-Control':'no-cache'
-    },function(status,text){
-      if(status===200){
-        var d=jsonParse(text);
-        if(d&&isFinite(Number(d.limit))&&isFinite(Number(d.remaining))){
-          quotaLimit=Number(d.limit);
-          quotaRemaining=Number(d.remaining);
-          usageLoaded=true;
-          renderQuota();
-          if(cb)cb(true);
-          return;
-        }
-      }
-      if(status===401){usageLoaded=false;quotaLimit=null;quotaRemaining=null;renderQuota();}
-      if(cb)cb(false);
-    });
-  }
+  xhr('GET','/api/japanese-learning/usage?_='+new Date().getTime(),null,{
+  'Accept':'application/json',
+  'Cache-Control':'no-cache'
+},function(status,text){
+  if(status===200){
+  var d=jsonParse(text);
+  if(d&&isFinite(Number(d.limit))&&isFinite(Number(d.remaining))){
+  quotaLimit=Number(d.limit);
+  quotaRemaining=Number(d.remaining);
+  usageLoaded=true;
+  renderQuota();
+  if(cb)cb(true);
+  return;
+}
+}
+  if(status===401){usageLoaded=false;quotaLimit=null;quotaRemaining=null;renderQuota();}
+  if(cb)cb(false);
+});
+}
   function updateAnalyzeButtons(){
-    var ok=usageLoaded&&!analyzing&&selectedText.length>1&&selectedText.length<=500&&Number(quotaRemaining)>0;
-    id('analyzeBtn').disabled=!ok;
-    id('analyzeBtn2').disabled=!ok;
-  }
+  var ok=usageLoaded&&!analyzing&&selectedText.length>1&&selectedText.length<=500&&Number(quotaRemaining)>0;
+  id('analyzeBtn').disabled=!ok;
+  id('analyzeBtn2').disabled=!ok;
+}
 
   function getSelectedText(){
-    var t=id('editor');
-    var start=t.selectionStart;
-    var end=t.selectionEnd;
-    if(typeof start==='number'&&typeof end==='number'&&end>start){
-      selectedText=trim(t.value.substring(start,end));
-    }else{
-      selectedText='';
-    }
-    updateAnalyzeButtons();
-  }
+  var t=id('editor');
+  var start=t.selectionStart;
+  var end=t.selectionEnd;
+  if(typeof start==='number'&&typeof end==='number'&&end>start){
+  selectedText=trim(t.value.substring(start,end));
+}else{
+  selectedText='';
+}
+  updateAnalyzeButtons();
+}
   function splitPages(text){
-    text=trim(text);
-    if(!text)return [''];
-    var hard=text.split(/\f+/);
-    if(hard.length>1)return hard;
-    var pages=[],pos=0,size=1800;
-    while(pos<text.length){pages.push(text.substring(pos,pos+size));pos+=size;}
-    return pages.length?pages:[''];
-  }
+  text=trim(text);
+  if(!text)return [''];
+  var hard=text.split(/\f+/);
+  if(hard.length>1)return hard;
+  var pages=[],pos=0,size=1800;
+  while(pos<text.length){pages.push(text.substring(pos,pos+size));pos+=size;}
+  return pages.length?pages:[''];
+}
+  function clonePages(pages){
+  var out=[],i;
+  pages=pages||[];
+  for(i=0;i<pages.length;i++)out.push(String(pages[i]||''));
+  return out.length?out:[''];
+}
+  function loadDrafts(){
+  try{
+  var raw=localStorage.getItem(DRAFT_KEY);
+  return raw?JSON.parse(raw):{};
+}catch(e){return {};}
+}
+  function saveDraftForCurrentDoc(){
+  if(currentDocId===null)return;
+  storeCurrentPage();
+  var drafts=loadDrafts();
+  drafts[String(currentDocId)]={
+  title:id('docTitle').value||'',
+  pages:clonePages(currentPages),
+  currentPage:currentPage,
+  updatedAt:new Date().toISOString()
+};
+  try{localStorage.setItem(DRAFT_KEY,JSON.stringify(drafts));}catch(e){}
+  updateDraftStatus(true);
+}
+  function loadDraftForDoc(docId){
+  var drafts=loadDrafts();
+  return drafts[String(docId)]||null;
+}
+  function clearDraftForDoc(docId){
+  var drafts=loadDrafts();
+  if(drafts.hasOwnProperty(String(docId))){
+  delete drafts[String(docId)];
+  try{localStorage.setItem(DRAFT_KEY,JSON.stringify(drafts));}catch(e){}
+}
+  updateDraftStatus(false);
+}
+  function updateDraftStatus(hasDraft){
+  var el=id('draftStatus');
+  if(!el)return;
+  if(hasDraft){
+  el.innerHTML='BẢN NHÁP · thay đổi chưa được lưu vào tài liệu';
+  el.className='draft-status dirty';
+}else{
+  el.innerHTML='Đã lưu';
+  el.className='draft-status saved';
+}
+}
+  function resetHistoryForPage(){
+  lastEditorValue=id('editor').value||'';
+  if(!undoStacks[currentPage])undoStacks[currentPage]=[];
+  if(!redoStacks[currentPage])redoStacks[currentPage]=[];
+  updateUndoRedoButtons();
+}
+  function rememberEditorChange(){
+  if(suppressEditorHistory)return;
+  var now=id('editor').value||'';
+  if(now===lastEditorValue)return;
+  if(!undoStacks[currentPage])undoStacks[currentPage]=[];
+  undoStacks[currentPage].push(lastEditorValue);
+  if(undoStacks[currentPage].length>50)undoStacks[currentPage].shift();
+  redoStacks[currentPage]=[];
+  lastEditorValue=now;
+  currentPages[currentPage]=now;
+  saveDraftForCurrentDoc();
+  updateUndoRedoButtons();
+}
+  function undoEdit(){
+  var stack=undoStacks[currentPage]||[];
+  if(!stack.length)return;
+  var now=id('editor').value||'';
+  var prev=stack.pop();
+  if(!redoStacks[currentPage])redoStacks[currentPage]=[];
+  redoStacks[currentPage].push(now);
+  suppressEditorHistory=true;
+  id('editor').value=prev;
+  suppressEditorHistory=false;
+  lastEditorValue=prev;
+  currentPages[currentPage]=prev;
+  saveDraftForCurrentDoc();
+  updateUndoRedoButtons();
+}
+  function redoEdit(){
+  var stack=redoStacks[currentPage]||[];
+  if(!stack.length)return;
+  var now=id('editor').value||'';
+  var next=stack.pop();
+  if(!undoStacks[currentPage])undoStacks[currentPage]=[];
+  undoStacks[currentPage].push(now);
+  suppressEditorHistory=true;
+  id('editor').value=next;
+  suppressEditorHistory=false;
+  lastEditorValue=next;
+  currentPages[currentPage]=next;
+  saveDraftForCurrentDoc();
+  updateUndoRedoButtons();
+}
+  function updateUndoRedoButtons(){
+  var u=id('undoEditBtn'),r=id('redoEditBtn');
+  if(u)u.disabled=!(undoStacks[currentPage]&&undoStacks[currentPage].length);
+  if(r)r.disabled=!(redoStacks[currentPage]&&redoStacks[currentPage].length);
+}
+
   function storeCurrentPage(){
-    if(!currentPages.length)currentPages=[''];
-    currentPages[currentPage]=id('editor').value;
-  }
+  if(!currentPages.length)currentPages=[''];
+  currentPages[currentPage]=id('editor').value;
+}
   function renderPage(n){
-    storeCurrentPage();
-    if(n<0)n=0;
-    if(n>=currentPages.length)n=currentPages.length-1;
-    currentPage=n;
-    id('editor').value=currentPages[currentPage]||'';
+  storeCurrentPage();
+  if(n<0)n=0;
+  if(n>=currentPages.length)n=currentPages.length-1;
+  currentPage=n;
 
-    var labels=qsa('.page-label'),i;
-    for(i=0;i<labels.length;i++)labels[i].innerHTML='Trang '+(currentPage+1)+' / '+currentPages.length;
+  suppressEditorHistory=true;
+  id('editor').value=currentPages[currentPage]||'';
+  suppressEditorHistory=false;
+  resetHistoryForPage();
 
-    var jumps=qsa('.pageJump');
-    for(i=0;i<jumps.length;i++){
-      jumps[i].value=String(currentPage+1);
-      jumps[i].max=String(currentPages.length);
-    }
+  var labels=qsa('.page-label'),i;
+  for(i=0;i<labels.length;i++)labels[i].innerHTML='Trang '+(currentPage+1)+' / '+currentPages.length;
 
-    var prev=qsa('.prevBtn'),next=qsa('.nextBtn');
-    for(i=0;i<prev.length;i++)prev[i].disabled=currentPage===0;
-    for(i=0;i<next.length;i++)next[i].disabled=currentPage>=currentPages.length-1;
+  var jumps=qsa('.pageJump');
+  for(i=0;i<jumps.length;i++){
+  jumps[i].value=String(currentPage+1);
+  jumps[i].max=String(currentPages.length);
+}
 
-    var doc=findDoc(currentDocId);
-    var marks=doc&&doc.bookmarks?doc.bookmarks:[];
-    var active=false;
-    for(i=0;i<marks.length;i++)if(marks[i].page===currentPage)active=true;
+  var prev=qsa('.prevBtn'),next=qsa('.nextBtn');
+  for(i=0;i<prev.length;i++)prev[i].disabled=currentPage===0;
+  for(i=0;i<next.length;i++)next[i].disabled=currentPage>=currentPages.length-1;
 
-    var b=qsa('.bookmarkBtn');
-    for(i=0;i<b.length;i++){
-      b[i].disabled=!doc;
-      b[i].innerHTML=active?'🔖 Đã lưu dấu':'🔖 Dấu trang';
-    }
+  var doc=findDoc(currentDocId);
+  var marks=doc&&doc.bookmarks?doc.bookmarks:[];
+  var active=false;
+  for(i=0;i<marks.length;i++)if(marks[i].page===currentPage)active=true;
 
-    /* Remember the exact last page for this document. */
-    if(doc){
-      doc.currentPage=currentPage;
-      doc.updatedAt=new Date().toISOString();
-      try{
-        localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));
-        localStorage.setItem(LEGACY_IPAD_STORAGE_KEY,JSON.stringify(appState));
-      }catch(e){}
-    }
+  var b=qsa('.bookmarkBtn');
+  for(i=0;i<b.length;i++){
+  b[i].disabled=!doc;
+  b[i].innerHTML=active?'🔖 Đã lưu dấu':'🔖 Dấu trang';
+}
 
-    selectedText='';
-    updateAnalyzeButtons();
+  /* Persist last page only. Never persist edited draft text here. */
+  if(doc){
+  doc.currentPage=currentPage;
+  try{
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));
+  localStorage.setItem(LEGACY_IPAD_STORAGE_KEY,JSON.stringify(appState));
+}catch(e){}
+}
 
-    setTimeout(function(){
-      try{
-        var reader=id('readerView');
-        var editor=id('editor');
-        if(reader&&reader.scrollIntoView)reader.scrollIntoView(true);
-        else if(editor&&editor.scrollIntoView)editor.scrollIntoView(true);
-        else window.scrollTo(0,0);
-        if(editor)editor.scrollTop=0;
-      }catch(e){
-        try{window.scrollTo(0,0);}catch(ignore){}
-      }
-    },20);
-  }
+  selectedText='';
+  updateAnalyzeButtons();
+
+  setTimeout(function(){
+  try{
+  var reader=id('readerView');
+  var editor=id('editor');
+  if(reader&&reader.scrollIntoView)reader.scrollIntoView(true);
+  else if(editor&&editor.scrollIntoView)editor.scrollIntoView(true);
+  else window.scrollTo(0,0);
+  if(editor)editor.scrollTop=0;
+}catch(e){try{window.scrollTo(0,0);}catch(ignore){}}
+},20);
+}
   function findDoc(docId){
-    var i;
-    for(i=0;i<appState.documents.length;i++)if(String(appState.documents[i].id)===String(docId))return appState.documents[i];
-    return null;
-  }
+  var i;
+  for(i=0;i<appState.documents.length;i++)if(String(appState.documents[i].id)===String(docId))return appState.documents[i];
+  return null;
+}
   function saveDocument(){
-    storeCurrentPage();
-    var title=trim(id('docTitle').value)||'Tài liệu chưa đặt tên';
-    if(currentDocId===null)currentDocId=new Date().getTime();
-    var doc=findDoc(currentDocId);
-    if(!doc){
-      doc={
-        id:currentDocId,
-        title:title,
-        pages:currentPages,
-        bookmarks:[],
-        currentPage:currentPage,
-        updatedAt:new Date().toISOString(),
-        offline:true
-      };
-      appState.documents.unshift(doc);
-    }else{
-      doc.title=title;
-      doc.pages=currentPages;
-      doc.currentPage=currentPage;
-      doc.updatedAt=new Date().toISOString();
-      doc.offline=true;
-    }
-    saveState();
-    renderPage(currentPage);
-    toast('Đã lưu tài liệu offline trên iPad.');
-  }
+  storeCurrentPage();
+  var title=trim(id('docTitle').value)||'Tài liệu chưa đặt tên';
+  if(currentDocId===null)currentDocId=new Date().getTime();
+  var doc=findDoc(currentDocId);
+  if(!doc){
+  doc={
+  id:currentDocId,
+  title:title,
+  pages:clonePages(currentPages),
+  bookmarks:[],
+  currentPage:currentPage,
+  updatedAt:new Date().toISOString(),
+  offline:true
+};
+  appState.documents.unshift(doc);
+}else{
+  doc.title=title;
+  doc.pages=clonePages(currentPages);
+  doc.currentPage=currentPage;
+  doc.updatedAt=new Date().toISOString();
+  doc.offline=true;
+}
+  saveState();
+  clearDraftForDoc(currentDocId);
+  undoStacks={};redoStacks={};
+  resetHistoryForPage();
+  toast('Đã lưu tài liệu.');
+}
   function bookmarkPreviewText(){
-    var text=trim(selectedText||'');
-    if(!text){
-      try{
-        getSelectedText();
-        text=trim(selectedText||'');
-      }catch(e){}
-    }
-    if(!text){
-      text=trim(id('editor').value||'');
-    }
-    if(!text)return '';
+  var text=trim(selectedText||'');
+  if(!text){
+  try{
+  getSelectedText();
+  text=trim(selectedText||'');
+}catch(e){}
+}
+  if(!text){
+  text=trim(id('editor').value||'');
+}
+  if(!text)return '';
 
-    if(text.length<=90)return text;
+  if(text.length<=90)return text;
 
-    var front=text.substring(0,45);
-    var tail=text.substring(text.length-35);
-    return front+' ... '+tail;
-  }
+  var front=text.substring(0,45);
+  var tail=text.substring(text.length-35);
+  return front+' ... '+tail;
+}
 
   function addBookmark(){
-    var doc=findDoc(currentDocId);
-    if(!doc){toast('Hãy lưu tài liệu trước.');return;}
+  var doc=findDoc(currentDocId);
+  if(!doc){toast('Hãy lưu tài liệu trước.');return;}
 
-    var preview=bookmarkPreviewText();
-    var promptText='Ghi chú dấu trang';
-    if(preview){
-      promptText+=':\n\n“'+preview+'”\n\nNhập ghi chú:';
-    }else{
-      promptText+=':\n\nNhập ghi chú:';
-    }
+  var preview=bookmarkPreviewText();
+  var promptText='Ghi chú dấu trang';
+  if(preview){
+  promptText+=':\n\n“'+preview+'”\n\nNhập ghi chú:';
+}else{
+  promptText+=':\n\nNhập ghi chú:';
+}
 
-    var note=window.prompt(promptText,'');
-    if(note===null)return;
+  var note=window.prompt(promptText,'');
+  if(note===null)return;
 
-    if(!doc.bookmarks)doc.bookmarks=[];
-    doc.bookmarks.push({
-      id:'m'+new Date().getTime(),
-      page:currentPage,
-      note:trim(note)||'Dấu trang',
-      excerpt:preview,
-      savedAt:new Date().toISOString()
-    });
+  if(!doc.bookmarks)doc.bookmarks=[];
+  doc.bookmarks.push({
+  id:'m'+new Date().getTime(),
+  page:currentPage,
+  note:trim(note)||'Dấu trang',
+  excerpt:preview,
+  savedAt:new Date().toISOString()
+});
 
-    saveState();
-    renderPage(currentPage);
-    toast('Đã lưu dấu trang.');
-  }
+  saveState();
+  renderPage(currentPage);
+  toast('Đã lưu dấu trang.');
+}
   function groupedBookmarks(doc){
-    var groups={},marks=doc&&doc.bookmarks?doc.bookmarks:[],i,m,key;
-    for(i=0;i<marks.length;i++){
-      m=marks[i];
-      key=String((Number(m.page)||0)+1);
-      if(!groups[key])groups[key]=[];
-      groups[key].push(m);
-    }
-    return groups;
-  }
+  var groups={},marks=doc&&doc.bookmarks?doc.bookmarks:[],i,m,key;
+  for(i=0;i<marks.length;i++){
+  m=marks[i];
+  key=String((Number(m.page)||0)+1);
+  if(!groups[key])groups[key]=[];
+  groups[key].push(m);
+}
+  return groups;
+}
 
   function bookmarkTreeHtml(doc){
-    var groups=groupedBookmarks(doc),pages=[],p,i,j,marks,m,html='';
-    for(p in groups){
-      if(groups.hasOwnProperty(p))pages.push(parseInt(p,10));
-    }
-    pages.sort(function(a,b){return a-b;});
-    if(!pages.length)return '<div class="bookmark-empty">Chưa có dấu trang.</div>';
+  var groups=groupedBookmarks(doc),pages=[],p,i,j,marks,m,html='';
+  for(p in groups){
+  if(groups.hasOwnProperty(p))pages.push(parseInt(p,10));
+}
+  pages.sort(function(a,b){return a-b;});
+  if(!pages.length)return '<div class="bookmark-empty">Chưa có dấu trang.</div>';
 
-    for(i=0;i<pages.length;i++){
-      p=pages[i];
-      marks=groups[String(p)]||[];
-      html+='<details class="bookmark-page-group">'+
-          '<summary>Trang '+p+' <b>'+marks.length+'</b></summary>'+
-          '<div class="bookmark-page-items">';
-      for(j=0;j<marks.length;j++){
-        m=marks[j];
-        html+='<article class="bookmark-tree-item">'+
-            '<button type="button" class="bookmark-open-btn" data-bookmark-doc="'+esc(String(doc.id))+'" data-bookmark-page="'+esc(String(m.page||0))+'">'+
-            '<span class="bookmark-note">'+esc(m.note||'Dấu trang')+'</span>'+
-            '<small class="bookmark-excerpt">'+esc(m.excerpt||'Không có đoạn trích đã lưu.')+'</small>'+
-            '</button>'+
-            '</article>';
-      }
-      html+='</div></details>';
-    }
-    return html;
-  }
+  for(i=0;i<pages.length;i++){
+  p=pages[i];
+  marks=groups[String(p)]||[];
+  html+='<details class="bookmark-page-group">'+
+  '<summary>Trang '+p+' <b>'+marks.length+'</b></summary>'+
+  '<div class="bookmark-page-items">';
+  for(j=0;j<marks.length;j++){
+  m=marks[j];
+  html+='<article class="bookmark-tree-item">'+
+  '<button type="button" class="bookmark-open-btn" data-bookmark-doc="'+esc(String(doc.id))+'" data-bookmark-page="'+esc(String(m.page||0))+'">'+
+  '<span class="bookmark-note">'+esc(m.note||'Dấu trang')+'</span>'+
+  '<small class="bookmark-excerpt">'+esc(m.excerpt||'Không có đoạn trích đã lưu.')+'</small>'+
+  '</button>'+
+  '</article>';
+}
+  html+='</div></details>';
+}
+  return html;
+}
 
   function openBookmarkFromLibrary(docId,pageIndex){
-    var d=findDoc(docId);
-    if(!d)return;
-    currentDocId=d.id;
-    if(d.pages&&d.pages.length)currentPages=d.pages;
-    else if(d.html)currentPages=[d.html];
-    else currentPages=[''];
-    currentPage=parseInt(pageIndex,10);
-    if(isNaN(currentPage)||currentPage<0||currentPage>=currentPages.length)currentPage=0;
-    id('docTitle').value=d.title||'Tài liệu';
-    setView('reader');
-    renderPage(currentPage);
-    setTimeout(function(){
-      try{id('editor').scrollIntoView(true);}catch(e){}
-    },60);
-  }
+  var d=findDoc(docId);
+  if(!d)return;
+  currentDocId=d.id;
+  if(d.pages&&d.pages.length)currentPages=d.pages;
+  else if(d.html)currentPages=[d.html];
+  else currentPages=[''];
+  currentPage=parseInt(pageIndex,10);
+  if(isNaN(currentPage)||currentPage<0||currentPage>=currentPages.length)currentPage=0;
+  id('docTitle').value=d.title||'Tài liệu';
+  setView('reader');
+  renderPage(currentPage);
+  setTimeout(function(){
+  try{id('editor').scrollIntoView(true);}catch(e){}
+},60);
+}
 
   function renderLibrary(){
-    var box=id('docList'),html='',i,d,pages,bookmarks;
-    for(i=0;i<appState.documents.length;i++){
-      d=appState.documents[i];
-      pages=d.pages&&d.pages.length?d.pages:(d.html?[d.html]:['']);
-      bookmarks=d.bookmarks||[];
+  var box=id('docList'),html='',i,d,pages,bookmarks;
+  for(i=0;i<appState.documents.length;i++){
+  d=appState.documents[i];
+  pages=d.pages&&d.pages.length?d.pages:(d.html?[d.html]:['']);
+  bookmarks=d.bookmarks||[];
 
-      html+='<div class="doc-item library-doc">'+
-          '<div class="library-doc-head">'+
-          '<b>'+esc(d.title||'Tài liệu')+'</b>'+
-          '<div class="small">'+pages.length+' trang · '+bookmarks.length+' dấu trang · OFFLINE</div>'+
-          '<button data-open-doc="'+esc(String(d.id))+'">Mở tài liệu</button>'+
-          '<button data-del-doc="'+esc(String(d.id))+'">Xóa</button>'+
-          '</div>'+
-          '<details class="bookmark-tree">'+
-          '<summary>🔖 Dấu trang <b>'+bookmarks.length+'</b></summary>'+
-          '<div class="bookmark-tree-body">'+bookmarkTreeHtml(d)+'</div>'+
-          '</details>'+
-          '</div>';
-    }
-    box.innerHTML=html||'<div class="small">Chưa có tài liệu offline.</div>';
-  }
+  html+='<div class="doc-item library-doc">'+
+  '<div class="library-doc-head">'+
+  '<b>'+esc(d.title||'Tài liệu')+'</b>'+
+  '<div class="small">'+pages.length+' trang · '+bookmarks.length+' dấu trang · OFFLINE</div>'+
+  '<button data-open-doc="'+esc(String(d.id))+'">Mở tài liệu</button>'+
+  '<button data-del-doc="'+esc(String(d.id))+'">Xóa</button>'+
+  '</div>'+
+  '<details class="bookmark-tree">'+
+  '<summary>🔖 Dấu trang <b>'+bookmarks.length+'</b></summary>'+
+  '<div class="bookmark-tree-body">'+bookmarkTreeHtml(d)+'</div>'+
+  '</details>'+
+  '</div>';
+}
+  box.innerHTML=html||'<div class="small">Chưa có tài liệu offline.</div>';
+}
   function openDocument(docId){
-    var d=findDoc(docId);
-    if(!d)return;
-    currentDocId=d.id;
-    if(d.pages&&d.pages.length)currentPages=d.pages;
-    else if(d.html)currentPages=[d.html];
-    else currentPages=[''];
+  var d=findDoc(docId);
+  if(!d)return;
+  currentDocId=d.id;
 
-    currentPage=parseInt(d.currentPage,10);
-    if(isNaN(currentPage))currentPage=0;
-    if(currentPage<0||currentPage>=currentPages.length)currentPage=0;
+  var savedPages;
+  if(d.pages&&d.pages.length)savedPages=clonePages(d.pages);
+  else if(d.html)savedPages=[String(d.html)];
+  else savedPages=[''];
 
-    id('docTitle').value=d.title||'Tài liệu';
-    setView('reader');
-    renderPage(currentPage);
-  }
+  var draft=loadDraftForDoc(d.id);
+  if(draft&&draft.pages&&draft.pages.length){
+  currentPages=clonePages(draft.pages);
+  currentPage=parseInt(draft.currentPage,10);
+  id('docTitle').value=draft.title||d.title||'Tài liệu';
+  updateDraftStatus(true);
+}else{
+  currentPages=savedPages;
+  currentPage=parseInt(d.currentPage,10);
+  id('docTitle').value=d.title||'Tài liệu';
+  updateDraftStatus(false);
+}
+
+  if(isNaN(currentPage))currentPage=0;
+  if(currentPage<0||currentPage>=currentPages.length)currentPage=0;
+
+  undoStacks={};redoStacks={};
+  setView('reader');
+  renderPage(currentPage);
+}
   function deleteDocument(docId){
-    if(!window.confirm('Xóa tài liệu này?'))return;
-    var out=[],i;
-    for(i=0;i<appState.documents.length;i++)if(String(appState.documents[i].id)!==String(docId))out.push(appState.documents[i]);
-    appState.documents=out;
-    if(String(currentDocId)===String(docId))currentDocId=null;
-    saveState();
-  }
+  if(!window.confirm('Xóa tài liệu này?'))return;
+  var out=[],i;
+  for(i=0;i<appState.documents.length;i++)if(String(appState.documents[i].id)!==String(docId))out.push(appState.documents[i]);
+  appState.documents=out;
+  if(String(currentDocId)===String(docId))currentDocId=null;
+  saveState();
+}
   function renderMemory(){
-    var q=trim(id('memorySearch').value).toLowerCase(),html='',i,a,w,p,word,reading,romaji,vi,en,h;
-    html+='<h3 class="memory-section-title">Câu / cụm từ đã lưu</h3>';
-    for(i=0;i<appState.savedPhrases.length;i++){
-      p=appState.savedPhrases[i];
-      h=(String(p.source||'')+' '+String(p.hiragana||'')+' '+String(p.romaji||'')+' '+String(p.translationVi||'')+' '+String(p.translationEn||'')).toLowerCase();
-      if(q&&h.indexOf(q)<0)continue;
-      html+='<div class="memory-item saved-phrase"><b class="memory-jp">'+esc(p.source||'')+'</b>'+
-          '<div class="small"><b>ひらがな:</b> '+esc(p.hiragana||'—')+'</div>'+
-          '<div class="small"><b>Phát âm:</b> '+esc(p.romaji||'—')+'</div>'+
-          '<div class="small"><b>VI:</b> '+esc(p.translationVi||'—')+'</div>'+
-          '<div class="small"><b>EN:</b> '+esc(p.translationEn||'—')+'</div>'+
-          '<div class="memory-actions"><button data-read-phrase="'+i+'">▶ Đọc</button><button data-open-phrase="'+i+'">Mở phân tích</button></div></div>';
-    }
-    html+='<h3 class="memory-section-title">Từ mới đã lưu</h3>';
-    for(i=0;i<appState.savedWords.length;i++){
-      w=appState.savedWords[i];word=w.word||w[0]||'';reading=w.reading||'';romaji=w.romaji||w.pronunciation||'';
-      vi=w.meaningVi||'';en=w.meaningEn||w.meaning||w[1]||'';
-      h=(word+' '+reading+' '+romaji+' '+vi+' '+en).toLowerCase();
-      if(q&&h.indexOf(q)<0)continue;
-      html+='<div class="memory-item saved-word"><b class="memory-jp">'+esc(word)+'</b>'+
-          '<div class="small"><b>ひらがな:</b> '+esc(reading||'—')+'</div>'+
-          '<div class="small"><b>Phát âm:</b> '+esc(romaji||'—')+'</div>'+
-          '<div class="small"><b>VI:</b> '+esc(vi||'—')+'</div>'+
-          '<div class="small"><b>EN:</b> '+esc(en||'—')+'</div>'+
-          '<div class="memory-actions"><button data-read-word="'+i+'">▶ Đọc</button></div></div>';
-    }
-    html+='<h3 class="memory-section-title">Kết quả phân tích đã lưu</h3>';
-    for(i=0;i<appState.analyses.length;i++){
-      a=appState.analyses[i];
-      h=(String(a.source||'')+' '+String(analysisReading(a))+' '+String(analysisRomaji(a))+' '+String(a.translationVi||'')+' '+String(a.translation||'')).toLowerCase();
-      if(q&&h.indexOf(q)<0)continue;
-      html+='<div class="memory-item saved-analysis"><b class="memory-jp">'+esc(a.source||'')+'</b>'+
-          '<div class="small"><b>ひらがな:</b> '+esc(analysisReading(a)||'—')+'</div>'+
-          '<div class="small"><b>Phát âm:</b> '+esc(analysisRomaji(a)||'—')+'</div>'+
-          '<div class="small"><b>VI:</b> '+esc(a.translationVi||'—')+'</div>'+
-          '<div class="small"><b>EN:</b> '+esc(a.translation||a.translationEn||'—')+'</div>'+
-          '<div class="memory-actions"><button data-read-analysis="'+i+'">▶ Đọc</button><button data-open-analysis="'+i+'">Mở lại phân tích</button></div></div>';
-    }
-    id('memoryList').innerHTML=html;
-  }
+  var q=trim(id('memorySearch').value).toLowerCase(),html='',i,a,w,p,word,reading,romaji,vi,en,h;
+  html+='<h3 class="memory-section-title">Câu / cụm từ đã lưu</h3>';
+  for(i=0;i<appState.savedPhrases.length;i++){
+  p=appState.savedPhrases[i];
+  h=(String(p.source||'')+' '+String(p.hiragana||'')+' '+String(p.romaji||'')+' '+String(p.translationVi||'')+' '+String(p.translationEn||'')).toLowerCase();
+  if(q&&h.indexOf(q)<0)continue;
+  html+='<div class="memory-item saved-phrase"><b class="memory-jp">'+esc(p.source||'')+'</b>'+
+  '<div class="small"><b>ひらがな:</b> '+esc(p.hiragana||'—')+'</div>'+
+  '<div class="small"><b>Phát âm:</b> '+esc(p.romaji||'—')+'</div>'+
+  '<div class="small"><b>VI:</b> '+esc(p.translationVi||'—')+'</div>'+
+  '<div class="small"><b>EN:</b> '+esc(p.translationEn||'—')+'</div>'+
+  '<div class="memory-actions"><button data-read-phrase="'+i+'">▶ Đọc</button><button data-open-phrase="'+i+'">Mở phân tích</button></div></div>';
+}
+  html+='<h3 class="memory-section-title">Từ mới đã lưu</h3>';
+  for(i=0;i<appState.savedWords.length;i++){
+  w=appState.savedWords[i];word=w.word||w[0]||'';reading=w.reading||'';romaji=w.romaji||w.pronunciation||'';
+  vi=w.meaningVi||'';en=w.meaningEn||w.meaning||w[1]||'';
+  h=(word+' '+reading+' '+romaji+' '+vi+' '+en).toLowerCase();
+  if(q&&h.indexOf(q)<0)continue;
+  html+='<div class="memory-item saved-word"><b class="memory-jp">'+esc(word)+'</b>'+
+  '<div class="small"><b>ひらがな:</b> '+esc(reading||'—')+'</div>'+
+  '<div class="small"><b>Phát âm:</b> '+esc(romaji||'—')+'</div>'+
+  '<div class="small"><b>VI:</b> '+esc(vi||'—')+'</div>'+
+  '<div class="small"><b>EN:</b> '+esc(en||'—')+'</div>'+
+  '<div class="memory-actions"><button data-read-word="'+i+'">▶ Đọc</button></div></div>';
+}
+  html+='<h3 class="memory-section-title">Kết quả phân tích đã lưu</h3>';
+  for(i=0;i<appState.analyses.length;i++){
+  a=appState.analyses[i];
+  h=(String(a.source||'')+' '+String(analysisReading(a))+' '+String(analysisRomaji(a))+' '+String(a.translationVi||'')+' '+String(a.translation||'')).toLowerCase();
+  if(q&&h.indexOf(q)<0)continue;
+  html+='<div class="memory-item saved-analysis"><b class="memory-jp">'+esc(a.source||'')+'</b>'+
+  '<div class="small"><b>ひらがな:</b> '+esc(analysisReading(a)||'—')+'</div>'+
+  '<div class="small"><b>Phát âm:</b> '+esc(analysisRomaji(a)||'—')+'</div>'+
+  '<div class="small"><b>VI:</b> '+esc(a.translationVi||'—')+'</div>'+
+  '<div class="small"><b>EN:</b> '+esc(a.translation||a.translationEn||'—')+'</div>'+
+  '<div class="memory-actions"><button data-read-analysis="'+i+'">▶ Đọc</button><button data-open-analysis="'+i+'">Mở lại phân tích</button></div></div>';
+}
+  id('memoryList').innerHTML=html;
+}
 
   function setView(name){
-    hide(id('readerView'));hide(id('memoryView'));hide(id('libraryView'));
-    removeClass(id('readerTab'),'active');removeClass(id('memoryTab'),'active');removeClass(id('libraryTab'),'active');
-    if(name==='memory'){show(id('memoryView'));addClass(id('memoryTab'),'active');renderMemory();}
-    else if(name==='library'){show(id('libraryView'));addClass(id('libraryTab'),'active');renderLibrary();}
-    else{show(id('readerView'));addClass(id('readerTab'),'active');}
-  }
+  hide(id('readerView'));hide(id('memoryView'));hide(id('libraryView'));
+  removeClass(id('readerTab'),'active');removeClass(id('memoryTab'),'active');removeClass(id('libraryTab'),'active');
+  if(name==='memory'){show(id('memoryView'));addClass(id('memoryTab'),'active');renderMemory();}
+  else if(name==='library'){show(id('libraryView'));addClass(id('libraryTab'),'active');renderLibrary();}
+  else{show(id('readerView'));addClass(id('readerTab'),'active');}
+}
 
   function openWait(text){
-    analyzing=true;updateAnalyzeButtons();
-    id('waitText').innerHTML=esc(text);
-    id('waitSeconds').innerHTML='0';
-    id('waitOverlay').style.display='block';addClass(id('waitOverlay'),'is-open');
-    document.body.style.overflow='hidden';
-    var start=new Date().getTime();
-    clearInterval(waitTimer);
-    waitTimer=setInterval(function(){id('waitSeconds').innerHTML=String(Math.floor((new Date().getTime()-start)/1000));},1000);
-  }
+  analyzing=true;updateAnalyzeButtons();
+  id('waitText').innerHTML=esc(text);
+  id('waitSeconds').innerHTML='0';
+  id('waitOverlay').style.display='block';addClass(id('waitOverlay'),'is-open');
+  document.body.style.overflow='hidden';
+  var start=new Date().getTime();
+  clearInterval(waitTimer);
+  waitTimer=setInterval(function(){id('waitSeconds').innerHTML=String(Math.floor((new Date().getTime()-start)/1000));},1000);
+}
   function closeWait(){
-    analyzing=false;
-    clearInterval(waitTimer);waitTimer=null;
-    id('waitOverlay').style.display='none';removeClass(id('waitOverlay'),'is-open');
-    document.body.style.overflow='';
-    updateAnalyzeButtons();
-  }
+  analyzing=false;
+  clearInterval(waitTimer);waitTimer=null;
+  id('waitOverlay').style.display='none';removeClass(id('waitOverlay'),'is-open');
+  document.body.style.overflow='';
+  updateAnalyzeButtons();
+}
   function renderAnalysis(a){
-    currentAnalysis=a;
-    id('sourceText').innerHTML=esc(a.source||selectedText);
-    id('hiraganaText').innerHTML=esc(a.hira||a.hiragana||'');
-    id('translationVi').innerHTML=esc(a.translationVi||'');
-    id('translationEn').innerHTML=esc(a.translation||'');
-    var words=a.words||a.vocabulary||[],html='',i,w,word,reading,romaji,vi,en,saved;
-    for(i=0;i<words.length;i++){
-      w=words[i];
-      word=w.word||w.surface||w[0]||'';
-      reading=w.reading||w.hiragana||'';
-      romaji=w.romaji||w.pronunciation||'';
-      vi=w.meaningVi||w.translationVi||'';
-      en=w.meaningEn||w.meaning||w.translation||w[1]||'';
-      saved=wordAlreadySaved(word,reading);
+  currentAnalysis=a;
+  id('sourceText').innerHTML=esc(a.source||selectedText);
+  id('hiraganaText').innerHTML=esc(a.hira||a.hiragana||'');
+  id('translationVi').innerHTML=esc(a.translationVi||'');
+  id('translationEn').innerHTML=esc(a.translation||'');
+  var words=a.words||a.vocabulary||[],html='',i,w,word,reading,romaji,vi,en,saved;
+  for(i=0;i<words.length;i++){
+  w=words[i];
+  word=w.word||w.surface||w[0]||'';
+  reading=w.reading||w.hiragana||'';
+  romaji=w.romaji||w.pronunciation||'';
+  vi=w.meaningVi||w.translationVi||'';
+  en=w.meaningEn||w.meaning||w.translation||w[1]||'';
+  saved=wordAlreadySaved(word,reading);
 
-      html+='<span class="word'+(saved?' saved':'')+'" data-speak-card-index="'+i+'" title="Chạm để đọc">'+
-          '<span class="word-cell">'+
-          '<b class="surface">'+esc(word)+'</b>'+
-          '<span class="reading"><b>ひらがな:</b> '+esc(reading||'—')+'</span>'+
-          '<span class="pronunciation"><b>Phát âm:</b> '+esc(romaji||'—')+'</span>'+
-          '</span>'+
-          '<span class="meaning-vi"><b>VI:</b> '+esc(vi||'—')+'</span>'+
-          '<span class="meaning-en"><b>EN:</b> '+esc(en||'—')+'</span>'+
-          '<span class="word-actions">'+
-          '<button type="button" class="speak-word-btn" data-word-index="'+i+'">▶ Đọc</button>'+
-          '<button type="button" class="save-word-btn" data-save-word-index="'+i+'">'+(saved?'✓ Đã lưu':'＋ Lưu từ')+'</button>'+
-          '</span>'+
-          '</span>';
-    }
-    id('wordList').innerHTML=html||'<span class="small">Không có từ vựng.</span>';
-    show(id('analysisPanel'));
-  }
+  html+='<span class="word'+(saved?' saved':'')+'" data-speak-card-index="'+i+'" title="Chạm để đọc">'+
+  '<span class="word-cell">'+
+  '<b class="surface">'+esc(word)+'</b>'+
+  '<span class="reading"><b>ひらがな:</b> '+esc(reading||'—')+'</span>'+
+  '<span class="pronunciation"><b>Phát âm:</b> '+esc(romaji||'—')+'</span>'+
+  '</span>'+
+  '<span class="meaning-vi"><b>VI:</b> '+esc(vi||'—')+'</span>'+
+  '<span class="meaning-en"><b>EN:</b> '+esc(en||'—')+'</span>'+
+  '<span class="word-actions">'+
+  '<button type="button" class="speak-word-btn" data-word-index="'+i+'">▶ Đọc</button>'+
+  '<button type="button" class="save-word-btn" data-save-word-index="'+i+'">'+(saved?'✓ Đã lưu':'＋ Lưu từ')+'</button>'+
+  '</span>'+
+  '</span>';
+}
+  id('wordList').innerHTML=html||'<span class="small">Không có từ vựng.</span>';
+  show(id('analysisPanel'));
+}
   function updateAnalysisConfirmCount(){
-    var box=id('analysisConfirmText');
-    var count=id('analysisConfirmCount');
-    if(!box||!count)return;
-    var len=String(box.value||'').length;
-    count.innerHTML=len+' / 500 ký tự';
-    count.style.color=len>500?'#8b3f36':'#315f55';
-  }
+  var box=id('analysisConfirmText');
+  var count=id('analysisConfirmCount');
+  if(!box||!count)return;
+  var len=String(box.value||'').length;
+  count.innerHTML=len+' / 500 ký tự';
+  count.style.color=len>500?'#8b3f36':'#315f55';
+}
   function openAnalysisConfirm(){
-    if(analyzing)return;
-    getSelectedText();
-    if(selectedText.length<2){
-      toast('Hãy chọn đoạn tiếng Nhật cần phân tích.');
-      return;
-    }
-    var box=id('analysisConfirmText');
-    var modal=id('analysisConfirmModal');
-    var err=id('analysisConfirmError');
-    if(box)box.value=selectedText;
-    if(err)err.innerHTML='';
-    updateAnalysisConfirmCount();
-    if(modal){modal.style.display='block';addClass(modal,'is-open');}
-    document.body.style.overflow='hidden';
-    setTimeout(function(){try{box.focus();box.setSelectionRange(box.value.length,box.value.length);}catch(e){}},50);
-  }
+  if(analyzing)return;
+  getSelectedText();
+  if(selectedText.length<2){
+  toast('Hãy chọn đoạn tiếng Nhật cần phân tích.');
+  return;
+}
+  var box=id('analysisConfirmText');
+  var modal=id('analysisConfirmModal');
+  var err=id('analysisConfirmError');
+  if(box)box.value=selectedText;
+  if(err)err.innerHTML='';
+  updateAnalysisConfirmCount();
+  if(modal){modal.style.display='block';addClass(modal,'is-open');}
+  document.body.style.overflow='hidden';
+  setTimeout(function(){try{box.focus();box.setSelectionRange(box.value.length,box.value.length);}catch(e){}},50);
+}
   function closeAnalysisConfirm(){
-    var modal=id('analysisConfirmModal');
-    if(modal){modal.style.display='none';removeClass(modal,'is-open');}
-    document.body.style.overflow='';
-  }
+  var modal=id('analysisConfirmModal');
+  if(modal){modal.style.display='none';removeClass(modal,'is-open');}
+  document.body.style.overflow='';
+}
   function startConfirmedAnalysis(){
-    var box=id('analysisConfirmText');
-    var err=id('analysisConfirmError');
-    var text=trim(box?box.value:'');
-    if(text.length<2){
-      if(err)err.innerHTML='Nội dung quá ngắn.';
-      return;
-    }
-    if(text.length>500){
-      if(err)err.innerHTML='Chỉ phân tích tối đa 500 ký tự.';
-      return;
-    }
-    selectedText=text;
-    closeAnalysisConfirm();
-    analyzeConfirmed();
-  }
+  var box=id('analysisConfirmText');
+  var err=id('analysisConfirmError');
+  var text=trim(box?box.value:'');
+  if(text.length<2){
+  if(err)err.innerHTML='Nội dung quá ngắn.';
+  return;
+}
+  if(text.length>500){
+  if(err)err.innerHTML='Chỉ phân tích tối đa 500 ký tự.';
+  return;
+}
+  selectedText=text;
+  closeAnalysisConfirm();
+  analyzeConfirmed();
+}
 
   function analyze(){
-    openAnalysisConfirm();
-  }
+  openAnalysisConfirm();
+}
 
   function analyzeConfirmed(){
-    if(analyzing||selectedText.length<2)return;
-    if(selectedText.length>500){toast('Chỉ chọn tối đa 500 ký tự.');return;}
-    refreshQuota(function(ok){
-      if(!ok){toast('Không lấy được hạn mức từ máy chủ.');return;}
-      if(Number(quotaRemaining)<=0){toast('Bạn đã hết lượt phân tích hôm nay.');return;}
-      openWait(selectedText);
-      xhr('POST','/api/japanese-learning/analyze',JSON.stringify({text:selectedText,mode:'selection'}),{'Content-Type':'application/json','Accept':'application/json'},function(status,text){
-        var d=jsonParse(text);
-        if(status===200&&d){
-          if(!d.source)d.source=selectedText;
-          renderAnalysis(d);
-        }else if(status===401){
-          toast('Hãy đăng nhập Google để phân tích.');
-        }else if(status===429){
-          toast('Bạn đã hết hạn mức hôm nay.');
-        }else{
-          toast(d&&d.error?d.error:'Không thể phân tích.');
-        }
-        refreshQuota(function(){closeWait();});
-      });
-    });
-  }
+  if(analyzing||selectedText.length<2)return;
+  if(selectedText.length>500){toast('Chỉ chọn tối đa 500 ký tự.');return;}
+  refreshQuota(function(ok){
+  if(!ok){toast('Không lấy được hạn mức từ máy chủ.');return;}
+  if(Number(quotaRemaining)<=0){toast('Bạn đã hết lượt phân tích hôm nay.');return;}
+  openWait(selectedText);
+  xhr('POST','/api/japanese-learning/analyze',JSON.stringify({text:selectedText,mode:'selection'}),{'Content-Type':'application/json','Accept':'application/json'},function(status,text){
+  var d=jsonParse(text);
+  if(status===200&&d){
+  if(!d.source)d.source=selectedText;
+  renderAnalysis(d);
+}else if(status===401){
+  toast('Hãy đăng nhập Google để phân tích.');
+}else if(status===429){
+  toast('Bạn đã hết hạn mức hôm nay.');
+}else{
+  toast(d&&d.error?d.error:'Không thể phân tích.');
+}
+  refreshQuota(function(){closeWait();});
+});
+});
+}
 
   function speakJapaneseText(text){
-    text=trim(text);
-    if(!text)return;
-    if(!window.speechSynthesis){toast('Safari này không hỗ trợ đọc giọng.');return;}
-    try{
-      window.speechSynthesis.cancel();
-      var u=new SpeechSynthesisUtterance(text);
-      u.lang='ja-JP';u.rate=.80;
-      window.speechSynthesis.speak(u);
-    }catch(e){toast('Không phát được tiếng Nhật.');}
-  }
+  text=trim(text);
+  if(!text)return;
+  if(!window.speechSynthesis){toast('Safari này không hỗ trợ đọc giọng.');return;}
+  try{
+  window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(text);
+  u.lang='ja-JP';u.rate=.80;
+  window.speechSynthesis.speak(u);
+}catch(e){toast('Không phát được tiếng Nhật.');}
+}
   function analysisReading(a){return a?(a.hira||a.hiragana||a.reading||''):'';}
   function analysisRomaji(a){return a?(a.romaji||a.pronunciation||''):'';}
   function phraseAlreadySaved(source){
-    var i;
-    for(i=0;i<appState.savedPhrases.length;i++){
-      if(String(appState.savedPhrases[i].source||'')===String(source||''))return true;
-    }
-    return false;
-  }
+  var i;
+  for(i=0;i<appState.savedPhrases.length;i++){
+  if(String(appState.savedPhrases[i].source||'')===String(source||''))return true;
+}
+  return false;
+}
   function saveCurrentPhrase(){
-    if(!currentAnalysis)return;
-    var source=currentAnalysis.source||selectedText||'';
-    if(!source)return;
-    if(phraseAlreadySaved(source)){toast('Câu/cụm từ này đã được lưu.');return;}
-    appState.savedPhrases.unshift({
-      id:'p'+new Date().getTime(),
-      source:source,
-      hiragana:analysisReading(currentAnalysis),
-      romaji:analysisRomaji(currentAnalysis),
-      translationVi:currentAnalysis.translationVi||'',
-      translationEn:currentAnalysis.translation||currentAnalysis.translationEn||'',
-      analysis:currentAnalysis,
-      savedAt:new Date().toISOString()
-    });
-    saveState();
-    toast('Đã lưu câu/cụm từ.');
-  }
+  if(!currentAnalysis)return;
+  var source=currentAnalysis.source||selectedText||'';
+  if(!source)return;
+  if(phraseAlreadySaved(source)){toast('Câu/cụm từ này đã được lưu.');return;}
+  appState.savedPhrases.unshift({
+  id:'p'+new Date().getTime(),
+  source:source,
+  hiragana:analysisReading(currentAnalysis),
+  romaji:analysisRomaji(currentAnalysis),
+  translationVi:currentAnalysis.translationVi||'',
+  translationEn:currentAnalysis.translation||currentAnalysis.translationEn||'',
+  analysis:currentAnalysis,
+  savedAt:new Date().toISOString()
+});
+  saveState();
+  toast('Đã lưu câu/cụm từ.');
+}
   function openSavedAnalysis(index){
-    var a=appState.analyses[index];
-    if(!a)return;
-    currentAnalysis=a;selectedText=a.source||'';
-    renderAnalysis(a);setView('reader');
-    setTimeout(function(){try{id('analysisPanel').scrollIntoView(true);}catch(e){}},50);
-  }
+  var a=appState.analyses[index];
+  if(!a)return;
+  currentAnalysis=a;selectedText=a.source||'';
+  renderAnalysis(a);setView('reader');
+  setTimeout(function(){try{id('analysisPanel').scrollIntoView(true);}catch(e){}},50);
+}
   function openSavedPhrase(index){
-    var p=appState.savedPhrases[index];
-    if(!p||!p.analysis)return;
-    currentAnalysis=p.analysis;selectedText=p.source||'';
-    renderAnalysis(p.analysis);setView('reader');
-    setTimeout(function(){try{id('analysisPanel').scrollIntoView(true);}catch(e){}},50);
-  }
+  var p=appState.savedPhrases[index];
+  if(!p||!p.analysis)return;
+  currentAnalysis=p.analysis;selectedText=p.source||'';
+  renderAnalysis(p.analysis);setView('reader');
+  setTimeout(function(){try{id('analysisPanel').scrollIntoView(true);}catch(e){}},50);
+}
 
   function speakWordByIndex(index){
-    if(!currentAnalysis)return;
-    var words=currentAnalysis.words||currentAnalysis.vocabulary||[];
-    var w=words[index];
-    if(!w)return;
-    speakJapaneseText(w.reading||w.word||w[0]||'');
-  }
+  if(!currentAnalysis)return;
+  var words=currentAnalysis.words||currentAnalysis.vocabulary||[];
+  var w=words[index];
+  if(!w)return;
+  speakJapaneseText(w.reading||w.word||w[0]||'');
+}
   function wordAlreadySaved(word,reading){
-    var i,w;
-    for(i=0;i<appState.savedWords.length;i++){
-      w=appState.savedWords[i];
-      if(String(w.word||w[0]||'')===String(word||'') &&
-          String(w.reading||'')===String(reading||''))return true;
-    }
-    return false;
-  }
+  var i,w;
+  for(i=0;i<appState.savedWords.length;i++){
+  w=appState.savedWords[i];
+  if(String(w.word||w[0]||'')===String(word||'') &&
+  String(w.reading||'')===String(reading||''))return true;
+}
+  return false;
+}
   function saveWordByIndex(index){
-    if(!currentAnalysis)return;
-    var words=currentAnalysis.words||currentAnalysis.vocabulary||[];
-    var w=words[index];
-    if(!w)return;
-    var word=w.word||w[0]||'';
-    var reading=w.reading||'';
-    if(wordAlreadySaved(word,reading)){
-      toast('Từ này đã được lưu.');
-      return;
-    }
-    appState.savedWords.unshift({
-      word:word,
-      reading:reading,
-      romaji:w.romaji||w.pronunciation||'',
-      meaningVi:w.meaningVi||'',
-      meaningEn:w.meaningEn||w.meaning||w[1]||'',
-      source:currentAnalysis.source||'',
-      savedAt:new Date().toISOString()
-    });
-    saveState();
-    renderAnalysis(currentAnalysis);
-    toast('Đã lưu từ '+word+'.');
-  }
+  if(!currentAnalysis)return;
+  var words=currentAnalysis.words||currentAnalysis.vocabulary||[];
+  var w=words[index];
+  if(!w)return;
+  var word=w.word||w[0]||'';
+  var reading=w.reading||'';
+  if(wordAlreadySaved(word,reading)){
+  toast('Từ này đã được lưu.');
+  return;
+}
+  appState.savedWords.unshift({
+  word:word,
+  reading:reading,
+  romaji:w.romaji||w.pronunciation||'',
+  meaningVi:w.meaningVi||'',
+  meaningEn:w.meaningEn||w.meaning||w[1]||'',
+  source:currentAnalysis.source||'',
+  savedAt:new Date().toISOString()
+});
+  saveState();
+  renderAnalysis(currentAnalysis);
+  toast('Đã lưu từ '+word+'.');
+}
 
   function saveAnalysis(){
-    if(!currentAnalysis)return;
-    var source=currentAnalysis.source||selectedText||'',i,w,word,reading,exists=false;
-    for(i=0;i<appState.analyses.length;i++){
-      if(String(appState.analyses[i].source||'')===String(source)){exists=true;break;}
-    }
-    if(!exists){
-      currentAnalysis.savedAt=new Date().toISOString();
-      currentAnalysis.hiragana=analysisReading(currentAnalysis);
-      currentAnalysis.romaji=analysisRomaji(currentAnalysis);
-      appState.analyses.unshift(currentAnalysis);
-      if(appState.analyses.length>100)appState.analyses.length=100;
-    }
-    var words=currentAnalysis.words||currentAnalysis.vocabulary||[];
-    for(i=0;i<words.length;i++){
-      w=words[i];word=w.word||w.surface||w[0]||'';reading=w.reading||w.hiragana||'';
-      if(!wordAlreadySaved(word,reading)){
-        appState.savedWords.unshift({
-          word:word,reading:reading,romaji:w.romaji||w.pronunciation||'',
-          meaningVi:w.meaningVi||w.translationVi||'',
-          meaningEn:w.meaningEn||w.meaning||w.translation||w[1]||'',
-          source:source,savedAt:new Date().toISOString()
-        });
-      }
-    }
-    if(!phraseAlreadySaved(source)){
-      appState.savedPhrases.unshift({
-        id:'p'+new Date().getTime(),source:source,
-        hiragana:analysisReading(currentAnalysis),romaji:analysisRomaji(currentAnalysis),
-        translationVi:currentAnalysis.translationVi||'',
-        translationEn:currentAnalysis.translation||currentAnalysis.translationEn||'',
-        analysis:currentAnalysis,savedAt:new Date().toISOString()
-      });
-    }
-    saveState();
-    toast('Đã lưu kết quả, câu/cụm từ và từ mới.');
-  }
+  if(!currentAnalysis)return;
+  var source=currentAnalysis.source||selectedText||'',i,w,word,reading,exists=false;
+  for(i=0;i<appState.analyses.length;i++){
+  if(String(appState.analyses[i].source||'')===String(source)){exists=true;break;}
+}
+  if(!exists){
+  currentAnalysis.savedAt=new Date().toISOString();
+  currentAnalysis.hiragana=analysisReading(currentAnalysis);
+  currentAnalysis.romaji=analysisRomaji(currentAnalysis);
+  appState.analyses.unshift(currentAnalysis);
+  if(appState.analyses.length>100)appState.analyses.length=100;
+}
+  var words=currentAnalysis.words||currentAnalysis.vocabulary||[];
+  for(i=0;i<words.length;i++){
+  w=words[i];word=w.word||w.surface||w[0]||'';reading=w.reading||w.hiragana||'';
+  if(!wordAlreadySaved(word,reading)){
+  appState.savedWords.unshift({
+  word:word,reading:reading,romaji:w.romaji||w.pronunciation||'',
+  meaningVi:w.meaningVi||w.translationVi||'',
+  meaningEn:w.meaningEn||w.meaning||w.translation||w[1]||'',
+  source:source,savedAt:new Date().toISOString()
+});
+}
+}
+  if(!phraseAlreadySaved(source)){
+  appState.savedPhrases.unshift({
+  id:'p'+new Date().getTime(),source:source,
+  hiragana:analysisReading(currentAnalysis),romaji:analysisRomaji(currentAnalysis),
+  translationVi:currentAnalysis.translationVi||'',
+  translationEn:currentAnalysis.translation||currentAnalysis.translationEn||'',
+  analysis:currentAnalysis,savedAt:new Date().toISOString()
+});
+}
+  saveState();
+  toast('Đã lưu kết quả, câu/cụm từ và từ mới.');
+}
   function speakSelection(){
-    if(!selectedText){toast('Hãy chọn một đoạn tiếng Nhật.');return;}
-    if(!window.speechSynthesis){toast('Safari này không hỗ trợ đọc giọng.');return;}
-    try{
-      window.speechSynthesis.cancel();
-      var u=new SpeechSynthesisUtterance(selectedText);
-      u.lang='ja-JP';u.rate=.82;
-      window.speechSynthesis.speak(u);
-    }catch(e){toast('Không phát được giọng tiếng Nhật.');}
-  }
+  if(!selectedText){toast('Hãy chọn một đoạn tiếng Nhật.');return;}
+  if(!window.speechSynthesis){toast('Safari này không hỗ trợ đọc giọng.');return;}
+  try{
+  window.speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(selectedText);
+  u.lang='ja-JP';u.rate=.82;
+  window.speechSynthesis.speak(u);
+}catch(e){toast('Không phát được giọng tiếng Nhật.');}
+}
 
   function rememberReturn(){
-    try{
-      var target=window.location.pathname+window.location.search+window.location.hash;
-      document.cookie='PORTAL_LOGIN_RETURN='+encodeURIComponent(target)+'; Max-Age=600; Path=/; SameSite=Lax';
-    }catch(e){}
-  }
+  try{
+  var target=window.location.pathname+window.location.search+window.location.hash;
+  document.cookie='PORTAL_LOGIN_RETURN='+encodeURIComponent(target)+'; Max-Age=600; Path=/; SameSite=Lax';
+}catch(e){}
+}
   function openGoogle(){
-    rememberReturn();
-    var w=520,h=700,left=Math.max(0,Math.round((screen.width-w)/2)),top=Math.max(0,Math.round((screen.height-h)/2));
-    loginPopup=window.open('/oauth2/authorization/google','anhmedia-google-login','width='+w+',height='+h+',left='+left+',top='+top+',resizable=yes,scrollbars=yes');
-    if(!loginPopup){window.location.href='/oauth2/authorization/google';return;}
-    clearInterval(loginPoll);
-    loginPoll=setInterval(function(){
-      refreshQuota(function(ok){
-        if(ok){
-          clearInterval(loginPoll);
-          try{loginPopup.close();}catch(e){}
-          window.location.reload();
-        }
-      });
-    },1500);
-  }
+  rememberReturn();
+  var w=520,h=700,left=Math.max(0,Math.round((screen.width-w)/2)),top=Math.max(0,Math.round((screen.height-h)/2));
+  loginPopup=window.open('/oauth2/authorization/google','anhmedia-google-login','width='+w+',height='+h+',left='+left+',top='+top+',resizable=yes,scrollbars=yes');
+  if(!loginPopup){window.location.href='/oauth2/authorization/google';return;}
+  clearInterval(loginPoll);
+  loginPoll=setInterval(function(){
+  refreshQuota(function(ok){
+  if(ok){
+  clearInterval(loginPoll);
+  try{loginPopup.close();}catch(e){}
+  window.location.reload();
+}
+});
+},1500);
+}
   function logout(){
-    var b=id('logoutBtn');
-    if(b){
-      b.disabled=true;
-      b.innerHTML='Đang thoát...';
-    }
+  var b=id('logoutBtn');
+  if(b){
+  b.disabled=true;
+  b.innerHTML='Đang thoát...';
+}
 
-    function done(success){
-      if(success){
-        if(b){
-          b.innerHTML='Đã thoát';
-          b.style.background='#eef7f3';
-          b.style.color='#315f55';
-          b.style.borderColor='#9fc6b7';
-        }
-        usageLoaded=false;
-        quotaLimit=null;
-        quotaRemaining=null;
-        renderQuota();
-        setTimeout(function(){window.location.reload();},350);
-      }else{
-        if(b){
-          b.disabled=false;
-          b.innerHTML='⎋ Thoát';
-        }
-        toast('Không thể đăng xuất. Vui lòng thử lại.');
-      }
-    }
+  function done(success){
+  if(success){
+  if(b){
+  b.innerHTML='Đã thoát';
+  b.style.background='#eef7f3';
+  b.style.color='#315f55';
+  b.style.borderColor='#9fc6b7';
+}
+  usageLoaded=false;
+  quotaLimit=null;
+  quotaRemaining=null;
+  renderQuota();
+  setTimeout(function(){window.location.reload();},350);
+}else{
+  if(b){
+  b.disabled=false;
+  b.innerHTML='⎋ Thoát';
+}
+  toast('Không thể đăng xuất. Vui lòng thử lại.');
+}
+}
 
-    xhr('POST','/logout',null,{'X-Requested-With':'XMLHttpRequest'},function(status){
-      if(status>=200&&status<400){
-        done(true);
-        return;
-      }
+  xhr('POST','/logout',null,{'X-Requested-With':'XMLHttpRequest'},function(status){
+  if(status>=200&&status<400){
+  done(true);
+  return;
+}
 
-      xhr('GET','/logout',null,{'X-Requested-With':'XMLHttpRequest'},function(status2){
-        if(status2>=200&&status2<400||status2===0){
-          /*
-           * Some Spring Security logout responses are redirects that old Safari
-           * exposes strangely. Re-check /usage before declaring success.
-           */
-          xhr('GET','/api/japanese-learning/usage?_logout='+new Date().getTime(),null,{
-            'Accept':'application/json',
-            'Cache-Control':'no-cache'
-          },function(checkStatus){
-            if(checkStatus===401)done(true);
-            else done(status2===0);
-          });
-        }else{
-          done(false);
-        }
-      });
-    });
-  }
+  xhr('GET','/logout',null,{'X-Requested-With':'XMLHttpRequest'},function(status2){
+  if(status2>=200&&status2<400||status2===0){
+  /*
+   * Some Spring Security logout responses are redirects that old Safari
+   * exposes strangely. Re-check /usage before declaring success.
+   */
+  xhr('GET','/api/japanese-learning/usage?_logout='+new Date().getTime(),null,{
+  'Accept':'application/json',
+  'Cache-Control':'no-cache'
+},function(checkStatus){
+  if(checkStatus===401)done(true);
+  else done(status2===0);
+});
+}else{
+  done(false);
+}
+});
+});
+}
 
   function openPdf(){
-    id('pdfError').innerHTML='';
-    try{
-      id('ocrUser').value=sessionStorage.getItem('anhmedia.jp-reader.ocr-user')||'';
-      id('ocrToken').value=sessionStorage.getItem('anhmedia.jp-reader.ocr-token')||'';
-    }catch(e){}
-    id('pdfModal').style.display='block';addClass(id('pdfModal'),'is-open');
-  }
+  id('pdfError').innerHTML='';
+  try{
+  id('ocrUser').value=sessionStorage.getItem('anhmedia.jp-reader.ocr-user')||'';
+  id('ocrToken').value=sessionStorage.getItem('anhmedia.jp-reader.ocr-token')||'';
+}catch(e){}
+  id('pdfModal').style.display='block';addClass(id('pdfModal'),'is-open');
+}
   function closePdf(){id('pdfModal').style.display='none';removeClass(id('pdfModal'),'is-open');}
   function pdfCreds(){
-    var u=trim(id('ocrUser').value),t=trim(id('ocrToken').value);
-    if(!u||!t){id('pdfError').innerHTML='Vui lòng nhập đầy đủ User ID và Token OCR.';return null;}
-    try{sessionStorage.setItem('anhmedia.jp-reader.ocr-user',u);sessionStorage.setItem('anhmedia.jp-reader.ocr-token',t);}catch(e){}
-    return {userId:u,tokenId:t};
-  }
+  var u=trim(id('ocrUser').value),t=trim(id('ocrToken').value);
+  if(!u||!t){id('pdfError').innerHTML='Vui lòng nhập đầy đủ User ID và Token OCR.';return null;}
+  try{sessionStorage.setItem('anhmedia.jp-reader.ocr-user',u);sessionStorage.setItem('anhmedia.jp-reader.ocr-token',t);}catch(e){}
+  return {userId:u,tokenId:t};
+}
   function applyExtractedText(text,title){
-    currentDocId=new Date().getTime();
-    currentPages=splitPages(text);
-    currentPage=0;
-    id('docTitle').value=title||'Tài liệu PDF';
-    var d={id:currentDocId,title:id('docTitle').value,pages:currentPages,currentPage:0,bookmarks:[],updatedAt:new Date().toISOString()};
-    appState.documents.unshift(d);
-    saveState();
-    closePdf();
-    setView('reader');
-    renderPage(0);
-    toast('Đã tải và chia tài liệu thành '+currentPages.length+' trang.');
-  }
+  currentDocId=new Date().getTime();
+  currentPages=splitPages(text);
+  currentPage=0;
+  id('docTitle').value=title||'Tài liệu PDF';
+  var d={id:currentDocId,title:id('docTitle').value,pages:currentPages,currentPage:0,bookmarks:[],updatedAt:new Date().toISOString()};
+  appState.documents.unshift(d);
+  saveState();
+  closePdf();
+  setView('reader');
+  renderPage(0);
+  toast('Đã tải và chia tài liệu thành '+currentPages.length+' trang.');
+}
   function uploadPdfUrl(){
-    var c=pdfCreds();if(!c)return;
-    var url=trim(id('pdfUrl').value);
-    if(!url){id('pdfError').innerHTML='Nhập URL PDF/ảnh công khai.';return;}
-    id('pdfError').innerHTML='Đang tải tài liệu...';
-    xhr('POST','/api/extract-text/url',JSON.stringify({resourceUrl:url,language:'jpn',userId:c.userId,tokenId:c.tokenId}),{'Content-Type':'application/json','Accept':'application/json'},function(status,text){
-      var d=jsonParse(text);
-      if(status===200&&d&&d.status==='success'){applyExtractedText(d.text||'','Tài liệu từ URL');}
-      else id('pdfError').innerHTML=esc(d&&d.error?d.error:'Không thể trích xuất URL.');
-    });
-  }
+  var c=pdfCreds();if(!c)return;
+  var url=trim(id('pdfUrl').value);
+  if(!url){id('pdfError').innerHTML='Nhập URL PDF/ảnh công khai.';return;}
+  id('pdfError').innerHTML='Đang tải tài liệu...';
+  xhr('POST','/api/extract-text/url',JSON.stringify({resourceUrl:url,language:'jpn',userId:c.userId,tokenId:c.tokenId}),{'Content-Type':'application/json','Accept':'application/json'},function(status,text){
+  var d=jsonParse(text);
+  if(status===200&&d&&d.status==='success'){applyExtractedText(d.text||'','Tài liệu từ URL');}
+  else id('pdfError').innerHTML=esc(d&&d.error?d.error:'Không thể trích xuất URL.');
+});
+}
   function uploadPdfFile(){
-    var c=pdfCreds();if(!c)return;
-    var file=id('pdfFile').files&&id('pdfFile').files[0];
-    if(!file){id('pdfError').innerHTML='Hãy chọn PDF/ảnh trước.';return;}
-    if(!window.FormData){id('pdfError').innerHTML='Safari này không hỗ trợ FormData. Hãy dùng URL công khai.';return;}
-    var form=new FormData();
-    form.append('file',file);
-    form.append('language','jpn');
-    form.append('userId',c.userId);
-    form.append('tokenId',c.tokenId);
-    id('pdfError').innerHTML='Đang trích xuất...';
-    var x=new XMLHttpRequest();
-    x.open('POST','/api/extract-text',true);
-    x.withCredentials=true;
-    x.onreadystatechange=function(){
-      if(x.readyState===4){
-        var d=jsonParse(x.responseText);
-        if(x.status===200&&d&&d.status==='success')applyExtractedText(d.text||'',file.name||'Tài liệu PDF');
-        else id('pdfError').innerHTML=esc(d&&d.error?d.error:'Không thể trích xuất file.');
-      }
-    };
-    try{x.send(form);}catch(e){id('pdfError').innerHTML='Không gửi được file. Hãy dùng URL công khai.';}
-  }
+  var c=pdfCreds();if(!c)return;
+  var file=id('pdfFile').files&&id('pdfFile').files[0];
+  if(!file){id('pdfError').innerHTML='Hãy chọn PDF/ảnh trước.';return;}
+  if(!window.FormData){id('pdfError').innerHTML='Safari này không hỗ trợ FormData. Hãy dùng URL công khai.';return;}
+  var form=new FormData();
+  form.append('file',file);
+  form.append('language','jpn');
+  form.append('userId',c.userId);
+  form.append('tokenId',c.tokenId);
+  id('pdfError').innerHTML='Đang trích xuất...';
+  var x=new XMLHttpRequest();
+  x.open('POST','/api/extract-text',true);
+  x.withCredentials=true;
+  x.onreadystatechange=function(){
+  if(x.readyState===4){
+  var d=jsonParse(x.responseText);
+  if(x.status===200&&d&&d.status==='success')applyExtractedText(d.text||'',file.name||'Tài liệu PDF');
+  else id('pdfError').innerHTML=esc(d&&d.error?d.error:'Không thể trích xuất file.');
+}
+};
+  try{x.send(form);}catch(e){id('pdfError').innerHTML='Không gửi được file. Hãy dùng URL công khai.';}
+}
   function searchCurrent(){
-    var q=trim(id('searchBox').value).toLowerCase();
-    if(!q)return;
-    var i,text;
-    storeCurrentPage();
-    for(i=0;i<currentPages.length;i++){
-      text=String(currentPages[i]||'').toLowerCase();
-      if(text.indexOf(q)>=0){renderPage(i);toast('Tìm thấy ở trang '+(i+1)+'.');return;}
-    }
-    toast('Không tìm thấy.');
-  }
+  var q=trim(id('searchBox').value).toLowerCase();
+  if(!q)return;
+  var i,text;
+  storeCurrentPage();
+  for(i=0;i<currentPages.length;i++){
+  text=String(currentPages[i]||'').toLowerCase();
+  if(text.indexOf(q)>=0){renderPage(i);toast('Tìm thấy ở trang '+(i+1)+'.');return;}
+}
+  toast('Không tìm thấy.');
+}
   function jumpToPage(input){
-    if(!input)return;
-    var n=parseInt(input.value,10);
-    if(isNaN(n)){input.value=String(currentPage+1);return;}
-    if(n<1)n=1;
-    if(n>currentPages.length)n=currentPages.length;
-    renderPage(n-1);
-  }
+  if(!input)return;
+  var n=parseInt(input.value,10);
+  if(isNaN(n)){input.value=String(currentPage+1);return;}
+  if(n<1)n=1;
+  if(n>currentPages.length)n=currentPages.length;
+  renderPage(n-1);
+}
 
   function newDocument(){
-    storeCurrentPage();
-    currentDocId=null;currentPages=[''];currentPage=0;
-    id('docTitle').value='Tài liệu chưa đặt tên';
-    renderPage(0);setView('reader');
-  }
+  storeCurrentPage();
+  currentDocId=null;
+  currentPages=[''];
+  currentPage=0;
+  undoStacks={};redoStacks={};
+  id('docTitle').value='Tài liệu chưa đặt tên';
+  updateDraftStatus(true);
+  renderPage(0);
+  setView('reader');
+}
 
   function bind(){
-    id('editor').onmouseup=getSelectedText;
-    id('editor').onkeyup=getSelectedText;
-    id('editor').ontouchend=function(){setTimeout(getSelectedText,100);};
+  id('editor').onmouseup=getSelectedText;
+  id('editor').onkeyup=getSelectedText;
+  id('editor').ontouchend=function(){setTimeout(getSelectedText,100);};
+  id('editor').oninput=function(){rememberEditorChange();getSelectedText();};
+  id('undoEditBtn').onclick=function(){undoEdit();return false;};
+  id('redoEditBtn').onclick=function(){redoEdit();return false;};
+  id('docTitle').oninput=function(){saveDraftForCurrentDoc();};
 
-    id('analyzeBtn').onclick=analyze;
-    id('analyzeBtn2').onclick=function(e){
-      if(e&&e.preventDefault)e.preventDefault();
-      if(id('analyzeBtn')&&typeof id('analyzeBtn').onclick==='function'){
-        return id('analyzeBtn').onclick();
-      }
-      return false;
-    };
-    id('analyzeBtn2').ontouchend=function(e){
-      if(e&&e.preventDefault)e.preventDefault();
-      if(id('analyzeBtn')&&typeof id('analyzeBtn').onclick==='function'){
-        id('analyzeBtn').onclick();
-      }
-      return false;
-    };
-    id('analysisConfirmCancel').onclick=function(){closeAnalysisConfirm();return false;};
-    id('analysisConfirmStart').onclick=function(){startConfirmedAnalysis();return false;};
-    id('analysisConfirmText').onkeyup=updateAnalysisConfirmCount;
-    id('analysisConfirmText').onchange=updateAnalysisConfirmCount;
-    id('saveAnalysisBtn').onclick=saveAnalysis;
-    id('savePhraseBtn').onclick=saveCurrentPhrase;
-    id('readAnalysisBtn').onclick=function(){if(currentAnalysis)speakJapaneseText(currentAnalysis.source||analysisReading(currentAnalysis)||'');};
-    id('speakBtn').onclick=speakSelection;
-    id('saveDocBtn').onclick=saveDocument;
-    id('pdfBtn').onclick=openPdf;
-    id('pdfCancelBtn').onclick=closePdf;
-    id('pdfUrlBtn').onclick=uploadPdfUrl;
-    id('pdfFileBtn').onclick=uploadPdfFile;
-    id('googleBtn').onclick=openGoogle;
-    id('googleBtn2').onclick=openGoogle;
-    id('logoutBtn').onclick=logout;
-    id('readerTab').onclick=function(){setView('reader');};
-    id('memoryTab').onclick=function(){setView('memory');};
-    id('libraryTab').onclick=function(){setView('library');};
-    id('newDocBtn').onclick=newDocument;
-    id('offlineBackupBtn').onclick=exportOfflineBackup;
-    id('homeBtn').onclick=function(){window.location.href='/';};
-    id('memorySearch').onkeyup=renderMemory;
-    id('memoryList').onclick=function(e){
-      e=e||window.event;
-      var t=e.target||e.srcElement,n;
-      if(!t||!t.getAttribute)return;
-      n=t.getAttribute('data-read-word');
-      if(n!==null&&n!==''){var w=appState.savedWords[parseInt(n,10)];if(w)speakJapaneseText(w.reading||w.word||'');return;}
-      n=t.getAttribute('data-read-phrase');
-      if(n!==null&&n!==''){var p=appState.savedPhrases[parseInt(n,10)];if(p)speakJapaneseText(p.source||p.hiragana||'');return;}
-      n=t.getAttribute('data-open-phrase');
-      if(n!==null&&n!==''){openSavedPhrase(parseInt(n,10));return;}
-      n=t.getAttribute('data-read-analysis');
-      if(n!==null&&n!==''){var a=appState.analyses[parseInt(n,10)];if(a)speakJapaneseText(a.source||analysisReading(a)||'');return;}
-      n=t.getAttribute('data-open-analysis');
-      if(n!==null&&n!==''){openSavedAnalysis(parseInt(n,10));return;}
-    };
-    id('searchBox').onkeydown=function(e){e=e||window.event;if((e.keyCode||e.which)===13)searchCurrent();};
+  id('analyzeBtn').onclick=analyze;
+  id('analyzeBtn2').onclick=function(e){
+  if(e&&e.preventDefault)e.preventDefault();
+  if(id('analyzeBtn')&&typeof id('analyzeBtn').onclick==='function'){
+  return id('analyzeBtn').onclick();
+}
+  return false;
+};
+  id('analyzeBtn2').ontouchend=function(e){
+  if(e&&e.preventDefault)e.preventDefault();
+  if(id('analyzeBtn')&&typeof id('analyzeBtn').onclick==='function'){
+  id('analyzeBtn').onclick();
+}
+  return false;
+};
+  id('analysisConfirmCancel').onclick=function(){closeAnalysisConfirm();return false;};
+  id('analysisConfirmStart').onclick=function(){startConfirmedAnalysis();return false;};
+  id('analysisConfirmText').onkeyup=updateAnalysisConfirmCount;
+  id('analysisConfirmText').onchange=updateAnalysisConfirmCount;
+  id('saveAnalysisBtn').onclick=saveAnalysis;
+  id('savePhraseBtn').onclick=saveCurrentPhrase;
+  id('readAnalysisBtn').onclick=function(){if(currentAnalysis)speakJapaneseText(currentAnalysis.source||analysisReading(currentAnalysis)||'');};
+  id('speakBtn').onclick=speakSelection;
+  id('saveDocBtn').onclick=saveDocument;
+  id('pdfBtn').onclick=openPdf;
+  id('pdfCancelBtn').onclick=closePdf;
+  id('pdfUrlBtn').onclick=uploadPdfUrl;
+  id('pdfFileBtn').onclick=uploadPdfFile;
+  id('googleBtn').onclick=openGoogle;
+  id('googleBtn2').onclick=openGoogle;
+  id('logoutBtn').onclick=logout;
+  id('readerTab').onclick=function(){setView('reader');};
+  id('memoryTab').onclick=function(){setView('memory');};
+  id('libraryTab').onclick=function(){setView('library');};
+  id('newDocBtn').onclick=newDocument;
+  id('offlineBackupBtn').onclick=exportOfflineBackup;
+  id('homeBtn').onclick=function(){window.location.href='/';};
+  id('memorySearch').onkeyup=renderMemory;
+  id('memoryList').onclick=function(e){
+  e=e||window.event;
+  var t=e.target||e.srcElement,n;
+  if(!t||!t.getAttribute)return;
+  n=t.getAttribute('data-read-word');
+  if(n!==null&&n!==''){var w=appState.savedWords[parseInt(n,10)];if(w)speakJapaneseText(w.reading||w.word||'');return;}
+  n=t.getAttribute('data-read-phrase');
+  if(n!==null&&n!==''){var p=appState.savedPhrases[parseInt(n,10)];if(p)speakJapaneseText(p.source||p.hiragana||'');return;}
+  n=t.getAttribute('data-open-phrase');
+  if(n!==null&&n!==''){openSavedPhrase(parseInt(n,10));return;}
+  n=t.getAttribute('data-read-analysis');
+  if(n!==null&&n!==''){var a=appState.analyses[parseInt(n,10)];if(a)speakJapaneseText(a.source||analysisReading(a)||'');return;}
+  n=t.getAttribute('data-open-analysis');
+  if(n!==null&&n!==''){openSavedAnalysis(parseInt(n,10));return;}
+};
+  id('searchBox').onkeydown=function(e){e=e||window.event;if((e.keyCode||e.which)===13)searchCurrent();};
 
-    var jumps=qsa('.pageJump'),j;
-    for(j=0;j<jumps.length;j++){
-      jumps[j].onchange=function(){jumpToPage(this);};
-      jumps[j].onkeydown=function(e){
-        e=e||window.event;
-        if((e.keyCode||e.which)===13){jumpToPage(this);return false;}
-      };
-    }
+  var jumps=qsa('.pageJump'),j;
+  for(j=0;j<jumps.length;j++){
+  jumps[j].onchange=function(){jumpToPage(this);};
+  jumps[j].onkeydown=function(e){
+  e=e||window.event;
+  if((e.keyCode||e.which)===13){jumpToPage(this);return false;}
+};
+}
 
-    var i,els=qsa('.prevBtn');
-    for(i=0;i<els.length;i++)els[i].onclick=function(){renderPage(currentPage-1);};
-    els=qsa('.nextBtn');
-    for(i=0;i<els.length;i++)els[i].onclick=function(){renderPage(currentPage+1);};
-    els=qsa('.bookmarkBtn');
-    for(i=0;i<els.length;i++)els[i].onclick=addBookmark;
+  var i,els=qsa('.prevBtn');
+  for(i=0;i<els.length;i++)els[i].onclick=function(){renderPage(currentPage-1);};
+  els=qsa('.nextBtn');
+  for(i=0;i<els.length;i++)els[i].onclick=function(){renderPage(currentPage+1);};
+  /* Bottom bookmark is the canonical working handler. */
+  id('bookmarkBottomBtn').onclick=addBookmark;
+  id('bookmarkTopBtn').onclick=function(e){
+  if(e&&e.preventDefault)e.preventDefault();
+  return id('bookmarkBottomBtn').onclick();
+};
+  id('bookmarkTopBtn').ontouchend=function(e){
+  if(e&&e.preventDefault)e.preventDefault();
+  id('bookmarkBottomBtn').onclick();
+  return false;
+};
 
-    id('wordList').onclick=function(e){
-      e=e||window.event;
-      var t=e.target||e.srcElement;
-      var speakIndex=t.getAttribute('data-word-index');
-      var saveIndex=t.getAttribute('data-save-word-index');
-      if(speakIndex!==null&&speakIndex!=='')speakWordByIndex(parseInt(speakIndex,10));
-      if(saveIndex!==null&&saveIndex!=='')saveWordByIndex(parseInt(saveIndex,10));
-    };
+  id('wordList').onclick=function(e){
+  e=e||window.event;
+  var t=e.target||e.srcElement;
+  var speakIndex=t.getAttribute('data-word-index');
+  var saveIndex=t.getAttribute('data-save-word-index');
+  if(speakIndex!==null&&speakIndex!=='')speakWordByIndex(parseInt(speakIndex,10));
+  if(saveIndex!==null&&saveIndex!=='')saveWordByIndex(parseInt(saveIndex,10));
+};
 
-    id('docList').onclick=function(e){
-      e=e||window.event;
-      var t=e.target||e.srcElement;
-      if(!t||!t.getAttribute)return;
+  id('docList').onclick=function(e){
+  e=e||window.event;
+  var t=e.target||e.srcElement;
+  if(!t||!t.getAttribute)return;
 
-      var open=t.getAttribute('data-open-doc');
-      var del=t.getAttribute('data-del-doc');
-      var bdoc=t.getAttribute('data-bookmark-doc');
-      var bpage=t.getAttribute('data-bookmark-page');
+  var open=t.getAttribute('data-open-doc');
+  var del=t.getAttribute('data-del-doc');
+  var bdoc=t.getAttribute('data-bookmark-doc');
+  var bpage=t.getAttribute('data-bookmark-page');
 
-      if(open){openDocument(open);return;}
-      if(del){deleteDocument(del);return;}
-      if(bdoc!==null&&bdoc!==''&&bpage!==null&&bpage!==''){
-        openBookmarkFromLibrary(bdoc,parseInt(bpage,10));
-        return;
-      }
-    };
-  }
+  if(open){openDocument(open);return;}
+  if(del){deleteDocument(del);return;}
+  if(bdoc!==null&&bdoc!==''&&bpage!==null&&bpage!==''){
+  openBookmarkFromLibrary(bdoc,parseInt(bpage,10));
+  return;
+}
+};
+}
   function init(){
-    var statusEl=id('jsStatus');if(statusEl){statusEl.innerHTML='JavaScript iPad 4: OK · Thư viện dùng chung';}
-    loadState();
-    currentPages=[id('editor').value];
-    renderLibrary();renderMemory();renderPage(0);
-    bind();
-    updateOfflineStatus();
-    refreshQuota();
-  }
+  var statusEl=id('jsStatus');if(statusEl){statusEl.innerHTML='JavaScript iPad 4: OK · Thư viện dùng chung';}
+  loadState();
+  currentPages=[id('editor').value];
+  renderLibrary();renderMemory();renderPage(0);
+  bind();
+  updateOfflineStatus();
+  refreshQuota();
+}
   if(window.addEventListener){
-    window.addEventListener('online',updateOfflineStatus,false);
-    window.addEventListener('offline',updateOfflineStatus,false);
-  }
+  window.addEventListener('online',updateOfflineStatus,false);
+  window.addEventListener('offline',updateOfflineStatus,false);
+}
   if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',init,false);
-  }else{
-    init();
-  }
+  document.addEventListener('DOMContentLoaded',init,false);
+}else{
+  init();
+}
 })();
+</script>
+</body>
+</html>
