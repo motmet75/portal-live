@@ -220,10 +220,10 @@
       console.error('Failed initial state sync', err);
     }
   }
-  function toast(message) { const el = $('[data-toast]'); el.textContent = message; el.hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(() => { el.hidden = true; }, 2400); }
+  function toast(message, duration = 2400) { const el = $('[data-toast]'); el.textContent = message; el.hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(() => { el.hidden = true; }, duration); }
   function isIphoneSafari() { const ua = navigator.userAgent || ''; return /iPhone|iPod/i.test(ua) && /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/i.test(ua); }
   function showTokenMeaning(surface, reading, romaji, meaningEn, meaningVi) {
-    if (!isIphoneSafari()) { toast(`${surface} · EN: ${meaningEn || '—'} · VI: ${meaningVi || '—'}`); return; }
+    if (!isIphoneSafari()) { toast(`${surface}\nEN: ${meaningEn || '—'}\nVI: ${meaningVi || '—'}`, 8000); return; }
     const dialog = $('[data-token-meaning-dialog]');
     $('[data-token-meaning-surface]').textContent = surface || '—';
     $('[data-token-meaning-reading]').textContent = `${reading || '—'}${romaji ? ` · ${romaji}` : ''}`;
