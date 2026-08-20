@@ -222,35 +222,51 @@
     if(n>=currentPages.length)n=currentPages.length-1;
     currentPage=n;
     id('editor').value=currentPages[currentPage]||'';
+
     var labels=qsa('.page-label'),i;
     for(i=0;i<labels.length;i++)labels[i].innerHTML='Trang '+(currentPage+1)+' / '+currentPages.length;
+
+    var jumps=qsa('.pageJump');
+    for(i=0;i<jumps.length;i++){
+      jumps[i].value=String(currentPage+1);
+      jumps[i].max=String(currentPages.length);
+    }
+
     var prev=qsa('.prevBtn'),next=qsa('.nextBtn');
     for(i=0;i<prev.length;i++)prev[i].disabled=currentPage===0;
     for(i=0;i<next.length;i++)next[i].disabled=currentPage>=currentPages.length-1;
+
     var doc=findDoc(currentDocId);
     var marks=doc&&doc.bookmarks?doc.bookmarks:[];
     var active=false;
     for(i=0;i<marks.length;i++)if(marks[i].page===currentPage)active=true;
+
     var b=qsa('.bookmarkBtn');
     for(i=0;i<b.length;i++){
       b[i].disabled=!doc;
       b[i].innerHTML=active?'🔖 Đã lưu dấu':'🔖 Dấu trang';
     }
+
+    /* Remember the exact last page for this document. */
+    if(doc){
+      doc.currentPage=currentPage;
+      doc.updatedAt=new Date().toISOString();
+      try{
+        localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));
+        localStorage.setItem(LEGACY_IPAD_STORAGE_KEY,JSON.stringify(appState));
+      }catch(e){}
+    }
+
     selectedText='';
     updateAnalyzeButtons();
 
-    /* Every page change starts at the top of the learning page/content. */
     setTimeout(function(){
       try{
         var reader=id('readerView');
         var editor=id('editor');
-        if(reader&&reader.scrollIntoView){
-          reader.scrollIntoView(true);
-        }else if(editor&&editor.scrollIntoView){
-          editor.scrollIntoView(true);
-        }else{
-          window.scrollTo(0,0);
-        }
+        if(reader&&reader.scrollIntoView)reader.scrollIntoView(true);
+        else if(editor&&editor.scrollIntoView)editor.scrollIntoView(true);
+        else window.scrollTo(0,0);
         if(editor)editor.scrollTop=0;
       }catch(e){
         try{window.scrollTo(0,0);}catch(ignore){}
@@ -289,26 +305,129 @@
     renderPage(currentPage);
     toast('Đã lưu tài liệu offline trên iPad.');
   }
+  function bookmarkPreviewText(){
+    var text=trim(selectedText||'');
+    if(!text){
+      try{
+        getSelectedText();
+        text=trim(selectedText||'');
+      }catch(e){}
+    }
+    if(!text){
+      text=trim(id('editor').value||'');
+    }
+    if(!text)return '';
+
+    if(text.length<=90)return text;
+
+    var front=text.substring(0,45);
+    var tail=text.substring(text.length-35);
+    return front+' ... '+tail;
+  }
+
   function addBookmark(){
     var doc=findDoc(currentDocId);
     if(!doc){toast('Hãy lưu tài liệu trước.');return;}
-    var note=window.prompt('Ghi chú dấu trang:','');
+
+    var preview=bookmarkPreviewText();
+    var promptText='Ghi chú dấu trang';
+    if(preview){
+      promptText+=':\n\n“'+preview+'”\n\nNhập ghi chú:';
+    }else{
+      promptText+=':\n\nNhập ghi chú:';
+    }
+
+    var note=window.prompt(promptText,'');
     if(note===null)return;
+
     if(!doc.bookmarks)doc.bookmarks=[];
-    doc.bookmarks.push({id:'m'+new Date().getTime(),page:currentPage,note:trim(note)||'Dấu trang',savedAt:new Date().toISOString()});
+    doc.bookmarks.push({
+      id:'m'+new Date().getTime(),
+      page:currentPage,
+      note:trim(note)||'Dấu trang',
+      excerpt:preview,
+      savedAt:new Date().toISOString()
+    });
+
     saveState();
     renderPage(currentPage);
+    toast('Đã lưu dấu trang.');
   }
+  function groupedBookmarks(doc){
+    var groups={},marks=doc&&doc.bookmarks?doc.bookmarks:[],i,m,key;
+    for(i=0;i<marks.length;i++){
+      m=marks[i];
+      key=String((Number(m.page)||0)+1);
+      if(!groups[key])groups[key]=[];
+      groups[key].push(m);
+    }
+    return groups;
+  }
+
+  function bookmarkTreeHtml(doc){
+    var groups=groupedBookmarks(doc),pages=[],p,i,j,marks,m,html='';
+    for(p in groups){
+      if(groups.hasOwnProperty(p))pages.push(parseInt(p,10));
+    }
+    pages.sort(function(a,b){return a-b;});
+    if(!pages.length)return '<div class="bookmark-empty">Chưa có dấu trang.</div>';
+
+    for(i=0;i<pages.length;i++){
+      p=pages[i];
+      marks=groups[String(p)]||[];
+      html+='<details class="bookmark-page-group">'+
+          '<summary>Trang '+p+' <b>'+marks.length+'</b></summary>'+
+          '<div class="bookmark-page-items">';
+      for(j=0;j<marks.length;j++){
+        m=marks[j];
+        html+='<article class="bookmark-tree-item">'+
+            '<button type="button" class="bookmark-open-btn" data-bookmark-doc="'+esc(String(doc.id))+'" data-bookmark-page="'+esc(String(m.page||0))+'">'+
+            '<span class="bookmark-note">'+esc(m.note||'Dấu trang')+'</span>'+
+            '<small class="bookmark-excerpt">'+esc(m.excerpt||'Không có đoạn trích đã lưu.')+'</small>'+
+            '</button>'+
+            '</article>';
+      }
+      html+='</div></details>';
+    }
+    return html;
+  }
+
+  function openBookmarkFromLibrary(docId,pageIndex){
+    var d=findDoc(docId);
+    if(!d)return;
+    currentDocId=d.id;
+    if(d.pages&&d.pages.length)currentPages=d.pages;
+    else if(d.html)currentPages=[d.html];
+    else currentPages=[''];
+    currentPage=parseInt(pageIndex,10);
+    if(isNaN(currentPage)||currentPage<0||currentPage>=currentPages.length)currentPage=0;
+    id('docTitle').value=d.title||'Tài liệu';
+    setView('reader');
+    renderPage(currentPage);
+    setTimeout(function(){
+      try{id('editor').scrollIntoView(true);}catch(e){}
+    },60);
+  }
+
   function renderLibrary(){
     var box=id('docList'),html='',i,d,pages,bookmarks;
     for(i=0;i<appState.documents.length;i++){
       d=appState.documents[i];
       pages=d.pages&&d.pages.length?d.pages:(d.html?[d.html]:['']);
       bookmarks=d.bookmarks||[];
-      html+='<div class="doc-item"><b>'+esc(d.title||'Tài liệu')+'</b>'+
+
+      html+='<div class="doc-item library-doc">'+
+          '<div class="library-doc-head">'+
+          '<b>'+esc(d.title||'Tài liệu')+'</b>'+
           '<div class="small">'+pages.length+' trang · '+bookmarks.length+' dấu trang · OFFLINE</div>'+
-          '<button data-open-doc="'+esc(String(d.id))+'">Mở</button>'+
-          '<button data-del-doc="'+esc(String(d.id))+'">Xóa</button></div>';
+          '<button data-open-doc="'+esc(String(d.id))+'">Mở tài liệu</button>'+
+          '<button data-del-doc="'+esc(String(d.id))+'">Xóa</button>'+
+          '</div>'+
+          '<details class="bookmark-tree">'+
+          '<summary>🔖 Dấu trang <b>'+bookmarks.length+'</b></summary>'+
+          '<div class="bookmark-tree-body">'+bookmarkTreeHtml(d)+'</div>'+
+          '</details>'+
+          '</div>';
     }
     box.innerHTML=html||'<div class="small">Chưa có tài liệu offline.</div>';
   }
@@ -319,11 +438,14 @@
     if(d.pages&&d.pages.length)currentPages=d.pages;
     else if(d.html)currentPages=[d.html];
     else currentPages=[''];
-    currentPage=Number(d.currentPage)||0;
+
+    currentPage=parseInt(d.currentPage,10);
+    if(isNaN(currentPage))currentPage=0;
     if(currentPage<0||currentPage>=currentPages.length)currentPage=0;
+
     id('docTitle').value=d.title||'Tài liệu';
-    renderPage(currentPage);
     setView('reader');
+    renderPage(currentPage);
   }
   function deleteDocument(docId){
     if(!window.confirm('Xóa tài liệu này?'))return;
@@ -673,12 +795,57 @@
     },1500);
   }
   function logout(){
-    xhr('POST','/logout',null,{'X-Requested-With':'XMLHttpRequest'},function(status){
-      if(status===0||status>=400){
-        xhr('GET','/logout',null,{'X-Requested-With':'XMLHttpRequest'},function(){window.location.reload();});
+    var b=id('logoutBtn');
+    if(b){
+      b.disabled=true;
+      b.innerHTML='Đang thoát...';
+    }
+
+    function done(success){
+      if(success){
+        if(b){
+          b.innerHTML='Đã thoát';
+          b.style.background='#eef7f3';
+          b.style.color='#315f55';
+          b.style.borderColor='#9fc6b7';
+        }
+        usageLoaded=false;
+        quotaLimit=null;
+        quotaRemaining=null;
+        renderQuota();
+        setTimeout(function(){window.location.reload();},350);
       }else{
-        window.location.reload();
+        if(b){
+          b.disabled=false;
+          b.innerHTML='⎋ Thoát';
+        }
+        toast('Không thể đăng xuất. Vui lòng thử lại.');
       }
+    }
+
+    xhr('POST','/logout',null,{'X-Requested-With':'XMLHttpRequest'},function(status){
+      if(status>=200&&status<400){
+        done(true);
+        return;
+      }
+
+      xhr('GET','/logout',null,{'X-Requested-With':'XMLHttpRequest'},function(status2){
+        if(status2>=200&&status2<400||status2===0){
+          /*
+           * Some Spring Security logout responses are redirects that old Safari
+           * exposes strangely. Re-check /usage before declaring success.
+           */
+          xhr('GET','/api/japanese-learning/usage?_logout='+new Date().getTime(),null,{
+            'Accept':'application/json',
+            'Cache-Control':'no-cache'
+          },function(checkStatus){
+            if(checkStatus===401)done(true);
+            else done(status2===0);
+          });
+        }else{
+          done(false);
+        }
+      });
     });
   }
 
@@ -755,6 +922,15 @@
     }
     toast('Không tìm thấy.');
   }
+  function jumpToPage(input){
+    if(!input)return;
+    var n=parseInt(input.value,10);
+    if(isNaN(n)){input.value=String(currentPage+1);return;}
+    if(n<1)n=1;
+    if(n>currentPages.length)n=currentPages.length;
+    renderPage(n-1);
+  }
+
   function newDocument(){
     storeCurrentPage();
     currentDocId=null;currentPages=[''];currentPage=0;
@@ -822,6 +998,15 @@
     };
     id('searchBox').onkeydown=function(e){e=e||window.event;if((e.keyCode||e.which)===13)searchCurrent();};
 
+    var jumps=qsa('.pageJump'),j;
+    for(j=0;j<jumps.length;j++){
+      jumps[j].onchange=function(){jumpToPage(this);};
+      jumps[j].onkeydown=function(e){
+        e=e||window.event;
+        if((e.keyCode||e.which)===13){jumpToPage(this);return false;}
+      };
+    }
+
     var i,els=qsa('.prevBtn');
     for(i=0;i<els.length;i++)els[i].onclick=function(){renderPage(currentPage-1);};
     els=qsa('.nextBtn');
@@ -841,10 +1026,19 @@
     id('docList').onclick=function(e){
       e=e||window.event;
       var t=e.target||e.srcElement;
+      if(!t||!t.getAttribute)return;
+
       var open=t.getAttribute('data-open-doc');
       var del=t.getAttribute('data-del-doc');
-      if(open)openDocument(open);
-      if(del)deleteDocument(del);
+      var bdoc=t.getAttribute('data-bookmark-doc');
+      var bpage=t.getAttribute('data-bookmark-page');
+
+      if(open){openDocument(open);return;}
+      if(del){deleteDocument(del);return;}
+      if(bdoc!==null&&bdoc!==''&&bpage!==null&&bpage!==''){
+        openBookmarkFromLibrary(bdoc,parseInt(bpage,10));
+        return;
+      }
     };
   }
   function init(){
