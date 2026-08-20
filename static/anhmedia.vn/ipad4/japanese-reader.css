@@ -99,3 +99,8 @@ body.large .paper{font-size:25px;line-height:2.15}
     .floating-nav{width:292px;margin-left:-146px}
     .intro h1{font-size:21px}
 }
+
+.bookmark-tree-item{margin:5px 0}
+.bookmark-tree-item:after{display:block;clear:both;content:""}
+.bookmark-open-btn{float:left;width:calc(100% - 52px)}
+.bookmark-remove-btn{float:right;width:46px;min-height:38px;padding:6px 3px;border:1px solid #d9aaa2;border-radius:6px;background:#fff;color:#9a5548;font-size:10px;font-weight:bold}

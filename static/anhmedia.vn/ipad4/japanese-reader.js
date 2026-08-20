@@ -11,6 +11,9 @@
   var currentDocId=null;
   var currentAnalysis=null;
   var selectedText='';
+  var selectedStart=null;
+  var selectedEnd=null;
+  var selectedScrollTop=0;
   var quotaLimit=null;
   var quotaRemaining=null;
   var usageLoaded=false;
@@ -93,6 +96,14 @@
       savedWords:mergeSimple(normal.savedWords,legacy.savedWords,'word'),
       savedPhrases:mergeSimple(normal.savedPhrases,legacy.savedPhrases,'source')
     };
+
+    var di,bi,bookmarks;
+    for(di=0;di<appState.documents.length;di++){
+      bookmarks=appState.documents[di].bookmarks||[];
+      for(bi=0;bi<bookmarks.length;bi++){
+        if(!bookmarks[bi].id)bookmarks[bi].id='legacy-'+di+'-'+bi+'-'+String(bookmarks[bi].savedAt||'');
+      }
+    }
 
     try{localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));}catch(e){}
   }
@@ -219,9 +230,17 @@
     var start=t.selectionStart;
     var end=t.selectionEnd;
     if(typeof start==='number'&&typeof end==='number'&&end>start){
-      selectedText=trim(t.value.substring(start,end));
+      var raw=t.value.substring(start,end);
+      var leading=(raw.match(/^\s+/)||[''])[0].length;
+      var trailing=(raw.match(/\s+$/)||[''])[0].length;
+      selectedStart=start+leading;
+      selectedEnd=end-trailing;
+      selectedText=t.value.substring(selectedStart,selectedEnd);
+      selectedScrollTop=t.scrollTop||0;
     }else{
       selectedText='';
+      selectedStart=null;
+      selectedEnd=null;
     }
     updateAnalyzeButtons();
   }
@@ -391,6 +410,9 @@
     }
 
     selectedText='';
+    selectedStart=null;
+    selectedEnd=null;
+    selectedScrollTop=0;
     updateAnalyzeButtons();
 
     setTimeout(function(){
@@ -462,6 +484,8 @@
     var doc=findDoc(currentDocId);
     if(!doc){toast('Hãy lưu tài liệu trước.');return;}
 
+    var editor=id('editor');
+    if(editor&&typeof editor.selectionStart==='number'&&editor.selectionEnd>editor.selectionStart)getSelectedText();
     var preview=bookmarkPreviewText();
     var promptText='Ghi chú dấu trang';
     if(preview){
@@ -476,15 +500,31 @@
     if(!doc.bookmarks)doc.bookmarks=[];
     doc.bookmarks.push({
       id:'m'+new Date().getTime(),
-      page:currentPage,
-      note:trim(note)||'Dấu trang',
-      excerpt:preview,
-      savedAt:new Date().toISOString()
+        page:currentPage,
+        note:trim(note)||'Dấu trang',
+        excerpt:preview,
+        selectionStart:selectedStart,
+        selectionEnd:selectedEnd,
+        scrollTop:selectedScrollTop,
+        savedAt:new Date().toISOString()
     });
 
     saveState();
-    renderPage(currentPage);
+    renderLibrary();
     toast('Đã lưu dấu trang.');
+  }
+  function removeBookmark(docId,bookmarkId){
+    var doc=findDoc(docId),marks,i;
+    if(!doc||!doc.bookmarks)return;
+    marks=doc.bookmarks;
+    for(i=0;i<marks.length;i++){
+      if(String(marks[i].id)===String(bookmarkId)){
+        marks.splice(i,1);
+        saveState();
+        toast('Đã xóa dấu trang.');
+        return;
+      }
+    }
   }
   function beginNavigationWait(button,text){
     if(navigationBusy)return false;
@@ -543,10 +583,11 @@
       for(j=0;j<marks.length;j++){
         m=marks[j];
         html+='<article class="bookmark-tree-item">'+
-            '<button type="button" class="bookmark-open-btn" data-bookmark-doc="'+esc(String(doc.id))+'" data-bookmark-page="'+esc(String(m.page||0))+'">'+
+            '<button type="button" class="bookmark-open-btn" data-bookmark-doc="'+esc(String(doc.id))+'" data-bookmark-page="'+esc(String(m.page||0))+'" data-bookmark-id="'+esc(String(m.id||''))+'">'+
             '<span class="bookmark-note">'+esc(m.note||'Dấu trang')+'</span>'+
             '<small class="bookmark-excerpt">'+esc(m.excerpt||'Không có đoạn trích đã lưu.')+'</small>'+
             '</button>'+
+            '<button type="button" class="bookmark-remove-btn" data-bookmark-remove="'+esc(String(m.id||''))+'" data-bookmark-remove-doc="'+esc(String(doc.id))+'">Xóa</button>'+
             '</article>';
       }
       html+='</div></details>';
@@ -554,7 +595,7 @@
     return html;
   }
 
-  function openBookmarkFromLibrary(docId,pageIndex,button){
+  function openBookmarkFromLibrary(docId,pageIndex,bookmarkId,button){
     if(!beginNavigationWait(button,'Đang mở dấu trang...'))return;
 
     setTimeout(function(){
@@ -580,7 +621,23 @@
       renderPage(currentPage,true);
 
       setTimeout(function(){
-        try{id('editor').scrollIntoView(true);}catch(e){}
+        var editor=id('editor'),mark=null,i;
+        for(i=0;i<(d.bookmarks||[]).length;i++){
+          if(String(d.bookmarks[i].id)===String(bookmarkId)){mark=d.bookmarks[i];break;}
+        }
+        try{
+          if(editor&&editor.scrollIntoView)editor.scrollIntoView(true);
+          if(mark&&typeof mark.selectionStart==='number'&&typeof mark.selectionEnd==='number'&&mark.selectionEnd>mark.selectionStart){
+            editor.focus();
+            editor.setSelectionRange(mark.selectionStart,mark.selectionEnd);
+            editor.scrollTop=Number(mark.scrollTop)||0;
+            selectedStart=mark.selectionStart;
+            selectedEnd=mark.selectionEnd;
+            selectedText=editor.value.substring(selectedStart,selectedEnd);
+            selectedScrollTop=editor.scrollTop||0;
+            updateAnalyzeButtons();
+          }
+        }catch(e){}
         endNavigationWait(button);
       },140);
     },30);
@@ -1400,13 +1457,16 @@
     id('docList').onclick=function(e){
       e=e||window.event;
       var t=e.target||e.srcElement;
-      while(t&&t!==id('docList')&&!t.getAttribute)t=t.parentNode;
-      if(!t||!t.getAttribute)return;
+      while(t&&t!==id('docList')&&String(t.tagName||'').toLowerCase()!=='button')t=t.parentNode;
+      if(!t||t===id('docList')||!t.getAttribute)return;
 
       var open=t.getAttribute('data-open-doc');
       var del=t.getAttribute('data-del-doc');
       var bdoc=t.getAttribute('data-bookmark-doc');
       var bpage=t.getAttribute('data-bookmark-page');
+      var bid=t.getAttribute('data-bookmark-id');
+      var removeBookmarkId=t.getAttribute('data-bookmark-remove');
+      var removeBookmarkDoc=t.getAttribute('data-bookmark-remove-doc');
 
       if(open){openDocument(open,t);return;}
       if(del){
@@ -1414,8 +1474,12 @@
         deleteDocument(del);
         return;
       }
+      if(removeBookmarkId!==null&&removeBookmarkId!==''&&removeBookmarkDoc){
+        removeBookmark(removeBookmarkDoc,removeBookmarkId);
+        return;
+      }
       if(bdoc!==null&&bdoc!==''&&bpage!==null&&bpage!==''){
-        openBookmarkFromLibrary(bdoc,parseInt(bpage,10),t);
+        openBookmarkFromLibrary(bdoc,parseInt(bpage,10),bid,t);
         return;
       }
     };
