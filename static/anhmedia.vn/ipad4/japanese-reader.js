@@ -996,7 +996,7 @@
     id('hiraganaText').innerHTML=esc(a.hira||a.hiragana||'');
     id('translationVi').innerHTML=esc(a.translationVi||'');
     id('translationEn').innerHTML=esc(a.translation||'');
-    var words=a.words||a.vocabulary||[],html='',i,w,word,reading,romaji,vi,en,saved;
+    var words=a.words||a.vocabulary||[],html='',readingHtml='',i,w,word,reading,romaji,vi,en,saved;
     for(i=0;i<words.length;i++){
       w=words[i];
       word=w.word||w.surface||w[0]||'';
@@ -1005,6 +1005,12 @@
       vi=w.meaningVi||w.translationVi||'';
       en=w.meaningEn||w.meaning||w.translation||w[1]||'';
       saved=wordAlreadySaved(word,reading);
+
+      readingHtml+='<span class="reading-unit" data-reading-word-index="'+i+'" title="Chạm để nghe từ này">'+
+          '<span class="unit-hira">'+esc(reading||'　')+'</span>'+
+          '<span class="unit-word">'+esc(word)+'</span>'+
+          '<span class="unit-romaji">Phát âm: '+esc(romaji||'—')+'</span>'+
+          '</span>';
 
       html+='<span class="word'+(saved?' saved':'')+'" data-speak-card-index="'+i+'" title="Chạm để đọc">'+
           '<span class="word-cell">'+
@@ -1021,6 +1027,7 @@
           '</span>';
     }
     id('wordList').innerHTML=html||'<span class="small">Không có từ vựng.</span>';
+    id('readingWordList').innerHTML=readingHtml||'<span class="small">Không có dữ liệu tách từ.</span>';
     show(id('analysisPanel'));
   }
   function updateAnalysisConfirmCount(){
@@ -1507,6 +1514,7 @@
     id('saveAnalysisBtn').onclick=saveAnalysis;
     id('savePhraseBtn').onclick=saveCurrentPhrase;
     id('readAnalysisBtn').onclick=function(){if(currentAnalysis)speakJapaneseText(currentAnalysis.source||analysisReading(currentAnalysis)||'');};
+    id('readSentenceInlineBtn').onclick=function(){if(currentAnalysis)speakJapaneseText(currentAnalysis.source||analysisReading(currentAnalysis)||'');};
     id('speakBtn').onclick=speakSelection;
     id('saveDocBtn').onclick=saveDocument;
     id('pdfBtn').onclick=openPdf;
@@ -1599,6 +1607,13 @@
       var saveIndex=t.getAttribute('data-save-word-index');
       if(speakIndex!==null&&speakIndex!=='')speakWordByIndex(parseInt(speakIndex,10));
       if(saveIndex!==null&&saveIndex!=='')saveWordByIndex(parseInt(saveIndex,10));
+    };
+    id('readingWordList').onclick=function(e){
+      e=e||window.event;
+      var t=e.target||e.srcElement;
+      while(t&&t!==id('readingWordList')&&(!t.getAttribute||t.getAttribute('data-reading-word-index')===null))t=t.parentNode;
+      if(!t||t===id('readingWordList'))return;
+      speakWordByIndex(parseInt(t.getAttribute('data-reading-word-index'),10));
     };
 
     id('docList').onclick=function(e){
