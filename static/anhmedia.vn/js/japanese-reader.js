@@ -221,6 +221,16 @@
     }
   }
   function toast(message) { const el = $('[data-toast]'); el.textContent = message; el.hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(() => { el.hidden = true; }, 2400); }
+  function showTokenMeaning(surface, reading, romaji, meaningEn, meaningVi) {
+    const dialog = $('[data-token-meaning-dialog]');
+    $('[data-token-meaning-surface]').textContent = surface || '—';
+    $('[data-token-meaning-reading]').textContent = `${reading || '—'}${romaji ? ` · ${romaji}` : ''}`;
+    $('[data-token-meaning-en]').textContent = meaningEn || '—';
+    $('[data-token-meaning-vi]').textContent = meaningVi || '—';
+    dialog.hidden = false;
+    setTimeout(() => $('[data-token-meaning-close]:not(.jp-token-meaning-backdrop)')?.focus(), 0);
+  }
+  function closeTokenMeaning() { const dialog = $('[data-token-meaning-dialog]'); if (dialog) dialog.hidden = true; }
   function remainingAnalyses() {
     return usageLoaded && serverRemaining !== null ? serverRemaining : null;
   }
@@ -1058,7 +1068,8 @@
   editor.addEventListener('input', () => { draftDirty = true; clearTimeout(cacheDraft.timer); cacheDraft.timer = setTimeout(cacheDraft, 350); });
   $('[data-document-title]').addEventListener('input', () => { draftDirty = true; clearTimeout(cacheDraft.timer); cacheDraft.timer = setTimeout(cacheDraft, 350); });
   $('[data-vocabulary]').addEventListener('click', event => { const saveButton = event.target.closest('[data-save-word]'); if (saveButton) saveWord(Number(saveButton.dataset.saveWord)); const speakButton = event.target.closest('[data-speak-word]'); if (speakButton) { const word = (currentAnalysis.words || [])[Number(speakButton.dataset.speakWord)]; speakJapanese(word?.reading || word?.word); } });
-  $('[data-spelling-line]').addEventListener('click', event => { if (window.getSelection && String(window.getSelection()).length) return; const button = event.target.closest('[data-speak-token]'); if (!button) return; const token = (currentAnalysis?.tokens || [])[Number(button.dataset.speakToken)]; if (!token) return; const surface = token.surface || token[0] || ''; const word = (currentAnalysis?.words || []).find(item => (item.word || item[0]) === surface); speakJapanese(surface || token.reading); toast(`${surface} · EN: ${token.meaningEn || word?.meaningEn || word?.meaning || '—'} · VI: ${token.meaningVi || word?.meaningVi || '—'}`); });
+  $('[data-spelling-line]').addEventListener('click', event => { if (window.getSelection && String(window.getSelection()).length) return; const button = event.target.closest('[data-speak-token]'); if (!button) return; const token = (currentAnalysis?.tokens || [])[Number(button.dataset.speakToken)]; if (!token) return; const surface = token.surface || token[0] || ''; const word = (currentAnalysis?.words || []).find(item => (item.word || item[0]) === surface); const meaningEn = token.meaningEn || word?.meaningEn || word?.meaning || ''; const meaningVi = token.meaningVi || word?.meaningVi || ''; speakJapanese(surface || token.reading); showTokenMeaning(surface, token.reading || '', token.romaji || token[1] || '', meaningEn, meaningVi); });
+  $$('[data-token-meaning-close]').forEach(button => button.addEventListener('click', event => { event.preventDefault(); closeTokenMeaning(); }));
   $('[data-speak]').addEventListener('click', () => speakJapanese(currentAnalysis?.source));
   $('[data-memory-list]').addEventListener('click', event => { const action = event.target.closest('button'); if (!action) return; event.preventDefault(); event.stopPropagation(); const card = action.closest('[data-session-position]'); const session = card ? renderedMemorySessions[Number(card.dataset.sessionPosition)] : null; if (action.hasAttribute('data-open-session')) { reopenSession(session); return; } if (action.hasAttribute('data-speak-session')) { if (session) speakJapanese(session.source); else toast('Không tìm thấy câu đã lưu.'); return; } if (action.hasAttribute('data-speak-saved-index')) { const word = state.savedWords[Number(action.dataset.speakSavedIndex)]; speakJapanese(word?.reading || word?.word); return; } if (action.hasAttribute('data-edit-saved-index')) { editSavedWord(Number(action.dataset.editSavedIndex)); return; } if (action.hasAttribute('data-delete-saved-index')) { deleteSavedWord(Number(action.dataset.deleteSavedIndex)); return; } if (action.hasAttribute('data-edit-session')) { editSession(action.dataset.editSession); return; } if (action.hasAttribute('data-delete-session')) deleteSession(action.dataset.deleteSession); });
   $('[data-font]').addEventListener('change', event => { editor.classList.remove('font-sans','font-rounded'); if (event.target.value !== 'serif') editor.classList.add(`font-${event.target.value}`); });
