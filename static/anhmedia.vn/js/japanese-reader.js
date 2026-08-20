@@ -221,7 +221,9 @@
     }
   }
   function toast(message) { const el = $('[data-toast]'); el.textContent = message; el.hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(() => { el.hidden = true; }, 2400); }
+  function isIphoneSafari() { const ua = navigator.userAgent || ''; return /iPhone|iPod/i.test(ua) && /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/i.test(ua); }
   function showTokenMeaning(surface, reading, romaji, meaningEn, meaningVi) {
+    if (!isIphoneSafari()) { toast(`${surface} · EN: ${meaningEn || '—'} · VI: ${meaningVi || '—'}`); return; }
     const dialog = $('[data-token-meaning-dialog]');
     $('[data-token-meaning-surface]').textContent = surface || '—';
     $('[data-token-meaning-reading]').textContent = `${reading || '—'}${romaji ? ` · ${romaji}` : ''}`;
