@@ -855,7 +855,7 @@
           '<div class="memory-check-body">'+
           '<b class="memory-jp">'+esc(p.source||'')+'</b>'+
           '<div class="small"><b>ひらがな:</b> '+esc(p.hiragana||'—')+'</div>'+
-          '<div class="small"><b>Phát âm:</b> '+esc(p.romaji||'—')+'</div>'+
+          '<div class="small">'+esc(p.romaji||'—')+'</div>'+
           '<div class="small"><b>VI:</b> '+esc(p.translationVi||'—')+'</div>'+
           '<div class="small"><b>EN:</b> '+esc(p.translationEn||'—')+'</div>'+
           '<div class="memory-actions"><button data-read-phrase="'+i+'">▶ Đọc</button><button data-open-phrase="'+i+'">Mở phân tích</button></div>'+
@@ -878,7 +878,7 @@
           '<div class="memory-check-body">'+
           '<b class="memory-jp">'+esc(word)+'</b>'+
           '<div class="small"><b>ひらがな:</b> '+esc(reading||'—')+'</div>'+
-          '<div class="small"><b>Phát âm:</b> '+esc(romaji||'—')+'</div>'+
+          '<div class="small">'+esc(romaji||'—')+'</div>'+
           '<div class="small"><b>VI:</b> '+esc(vi||'—')+'</div>'+
           '<div class="small"><b>EN:</b> '+esc(en||'—')+'</div>'+
           '<div class="memory-actions"><button data-read-word="'+i+'">▶ Đọc</button></div>'+
@@ -1021,7 +1021,7 @@
       readingHtml+='<span class="reading-unit" data-reading-token-index="'+i+'" title="Chạm để nghe; giữ để chọn chữ">'+
           '<span class="unit-hira">'+esc(reading||'　')+'</span>'+
           '<span class="unit-word">'+esc(word)+'</span>'+
-          '<span class="unit-romaji">Phát âm: '+esc(romaji||'—')+'</span>'+
+          '<span class="unit-romaji">'+esc(romaji||'—')+'</span>'+
           '</span>';
     }
     for(i=0;i<words.length;i++){
@@ -1037,7 +1037,7 @@
           '<span class="word-cell">'+
           '<b class="surface">'+esc(word)+'</b>'+
           '<span class="reading"><b>ひらがな:</b> '+esc(reading||'—')+'</span>'+
-          '<span class="pronunciation"><b>Phát âm:</b> '+esc(romaji||'—')+'</span>'+
+          '<span class="pronunciation">'+esc(romaji||'—')+'</span>'+
           '</span>'+
           '<span class="meaning-vi"><b>VI:</b> '+esc(vi||'—')+'</span>'+
           '<span class="meaning-en"><b>EN:</b> '+esc(en||'—')+'</span>'+
@@ -1202,6 +1202,12 @@
     var token=tokens[index];
     if(!token)return;
     speakJapaneseText(token.surface||token.word||token.reading||token[0]||'');
+    showReadingTokenMeaning(token);
+  }
+  function showReadingTokenMeaning(token){
+    var words=currentAnalysis.words||currentAnalysis.vocabulary||[],surface=token.surface||token.word||token[0]||'',i,w,en=token.meaningEn||'',vi=token.meaningVi||'';
+    for(i=0;i<words.length&&(!en||!vi);i++){w=words[i];if(String(w.word||w.surface||w[0]||'')===String(surface)){en=en||w.meaningEn||w.meaning||'';vi=vi||w.meaningVi||'';}}
+    toast(surface+' · EN: '+(en||'—')+' · VI: '+(vi||'—'));
   }
   function wordAlreadySaved(word,reading){
     var i,w;
