@@ -180,6 +180,35 @@
     .memory-actions{margin-top:8px}.memory-actions button{padding:6px 8px;margin:2px 4px 2px 0;border:1px solid #ccd8d3;border-radius:5px;background:#fff;color:#315f55;font-weight:bold}
     .saved-phrase{border-left:4px solid #d9c38f}.saved-word{border-left:4px solid #9fc6b7}.saved-analysis{border-left:4px solid #9fb4d8}
   </style>
+
+  <style>
+    #analysisConfirmModal{
+      position:fixed;
+      left:0;top:0;right:0;bottom:0;
+      z-index:99998;
+      display:none;
+      background:rgba(20,28,26,.72);
+    }
+    #analysisConfirmModal.is-open{display:block!important}
+    #analysisConfirmText{
+      box-sizing:border-box;
+      width:100%;
+      min-height:180px;
+      margin:7px 0;
+      padding:10px;
+      border:1px solid #ccd7d2;
+      border-radius:6px;
+      background:#fff;
+      color:#1e2726;
+      font-family:"Hiragino Mincho ProN","Yu Mincho",serif;
+      font-size:18px;
+      line-height:1.7;
+      resize:vertical;
+    }
+    #analysisConfirmCount{margin-bottom:6px;color:#315f55}
+    #analysisConfirmError{margin-bottom:8px;color:#8b3f36;font-weight:bold}
+  </style>
+
 </head>
 <body>
 <div id="app"><div id="jsStatus">Đang khởi động JavaScript iPad 4…</div>
@@ -269,6 +298,20 @@
       </div>
       <div id="docList"></div>
     </div>
+  </div>
+</div>
+
+
+<div id="analysisConfirmModal">
+  <div class="modal-card">
+    <h3>Xác nhận đoạn cần phân tích</h3>
+    <div class="small">Kiểm tra và chỉnh sửa nội dung trước khi gửi. Chỉ khi bấm “Xác nhận phân tích” hệ thống mới gọi máy chủ.</div>
+    <label>Nội dung phân tích</label>
+    <textarea id="analysisConfirmText" rows="9"></textarea>
+    <div id="analysisConfirmCount" class="small">0 / 500 ký tự</div>
+    <div id="analysisConfirmError" class="small"></div>
+    <button id="analysisConfirmCancel">Hủy</button>
+    <button id="analysisConfirmStart" class="primary">Xác nhận phân tích</button>
   </div>
 </div>
 
@@ -543,6 +586,24 @@
       }
       selectedText='';
       updateAnalyzeButtons();
+
+      /* Every page change starts at the top of the learning page/content. */
+      setTimeout(function(){
+        try{
+          var reader=id('readerView');
+          var editor=id('editor');
+          if(reader&&reader.scrollIntoView){
+            reader.scrollIntoView(true);
+          }else if(editor&&editor.scrollIntoView){
+            editor.scrollIntoView(true);
+          }else{
+            window.scrollTo(0,0);
+          }
+          if(editor)editor.scrollTop=0;
+        }catch(e){
+          try{window.scrollTo(0,0);}catch(ignore){}
+        }
+      },20);
     }
     function findDoc(docId){
       var i;
@@ -720,7 +781,58 @@
       id('wordList').innerHTML=html||'<span class="small">Không có từ vựng.</span>';
       show(id('analysisPanel'));
     }
+    function updateAnalysisConfirmCount(){
+      var box=id('analysisConfirmText');
+      var count=id('analysisConfirmCount');
+      if(!box||!count)return;
+      var len=String(box.value||'').length;
+      count.innerHTML=len+' / 500 ký tự';
+      count.style.color=len>500?'#8b3f36':'#315f55';
+    }
+    function openAnalysisConfirm(){
+      if(analyzing)return;
+      getSelectedText();
+      if(selectedText.length<2){
+        toast('Hãy chọn đoạn tiếng Nhật cần phân tích.');
+        return;
+      }
+      var box=id('analysisConfirmText');
+      var modal=id('analysisConfirmModal');
+      var err=id('analysisConfirmError');
+      if(box)box.value=selectedText;
+      if(err)err.innerHTML='';
+      updateAnalysisConfirmCount();
+      if(modal){modal.style.display='block';addClass(modal,'is-open');}
+      document.body.style.overflow='hidden';
+      setTimeout(function(){try{box.focus();box.setSelectionRange(box.value.length,box.value.length);}catch(e){}},50);
+    }
+    function closeAnalysisConfirm(){
+      var modal=id('analysisConfirmModal');
+      if(modal){modal.style.display='none';removeClass(modal,'is-open');}
+      document.body.style.overflow='';
+    }
+    function startConfirmedAnalysis(){
+      var box=id('analysisConfirmText');
+      var err=id('analysisConfirmError');
+      var text=trim(box?box.value:'');
+      if(text.length<2){
+        if(err)err.innerHTML='Nội dung quá ngắn.';
+        return;
+      }
+      if(text.length>500){
+        if(err)err.innerHTML='Chỉ phân tích tối đa 500 ký tự.';
+        return;
+      }
+      selectedText=text;
+      closeAnalysisConfirm();
+      analyzeConfirmed();
+    }
+
     function analyze(){
+      openAnalysisConfirm();
+    }
+
+    function analyzeConfirmed(){
       if(analyzing||selectedText.length<2)return;
       if(selectedText.length>500){toast('Chỉ chọn tối đa 500 ký tự.');return;}
       refreshQuota(function(ok){
@@ -1018,6 +1130,10 @@
         }
         return false;
       };
+      id('analysisConfirmCancel').onclick=function(){closeAnalysisConfirm();return false;};
+      id('analysisConfirmStart').onclick=function(){startConfirmedAnalysis();return false;};
+      id('analysisConfirmText').onkeyup=updateAnalysisConfirmCount;
+      id('analysisConfirmText').onchange=updateAnalysisConfirmCount;
       id('saveAnalysisBtn').onclick=saveAnalysis;
       id('savePhraseBtn').onclick=saveCurrentPhrase;
       id('readAnalysisBtn').onclick=function(){if(currentAnalysis)speakJapaneseText(currentAnalysis.source||analysisReading(currentAnalysis)||'');};

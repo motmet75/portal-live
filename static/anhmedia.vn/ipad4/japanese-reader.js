@@ -238,6 +238,24 @@
     }
     selectedText='';
     updateAnalyzeButtons();
+
+    /* Every page change starts at the top of the learning page/content. */
+    setTimeout(function(){
+      try{
+        var reader=id('readerView');
+        var editor=id('editor');
+        if(reader&&reader.scrollIntoView){
+          reader.scrollIntoView(true);
+        }else if(editor&&editor.scrollIntoView){
+          editor.scrollIntoView(true);
+        }else{
+          window.scrollTo(0,0);
+        }
+        if(editor)editor.scrollTop=0;
+      }catch(e){
+        try{window.scrollTo(0,0);}catch(ignore){}
+      }
+    },20);
   }
   function findDoc(docId){
     var i;
@@ -415,7 +433,58 @@
     id('wordList').innerHTML=html||'<span class="small">Không có từ vựng.</span>';
     show(id('analysisPanel'));
   }
+  function updateAnalysisConfirmCount(){
+    var box=id('analysisConfirmText');
+    var count=id('analysisConfirmCount');
+    if(!box||!count)return;
+    var len=String(box.value||'').length;
+    count.innerHTML=len+' / 500 ký tự';
+    count.style.color=len>500?'#8b3f36':'#315f55';
+  }
+  function openAnalysisConfirm(){
+    if(analyzing)return;
+    getSelectedText();
+    if(selectedText.length<2){
+      toast('Hãy chọn đoạn tiếng Nhật cần phân tích.');
+      return;
+    }
+    var box=id('analysisConfirmText');
+    var modal=id('analysisConfirmModal');
+    var err=id('analysisConfirmError');
+    if(box)box.value=selectedText;
+    if(err)err.innerHTML='';
+    updateAnalysisConfirmCount();
+    if(modal){modal.style.display='block';addClass(modal,'is-open');}
+    document.body.style.overflow='hidden';
+    setTimeout(function(){try{box.focus();box.setSelectionRange(box.value.length,box.value.length);}catch(e){}},50);
+  }
+  function closeAnalysisConfirm(){
+    var modal=id('analysisConfirmModal');
+    if(modal){modal.style.display='none';removeClass(modal,'is-open');}
+    document.body.style.overflow='';
+  }
+  function startConfirmedAnalysis(){
+    var box=id('analysisConfirmText');
+    var err=id('analysisConfirmError');
+    var text=trim(box?box.value:'');
+    if(text.length<2){
+      if(err)err.innerHTML='Nội dung quá ngắn.';
+      return;
+    }
+    if(text.length>500){
+      if(err)err.innerHTML='Chỉ phân tích tối đa 500 ký tự.';
+      return;
+    }
+    selectedText=text;
+    closeAnalysisConfirm();
+    analyzeConfirmed();
+  }
+
   function analyze(){
+    openAnalysisConfirm();
+  }
+
+  function analyzeConfirmed(){
     if(analyzing||selectedText.length<2)return;
     if(selectedText.length>500){toast('Chỉ chọn tối đa 500 ký tự.');return;}
     refreshQuota(function(ok){
@@ -713,6 +782,10 @@
       }
       return false;
     };
+    id('analysisConfirmCancel').onclick=function(){closeAnalysisConfirm();return false;};
+    id('analysisConfirmStart').onclick=function(){startConfirmedAnalysis();return false;};
+    id('analysisConfirmText').onkeyup=updateAnalysisConfirmCount;
+    id('analysisConfirmText').onchange=updateAnalysisConfirmCount;
     id('saveAnalysisBtn').onclick=saveAnalysis;
     id('savePhraseBtn').onclick=saveCurrentPhrase;
     id('readAnalysisBtn').onclick=function(){if(currentAnalysis)speakJapaneseText(currentAnalysis.source||analysisReading(currentAnalysis)||'');};
