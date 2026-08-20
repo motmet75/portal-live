@@ -107,3 +107,7 @@ body.large .paper{font-size:25px;line-height:2.15}
 #editor::selection{background:#ffd54f;color:#17211f}
 #editor::-moz-selection{background:#ffd54f;color:#17211f}
 .bookmark-highlight{margin:8px 0 0;padding:9px 11px;border:2px solid #d5a900;border-radius:6px;background:#fff3a6;color:#3f3400;font-size:13px;font-weight:bold;line-height:1.45}
+.reader-meta{margin-bottom:7px;padding:6px;border:1px solid #d7dfdc;border-radius:7px;background:#f8faf8;white-space:nowrap}
+.reader-meta .notice,.reader-meta .doc-title,.reader-meta .toolbar{display:inline-block;box-sizing:border-box;margin:0;vertical-align:middle}
+.reader-meta .notice{width:23%;padding:7px 5px;text-align:center}.reader-meta .doc-title{width:32%;margin:0 1%}.reader-meta .toolbar{width:40%;padding:0;border:0;background:transparent;white-space:nowrap}
+.reader-meta .toolbar input{display:inline-block;width:calc(100% - 54px);padding:8px;vertical-align:middle}.reader-meta .toolbar button{width:50px;min-height:35px;padding:6px 2px;border:1px solid #315f55;border-radius:5px;background:#315f55;color:#fff;font-weight:bold;vertical-align:middle}

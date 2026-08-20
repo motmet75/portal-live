@@ -27,6 +27,7 @@
   var lastEditorValue='';
   var suppressEditorHistory=false;
   var navigationBusy=false;
+  var lastBookmarkActionAt=0;
   var LAST_DOC_KEY='anhmedia.jp-reader.ipad4.last-doc.v1';
 
   function id(x){return document.getElementById(x);}
@@ -482,6 +483,9 @@
   }
 
   function addBookmark(){
+    var actionAt=new Date().getTime();
+    if(actionAt-lastBookmarkActionAt<800)return;
+    lastBookmarkActionAt=actionAt;
     var doc=findDoc(currentDocId);
     if(!doc){toast('Hãy lưu tài liệu trước.');return;}
 
@@ -1295,12 +1299,27 @@
   }
   function searchCurrent(){
     var q=trim(id('searchBox').value).toLowerCase();
-    if(!q)return;
-    var i,text;
+    if(!q){toast('Nhập từ cần tìm.');id('searchBox').focus();return;}
+    var i,text,foundAt;
     storeCurrentPage();
     for(i=0;i<currentPages.length;i++){
       text=String(currentPages[i]||'').toLowerCase();
-      if(text.indexOf(q)>=0){renderPage(i);toast('Tìm thấy ở trang '+(i+1)+'.');return;}
+      foundAt=text.indexOf(q);
+      if(foundAt>=0){
+        renderPage(i);
+        (function(start,end,page){
+          setTimeout(function(){
+            var editor=id('editor');
+            try{
+              editor.focus();
+              editor.setSelectionRange(start,end);
+              editor.scrollTop=Math.max(0,(start/Math.max(1,editor.value.length))*editor.scrollHeight-(editor.clientHeight/2));
+            }catch(e){}
+            toast('Đã tô sáng kết quả ở trang '+page+'.');
+          },70);
+        })(foundAt,foundAt+q.length,i+1);
+        return;
+      }
     }
     toast('Không tìm thấy.');
   }
@@ -1421,7 +1440,8 @@
         return;
       }
     };
-    id('searchBox').onkeydown=function(e){e=e||window.event;if((e.keyCode||e.which)===13)searchCurrent();};
+    id('searchBtn').onclick=searchCurrent;
+    id('searchBox').onkeydown=function(e){e=e||window.event;if((e.keyCode||e.which)===13){searchCurrent();return false;}};
 
     var jumps=qsa('.pageJump'),j;
     for(j=0;j<jumps.length;j++){
@@ -1436,17 +1456,8 @@
     for(i=0;i<els.length;i++)els[i].onclick=function(){renderPage(currentPage-1);};
     els=qsa('.nextBtn');
     for(i=0;i<els.length;i++)els[i].onclick=function(){renderPage(currentPage+1);};
-    /* Bottom bookmark is the canonical working handler. */
-    id('bookmarkBottomBtn').onclick=addBookmark;
-    id('bookmarkTopBtn').onclick=function(e){
-      if(e&&e.preventDefault)e.preventDefault();
-      return id('bookmarkBottomBtn').onclick();
-    };
-    id('bookmarkTopBtn').ontouchend=function(e){
-      if(e&&e.preventDefault)e.preventDefault();
-      id('bookmarkBottomBtn').onclick();
-      return false;
-    };
+    var bookmarkButtons=qsa('.bookmarkBtn');
+    for(i=0;i<bookmarkButtons.length;i++)bookmarkButtons[i].onclick=addBookmark;
 
     id('wordList').onclick=function(e){
       e=e||window.event;

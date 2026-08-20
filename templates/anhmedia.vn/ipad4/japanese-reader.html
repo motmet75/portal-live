@@ -395,6 +395,44 @@
       font-weight:bold;
       line-height:1.45;
     }
+    .reader-meta{
+      margin-bottom:7px;
+      padding:6px;
+      border:1px solid #d7dfdc;
+      border-radius:7px;
+      background:#f8faf8;
+      white-space:nowrap;
+    }
+    .reader-meta .notice{
+      box-sizing:border-box;
+      display:inline-block;
+      width:23%;
+      margin:0;
+      padding:7px 5px;
+      border:0;
+      background:transparent;
+      text-align:center;
+      vertical-align:middle;
+    }
+    .reader-meta .doc-title{
+      display:inline-block;
+      width:32%;
+      margin:0 1%;
+      vertical-align:middle;
+    }
+    .reader-meta .toolbar{
+      box-sizing:border-box;
+      display:inline-block;
+      width:40%;
+      margin:0;
+      padding:0;
+      border:0;
+      background:transparent;
+      vertical-align:middle;
+      white-space:nowrap;
+    }
+    .reader-meta .toolbar input{display:inline-block;width:calc(100% - 54px);padding:8px;vertical-align:middle}
+    .reader-meta .toolbar button{width:50px;min-height:35px;padding:6px 2px;border:1px solid #315f55;border-radius:5px;background:#315f55;color:#fff;font-weight:bold;vertical-align:middle}
   </style>
 
 </head>
@@ -423,15 +461,14 @@
       <button id="googleBtn2">Đăng nhập với Google</button>
     </div>
 
-    <div class="notice">
-      Giới hạn sử dụng: <b id="remaining">...</b>/<b id="limit">...</b> lượt phân tích hôm nay.
+    <div class="reader-meta">
+      <div class="notice">Lượt: <b id="remaining">...</b>/<b id="limit">...</b></div>
+      <input id="docTitle" class="doc-title" aria-label="Tên tài liệu" value="Tài liệu mẫu iPad 4">
+      <div class="toolbar">
+        <input id="searchBox" type="search" placeholder="Tìm trong tài liệu" aria-label="Tìm trong tài liệu">
+        <button id="searchBtn" type="button">Tìm</button>
+      </div>
     </div>
-
-    <div class="toolbar">
-      <input id="searchBox" type="text" placeholder="Tìm trong tài liệu hiện tại">
-    </div>
-
-    <input id="docTitle" class="doc-title" value="Tài liệu mẫu iPad 4">
 
     <div class="page-nav">
       <button class="prevBtn">← Trước</button>
@@ -570,6 +607,7 @@
     var lastEditorValue='';
     var suppressEditorHistory=false;
     var navigationBusy=false;
+    var lastBookmarkActionAt=0;
     var LAST_DOC_KEY='anhmedia.jp-reader.ipad4.last-doc.v1';
 
     function id(x){return document.getElementById(x);}
@@ -1025,6 +1063,9 @@
     }
 
     function addBookmark(){
+      var actionAt=new Date().getTime();
+      if(actionAt-lastBookmarkActionAt<800)return;
+      lastBookmarkActionAt=actionAt;
       var doc=findDoc(currentDocId);
       if(!doc){toast('Hãy lưu tài liệu trước.');return;}
 
@@ -1838,12 +1879,27 @@
     }
     function searchCurrent(){
       var q=trim(id('searchBox').value).toLowerCase();
-      if(!q)return;
-      var i,text;
+      if(!q){toast('Nhập từ cần tìm.');id('searchBox').focus();return;}
+      var i,text,foundAt;
       storeCurrentPage();
       for(i=0;i<currentPages.length;i++){
         text=String(currentPages[i]||'').toLowerCase();
-        if(text.indexOf(q)>=0){renderPage(i);toast('Tìm thấy ở trang '+(i+1)+'.');return;}
+        foundAt=text.indexOf(q);
+        if(foundAt>=0){
+          renderPage(i);
+          (function(start,end,page){
+            setTimeout(function(){
+              var editor=id('editor');
+              try{
+                editor.focus();
+                editor.setSelectionRange(start,end);
+                editor.scrollTop=Math.max(0,(start/Math.max(1,editor.value.length))*editor.scrollHeight-(editor.clientHeight/2));
+              }catch(e){}
+              toast('Đã tô sáng kết quả ở trang '+page+'.');
+            },70);
+          })(foundAt,foundAt+q.length,i+1);
+          return;
+        }
       }
       toast('Không tìm thấy.');
     }
@@ -1964,7 +2020,8 @@
           return;
         }
       };
-      id('searchBox').onkeydown=function(e){e=e||window.event;if((e.keyCode||e.which)===13)searchCurrent();};
+      id('searchBtn').onclick=searchCurrent;
+      id('searchBox').onkeydown=function(e){e=e||window.event;if((e.keyCode||e.which)===13){searchCurrent();return false;}};
 
       var jumps=qsa('.pageJump'),j;
       for(j=0;j<jumps.length;j++){
@@ -1979,17 +2036,8 @@
       for(i=0;i<els.length;i++)els[i].onclick=function(){renderPage(currentPage-1);};
       els=qsa('.nextBtn');
       for(i=0;i<els.length;i++)els[i].onclick=function(){renderPage(currentPage+1);};
-      /* Bottom bookmark is the canonical working handler. */
-      id('bookmarkBottomBtn').onclick=addBookmark;
-      id('bookmarkTopBtn').onclick=function(e){
-        if(e&&e.preventDefault)e.preventDefault();
-        return id('bookmarkBottomBtn').onclick();
-      };
-      id('bookmarkTopBtn').ontouchend=function(e){
-        if(e&&e.preventDefault)e.preventDefault();
-        id('bookmarkBottomBtn').onclick();
-        return false;
-      };
+      var bookmarkButtons=qsa('.bookmarkBtn');
+      for(i=0;i<bookmarkButtons.length;i++)bookmarkButtons[i].onclick=addBookmark;
 
       id('wordList').onclick=function(e){
         e=e||window.event;

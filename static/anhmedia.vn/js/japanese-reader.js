@@ -463,7 +463,7 @@
     if (isAppleTouchDevice()) { startJapaneseSpeech(text); return; }
     playSpeakerAlert().then(() => startJapaneseSpeech(`。　。　${text}`));
   }
-  function showAnalysisConnection(status, message) { const panel = $('[data-analysis-connection]'); const login = $('[data-analysis-login]'); const contact = $('[data-analysis-contact]'); panel.hidden = false; $('[data-inspector-empty]').hidden = true; login.hidden = status !== 401; contact.hidden = status !== 429; const missingKey = /not configured|OPENAI_API_KEY/i.test(message || ''); $('[data-analysis-error]').textContent = status === 401 ? 'Hãy đăng nhập với Google để sử dụng miễn phí.' : status === 429 ? `Bạn đã dùng hết ${dailyAnalysisLimit} lượt phân tích hôm nay. Vui lòng liên hệ AnhMedia để mở rộng hạn mức.` : missingKey ? 'Bạn đã đăng nhập. Máy chủ chưa có OPENAI_API_KEY nên chưa thể phân tích. Quản trị viên cần thêm key vào secrets/live-designer.env và khởi động lại portal.' : status === 503 ? `OpenAI tạm thời chưa phản hồi. ${message || 'Vui lòng thử lại sau.'}` : `Không thể kết nối API phân tích. ${message || 'Kiểm tra mạng rồi thử lại.'}`; const extraction = $('[data-connection-panel]'); extraction.hidden = false; }
+  function showAnalysisConnection(status, message) { const panel = $('[data-analysis-connection]'); const login = $('[data-analysis-login]'); const contact = $('[data-analysis-contact]'); panel.hidden = false; $('[data-inspector-empty]').hidden = true; login.hidden = status !== 401; contact.hidden = true; const missingKey = /not configured|OPENAI_API_KEY/i.test(message || ''); $('[data-analysis-error]').textContent = status === 401 ? 'Hãy đăng nhập với Google để sử dụng miễn phí.' : status === 429 ? 'Dịch vụ AI đang nhận quá nhiều yêu cầu. Vui lòng đợi một chút rồi thử lại.' : missingKey ? 'Bạn đã đăng nhập. Máy chủ chưa có OPENAI_API_KEY nên chưa thể phân tích. Quản trị viên cần thêm key vào secrets/live-designer.env và khởi động lại portal.' : status === 503 ? `OpenAI tạm thời chưa phản hồi. ${message || 'Vui lòng thử lại sau.'}` : `Không thể kết nối API phân tích. ${message || 'Kiểm tra mạng rồi thử lại.'}`; const extraction = $('[data-connection-panel]'); extraction.hidden = false; }
   function rememberLoginReturn() { const target = `${window.location.pathname}${window.location.search}${window.location.hash}`; document.cookie = `PORTAL_LOGIN_RETURN=${encodeURIComponent(target)}; Max-Age=600; Path=/; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`; }
   function setLoginOpen(open) { const modal = $('[data-login-modal]'); if (!modal) return; modal.hidden = !open; document.body.style.overflow = open ? 'hidden' : ''; if (open) setTimeout(() => modal.querySelector('input')?.focus(), 30); }
   let googleLoginPopup = null;
@@ -699,18 +699,6 @@
       return;
     }
 
-    const serverLimitBeforeAnalysis = dailyAnalysisLimit;
-    const serverRemainingBeforeAnalysis = serverRemaining;
-
-    if (serverRemainingBeforeAnalysis === null || serverLimitBeforeAnalysis === null) {
-      toast('Máy chủ chưa trả về hạn mức hợp lệ. Vui lòng thử lại.');
-      return;
-    }
-
-    if (serverRemainingBeforeAnalysis <= 0) {
-      toast(`Bạn đã dùng hết ${serverLimitBeforeAnalysis} lượt hôm nay.`);
-      return;
-    }
     if (currentAnalysis && hasUnsavedAnalysis && currentAnalysis.source !== selectedText) {
       const savePrevious = window.confirm('Bạn chưa lưu kết quả phân tích trước. Nhấn OK để lưu trước khi phân tích đoạn mới, hoặc Hủy để bỏ kết quả cũ.');
       if (savePrevious) remember();
