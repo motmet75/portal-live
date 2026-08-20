@@ -174,6 +174,12 @@
     }
   </style>
 
+  <style>
+    .memory-section-title{margin:18px 0 8px;padding-bottom:5px;border-bottom:1px solid #d8e0dd;color:#315f55;font-size:14px}
+    .memory-jp{display:block;margin-bottom:5px;font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-size:18px}
+    .memory-actions{margin-top:8px}.memory-actions button{padding:6px 8px;margin:2px 4px 2px 0;border:1px solid #ccd8d3;border-radius:5px;background:#fff;color:#315f55;font-weight:bold}
+    .saved-phrase{border-left:4px solid #d9c38f}.saved-word{border-left:4px solid #9fc6b7}.saved-analysis{border-left:4px solid #9fb4d8}
+  </style>
 </head>
 <body>
 <div id="app"><div id="jsStatus">Đang khởi động JavaScript iPad 4…</div>
@@ -243,7 +249,7 @@
       <div class="block"><b>Nghĩa tiếng Anh</b><div id="translationEn"></div></div>
       <div class="block"><b>Từ vựng</b><div id="wordList"></div></div>
       <div class="action-row">
-        <button id="saveAnalysisBtn">＋ Lưu để ôn</button>
+        <button id="saveAnalysisBtn">＋ Lưu tất cả để ôn</button><button id="savePhraseBtn">＋ Lưu câu / cụm từ</button><button id="readAnalysisBtn">▶ Đọc cả câu</button>
       </div>
     </div>
   </div>
@@ -304,7 +310,7 @@
     var STORAGE_KEY='anhmedia.jp-reader.v1';
     var LEGACY_IPAD_STORAGE_KEY='anhmedia.jp-reader.ipad4.v1';
     var OFFLINE_META_KEY='anhmedia.jp-reader.offline-meta.v1';
-    var appState={documents:[],analyses:[],savedWords:[]};
+    var appState={documents:[],analyses:[],savedWords:[],savedPhrases:[]};
     var currentPages=[];
     var currentPage=0;
     var currentDocId=null;
@@ -334,7 +340,8 @@
         documents:v.documents||[],
         memories:v.memories||[],
         analyses:v.analyses||[],
-        savedWords:v.savedWords||[]
+        savedWords:v.savedWords||[],
+        savedPhrases:v.savedPhrases||[]
       };
     }
     function mergeDocuments(a,b){
@@ -381,7 +388,8 @@
         documents:mergeDocuments(normal.documents,legacy.documents),
         memories:mergeSimple(normal.memories,legacy.memories,'sessionId'),
         analyses:mergeSimple(normal.analyses,legacy.analyses,'sessionId'),
-        savedWords:mergeSimple(normal.savedWords,legacy.savedWords,'word')
+        savedWords:mergeSimple(normal.savedWords,legacy.savedWords,'word'),
+        savedPhrases:mergeSimple(normal.savedPhrases,legacy.savedPhrases,'source')
       };
 
       try{localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));}catch(e){}
@@ -613,32 +621,45 @@
       saveState();
     }
     function renderMemory(){
-      var q=trim(id('memorySearch').value).toLowerCase(),html='',i,a,w,j,word,reading,romaji,vi,en;
-      for(i=0;i<appState.savedWords.length;i++){
-        w=appState.savedWords[i];
-        word=w.word||w[0]||'';
-        reading=w.reading||'';
-        romaji=w.romaji||w.pronunciation||'';
-        vi=w.meaningVi||'';
-        en=w.meaningEn||w.meaning||w[1]||'';
-        if(q && (word+' '+reading+' '+romaji+' '+vi+' '+en).toLowerCase().indexOf(q)<0)continue;
-        html+='<div class="memory-item"><b>'+esc(word)+'</b>'+
-                '<div class="small">'+esc(reading)+'</div>'+ '<div class="small">Phát âm: '+esc(romaji||'—')+'</div>'+
-                '<div class="small">VI: '+esc(vi||'—')+'</div>'+
-                '<div class="small">EN: '+esc(en||'—')+'</div>'+
-                '</div>';
+      var q=trim(id('memorySearch').value).toLowerCase(),html='',i,a,w,p,word,reading,romaji,vi,en,h;
+      html+='<h3 class="memory-section-title">Câu / cụm từ đã lưu</h3>';
+      for(i=0;i<appState.savedPhrases.length;i++){
+        p=appState.savedPhrases[i];
+        h=(String(p.source||'')+' '+String(p.hiragana||'')+' '+String(p.romaji||'')+' '+String(p.translationVi||'')+' '+String(p.translationEn||'')).toLowerCase();
+        if(q&&h.indexOf(q)<0)continue;
+        html+='<div class="memory-item saved-phrase"><b class="memory-jp">'+esc(p.source||'')+'</b>'+
+                '<div class="small"><b>ひらがな:</b> '+esc(p.hiragana||'—')+'</div>'+
+                '<div class="small"><b>Phát âm:</b> '+esc(p.romaji||'—')+'</div>'+
+                '<div class="small"><b>VI:</b> '+esc(p.translationVi||'—')+'</div>'+
+                '<div class="small"><b>EN:</b> '+esc(p.translationEn||'—')+'</div>'+
+                '<div class="memory-actions"><button data-read-phrase="'+i+'">▶ Đọc</button><button data-open-phrase="'+i+'">Mở phân tích</button></div></div>';
       }
+      html+='<h3 class="memory-section-title">Từ mới đã lưu</h3>';
+      for(i=0;i<appState.savedWords.length;i++){
+        w=appState.savedWords[i];word=w.word||w[0]||'';reading=w.reading||'';romaji=w.romaji||w.pronunciation||'';
+        vi=w.meaningVi||'';en=w.meaningEn||w.meaning||w[1]||'';
+        h=(word+' '+reading+' '+romaji+' '+vi+' '+en).toLowerCase();
+        if(q&&h.indexOf(q)<0)continue;
+        html+='<div class="memory-item saved-word"><b class="memory-jp">'+esc(word)+'</b>'+
+                '<div class="small"><b>ひらがな:</b> '+esc(reading||'—')+'</div>'+
+                '<div class="small"><b>Phát âm:</b> '+esc(romaji||'—')+'</div>'+
+                '<div class="small"><b>VI:</b> '+esc(vi||'—')+'</div>'+
+                '<div class="small"><b>EN:</b> '+esc(en||'—')+'</div>'+
+                '<div class="memory-actions"><button data-read-word="'+i+'">▶ Đọc</button></div></div>';
+      }
+      html+='<h3 class="memory-section-title">Kết quả phân tích đã lưu</h3>';
       for(i=0;i<appState.analyses.length;i++){
         a=appState.analyses[i];
-        if(q&&String(a.source||'').toLowerCase().indexOf(q)<0&&String(a.translationVi||'').toLowerCase().indexOf(q)<0)continue;
-        html+='<div class="memory-item"><b>'+esc(a.source||'')+'</b><div class="small">'+esc(a.translationVi||'')+'</div>';
-        w=a.words||a.vocabulary||[];
-        for(j=0;j<w.length;j++){
-          html+='<div class="small">'+esc(w[j].word||w[j][0]||'')+' · '+esc(w[j].reading||'')+' · '+esc(w[j].meaningVi||w[j].meaningEn||'')+'</div>';
-        }
-        html+='</div>';
+        h=(String(a.source||'')+' '+String(analysisReading(a))+' '+String(analysisRomaji(a))+' '+String(a.translationVi||'')+' '+String(a.translation||'')).toLowerCase();
+        if(q&&h.indexOf(q)<0)continue;
+        html+='<div class="memory-item saved-analysis"><b class="memory-jp">'+esc(a.source||'')+'</b>'+
+                '<div class="small"><b>ひらがな:</b> '+esc(analysisReading(a)||'—')+'</div>'+
+                '<div class="small"><b>Phát âm:</b> '+esc(analysisRomaji(a)||'—')+'</div>'+
+                '<div class="small"><b>VI:</b> '+esc(a.translationVi||'—')+'</div>'+
+                '<div class="small"><b>EN:</b> '+esc(a.translation||a.translationEn||'—')+'</div>'+
+                '<div class="memory-actions"><button data-read-analysis="'+i+'">▶ Đọc</button><button data-open-analysis="'+i+'">Mở lại phân tích</button></div></div>';
       }
-      id('memoryList').innerHTML=html||'<div class="small">Chưa có nội dung đã lưu.</div>';
+      id('memoryList').innerHTML=html;
     }
 
     function setView(name){
@@ -723,23 +744,65 @@
       });
     }
 
-    function speakWordByIndex(index){
-      if(!currentAnalysis)return;
-      var words=currentAnalysis.words||currentAnalysis.vocabulary||[];
-      var w=words[index];
-      if(!w)return;
-      var text=w.reading||w.word||w[0]||'';
+    function speakJapaneseText(text){
+      text=trim(text);
       if(!text)return;
       if(!window.speechSynthesis){toast('Safari này không hỗ trợ đọc giọng.');return;}
       try{
         window.speechSynthesis.cancel();
         var u=new SpeechSynthesisUtterance(text);
-        u.lang='ja-JP';
-        u.rate=.78;
+        u.lang='ja-JP';u.rate=.80;
         window.speechSynthesis.speak(u);
-      }catch(e){
-        toast('Không phát được cách đọc từ này.');
+      }catch(e){toast('Không phát được tiếng Nhật.');}
+    }
+    function analysisReading(a){return a?(a.hira||a.hiragana||a.reading||''):'';}
+    function analysisRomaji(a){return a?(a.romaji||a.pronunciation||''):'';}
+    function phraseAlreadySaved(source){
+      var i;
+      for(i=0;i<appState.savedPhrases.length;i++){
+        if(String(appState.savedPhrases[i].source||'')===String(source||''))return true;
       }
+      return false;
+    }
+    function saveCurrentPhrase(){
+      if(!currentAnalysis)return;
+      var source=currentAnalysis.source||selectedText||'';
+      if(!source)return;
+      if(phraseAlreadySaved(source)){toast('Câu/cụm từ này đã được lưu.');return;}
+      appState.savedPhrases.unshift({
+        id:'p'+new Date().getTime(),
+        source:source,
+        hiragana:analysisReading(currentAnalysis),
+        romaji:analysisRomaji(currentAnalysis),
+        translationVi:currentAnalysis.translationVi||'',
+        translationEn:currentAnalysis.translation||currentAnalysis.translationEn||'',
+        analysis:currentAnalysis,
+        savedAt:new Date().toISOString()
+      });
+      saveState();
+      toast('Đã lưu câu/cụm từ.');
+    }
+    function openSavedAnalysis(index){
+      var a=appState.analyses[index];
+      if(!a)return;
+      currentAnalysis=a;selectedText=a.source||'';
+      renderAnalysis(a);setView('reader');
+      setTimeout(function(){try{id('analysisPanel').scrollIntoView(true);}catch(e){}},50);
+    }
+    function openSavedPhrase(index){
+      var p=appState.savedPhrases[index];
+      if(!p||!p.analysis)return;
+      currentAnalysis=p.analysis;selectedText=p.source||'';
+      renderAnalysis(p.analysis);setView('reader');
+      setTimeout(function(){try{id('analysisPanel').scrollIntoView(true);}catch(e){}},50);
+    }
+
+    function speakWordByIndex(index){
+      if(!currentAnalysis)return;
+      var words=currentAnalysis.words||currentAnalysis.vocabulary||[];
+      var w=words[index];
+      if(!w)return;
+      speakJapaneseText(w.reading||w.word||w[0]||'');
     }
     function wordAlreadySaved(word,reading){
       var i,w;
@@ -777,28 +840,40 @@
 
     function saveAnalysis(){
       if(!currentAnalysis)return;
-      currentAnalysis.savedAt=new Date().toISOString();
-      appState.analyses.unshift(currentAnalysis);
-      if(appState.analyses.length>100)appState.analyses.length=100;
-      var words=currentAnalysis.words||currentAnalysis.vocabulary||[],i,w,word,reading;
+      var source=currentAnalysis.source||selectedText||'',i,w,word,reading,exists=false;
+      for(i=0;i<appState.analyses.length;i++){
+        if(String(appState.analyses[i].source||'')===String(source)){exists=true;break;}
+      }
+      if(!exists){
+        currentAnalysis.savedAt=new Date().toISOString();
+        currentAnalysis.hiragana=analysisReading(currentAnalysis);
+        currentAnalysis.romaji=analysisRomaji(currentAnalysis);
+        appState.analyses.unshift(currentAnalysis);
+        if(appState.analyses.length>100)appState.analyses.length=100;
+      }
+      var words=currentAnalysis.words||currentAnalysis.vocabulary||[];
       for(i=0;i<words.length;i++){
-        w=words[i];
-        word=w.word||w[0]||'';
-        reading=w.reading||'';
+        w=words[i];word=w.word||w.surface||w[0]||'';reading=w.reading||w.hiragana||'';
         if(!wordAlreadySaved(word,reading)){
           appState.savedWords.unshift({
-            word:word,
-            reading:reading,
-            romaji:w.romaji||w.pronunciation||'',
-            meaningVi:w.meaningVi||'',
-            meaningEn:w.meaningEn||w.meaning||w[1]||'',
-            source:currentAnalysis.source||'',
-            savedAt:new Date().toISOString()
+            word:word,reading:reading,romaji:w.romaji||w.pronunciation||'',
+            meaningVi:w.meaningVi||w.translationVi||'',
+            meaningEn:w.meaningEn||w.meaning||w.translation||w[1]||'',
+            source:source,savedAt:new Date().toISOString()
           });
         }
       }
+      if(!phraseAlreadySaved(source)){
+        appState.savedPhrases.unshift({
+          id:'p'+new Date().getTime(),source:source,
+          hiragana:analysisReading(currentAnalysis),romaji:analysisRomaji(currentAnalysis),
+          translationVi:currentAnalysis.translationVi||'',
+          translationEn:currentAnalysis.translation||currentAnalysis.translationEn||'',
+          analysis:currentAnalysis,savedAt:new Date().toISOString()
+        });
+      }
       saveState();
-      toast('Đã lưu để ôn.');
+      toast('Đã lưu kết quả, câu/cụm từ và từ mới.');
     }
     function speakSelection(){
       if(!selectedText){toast('Hãy chọn một đoạn tiếng Nhật.');return;}
@@ -944,6 +1019,8 @@
         return false;
       };
       id('saveAnalysisBtn').onclick=saveAnalysis;
+      id('savePhraseBtn').onclick=saveCurrentPhrase;
+      id('readAnalysisBtn').onclick=function(){if(currentAnalysis)speakJapaneseText(currentAnalysis.source||analysisReading(currentAnalysis)||'');};
       id('speakBtn').onclick=speakSelection;
       id('saveDocBtn').onclick=saveDocument;
       id('pdfBtn').onclick=openPdf;
@@ -960,6 +1037,21 @@
       id('offlineBackupBtn').onclick=exportOfflineBackup;
       id('homeBtn').onclick=function(){window.location.href='/';};
       id('memorySearch').onkeyup=renderMemory;
+      id('memoryList').onclick=function(e){
+        e=e||window.event;
+        var t=e.target||e.srcElement,n;
+        if(!t||!t.getAttribute)return;
+        n=t.getAttribute('data-read-word');
+        if(n!==null&&n!==''){var w=appState.savedWords[parseInt(n,10)];if(w)speakJapaneseText(w.reading||w.word||'');return;}
+        n=t.getAttribute('data-read-phrase');
+        if(n!==null&&n!==''){var p=appState.savedPhrases[parseInt(n,10)];if(p)speakJapaneseText(p.source||p.hiragana||'');return;}
+        n=t.getAttribute('data-open-phrase');
+        if(n!==null&&n!==''){openSavedPhrase(parseInt(n,10));return;}
+        n=t.getAttribute('data-read-analysis');
+        if(n!==null&&n!==''){var a=appState.analyses[parseInt(n,10)];if(a)speakJapaneseText(a.source||analysisReading(a)||'');return;}
+        n=t.getAttribute('data-open-analysis');
+        if(n!==null&&n!==''){openSavedAnalysis(parseInt(n,10));return;}
+      };
       id('searchBox').onkeydown=function(e){e=e||window.event;if((e.keyCode||e.which)===13)searchCurrent();};
 
       var i,els=qsa('.prevBtn');
