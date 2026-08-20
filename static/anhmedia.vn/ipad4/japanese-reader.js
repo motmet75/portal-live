@@ -23,6 +23,8 @@
   var redoStacks={};
   var lastEditorValue='';
   var suppressEditorHistory=false;
+  var navigationBusy=false;
+  var LAST_DOC_KEY='anhmedia.jp-reader.ipad4.last-doc.v1';
 
   function id(x){return document.getElementById(x);}
   function qsa(sel){return document.querySelectorAll(sel);}
@@ -165,11 +167,26 @@
     document.body.removeChild(textarea);
   }
 
+  function updateAuthButtons(isLoggedIn){
+    var google=id('googleBtn');
+    var logout=id('logoutBtn');
+
+    if(google)google.style.display=isLoggedIn?'none':'inline-block';
+    if(logout)logout.style.display=isLoggedIn?'inline-block':'none';
+  }
+
   function renderQuota(){
     id('remaining').innerHTML=usageLoaded?String(quotaRemaining):'...';
     id('limit').innerHTML=usageLoaded?String(quotaLimit):'...';
     updateAnalyzeButtons();
-    id('loginBox').style.display=usageLoaded?'none':'block';
+
+    if(usageLoaded){
+      id('loginBox').style.display='none';
+      updateAuthButtons(true);
+    }else{
+      id('loginBox').style.display='block';
+      updateAuthButtons(false);
+    }
   }
   function refreshQuota(cb){
     xhr('GET','/api/japanese-learning/usage?_='+new Date().getTime(),null,{
@@ -464,6 +481,35 @@
     renderPage(currentPage);
     toast('Đã lưu dấu trang.');
   }
+  function beginNavigationWait(button,text){
+    if(navigationBusy)return false;
+    navigationBusy=true;
+    if(button){
+      button.disabled=true;
+      button.setAttribute('data-old-html',button.innerHTML);
+      button.innerHTML='<span class="mini-spinner"></span> '+(text||'Đang mở...');
+      addClass(button,'is-busy');
+    }
+    var status=id('navWaitStatus');
+    if(status){
+      status.innerHTML=text||'Đang mở...';
+      status.style.display='block';
+    }
+    return true;
+  }
+  function endNavigationWait(button){
+    navigationBusy=false;
+    if(button){
+      button.disabled=false;
+      var old=button.getAttribute('data-old-html');
+      if(old!==null)button.innerHTML=old;
+      button.removeAttribute('data-old-html');
+      removeClass(button,'is-busy');
+    }
+    var status=id('navWaitStatus');
+    if(status)status.style.display='none';
+  }
+
   function groupedBookmarks(doc){
     var groups={},marks=doc&&doc.bookmarks?doc.bookmarks:[],i,m,key;
     for(i=0;i<marks.length;i++){
@@ -503,21 +549,36 @@
     return html;
   }
 
-  function openBookmarkFromLibrary(docId,pageIndex){
-    var d=findDoc(docId);
-    if(!d)return;
-    currentDocId=d.id;
-    if(d.pages&&d.pages.length)currentPages=d.pages;
-    else if(d.html)currentPages=[d.html];
-    else currentPages=[''];
-    currentPage=parseInt(pageIndex,10);
-    if(isNaN(currentPage)||currentPage<0||currentPage>=currentPages.length)currentPage=0;
-    id('docTitle').value=d.title||'Tài liệu';
-    setView('reader');
-    renderPage(currentPage);
+  function openBookmarkFromLibrary(docId,pageIndex,button){
+    if(!beginNavigationWait(button,'Đang mở dấu trang...'))return;
+
     setTimeout(function(){
-      try{id('editor').scrollIntoView(true);}catch(e){}
-    },60);
+      var d=findDoc(docId);
+      if(!d){endNavigationWait(button);return;}
+
+      currentDocId=d.id;
+      try{localStorage.setItem(LAST_DOC_KEY,String(d.id));}catch(e){}
+      try{localStorage.setItem(LAST_DOC_KEY,String(d.id));}catch(e){}
+      if(d.pages&&d.pages.length)currentPages=clonePages(d.pages);
+      else if(d.html)currentPages=[String(d.html)];
+      else currentPages=[''];
+
+      var draft=loadDraftForDoc(d.id);
+      if(draft&&draft.pages&&draft.pages.length)currentPages=clonePages(draft.pages);
+
+      currentPage=parseInt(pageIndex,10);
+      if(isNaN(currentPage)||currentPage<0||currentPage>=currentPages.length)currentPage=0;
+
+      id('docTitle').value=(draft&&draft.title)?draft.title:(d.title||'Tài liệu');
+      updateDraftStatus(!!draft);
+      setView('reader');
+      renderPage(currentPage);
+
+      setTimeout(function(){
+        try{id('editor').scrollIntoView(true);}catch(e){}
+        endNavigationWait(button);
+      },140);
+    },30);
   }
 
   function renderLibrary(){
@@ -542,35 +603,41 @@
     }
     box.innerHTML=html||'<div class="small">Chưa có tài liệu offline.</div>';
   }
-  function openDocument(docId){
-    var d=findDoc(docId);
-    if(!d)return;
-    currentDocId=d.id;
+  function openDocument(docId,button){
+    if(!beginNavigationWait(button,'Đang mở tài liệu...'))return;
 
-    var savedPages;
-    if(d.pages&&d.pages.length)savedPages=clonePages(d.pages);
-    else if(d.html)savedPages=[String(d.html)];
-    else savedPages=[''];
+    setTimeout(function(){
+      var d=findDoc(docId);
+      if(!d){endNavigationWait(button);return;}
 
-    var draft=loadDraftForDoc(d.id);
-    if(draft&&draft.pages&&draft.pages.length){
-      currentPages=clonePages(draft.pages);
-      currentPage=parseInt(draft.currentPage,10);
-      id('docTitle').value=draft.title||d.title||'Tài liệu';
-      updateDraftStatus(true);
-    }else{
-      currentPages=savedPages;
-      currentPage=parseInt(d.currentPage,10);
-      id('docTitle').value=d.title||'Tài liệu';
-      updateDraftStatus(false);
-    }
+      currentDocId=d.id;
+      var savedPages;
+      if(d.pages&&d.pages.length)savedPages=clonePages(d.pages);
+      else if(d.html)savedPages=[String(d.html)];
+      else savedPages=[''];
 
-    if(isNaN(currentPage))currentPage=0;
-    if(currentPage<0||currentPage>=currentPages.length)currentPage=0;
+      var draft=loadDraftForDoc(d.id);
+      if(draft&&draft.pages&&draft.pages.length){
+        currentPages=clonePages(draft.pages);
+        currentPage=parseInt(draft.currentPage,10);
+        id('docTitle').value=draft.title||d.title||'Tài liệu';
+        updateDraftStatus(true);
+      }else{
+        currentPages=savedPages;
+        currentPage=parseInt(d.currentPage,10);
+        id('docTitle').value=d.title||'Tài liệu';
+        updateDraftStatus(false);
+      }
 
-    undoStacks={};redoStacks={};
-    setView('reader');
-    renderPage(currentPage);
+      if(isNaN(currentPage))currentPage=0;
+      if(currentPage<0||currentPage>=currentPages.length)currentPage=0;
+
+      undoStacks={};redoStacks={};
+      setView('reader');
+      renderPage(currentPage);
+
+      setTimeout(function(){endNavigationWait(button);},120);
+    },30);
   }
   function deleteDocument(docId){
     if(!window.confirm('Xóa tài liệu này?'))return;
@@ -938,6 +1005,7 @@
         quotaLimit=null;
         quotaRemaining=null;
         renderQuota();
+        updateAuthButtons(false);
         setTimeout(function(){window.location.reload();},350);
       }else{
         if(b){
@@ -1169,6 +1237,7 @@
     id('docList').onclick=function(e){
       e=e||window.event;
       var t=e.target||e.srcElement;
+      while(t&&t!==id('docList')&&!t.getAttribute)t=t.parentNode;
       if(!t||!t.getAttribute)return;
 
       var open=t.getAttribute('data-open-doc');
@@ -1176,21 +1245,47 @@
       var bdoc=t.getAttribute('data-bookmark-doc');
       var bpage=t.getAttribute('data-bookmark-page');
 
-      if(open){openDocument(open);return;}
-      if(del){deleteDocument(del);return;}
+      if(open){openDocument(open,t);return;}
+      if(del){
+        if(navigationBusy)return;
+        deleteDocument(del);
+        return;
+      }
       if(bdoc!==null&&bdoc!==''&&bpage!==null&&bpage!==''){
-        openBookmarkFromLibrary(bdoc,parseInt(bpage,10));
+        openBookmarkFromLibrary(bdoc,parseInt(bpage,10),t);
         return;
       }
     };
   }
   function init(){
-    var statusEl=id('jsStatus');if(statusEl){statusEl.innerHTML='JavaScript iPad 4: OK · Thư viện dùng chung';}
+    updateAuthButtons(false);
+    var statusEl=id('jsStatus');
+    if(statusEl)statusEl.innerHTML='JavaScript iPad 4: OK · Thư viện dùng chung';
+
     loadState();
-    currentPages=[id('editor').value];
-    renderLibrary();renderMemory();renderPage(0);
     bind();
+    renderLibrary();
+    renderMemory();
     updateOfflineStatus();
+
+    var lastDocId=null;
+    try{lastDocId=localStorage.getItem(LAST_DOC_KEY);}catch(e){}
+
+    if(lastDocId&&findDoc(lastDocId)){
+      openDocument(lastDocId,null);
+    }else if(appState.documents&&appState.documents.length){
+      openDocument(appState.documents[0].id,null);
+    }else{
+      /*
+       * Only use the HTML sample when there is absolutely no saved document.
+       */
+      currentDocId=null;
+      currentPages=[id('editor').value||''];
+      currentPage=0;
+      updateDraftStatus(false);
+      renderPage(0);
+    }
+
     refreshQuota();
   }
   if(window.addEventListener){
