@@ -334,6 +334,42 @@
     }
   </style>
 
+
+  <style>
+    .memory-select-bar{
+      margin:7px 0 10px;
+      padding:7px;
+      border:1px solid #d8e0dd;
+      border-radius:6px;
+      background:#f8faf8;
+    }
+    .memory-select-bar button{
+      padding:7px 9px;
+      margin:2px;
+      border:1px solid #ccd7d2;
+      border-radius:5px;
+      background:#fff;
+      color:#315f55;
+      font-weight:bold;
+    }
+    .memory-check{
+      display:inline-block;
+      vertical-align:top;
+      width:20px;
+      height:20px;
+      margin:3px 7px 0 0;
+    }
+    .memory-check-body{
+      display:inline-block;
+      vertical-align:top;
+      width:calc(100% - 34px);
+    }
+    .memory-item-selected{
+      background:#fff8dc!important;
+      border-color:#d8c17b!important;
+    }
+  </style>
+
 </head>
 <body>
 <div id="app"><div id="jsStatus">Đang khởi động JavaScript iPad 4…</div>
@@ -411,6 +447,12 @@
   <div id="memoryView" class="panel hidden">
     <h2>Từ và đoạn đã lưu</h2>
     <input id="memorySearch" class="doc-title" placeholder="Tìm từ/câu đã lưu">
+    <div class="memory-select-bar">
+      <button id="memorySelectAllBtn" type="button">☑ Chọn tất cả</button>
+      <button id="memoryClearSelectBtn" type="button">☐ Bỏ chọn</button>
+      <button id="memoryDeleteSelectedBtn" type="button">🗑 Xóa đã chọn</button>
+      <span id="memorySelectedCount" class="small">0 đã chọn</span>
+    </div>
     <div id="memoryList"></div>
   </div>
 
@@ -1122,44 +1164,144 @@
     }
     function renderMemory(){
       var q=trim(id('memorySearch').value).toLowerCase(),html='',i,a,w,p,word,reading,romaji,vi,en,h;
+
       html+='<h3 class="memory-section-title">Câu / cụm từ đã lưu</h3>';
       for(i=0;i<appState.savedPhrases.length;i++){
         p=appState.savedPhrases[i];
         h=(String(p.source||'')+' '+String(p.hiragana||'')+' '+String(p.romaji||'')+' '+String(p.translationVi||'')+' '+String(p.translationEn||'')).toLowerCase();
         if(q&&h.indexOf(q)<0)continue;
-        html+='<div class="memory-item saved-phrase"><b class="memory-jp">'+esc(p.source||'')+'</b>'+
+        html+='<div class="memory-item saved-phrase">'+
+                '<input class="memory-check" type="checkbox" data-memory-type="phrase" data-memory-index="'+i+'">'+
+                '<div class="memory-check-body">'+
+                '<b class="memory-jp">'+esc(p.source||'')+'</b>'+
                 '<div class="small"><b>ひらがな:</b> '+esc(p.hiragana||'—')+'</div>'+
                 '<div class="small"><b>Phát âm:</b> '+esc(p.romaji||'—')+'</div>'+
                 '<div class="small"><b>VI:</b> '+esc(p.translationVi||'—')+'</div>'+
                 '<div class="small"><b>EN:</b> '+esc(p.translationEn||'—')+'</div>'+
-                '<div class="memory-actions"><button data-read-phrase="'+i+'">▶ Đọc</button><button data-open-phrase="'+i+'">Mở phân tích</button></div></div>';
+                '<div class="memory-actions"><button data-read-phrase="'+i+'">▶ Đọc</button><button data-open-phrase="'+i+'">Mở phân tích</button></div>'+
+                '</div>'+
+                '</div>';
       }
+
       html+='<h3 class="memory-section-title">Từ mới đã lưu</h3>';
       for(i=0;i<appState.savedWords.length;i++){
-        w=appState.savedWords[i];word=w.word||w[0]||'';reading=w.reading||'';romaji=w.romaji||w.pronunciation||'';
-        vi=w.meaningVi||'';en=w.meaningEn||w.meaning||w[1]||'';
+        w=appState.savedWords[i];
+        word=w.word||w[0]||'';
+        reading=w.reading||'';
+        romaji=w.romaji||w.pronunciation||'';
+        vi=w.meaningVi||'';
+        en=w.meaningEn||w.meaning||w[1]||'';
         h=(word+' '+reading+' '+romaji+' '+vi+' '+en).toLowerCase();
         if(q&&h.indexOf(q)<0)continue;
-        html+='<div class="memory-item saved-word"><b class="memory-jp">'+esc(word)+'</b>'+
+        html+='<div class="memory-item saved-word">'+
+                '<input class="memory-check" type="checkbox" data-memory-type="word" data-memory-index="'+i+'">'+
+                '<div class="memory-check-body">'+
+                '<b class="memory-jp">'+esc(word)+'</b>'+
                 '<div class="small"><b>ひらがな:</b> '+esc(reading||'—')+'</div>'+
                 '<div class="small"><b>Phát âm:</b> '+esc(romaji||'—')+'</div>'+
                 '<div class="small"><b>VI:</b> '+esc(vi||'—')+'</div>'+
                 '<div class="small"><b>EN:</b> '+esc(en||'—')+'</div>'+
-                '<div class="memory-actions"><button data-read-word="'+i+'">▶ Đọc</button></div></div>';
+                '<div class="memory-actions"><button data-read-word="'+i+'">▶ Đọc</button></div>'+
+                '</div>'+
+                '</div>';
       }
+
       html+='<h3 class="memory-section-title">Kết quả phân tích đã lưu</h3>';
       for(i=0;i<appState.analyses.length;i++){
         a=appState.analyses[i];
         h=(String(a.source||'')+' '+String(analysisReading(a))+' '+String(analysisRomaji(a))+' '+String(a.translationVi||'')+' '+String(a.translation||'')).toLowerCase();
         if(q&&h.indexOf(q)<0)continue;
-        html+='<div class="memory-item saved-analysis"><b class="memory-jp">'+esc(a.source||'')+'</b>'+
+        html+='<div class="memory-item saved-analysis">'+
+                '<input class="memory-check" type="checkbox" data-memory-type="analysis" data-memory-index="'+i+'">'+
+                '<div class="memory-check-body">'+
+                '<b class="memory-jp">'+esc(a.source||'')+'</b>'+
                 '<div class="small"><b>ひらがな:</b> '+esc(analysisReading(a)||'—')+'</div>'+
                 '<div class="small"><b>Phát âm:</b> '+esc(analysisRomaji(a)||'—')+'</div>'+
                 '<div class="small"><b>VI:</b> '+esc(a.translationVi||'—')+'</div>'+
                 '<div class="small"><b>EN:</b> '+esc(a.translation||a.translationEn||'—')+'</div>'+
-                '<div class="memory-actions"><button data-read-analysis="'+i+'">▶ Đọc</button><button data-open-analysis="'+i+'">Mở lại phân tích</button></div></div>';
+                '<div class="memory-actions"><button data-read-analysis="'+i+'">▶ Đọc</button><button data-open-analysis="'+i+'">Mở lại phân tích</button></div>'+
+                '</div>'+
+                '</div>';
       }
+
       id('memoryList').innerHTML=html;
+      updateMemorySelectedCount();
+    }
+
+    function memoryChecks(){
+      return qsa('#memoryList .memory-check');
+    }
+
+    function updateMemorySelectedCount(){
+      var checks=memoryChecks(),i,count=0,parent;
+      for(i=0;i<checks.length;i++){
+        parent=checks[i].parentNode;
+        if(checks[i].checked){
+          count++;
+          addClass(parent,'memory-item-selected');
+        }else{
+          removeClass(parent,'memory-item-selected');
+        }
+      }
+      if(id('memorySelectedCount'))id('memorySelectedCount').innerHTML=count+' đã chọn';
+    }
+
+    function setAllMemoryChecks(value){
+      var checks=memoryChecks(),i;
+      for(i=0;i<checks.length;i++)checks[i].checked=value;
+      updateMemorySelectedCount();
+    }
+
+    function deleteSelectedMemory(){
+      var checks=memoryChecks(),i,type,index;
+      var phraseIndexes=[],wordIndexes=[],analysisIndexes=[];
+
+      for(i=0;i<checks.length;i++){
+        if(!checks[i].checked)continue;
+        type=checks[i].getAttribute('data-memory-type');
+        index=parseInt(checks[i].getAttribute('data-memory-index'),10);
+        if(isNaN(index))continue;
+
+        if(type==='phrase')phraseIndexes.push(index);
+        else if(type==='word')wordIndexes.push(index);
+        else if(type==='analysis')analysisIndexes.push(index);
+      }
+
+      var total=phraseIndexes.length+wordIndexes.length+analysisIndexes.length;
+      if(!total){
+        toast('Chưa chọn mục để xóa.');
+        return;
+      }
+
+      if(!window.confirm('Xóa '+total+' mục đã chọn khỏi Từ đã lưu?'))return;
+
+      phraseIndexes.sort(function(a,b){return b-a;});
+      wordIndexes.sort(function(a,b){return b-a;});
+      analysisIndexes.sort(function(a,b){return b-a;});
+
+      for(i=0;i<phraseIndexes.length;i++){
+        if(phraseIndexes[i]>=0&&phraseIndexes[i]<appState.savedPhrases.length)appState.savedPhrases.splice(phraseIndexes[i],1);
+      }
+      for(i=0;i<wordIndexes.length;i++){
+        if(wordIndexes[i]>=0&&wordIndexes[i]<appState.savedWords.length)appState.savedWords.splice(wordIndexes[i],1);
+      }
+      for(i=0;i<analysisIndexes.length;i++){
+        if(analysisIndexes[i]>=0&&analysisIndexes[i]<appState.analyses.length)appState.analyses.splice(analysisIndexes[i],1);
+      }
+
+      /*
+       * Save once, then render once. Avoid repeated localStorage writes / DOM rebuilds
+       * on old iPad Safari.
+       */
+      try{
+        localStorage.setItem(STORAGE_KEY,JSON.stringify(appState));
+        localStorage.setItem(LEGACY_IPAD_STORAGE_KEY,JSON.stringify(appState));
+      }catch(e){
+        toast('Không lưu được thay đổi.');
+      }
+
+      renderMemory();
+      toast('Đã xóa '+total+' mục.');
     }
 
     function setView(name){
@@ -1656,20 +1798,54 @@
       id('offlineBackupBtn').onclick=exportOfflineBackup;
       id('homeBtn').onclick=function(){window.location.href='/';};
       id('memorySearch').onkeyup=renderMemory;
+      id('memorySelectAllBtn').onclick=function(){setAllMemoryChecks(true);};
+      id('memoryClearSelectBtn').onclick=function(){setAllMemoryChecks(false);};
+      id('memoryDeleteSelectedBtn').onclick=deleteSelectedMemory;
       id('memoryList').onclick=function(e){
         e=e||window.event;
         var t=e.target||e.srcElement,n;
-        if(!t||!t.getAttribute)return;
+
+        if(!t)return;
+
+        if(t.className&&String(t.className).indexOf('memory-check')>=0){
+          updateMemorySelectedCount();
+          return;
+        }
+
+        if(!t.getAttribute)return;
+
         n=t.getAttribute('data-read-word');
-        if(n!==null&&n!==''){var w=appState.savedWords[parseInt(n,10)];if(w)speakJapaneseText(w.reading||w.word||'');return;}
+        if(n!==null&&n!==''){
+          var w=appState.savedWords[parseInt(n,10)];
+          if(w)speakJapaneseText(w.reading||w.word||'');
+          return;
+        }
+
         n=t.getAttribute('data-read-phrase');
-        if(n!==null&&n!==''){var p=appState.savedPhrases[parseInt(n,10)];if(p)speakJapaneseText(p.source||p.hiragana||'');return;}
+        if(n!==null&&n!==''){
+          var p=appState.savedPhrases[parseInt(n,10)];
+          if(p)speakJapaneseText(p.source||p.hiragana||'');
+          return;
+        }
+
         n=t.getAttribute('data-open-phrase');
-        if(n!==null&&n!==''){openSavedPhrase(parseInt(n,10));return;}
+        if(n!==null&&n!==''){
+          openSavedPhrase(parseInt(n,10));
+          return;
+        }
+
         n=t.getAttribute('data-read-analysis');
-        if(n!==null&&n!==''){var a=appState.analyses[parseInt(n,10)];if(a)speakJapaneseText(a.source||analysisReading(a)||'');return;}
+        if(n!==null&&n!==''){
+          var a=appState.analyses[parseInt(n,10)];
+          if(a)speakJapaneseText(a.source||analysisReading(a)||'');
+          return;
+        }
+
         n=t.getAttribute('data-open-analysis');
-        if(n!==null&&n!==''){openSavedAnalysis(parseInt(n,10));return;}
+        if(n!==null&&n!==''){
+          openSavedAnalysis(parseInt(n,10));
+          return;
+        }
       };
       id('searchBox').onkeydown=function(e){e=e||window.event;if((e.keyCode||e.which)===13)searchCurrent();};
 
