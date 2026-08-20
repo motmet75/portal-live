@@ -987,7 +987,35 @@
   function deleteSavedWord(index) { const word = state.savedWords[index]; if (!word || !window.confirm(`Xóa từ “${word.word}” khỏi danh sách đã lưu?`)) return; state.savedWords.splice(index, 1); persist(); toast('Đã xóa từ đã lưu.'); }
   function editSession(sessionId) { const item = state.analyses.find(entry => entry.sessionId === sessionId); if (!item) return; const value = window.prompt('Sửa bản dịch/ghi chú của đoạn:', item.translation || ''); if (value === null) return; item.translation = value.trim(); persist(); if (currentAnalysis?.sessionId === sessionId) { currentAnalysis.translation = item.translation; renderAnalysis(); } }
   function deleteSession(sessionId) { if (!window.confirm('Xóa phiên phân tích và các từ đã lưu trong phiên này?')) return; state.analyses = state.analyses.filter(item => item.sessionId !== sessionId); state.savedWords = state.savedWords.filter(item => item.sessionId !== sessionId); state.memories = state.memories.filter(item => item.sessionId !== sessionId); persist(); toast('Đã xóa phiên học.'); }
-  function reopenSession(analysis) { if (!analysis) { toast('Không tìm thấy phiên học đã lưu.'); return; } const doc = state.documents.find(item => String(item.id) === String(analysis.documentId)); if (doc) { currentDocumentId = doc.id; currentPages = doc.pages || [doc.html || '<p></p>']; $('[data-document-title]').value = doc.title; renderPage(analysis.pageIndex || 0, false); } currentAnalysis = { ...analysis }; hasUnsavedAnalysis = false; selectedText = analysis.source || ''; setView(false); renderAnalysis(); toast(doc ? `Đã trở lại trang ${(analysis.pageIndex || 0) + 1}.` : 'Đã mở phiên học; chưa tìm thấy tài liệu gốc.'); }
+  async function restoreCachedMeanings(analysis) {
+    if (!analysis?.source) return analysis;
+    try {
+      const response = await fetch('/api/japanese-learning/cached-analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ text: analysis.source, mode: 'saved-session' })
+      });
+      if (!response.ok) return analysis;
+      const cached = await response.json();
+      const restored = {
+        ...analysis,
+        ...cached,
+        sessionId: analysis.sessionId,
+        savedAt: analysis.savedAt,
+        documentId: analysis.documentId,
+        pageIndex: analysis.pageIndex,
+        note: analysis.note || ''
+      };
+      state.analyses = state.analyses.map(item => item.sessionId === analysis.sessionId ? restored : item);
+      state.savedPhrases = (state.savedPhrases || []).map(item => item.analysis?.sessionId === analysis.sessionId ? { ...item, analysis: restored } : item);
+      persist(true);
+      return restored;
+    } catch (_) {
+      return analysis;
+    }
+  }
+  async function reopenSession(analysis) { if (!analysis) { toast('Không tìm thấy phiên học đã lưu.'); return; } const doc = state.documents.find(item => String(item.id) === String(analysis.documentId)); if (doc) { currentDocumentId = doc.id; currentPages = doc.pages || [doc.html || '<p></p>']; $('[data-document-title]').value = doc.title; renderPage(analysis.pageIndex || 0, false); } currentAnalysis = { ...analysis }; hasUnsavedAnalysis = false; selectedText = analysis.source || ''; setView(false); renderAnalysis(); currentAnalysis = await restoreCachedMeanings(currentAnalysis); renderAnalysis(); toast(doc ? `Đã trở lại trang ${(analysis.pageIndex || 0) + 1}.` : 'Đã mở phiên học; chưa tìm thấy tài liệu gốc.'); }
   function setView(memory) {
     const readerView = $('[data-reader-view]');
     const memoryView = $('[data-memory-view]');
