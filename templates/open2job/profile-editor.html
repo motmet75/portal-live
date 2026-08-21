@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Build your private profile · Open2Job</title>
+  <style>
+    :root{--ink:#17221c;--muted:#66736b;--line:#dbe4dd;--paper:#f5f7f3;--green:#1f6b45;--sun:#f4c95d}*{box-sizing:border-box}
+    body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif}button,input,textarea,select{font:inherit}
+    .top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:16px;padding:12px max(18px,calc((100% - 1180px)/2));background:#fffdf9eF;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+    .brand{font-weight:850;font-size:20px;margin-right:auto}.brand i{color:var(--green);font-style:normal}.private{padding:5px 10px;border-radius:20px;background:#e6f1ea;color:var(--green);font-size:12px;font-weight:750}
+    button{border:0;border-radius:10px;padding:10px 14px;font-weight:750;cursor:pointer}.save{background:#e8ece8;color:var(--ink)}.review{background:var(--green);color:white}.review:disabled{opacity:.5;cursor:wait}
+    main{width:min(1180px,calc(100% - 28px));margin:30px auto 80px;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:26px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 10px 35px #24382b0a}
+    h1{font-size:clamp(28px,5vw,48px);line-height:1.05;margin:0 0 9px;letter-spacing:-.04em}h2{margin:0 0 16px;font-size:19px}.lead{color:var(--muted);margin:0 0 26px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.wide{grid-column:1/-1}
+    label{display:grid;gap:6px;font-size:12px;font-weight:750;color:#4d5b53}input,textarea,select{width:100%;border:1px solid var(--line);border-radius:10px;background:#fbfcfa;padding:11px;color:var(--ink)}textarea{min-height:95px;resize:vertical}input:focus,textarea:focus{outline:2px solid #84b99d;border-color:transparent}
+    .entry{border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:12px;background:#fff}.entry-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}.drag{cursor:grab;color:#89948d;font-size:20px}.entry-title{font-weight:800;margin-right:auto}.icon{padding:6px 9px;background:#f0f3f0}.danger{color:#a13a36}.add{width:100%;margin-top:14px;border:1px dashed #9dac9f;background:#f8faf7;color:var(--green)}
+    .aside{position:sticky;top:82px;height:max-content}.preview-photo{width:90px;height:90px;border-radius:50%;object-fit:cover;background:#e7ece8}.status{margin-top:18px;padding:12px;border-radius:12px;background:#f6f1df;color:#65551d}.hint{font-size:13px;color:var(--muted)}#toast{position:fixed;right:18px;bottom:18px;z-index:50;background:#17221c;color:white;padding:12px 16px;border-radius:10px;transform:translateY(100px);transition:.2s}#toast.show{transform:none}#toast.bad{background:#942f2b}
+    @media(max-width:850px){main{grid-template-columns:1fr}.aside{position:static;grid-row:1}.top{flex-wrap:wrap}.brand{width:100%}.grid{grid-template-columns:1fr}.wide{grid-column:auto}.top button{flex:1}}
+  </style>
+</head>
+<body>
+<header class="top"><div class="brand">open<i>2</i>job</div><span class="private" id="privacyBadge">PRIVATE DRAFT</span><button class="save" id="saveBtn">Save private</button><button class="review" id="reviewBtn">Publish review</button></header>
+<main>
+  <section>
+    <div class="card"><h1>Arrange your professional story.</h1><p class="lead">Everything stays private while you edit. A reviewer must approve it before anything can become public.</p>
+      <form id="profileForm" class="grid">
+        <label>Profile address<input name="slug" required maxlength="100" placeholder="your-name"></label><label>Display name<input name="name" required maxlength="160"></label>
+        <label>Professional role<input name="role" maxlength="200"></label><label>Location<input name="location" maxlength="200"></label>
+        <label class="wide">Headline<input name="headline" maxlength="500"></label><label class="wide">Introduction<textarea name="intro" maxlength="10000"></textarea></label>
+        <label>Portrait URL<input name="portraitUrl" type="url"></label><label>Video reel URL<input name="reelUrl" type="url"></label><label class="wide">Availability<input name="availability" maxlength="300" placeholder="Open to selected opportunities"></label>
+      </form>
+    </div>
+    <div class="card" style="margin-top:18px"><h2>Experience, work and milestones</h2><p class="hint">Drag cards or use the arrows to put your strongest work first.</p><div id="entries"></div><button class="add" id="addEntry">＋ Add an entry</button></div>
+  </section>
+  <aside class="card aside"><img class="preview-photo" id="previewPhoto" alt="Profile portrait"><h2 id="previewName" style="margin-top:14px">Your name</h2><div id="previewRole" class="hint">Your professional role</div><div class="status" id="reviewStatus">Not submitted for review</div><p class="hint">“Publish review” alerts services@anhmedia.vn. It does not publish your profile automatically.</p></aside>
+</main><div id="toast"></div><script src="/open2job/js/profile-editor.js?v=20260822-1" defer></script>
+</body></html>
