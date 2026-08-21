@@ -747,6 +747,18 @@
     [data-analyze-selection].is-loading [data-analyze-icon]{
       display:none!important;
     }
+    .jp-analysis-confirm{position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(15,23,21,.68)}
+    .jp-analysis-confirm[hidden]{display:none!important}
+    .jp-analysis-confirm__backdrop{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent}
+    .jp-analysis-confirm__card{position:relative;width:min(620px,100%);max-height:calc(100vh - 36px);padding:20px;border-radius:14px;background:#fff;box-shadow:0 22px 70px rgba(0,0,0,.28)}
+    .jp-analysis-confirm__card h2{margin:3px 0 7px;color:#263b36;font-size:22px}
+    .jp-analysis-confirm__card>p{margin:0 0 12px;color:#6c7774;line-height:1.5}
+    .jp-analysis-confirm__card textarea{box-sizing:border-box;width:100%;min-height:170px;padding:12px;border:2px solid #bfd4cb;border-radius:9px;background:#fff;color:#1e2726;font:18px/1.65 "Hiragino Mincho ProN","Yu Mincho",serif;resize:vertical}
+    .jp-analysis-confirm__meta{display:flex;justify-content:space-between;gap:10px;margin-top:7px;color:#6c7774;font-size:11px}
+    .jp-analysis-confirm__error{color:#8b3f36;font-weight:700}
+    .jp-analysis-confirm__actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+    .jp-analysis-confirm__actions button{padding:10px 14px;border:1px solid #ccd8d3;border-radius:8px;background:#fff;color:#315f55;font-weight:800}
+    .jp-analysis-confirm__actions .primary{border-color:#315f55;background:#315f55;color:#fff}
   </style>
 
 
@@ -903,7 +915,7 @@
     <section class="jp-reader" data-reader-view>
       <div class="jp-control-dock" data-control-dock>
         <div class="jp-document-bar">
-          <div><small data-document-meta>TÀI LIỆU MẪU · 2 ĐOẠN</small><input data-document-title value="Động cơ khí — Pilot ignition" aria-label="Tên tài liệu"></div>
+          <div><small data-document-meta>BÀI HỌC MẪU · KANA + KANJI</small><input data-document-title value="Bài học tiếng Nhật đầu tiên" aria-label="Tên tài liệu"></div>
           <div class="jp-actions"><button type="button" data-save-document>Lưu &amp; đồng bộ</button></div>
         </div>
 
@@ -960,8 +972,8 @@
         <button type="button" class="jp-relative-nav__bookmark" data-page-bookmark disabled title="Lưu dấu trang" aria-label="Lưu dấu trang">🔖 Dấu trang</button>
       </div>
       <article class="jp-paper" contenteditable="true" spellcheck="false" data-editor aria-label="Nội dung tiếng Nhật có thể chỉnh sửa">
-        <p>パイロットインジェクタから微量（熱量比1%以下）の液体燃料を噴射し副室内のガスを着火する．</p>
-        <p>パイロット燃料は微量だが点火プラグに比し約8 000倍という強力な着火エネルギーを有するため燃焼が安定し効率が向上する．</p>
+        <p>こんにちは。私は毎日日本語を勉強しています。</p>
+        <p>カタカナと漢字も少し読めます。いっしょに楽しく学びましょう。</p>
       </article>
       <div class="jp-relative-nav jp-relative-nav--bottom" data-page-nav aria-label="Điều hướng trang phía dưới">
         <button type="button" class="jp-relative-nav__prev" data-page-prev>← Trước</button>
@@ -1026,6 +1038,18 @@
       <div class="jp-analysis-wait__timer">Thời gian: <span data-analysis-wait-seconds>0</span> giây</div>
       <p class="jp-analysis-wait__hint">Vui lòng chờ kết quả. Không thể gửi thêm yêu cầu trong lúc đang phân tích.</p>
     </div>
+  </div>
+
+  <div class="jp-analysis-confirm" data-analysis-confirm hidden role="dialog" aria-modal="true" aria-labelledby="jpAnalysisConfirmTitle">
+    <button class="jp-analysis-confirm__backdrop" type="button" data-analysis-confirm-cancel aria-label="Hủy phân tích"></button>
+    <section class="jp-analysis-confirm__card">
+      <small>KOTOBA STUDIO</small>
+      <h2 id="jpAnalysisConfirmTitle">Xác nhận đoạn cần phân tích</h2>
+      <p>Bạn có thể sửa nội dung bên dưới trước khi gửi đến máy chủ.</p>
+      <textarea data-analysis-confirm-text maxlength="500" aria-label="Nội dung cần phân tích"></textarea>
+      <div class="jp-analysis-confirm__meta"><span class="jp-analysis-confirm__error" data-analysis-confirm-error></span><span><b data-analysis-confirm-count>0</b>/500 ký tự</span></div>
+      <div class="jp-analysis-confirm__actions"><button type="button" data-analysis-confirm-cancel>Hủy</button><button class="primary" type="button" data-analysis-confirm-submit>Xác nhận phân tích</button></div>
+    </section>
   </div>
 
 

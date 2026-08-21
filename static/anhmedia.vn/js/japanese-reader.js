@@ -708,6 +708,30 @@
     popover.hidden = false;
   }
 
+  function setAnalysisConfirmOpen(open) {
+    const modal = $('[data-analysis-confirm]');
+    if (!modal) return;
+    modal.hidden = !open;
+    if (open) {
+      const input = $('[data-analysis-confirm-text]');
+      input.value = selectedText;
+      $('[data-analysis-confirm-count]').textContent = String(input.value.length);
+      $('[data-analysis-confirm-error]').textContent = '';
+      setTimeout(() => { input.focus(); input.setSelectionRange(input.value.length, input.value.length); }, 30);
+    }
+  }
+
+  function confirmAnalysisText() {
+    const input = $('[data-analysis-confirm-text]');
+    const text = String(input.value || '').trim();
+    const error = $('[data-analysis-confirm-error]');
+    if (text.length < 2) { error.textContent = 'Nhập ít nhất 2 ký tự.'; input.focus(); return; }
+    if (text.length > maxSelectionCharacters) { error.textContent = `Chỉ được gửi tối đa ${maxSelectionCharacters} ký tự.`; input.focus(); return; }
+    selectedText = text;
+    setAnalysisConfirmOpen(false);
+    analyzeSelection(text);
+  }
+
   function sampleAnalysis(text) {
     const first = text.includes('パイロット燃料') ? {
       ruby: '<ruby>燃<rt>nen</rt></ruby><ruby>料<rt>ryō</rt></ruby> は <ruby>微<rt>bi</rt></ruby><ruby>量<rt>ryō</rt></ruby> だが <ruby>点<rt>ten</rt></ruby><ruby>火<rt>ka</rt></ruby> プラグ に <ruby>比<rt>hi</rt></ruby>し <ruby>約<rt>yaku</rt></ruby> 8000 <ruby>倍<rt>bai</rt></ruby>',
@@ -739,10 +763,13 @@
     }
   }
 
-  async function analyzeSelection() {
+  async function analyzeSelection(confirmedText) {
     if (analysisInProgress) { toast('Đang phân tích đoạn hiện tại. Vui lòng chờ kết quả.'); return; }
+    const hasConfirmedText = typeof confirmedText === 'string';
+    if (hasConfirmedText) selectedText = confirmedText.trim();
     if (!selectedText) return;
     if (selectedText.length > maxSelectionCharacters) { toast(`Đoạn quá dài. Chỉ chọn tối đa ${maxSelectionCharacters} ký tự, khoảng 1/4 trang A4.`); return; }
+    if (!hasConfirmedText) { setAnalysisConfirmOpen(true); return; }
 
     /*
      * SERVER FIRST:
@@ -1067,6 +1094,12 @@
   document.addEventListener('selectionchange', updateSelection);
   editor.addEventListener('touchend', () => setTimeout(updateSelection, 0));
   $('[data-analyze-popover]').addEventListener('click', () => analyzeSelection());
+  $('[data-analysis-confirm-text]').addEventListener('input', event => {
+    $('[data-analysis-confirm-count]').textContent = String(event.currentTarget.value.length);
+    $('[data-analysis-confirm-error]').textContent = event.currentTarget.value.length > maxSelectionCharacters ? `Chỉ được gửi tối đa ${maxSelectionCharacters} ký tự.` : '';
+  });
+  $('[data-analysis-confirm-submit]').addEventListener('click', confirmAnalysisText);
+  $$('[data-analysis-confirm-cancel]').forEach(button => button.addEventListener('click', () => setAnalysisConfirmOpen(false)));
   libraryToggle.addEventListener('click', () => setLibraryOpen(!root.classList.contains('is-library-open')));
   $$('[data-library-close]').forEach(button => button.addEventListener('click', () => setLibraryOpen(false)));
   $('[data-new-document]').addEventListener('click', () => {
@@ -1126,7 +1159,15 @@
     }
   }, true);
 
-  document.addEventListener('keydown', event => { if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); analyzeSelection(); } if (event.key === 'Escape' && root.classList.contains('is-library-open')) setLibraryOpen(false); if (event.key === 'Escape') setLoginOpen(false); if (event.key === 'Escape' && !$('[data-analysis]').hidden) { $('[data-analysis]').hidden = true; $('[data-inspector-empty]').hidden = false; updateShowAnalysisToggle(); } });
+  document.addEventListener('keydown', event => {
+    const confirmOpen = !$('[data-analysis-confirm]').hidden;
+    if (confirmOpen && event.key === 'Escape') { event.preventDefault(); setAnalysisConfirmOpen(false); return; }
+    if (confirmOpen && (event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); confirmAnalysisText(); return; }
+    if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') { event.preventDefault(); analyzeSelection(); }
+    if (event.key === 'Escape' && root.classList.contains('is-library-open')) setLibraryOpen(false);
+    if (event.key === 'Escape') setLoginOpen(false);
+    if (event.key === 'Escape' && !$('[data-analysis]').hidden) { $('[data-analysis]').hidden = true; $('[data-inspector-empty]').hidden = false; updateShowAnalysisToggle(); }
+  });
   $('[data-reader-logout]')?.addEventListener('click', event => { event.preventDefault(); logoutReaderStayHere(event); });
   document.addEventListener('click', event => {
     const googleButton = event.target.closest('[data-google-login-inline]');
