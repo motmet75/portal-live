@@ -5,13 +5,15 @@
   function join(base, path) { return String(base || '').replace(/\/$/, '') + path; }
   function money(value) { return new Intl.NumberFormat('vi-VN').format(Number(value || 0)) + ' ₫'; }
   function safeImage(value) { return value || '/dailocoffee/images/gallery_9.jpeg'; }
-  fetch('/api/public/shopfront/sancoffeetea', { credentials: 'same-origin' }).then(function (r) {
+  fetch('/api/public/shopfront/current', { credentials: 'same-origin' }).then(function (r) {
     if (!r.ok) throw new Error('Không đọc được cấu hình cửa hàng.'); return r.json();
   }).then(function (cfg) {
     if (!cfg.tenantId || !cfg.companyId) throw new Error('Chưa cấu hình Tenant ID và Company ID trong Portal Admin → SAN Shop Connection.');
     var query = '?tenantId=' + encodeURIComponent(cfg.tenantId) + '&companyId=' + encodeURIComponent(cfg.companyId);
     var orderUrl = join(cfg.demoBaseUrl, '/shop/menu') + query;
     document.querySelectorAll('[data-san-order]').forEach(function (a) { a.href = orderUrl; });
+    document.querySelectorAll('[data-san-address]').forEach(function (el) { el.textContent = cfg.address || 'Đang cập nhật'; });
+    document.querySelectorAll('[data-san-hours]').forEach(function (el) { el.textContent = cfg.openingHours || 'Đang cập nhật'; });
     return fetch(join(cfg.demoBaseUrl, '/api/shop/public/menu') + query).then(function (r) {
       if (!r.ok) throw new Error('Không tải được menu từ demo (' + r.status + ').'); return r.json();
     });

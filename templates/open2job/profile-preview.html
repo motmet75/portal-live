@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080a0f">
+  <meta name="description" content="An Open2Job career story">
+  <title>Profile story — open2job</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/open2job/css/profile-preview.css">
+</head>
+<body>
+  <main class="player" id="player" aria-live="polite">
+    <div class="backdrop" id="backdrop"></div>
+    <div class="veil"></div>
+
+    <header class="player-header">
+      <a class="brand" href="/" aria-label="Open2Job home"><span>o2</span>open2job</a>
+      <div class="header-meta"><i></i><span id="shareLabel">Profile story</span></div>
+      <button class="round-button" id="fullscreenButton" aria-label="Enter full screen" title="Full screen">⌗</button>
+    </header>
+
+    <section class="slide" id="slide"></section>
+
+    <div class="timeline" id="timeline" aria-label="Story progress"></div>
+    <nav class="controls" aria-label="Story controls">
+      <button id="previousButton" aria-label="Previous slide">←</button>
+      <button class="play-button" id="playButton" aria-label="Pause autoplay">Ⅱ</button>
+      <button id="nextButton" aria-label="Next slide">→</button>
+      <span id="counter">01 / 01</span>
+    </nav>
+    <p class="hint">Use arrow keys or swipe to explore</p>
+  </main>
+
+  <section class="status-screen" id="statusScreen" hidden>
+    <a class="brand" href="/"><span>o2</span>open2job</a>
+    <div><p>PROFILE PREVIEW</p><h1 id="statusTitle">Opening the story…</h1><span id="statusMessage">Please wait a moment.</span></div>
+  </section>
+
+  <script src="/open2job/js/profile-preview.js"></script>
+</body>
+</html>
