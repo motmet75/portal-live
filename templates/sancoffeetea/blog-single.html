@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{sancoffeetea :: head(${article != null ? article.articleTitle : 'SAN Coffee & Tea'}, ${article != null ? article.articleDescription : 'SAN Coffee & Tea'})}"></head>
+<body>
+<nav th:replace="~{sancoffeetea :: nav('')}"></nav>
+<main class="san-menu" style="padding-top:140px;min-height:70vh">
+  <div class="container" th:if="${article != null}">
+    <p><a href="/home">← Trang chủ</a></p>
+    <article class="san-card" style="max-width:920px;margin:0 auto;padding:clamp(24px,5vw,58px)">
+      <h1 th:text="${article.articleTitle}">SAN Coffee & Tea</h1>
+      <p th:if="${article.articleDescription != null}" th:text="${article.articleDescription}"></p>
+      <div style="font-size:17px;line-height:1.85;overflow-wrap:anywhere" th:utext="${article.articleContent}"></div>
+    </article>
+  </div>
+  <div class="container san-error" th:if="${article == null}">Không tìm thấy nội dung.</div>
+</main>
+<footer th:replace="~{sancoffeetea :: footer}"></footer>
+</body>
+</html>
