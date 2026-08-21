@@ -1,5 +1,5 @@
 (() => {
-  const form=document.querySelector('#profileForm'), entries=document.querySelector('#entries'), toast=document.querySelector('#toast');
+  const form=document.querySelector('#profileForm'), entries=document.querySelector('#entries'), toast=document.querySelector('#toast'), loginGate=document.querySelector('#loginGate');
   const fields=['slug','name','role','location','headline','intro','portraitUrl','reelUrl','availability'];
   let dragged=null;
   const LOCAL_DRAFT='open2job-private-profile-draft-v1';
@@ -23,9 +23,12 @@
   function fill(p){fields.forEach(k=>form.elements[k].value=p[k]||'');entries.innerHTML='';(p.nodes||[]).forEach(addEntry);if(!p.nodes?.length)addEntry();status(p.reviewStatus,p.reviewRequestedAt);preview()}
   function status(s='not_submitted',at){const labels={not_submitted:'Not submitted for review',pending:'Review pending',changes_requested:'Changes requested',approved:'Approved'};document.querySelector('#reviewStatus').textContent=(labels[s]||s)+(at?` · ${new Date(at).toLocaleString()}`:'');document.querySelector('#privacyBadge').textContent=s==='pending'?'PRIVATE · REVIEW PENDING':'PRIVATE DRAFT'}
   function preview(){document.querySelector('#previewName').textContent=form.elements.name.value||'Your name';document.querySelector('#previewRole').textContent=form.elements.role.value||'Your professional role';document.querySelector('#previewPhoto').src=form.elements.portraitUrl.value||'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="90" height="90"%3E%3Crect width="100%25" height="100%25" fill="%23e7ece8"/%3E%3C/svg%3E'}form.oninput=preview;
-  async function api(url,options={}){const r=await fetch(url,{credentials:'same-origin',headers:{'Content-Type':'application/json',...(options.headers||{})},...options});let body={};try{body=await r.json()}catch{}if(r.status===401){cacheDraft();rememberLoginReturn();location.href='/oauth2/authorization/google';throw Error('Google login is required')}if(!r.ok)throw Error(body.error||`Request failed (${r.status})`);return body}
+  function requireLogin(){cacheDraft();rememberLoginReturn();loginGate.hidden=false}
+  document.querySelector('#googleLogin').onclick=()=>{cacheDraft();rememberLoginReturn()};
+  async function api(url,options={}){const r=await fetch(url,{credentials:'same-origin',headers:{'Content-Type':'application/json',...(options.headers||{})},...options});let body={};try{body=await r.json()}catch{}if(r.status===401){requireLogin();throw Error('Google login is required')}if(!r.ok)throw Error(body.error||`Request failed (${r.status})`);loginGate.hidden=true;return body}
   async function save(){if(!form.reportValidity())throw Error('Please complete the required profile fields');const p=payload();if(!p.nodes.every(n=>n.title))throw Error('Every entry needs a title');cacheDraft();const saved=await api('/api/open2job/me/profile',{method:'PUT',body:JSON.stringify(p)});localStorage.removeItem(LOCAL_DRAFT);fill(saved);say('Private profile saved to your account');return saved}
   document.querySelector('#saveBtn').onclick=()=>save().catch(e=>say(e.message,true));document.querySelector('#reviewBtn').onclick=async e=>{e.currentTarget.disabled=true;try{await save();const result=await api('/api/open2job/me/profile/review',{method:'POST'});status('pending');say(result.emailSent===false?'Review queued, but the alert email failed. Please contact support.':result.message)}catch(x){say(x.message,true)}finally{e.currentTarget.disabled=false}};
   document.querySelector('#addEntry').onclick=()=>addEntry();
-  api('/api/open2job/me/profile').then(fill).catch(e=>{if(/No private profile/.test(e.message)){const draft=cachedDraft();draft?fill(draft):sampleJourney().forEach(addEntry)}else if(!/login is required/i.test(e.message))say(e.message,true)});
+  sampleJourney().forEach(addEntry);
+  api('/api/open2job/me/profile').then(fill).catch(e=>{if(/No private profile/.test(e.message)){const draft=cachedDraft();if(draft)fill(draft)}else if(!/login is required/i.test(e.message))say(e.message,true)});
 })();
