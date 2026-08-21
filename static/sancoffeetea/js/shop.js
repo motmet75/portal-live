@@ -16,7 +16,7 @@
     document.querySelectorAll('[data-san-order]').forEach(function (a) { a.href = orderUrl; });
     document.querySelectorAll('[data-san-address]').forEach(function (el) { el.textContent = cfg.address || 'Đang cập nhật'; });
     document.querySelectorAll('[data-san-hours]').forEach(function (el) { el.textContent = cfg.openingHours || 'Đang cập nhật'; });
-    return fetch(join(cfg.demoBaseUrl, '/api/shop/public/menu') + query).then(function (r) {
+    return fetch('/api/public/shopfront/current/menu', { credentials: 'same-origin' }).then(function (r) {
       if (!r.ok) throw new Error('Không tải được menu từ demo (' + r.status + ').'); return r.json();
     });
   }).then(function (menu) {
@@ -25,7 +25,7 @@
     grid.innerHTML = '';
     rows.forEach(function (item) {
       var card = document.createElement('article'); card.className = 'san-card';
-      var image = document.createElement('img'); image.src = safeImage(item.imageUrl); image.alt = item.modelName || item.name || 'Món SAN';
+      var image = document.createElement('img'); image.src = item.imageUrl && item.imageUrl.charAt(0) === '/' ? 'https://anhmedia.vn' + item.imageUrl : safeImage(item.imageUrl); image.alt = item.modelName || item.name || 'Món SAN';
       var body = document.createElement('div'); var title = document.createElement('h3'); title.textContent = item.modelName || item.name || 'Món SAN';
       var price = document.createElement('span'); price.className = 'san-price'; price.textContent = money(item.sellingPrice != null ? item.sellingPrice : item.price);
       body.appendChild(title); body.appendChild(price); card.appendChild(image); card.appendChild(body); grid.appendChild(card);
