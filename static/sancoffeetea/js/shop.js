@@ -11,8 +11,7 @@
   }).then(function (cfg) {
     if (!cfg.tenantId || !cfg.companyId) throw new Error('Chưa cấu hình Tenant ID và Company ID trong Portal Admin → SAN Shop Connection.');
     var query = '?tenantId=' + encodeURIComponent(cfg.tenantId) + '&companyId=' + encodeURIComponent(cfg.companyId);
-    cfg.demoBaseUrl = bomBase(cfg.demoBaseUrl);
-    var orderUrl = join(cfg.demoBaseUrl, '/shop/menu') + query;
+    var orderUrl = 'https://anhmedia.vn/bom-inventory/shop/menu' + query;
     document.querySelectorAll('[data-san-order]').forEach(function (a) { a.href = orderUrl; });
     document.querySelectorAll('[data-san-address]').forEach(function (el) { el.textContent = cfg.address || 'Đang cập nhật'; });
     document.querySelectorAll('[data-san-hours]').forEach(function (el) { el.textContent = cfg.openingHours || 'Đang cập nhật'; });
