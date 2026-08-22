@@ -3,16 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script>
-    /* The full reader uses modern JavaScript that older iPhone Safari cannot parse. */
-    (function () {
-      var isIPhone = /iPhone|iPod/i.test(navigator.userAgent || '');
-      var forceDesktop = /(?:^|[?&])desktop=1(?:&|$)/.test(window.location.search || '');
-      if (isIPhone && !forceDesktop) {
-        window.location.replace('/ipad4/japanese-reader.html' + (window.location.hash || ''));
-      }
-    }());
-  </script>
   <title>Kotoba Studio — Đọc tài liệu tiếng Nhật</title>
   <meta name="description" content="Không gian đọc PDF tiếng Nhật, phân tích đoạn chọn và ôn từ vựng từng bước.">
   <link rel="stylesheet" href="/anhmedia.vn/css/japanese-reader.css?v=20260817-2">
