@@ -770,6 +770,8 @@
     if (!selectedText) return;
     if (selectedText.length > maxSelectionCharacters) { toast(`Đoạn quá dài. Chỉ chọn tối đa ${maxSelectionCharacters} ký tự, khoảng 1/4 trang A4.`); return; }
     if (!hasConfirmedText) { setAnalysisConfirmOpen(true); return; }
+    // Keep the edited dialog value stable across Safari's delayed selectionchange events.
+    const requestText = selectedText;
 
     /*
      * SERVER FIRST:
@@ -784,7 +786,9 @@
       return;
     }
 
-    if (currentAnalysis && hasUnsavedAnalysis && currentAnalysis.source !== selectedText) {
+    selectedText = requestText;
+
+    if (currentAnalysis && hasUnsavedAnalysis && currentAnalysis.source !== requestText) {
       const savePrevious = window.confirm('Bạn chưa lưu kết quả phân tích trước. Nhấn OK để lưu trước khi phân tích đoạn mới, hoặc Hủy để bỏ kết quả cũ.');
       if (savePrevious) remember();
       else discardCurrentAnalysis();
@@ -794,22 +798,22 @@
     $('[data-show-analysis]').disabled = true;
     popover.hidden = true;
     analyzeButton.disabled = true;
-    openAnalysisWait(selectedText);
+    openAnalysisWait(requestText);
     analyzeButton.classList.add('is-loading');
     analyzeButton.title = 'Đang phân tích…';
     analyzeButton.setAttribute('aria-label', 'Đang phân tích…');
     const analyzeSpinner = analyzeButton.querySelector('[data-analyze-spinner]');
     if (analyzeSpinner) analyzeSpinner.hidden = false;
     try {
-      currentAnalysis = await fetchAnalysisWithRetry({ text: selectedText, mode: 'selection' });
+      currentAnalysis = await fetchAnalysisWithRetry({ text: requestText, mode: 'selection' });
       $('[data-analysis-connection]').hidden = true;
     } catch (error) {
       if (error.status === 429) {
         await refreshDailyUsage();
       }
       showAnalysisConnection(error.status || 0, error.message);
-      if (/パイロット|微量|燃料|点火/.test(selectedText)) {
-        currentAnalysis = sampleAnalysis(selectedText);
+      if (/パイロット|微量|燃料|点火/.test(requestText)) {
+        currentAnalysis = sampleAnalysis(requestText);
         toast('Đang dùng bản phân tích mẫu; kết nối API để phân tích nội dung mới.');
       } else {
         toast(error.status === 401 ? 'Hãy đăng nhập Google để phân tích.' : 'API máy chủ chưa sẵn sàng. Đoạn đã chọn vẫn được giữ.');
