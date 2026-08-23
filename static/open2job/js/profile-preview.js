@@ -1,80 +1,463 @@
 (() => {
-  const SLIDE_MS = 7000;
+  const SLIDE_MS = 9000;
+  const INTERACTIVE_TYPES = new Set(['video', 'document', 'audio']);
   const player = document.querySelector('#player');
-  const slide = document.querySelector('#slide');
+  const stage = document.querySelector('#stage');
   const backdrop = document.querySelector('#backdrop');
   const timeline = document.querySelector('#timeline');
+  const rail = document.querySelector('#slideRail');
   const status = document.querySelector('#statusScreen');
   const playButton = document.querySelector('#playButton');
+  const previousButton = document.querySelector('#previousButton');
+  const nextButton = document.querySelector('#nextButton');
+  const fullscreenButton = document.querySelector('#fullscreenButton');
+  const counter = document.querySelector('#counter');
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let slides = [], current = 0, timer = 0, playing = !reducedMotion, touchX = 0;
+  let slides = [];
+  let current = 0;
+  let timer = 0;
+  let playing = !reducedMotion;
+  let touchX = 0;
 
-  const escapeHtml = value => String(value || '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
-  const safeUrl = value => { try { const url = new URL(value, location.origin); return ['http:','https:'].includes(url.protocol) ? url.href : ''; } catch (_) { return ''; } };
-  const emphasis = value => { const text = escapeHtml(value); const words = text.trim().split(/\s+/); if (words.length < 3) return text; return `${words.slice(0,-2).join(' ')} <em>${words.slice(-2).join(' ')}</em>`; };
+  const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  }[char]));
+  const safeUrl = value => {
+    try {
+      const raw = String(value || '').trim();
+      if (!raw) return '';
+      const url = new URL(raw, location.origin);
+      return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+    } catch (_) {
+      return '';
+    }
+  };
+  const attr = value => escapeHtml(value).replace(/`/g, '&#96;');
+  const cssUrl = value => String(value || '').replace(/["\\\n\r]/g, '\\$&');
+  const compact = values => values.filter(Boolean).join(' · ');
+  const pad = value => String(value + 1).padStart(2, '0');
+  const sentence = value => escapeHtml(value || '').replace(/\n{3,}/g, '\n\n').replace(/\n/g, '<br>');
+  const emphasis = value => {
+    const text = escapeHtml(value || '');
+    const words = text.trim().split(/\s+/).filter(Boolean);
+    if (words.length < 4) return text;
+    return `${words.slice(0, -2).join(' ')} <em>${words.slice(-2).join(' ')}</em>`;
+  };
 
-  function mediaFor(node, fallback) {
-    const media = node && (node.media || (node.mediaGallery || [])[0]);
-    return safeUrl((media && (media.thumbnail || media.src)) || fallback);
+  function youtubeId(value) {
+    const url = safeUrl(value);
+    if (!url) return '';
+    try {
+      const parsed = new URL(url);
+      if (parsed.hostname === 'youtu.be') return parsed.pathname.split('/').filter(Boolean)[0] || '';
+      if (parsed.searchParams.get('v')) return parsed.searchParams.get('v');
+      const parts = parsed.pathname.split('/').filter(Boolean);
+      const marker = parts.findIndex(part => ['embed', 'shorts', 'live'].includes(part));
+      return marker >= 0 ? parts[marker + 1] || '' : '';
+    } catch (_) {
+      return '';
+    }
   }
+
+  function youtubeEmbed(value) {
+    const id = youtubeId(value);
+    return id ? `https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?rel=0&modestbranding=1&playsinline=1` : '';
+  }
+
+  function youtubePoster(value) {
+    const id = youtubeId(value);
+    return id ? `https://img.youtube.com/vi/${encodeURIComponent(id)}/hqdefault.jpg` : '';
+  }
+
+  function driveFileId(value) {
+    const url = safeUrl(value);
+    if (!url) return '';
+    try {
+      const parsed = new URL(url);
+      const id = parsed.searchParams.get('id');
+      if (id) return id;
+      const match = parsed.pathname.match(/\/(?:file\/d|document\/d|presentation\/d|spreadsheets\/d)\/([^/]+)/);
+      return match ? match[1] : '';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function documentEmbed(value) {
+    const url = safeUrl(value);
+    if (!url) return '';
+    const id = driveFileId(url);
+    if (id && new URL(url).hostname.includes('drive.google.com')) {
+      return `https://drive.google.com/file/d/${encodeURIComponent(id)}/preview`;
+    }
+    return url;
+  }
+
+  function mediaKind(media) {
+    const requested = String(media?.type || media?.kind || media?.mediaType || '').toLowerCase();
+    const src = safeUrl(media?.src || media?.url || media?.href || media?.sourceUrl || '');
+    if (requested === 'pdf') return 'document';
+    if (['image', 'video', 'audio', 'document'].includes(requested)) return requested;
+    if (youtubeId(src)) return 'video';
+    if (/\.(png|jpe?g|gif|webp|avif|svg)(\?|#|$)/i.test(src)) return 'image';
+    if (/\.(mp3|wav|m4a|ogg)(\?|#|$)/i.test(src)) return 'audio';
+    if (/\.pdf(\?|#|$)/i.test(src) || src.includes('drive.google.com') || src.includes('docs.google.com')) return 'document';
+    return src ? 'document' : '';
+  }
+
+  function normalizeMedia(media, fallbackCaption = '') {
+    const src = safeUrl(media?.src || media?.url || media?.href || media?.sourceUrl || '');
+    if (!src) return null;
+    const kind = mediaKind(media);
+    const thumbnail = safeUrl(media?.thumbnail || media?.thumbnailUrl || '') || (kind === 'video' ? youtubePoster(src) : '');
+    return {
+      kind,
+      src,
+      thumbnail,
+      caption: String(media?.caption || media?.title || fallbackCaption || '').trim()
+    };
+  }
+
+  function mediaList(node) {
+    const raw = [];
+    if (node?.media) raw.push(node.media);
+    if (Array.isArray(node?.mediaGallery)) raw.push(...node.mediaGallery);
+    const seen = new Set();
+    return raw.map(item => normalizeMedia(item, node?.title)).filter(item => {
+      const key = `${item.kind}:${item.src}`;
+      if (!item.kind || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  function profileMedia(profile) {
+    const reel = normalizeMedia({type: 'video', src: profile.reelUrl, caption: `${profile.name || 'Profile'} reel`});
+    return reel ? [reel] : [];
+  }
+
   function buildSlides(profile) {
     const portrait = safeUrl(profile.portraitUrl);
     const entries = Array.isArray(profile.nodes) ? profile.nodes : [];
     const result = [{
-      image: portrait, html: `<p class="kicker">${escapeHtml([profile.role,profile.location].filter(Boolean).join(' · ') || 'Career profile')}</p><h1>${emphasis(profile.headline || `Meet ${profile.name}`)}</h1><p>${escapeHtml(profile.intro)}</p><div class="identity">${portrait ? `<img src="${portrait}" alt="">` : ''}<div><strong>${escapeHtml(profile.name)}</strong><small>${escapeHtml(profile.availability || 'Open to meaningful work')}</small></div></div>`
+      kind: 'cover',
+      kicker: compact([profile.role, profile.location]) || 'Career profile',
+      title: profile.headline || `Meet ${profile.name || 'this candidate'}`,
+      body: profile.intro || '',
+      profile,
+      background: portrait
     }];
-    entries.forEach((node, index) => {
-      const metric = String(node.metric || '').trim();
-      result.push({ image: mediaFor(node, portrait), html: `<p class="kicker">${escapeHtml([node.year,node.type].filter(Boolean).join(' · ') || `Chapter ${index + 1}`)}</p>${metric ? `<span class="metric">${escapeHtml(metric)}</span>` : ''}<h2>${escapeHtml(node.title)}</h2><p>${escapeHtml(node.summary)}</p>${node.org ? `<p class="people">${escapeHtml(node.org)}</p>` : ''}<div class="tags">${(node.skills || []).slice(0,5).map(x=>`<span>${escapeHtml(x)}</span>`).join('')}</div>` });
+
+    profileMedia(profile).forEach((media, index) => {
+      result.push({
+        kind: media.kind,
+        kicker: index ? 'Profile media' : 'Profile reel',
+        title: profile.name || 'Profile reel',
+        body: profile.availability || compact([profile.role, profile.location]),
+        media,
+        background: media.thumbnail || portrait
+      });
     });
-    result.push({ image: portrait, html: `<p class="kicker">The next chapter</p><h1>Let’s create something <em>worth remembering.</em></h1><p>${escapeHtml(profile.availability || `${profile.name} is open to new conversations and opportunities.`)}</p><div class="identity"><div><strong>${escapeHtml(profile.name)}</strong><small>${escapeHtml([profile.role,profile.location].filter(Boolean).join(' · '))}</small></div></div>` });
+
+    entries.forEach((node, nodeIndex) => {
+      const gallery = mediaList(node);
+      result.push({
+        kind: 'text',
+        kicker: compact([node.year, node.type]) || `Chapter ${nodeIndex + 1}`,
+        title: node.title || `Chapter ${nodeIndex + 1}`,
+        body: node.summary || '',
+        node,
+        galleryCount: gallery.length,
+        background: gallery[0]?.thumbnail || (gallery[0]?.kind === 'image' ? gallery[0].src : portrait)
+      });
+      gallery.forEach((media, mediaIndex) => {
+        result.push({
+          kind: media.kind,
+          kicker: compact([node.year, node.type, `Media ${mediaIndex + 1}`]),
+          title: media.caption || node.title || `Media ${mediaIndex + 1}`,
+          body: node.summary || '',
+          node,
+          media,
+          background: media.thumbnail || (media.kind === 'image' ? media.src : portrait)
+        });
+      });
+    });
+
+    result.push({
+      kind: 'closing',
+      kicker: 'The next chapter',
+      title: 'Ready for the next conversation',
+      body: profile.availability || `${profile.name || 'This candidate'} is open to meaningful work and collaboration.`,
+      profile,
+      background: portrait
+    });
     return result;
   }
+
+  function tags(values) {
+    const list = Array.isArray(values) ? values.filter(Boolean).slice(0, 8) : [];
+    return list.length ? `<div class="tags">${list.map(value => `<span>${escapeHtml(value)}</span>`).join('')}</div>` : '';
+  }
+
+  function metaGrid(node, galleryCount) {
+    const items = [
+      ['Role', node?.org],
+      ['Result', node?.metric],
+      ['Impact', Number.isFinite(Number(node?.impact)) ? `${Number(node.impact)} / 100` : ''],
+      ['Media', galleryCount ? `${galleryCount} item${galleryCount === 1 ? '' : 's'}` : '']
+    ].filter(([, value]) => value);
+    return items.length ? `<dl class="meta-grid">${items.map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`).join('')}</dl>` : '';
+  }
+
+  function identity(profile) {
+    const portrait = safeUrl(profile?.portraitUrl);
+    return `<div class="identity">${portrait ? `<img src="${attr(portrait)}" alt="">` : '<span>o2</span>'}<div><strong>${escapeHtml(profile?.name || 'Open2Job profile')}</strong><small>${escapeHtml(profile?.availability || compact([profile?.role, profile?.location]) || 'Career presentation')}</small></div></div>`;
+  }
+
+  function renderText(item) {
+    if (item.kind === 'cover' || item.kind === 'closing') {
+      const profile = item.profile || {};
+      return `
+        <article class="copy-panel hero-copy">
+          <p class="kicker">${escapeHtml(item.kicker)}</p>
+          <h1>${emphasis(item.title)}</h1>
+          ${item.body ? `<p>${sentence(item.body)}</p>` : ''}
+          ${identity(profile)}
+        </article>
+        ${safeUrl(profile.portraitUrl) ? `<figure class="portrait-card"><img src="${attr(safeUrl(profile.portraitUrl))}" alt=""></figure>` : '<div class="portrait-card empty"><span>open2job</span></div>'}`;
+    }
+    const node = item.node || {};
+    return `
+      <article class="copy-panel story-copy">
+        <p class="kicker">${escapeHtml(item.kicker)}</p>
+        ${node.metric ? `<span class="metric">${escapeHtml(node.metric)}</span>` : ''}
+        <h1>${escapeHtml(item.title)}</h1>
+        ${item.body ? `<p>${sentence(item.body)}</p>` : ''}
+        ${metaGrid(node, item.galleryCount)}
+        ${tags(node.skills)}
+      </article>`;
+  }
+
+  function mediaNotes(item, openLabel = 'Open media') {
+    const node = item.node || {};
+    const media = item.media || {};
+    const source = safeUrl(media.src);
+    return `
+      <aside class="media-notes">
+        <p class="kicker">${escapeHtml(item.kicker)}</p>
+        <h2>${escapeHtml(item.title)}</h2>
+        ${item.body ? `<p>${sentence(item.body)}</p>` : ''}
+        ${metaGrid(node, 0)}
+        ${tags(node.skills)}
+        ${source ? `<a class="open-link" href="${attr(source)}" target="_blank" rel="noopener">${escapeHtml(openLabel)}</a>` : ''}
+      </aside>`;
+  }
+
+  function renderImage(item) {
+    const src = safeUrl(item.media?.src);
+    return `
+      <figure class="media-frame image-frame">
+        <img src="${attr(src)}" alt="${attr(item.media?.caption || item.title)}">
+      </figure>
+      ${mediaNotes(item, 'Open image')}`;
+  }
+
+  function renderVideo(item) {
+    const src = safeUrl(item.media?.src);
+    const embed = youtubeEmbed(src) || src;
+    return `
+      <div class="media-frame video-frame">
+        <iframe src="${attr(embed)}" title="${attr(item.title)}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      </div>
+      ${mediaNotes(item, 'Open video')}`;
+  }
+
+  function renderDocument(item) {
+    const src = safeUrl(item.media?.src);
+    const embed = documentEmbed(src);
+    const isPdf = /\.pdf(\?|#|$)/i.test(src) || item.media?.kind === 'document';
+    return `
+      <div class="media-frame document-frame">
+        <iframe src="${attr(embed)}" title="${attr(item.title)}"></iframe>
+        <div class="document-fallback">
+          <strong>${escapeHtml(item.title)}</strong>
+          ${src ? `<a href="${attr(src)}" target="_blank" rel="noopener">${isPdf ? 'Open PDF' : 'Open document'}</a>` : ''}
+        </div>
+      </div>
+      ${mediaNotes(item, isPdf ? 'Open PDF' : 'Open document')}`;
+  }
+
+  function renderAudio(item) {
+    const src = safeUrl(item.media?.src);
+    return `
+      <div class="media-frame audio-frame">
+        <div>
+          <p class="kicker">Audio</p>
+          <h2>${escapeHtml(item.title)}</h2>
+          <audio src="${attr(src)}" controls></audio>
+        </div>
+      </div>
+      ${mediaNotes(item, 'Open audio')}`;
+  }
+
+  function setBackdrop(item) {
+    const image = safeUrl(item.background) || safeUrl(item.media?.thumbnail) || (item.media?.kind === 'image' ? safeUrl(item.media.src) : '');
+    backdrop.style.backgroundImage = image
+      ? `linear-gradient(rgba(9,11,17,.35),rgba(9,11,17,.72)),url("${cssUrl(image)}")`
+      : 'linear-gradient(140deg,#11141b,#20252b 52%,#10161d)';
+  }
+
+  function renderTimeline() {
+    timeline.innerHTML = slides.map((item, index) => `<button data-index="${index}" class="${index < current ? 'done' : index === current ? 'active' : ''}" aria-label="Go to slide ${index + 1}"><i></i></button>`).join('');
+    timeline.querySelectorAll('button').forEach(button => {
+      button.addEventListener('click', () => show(Number(button.dataset.index)));
+    });
+  }
+
+  function renderRail() {
+    rail.innerHTML = slides.map((item, index) => {
+      const mediaLabel = item.kind === 'text' ? 'Text' : item.kind.charAt(0).toUpperCase() + item.kind.slice(1);
+      return `<button data-index="${index}" class="${index === current ? 'active' : ''}" aria-current="${index === current ? 'true' : 'false'}">
+        <b>${pad(index)}</b>
+        <span>${escapeHtml(item.title)}</span>
+        <small>${escapeHtml(mediaLabel)}</small>
+      </button>`;
+    }).join('');
+    rail.querySelectorAll('button').forEach(button => {
+      button.addEventListener('click', () => show(Number(button.dataset.index)));
+    });
+    rail.querySelector('.active')?.scrollIntoView({block: 'nearest', inline: 'nearest'});
+  }
+
   function restartTimer() {
     clearTimeout(timer);
-    if (playing && slides.length > 1) timer = setTimeout(() => show((current + 1) % slides.length), SLIDE_MS);
+    const item = slides[current];
+    if (playing && slides.length > 1 && item && !INTERACTIVE_TYPES.has(item.kind)) {
+      timer = setTimeout(() => show(current + 1), SLIDE_MS);
+    }
   }
-  function renderTimeline() {
-    timeline.innerHTML = slides.map((_, i) => `<button data-index="${i}" class="${i < current ? 'done' : i === current ? 'active' : ''}" aria-label="Go to slide ${i+1}"><i></i></button>`).join('');
-    timeline.querySelectorAll('button').forEach(button => button.addEventListener('click', () => show(Number(button.dataset.index))));
-  }
+
   function show(index) {
+    if (!slides.length) return;
     current = (index + slides.length) % slides.length;
     const item = slides[current];
-    player.classList.remove('animating'); void player.offsetWidth; player.classList.add('animating');
-    slide.innerHTML = `<div class="slide-content">${item.html}</div>`;
-    backdrop.style.backgroundImage = item.image ? `url("${item.image.replace(/["\\]/g, '\\$&')}")` : 'radial-gradient(circle at 75% 30%, #554887, #11141c 48%, #080a0f 75%)';
-    document.querySelector('#counter').textContent = `${String(current+1).padStart(2,'0')} / ${String(slides.length).padStart(2,'0')}`;
-    renderTimeline(); restartTimer();
+    player.dataset.slideKind = item.kind;
+    stage.className = `stage stage-${item.kind}`;
+    player.classList.remove('animating');
+    void player.offsetWidth;
+    player.classList.add('animating');
+    setBackdrop(item);
+    if (item.kind === 'image') stage.innerHTML = renderImage(item);
+    else if (item.kind === 'video') stage.innerHTML = renderVideo(item);
+    else if (item.kind === 'document') stage.innerHTML = renderDocument(item);
+    else if (item.kind === 'audio') stage.innerHTML = renderAudio(item);
+    else stage.innerHTML = renderText(item);
+    counter.textContent = `${pad(current)} / ${pad(slides.length - 1)}`;
+    renderTimeline();
+    renderRail();
+    restartTimer();
   }
+
   function togglePlay() {
-    playing = !playing; player.classList.toggle('paused', !playing);
-    playButton.textContent = playing ? 'Ⅱ' : '▶'; playButton.setAttribute('aria-label', playing ? 'Pause autoplay' : 'Resume autoplay');
-    if (playing) show(current); else clearTimeout(timer);
+    playing = !playing;
+    player.classList.toggle('paused', !playing);
+    playButton.textContent = playing ? 'Ⅱ' : '▶';
+    playButton.setAttribute('aria-label', playing ? 'Pause autoplay' : 'Resume autoplay');
+    if (playing) restartTimer();
+    else clearTimeout(timer);
   }
+
+  function updateFullscreenLabel() {
+    const active = Boolean(document.fullscreenElement);
+    fullscreenButton.textContent = active ? '×' : '⛶';
+    fullscreenButton.setAttribute('aria-label', active ? 'Exit full screen' : 'Enter full screen');
+  }
+
+  function toggleFullscreen() {
+    if (document.fullscreenElement) document.exitFullscreen?.();
+    else player.requestFullscreen?.();
+  }
+
   function endpoint() {
     const parts = location.pathname.split('/').filter(Boolean);
     const previewAt = parts.indexOf('profile-preview');
-    if (previewAt >= 0 && parts[previewAt+1]) return `/api/open2job/private-preview/${encodeURIComponent(parts[previewAt+1])}`;
+    if (previewAt >= 0 && parts[previewAt + 1]) return `/api/open2job/private-preview/${encodeURIComponent(parts[previewAt + 1])}`;
     const profileAt = parts.indexOf('profile');
-    if (profileAt >= 0 && parts[profileAt+1]) return `/api/open2job/profiles/${encodeURIComponent(parts[profileAt+1])}`;
+    if (profileAt >= 0 && parts[profileAt + 1]) return `/api/open2job/profiles/${encodeURIComponent(parts[profileAt + 1])}`;
     const params = new URLSearchParams(location.search);
-    return params.has('preview') ? `/api/open2job/private-preview/${encodeURIComponent(params.get('preview'))}` : `/api/open2job/profiles/${encodeURIComponent(params.get('profile') || '')}`;
+    if (params.has('preview')) return `/api/open2job/private-preview/${encodeURIComponent(params.get('preview'))}`;
+    return `/api/open2job/profiles/${encodeURIComponent(params.get('profile') || '')}`;
   }
+
+  function requestedSlideIndex() {
+    const params = new URLSearchParams(location.search);
+    const raw = params.get('slide') || (location.hash.match(/slide-(\d+)/)?.[1] ?? '');
+    const value = Number(raw);
+    if (!Number.isFinite(value) || value < 1) return 0;
+    return Math.min(slides.length - 1, value - 1);
+  }
+
   async function load() {
-    status.hidden = false; player.hidden = true;
+    status.hidden = false;
+    player.hidden = true;
     try {
-      const response = await fetch(endpoint(), {headers:{Accept:'application/json'}});
-      if (!response.ok) throw new Error(response.status === 404 ? 'This profile is unavailable or the preview link has expired.' : 'The profile could not be opened.');
-      const payload = await response.json(); const profile = payload.profile || payload.snapshot || payload;
-      slides = buildSlides(profile); document.title = `${profile.name || 'Profile'} — open2job`; document.querySelector('#shareLabel').textContent = profile.name || 'Profile story';
-      status.hidden = true; player.hidden = false; player.style.setProperty('--duration', `${SLIDE_MS}ms`); player.classList.toggle('paused', !playing); playButton.textContent = playing ? 'Ⅱ' : '▶'; show(0);
-    } catch (error) { document.querySelector('#statusTitle').textContent = 'Story unavailable'; document.querySelector('#statusMessage').textContent = error.message; }
+      const response = await fetch(endpoint(), {headers: {Accept: 'application/json'}, credentials: 'same-origin', cache: 'no-store'});
+      if (!response.ok) {
+        throw new Error(response.status === 404 ? 'This profile is unavailable or the preview link has expired.' : 'The profile could not be opened.');
+      }
+      const payload = await response.json();
+      const profile = payload.profile || payload.snapshot || payload;
+      slides = buildSlides(profile);
+      document.title = `${profile.name || 'Profile'} - open2job`;
+      document.querySelector('#shareLabel').textContent = profile.name || 'Profile story';
+      status.hidden = true;
+      player.hidden = false;
+      player.style.setProperty('--duration', `${SLIDE_MS}ms`);
+      player.classList.toggle('paused', !playing);
+      playButton.textContent = playing ? 'Ⅱ' : '▶';
+      show(requestedSlideIndex());
+    } catch (error) {
+      document.querySelector('#statusTitle').textContent = 'Story unavailable';
+      document.querySelector('#statusMessage').textContent = error.message;
+    }
   }
-  document.querySelector('#previousButton').addEventListener('click',()=>show(current-1));
-  document.querySelector('#nextButton').addEventListener('click',()=>show(current+1)); playButton.addEventListener('click',togglePlay);
-  document.querySelector('#fullscreenButton').addEventListener('click',()=>document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.());
-  addEventListener('keydown',event=>{if(event.key==='ArrowLeft')show(current-1);if(event.key==='ArrowRight')show(current+1);if(event.key===' '){event.preventDefault();togglePlay();}});
-  player.addEventListener('touchstart',event=>touchX=event.changedTouches[0].clientX,{passive:true}); player.addEventListener('touchend',event=>{const delta=event.changedTouches[0].clientX-touchX;if(Math.abs(delta)>45)show(current+(delta<0?1:-1));},{passive:true});
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTimeout(timer);else restartTimer();}); load();
+
+  previousButton.addEventListener('click', () => show(current - 1));
+  nextButton.addEventListener('click', () => show(current + 1));
+  playButton.addEventListener('click', togglePlay);
+  fullscreenButton.addEventListener('click', toggleFullscreen);
+  document.addEventListener('fullscreenchange', updateFullscreenLabel);
+  addEventListener('keydown', event => {
+    if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+      event.preventDefault();
+      show(current - 1);
+    } else if (event.key === 'ArrowRight' || event.key === 'PageDown') {
+      event.preventDefault();
+      show(current + 1);
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      show(0);
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      show(slides.length - 1);
+    } else if (event.key === ' ') {
+      event.preventDefault();
+      togglePlay();
+    } else if (event.key.toLowerCase() === 'f') {
+      toggleFullscreen();
+    }
+  });
+  player.addEventListener('touchstart', event => {
+    touchX = event.changedTouches[0].clientX;
+  }, {passive: true});
+  player.addEventListener('touchend', event => {
+    const delta = event.changedTouches[0].clientX - touchX;
+    if (Math.abs(delta) > 45) show(current + (delta < 0 ? 1 : -1));
+  }, {passive: true});
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) clearTimeout(timer);
+    else restartTimer();
+  });
+  updateFullscreenLabel();
+  load();
 })();
