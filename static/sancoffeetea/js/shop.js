@@ -35,6 +35,8 @@
     config: null,
     rows: []
   };
+  var shopServiceOrigin = 'https://anhmedia.vn';
+  var shopServiceBase = shopServiceOrigin + '/bom-inventory';
 
   function normalizeLanguage(value) {
     var code = String(value || '').trim().toLowerCase().replace(/_/g, '-');
@@ -59,14 +61,22 @@
   }
 
   function cleanBase(value) {
-    var base = String(value || '').trim() || 'https://anhmedia.vn/bom-inventory/';
+    var base = String(value || '').trim() || shopServiceBase;
     try {
-      var url = new URL(base, window.location.origin);
+      var url = new URL(base, shopServiceOrigin);
       url.hash = '';
       url.search = '';
+      if (/^(?:.+\.)?anhmedia\.vn$/i.test(url.hostname)) {
+        url.protocol = 'https:';
+        url.hostname = 'anhmedia.vn';
+        url.port = '';
+      }
+      if (!/^\/bom-inventory(?:\/|$)/i.test(url.pathname)) {
+        url.pathname = '/bom-inventory' + (url.pathname === '/' ? '' : url.pathname.replace(/^\/+/, '/'));
+      }
       return url.href.replace(/\/+$/, '');
     } catch (ignored) {
-      return 'https://anhmedia.vn/bom-inventory';
+      return shopServiceBase;
     }
   }
 
