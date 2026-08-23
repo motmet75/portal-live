@@ -314,19 +314,119 @@
     });
   }
 
-  function renderRail() {
-    rail.innerHTML = slides.map((item, index) => {
-      const mediaLabel = item.kind === 'text' ? 'Text' : item.kind.charAt(0).toUpperCase() + item.kind.slice(1);
-      return `<button data-index="${index}" class="${index === current ? 'active' : ''}" aria-current="${index === current ? 'true' : 'false'}">
-        <b>${pad(index)}</b>
-        <span>${escapeHtml(item.title)}</span>
-        <small>${escapeHtml(mediaLabel)}</small>
-      </button>`;
+  function kindLabel(kind) {
+    return {
+      cover: 'Profile',
+      closing: 'Closing',
+      text: 'Event',
+      image: 'Image',
+      video: 'YouTube',
+      document: 'PDF / document',
+      audio: 'Audio'
+    }[kind] || 'Slide';
+  }
+
+  function unique(values) {
+    return Array.from(new Set(values.map(value => String(value || '').trim()).filter(Boolean)));
+  }
+
+  function peopleForNode(node) {
+    const people = Array.isArray(node?.people) ? unique(node.people) : [];
+    return people.length ? people : unique([node?.org]);
+  }
+
+  function navState(index, node) {
+    const active = index === current;
+    const related = !active && node && slides[current]?.node === node;
+    return `${active ? ' active' : ''}${related ? ' related' : ''}`;
+  }
+
+  function railButton(entry, className, label) {
+    return `<button type="button" data-index="${entry.index}" class="tree-node ${className}${navState(entry.index, entry.node)}" aria-current="${entry.index === current ? 'true' : 'false'}">
+      <i></i><span>${escapeHtml(entry.item.title)}</span><small>${escapeHtml(label || kindLabel(entry.item.kind))}</small>
+    </button>`;
+  }
+
+  function renderTimelineTree(textEntries, deckEntries, allEntries) {
+    const deckRows = deckEntries.map(entry => railButton(entry, 'deck', kindLabel(entry.item.kind))).join('');
+    const eventRows = textEntries.map(entry => {
+      const mediaRows = allEntries.filter(candidate => candidate.node === entry.node && candidate.item.media)
+        .map(candidate => railButton(candidate, 'level-2 media', kindLabel(candidate.item.kind))).join('');
+      const peopleRows = peopleForNode(entry.node).map(person => `<button type="button" data-index="${entry.index}" class="tree-node level-2 person${navState(entry.index, entry.node)}">
+        <i></i><span>${escapeHtml(person)}</span><small>Cooperated people</small>
+      </button>`).join('');
+      return `<div class="tree-branch${slides[current]?.node === entry.node ? ' current' : ''}">
+        ${railButton(entry, 'event', compact([entry.node?.year, 'Event']) || 'Event')}
+        <div class="tree-children">${mediaRows}${peopleRows}</div>
+      </div>`;
     }).join('');
-    rail.querySelectorAll('button').forEach(button => {
+    return deckRows + eventRows;
+  }
+
+  function renderAchievementTree(textEntries) {
+    const ranked = textEntries.slice().sort((a, b) => {
+      const byImpact = (Number(b.node?.impact) || 0) - (Number(a.node?.impact) || 0);
+      if (byImpact) return byImpact;
+      return String(a.item.title).localeCompare(String(b.item.title));
+    });
+    return ranked.map(entry => {
+      const score = Number(entry.node?.impact) || 0;
+      const label = compact([entry.node?.metric, score ? `${score}/100` : 'Achievement']);
+      return railButton(entry, 'achievement', label || 'Achievement');
+    }).join('');
+  }
+
+  function renderPeopleTree(textEntries) {
+    const grouped = new Map();
+    textEntries.forEach(entry => {
+      peopleForNode(entry.node).forEach(person => {
+        if (!grouped.has(person)) grouped.set(person, []);
+        grouped.get(person).push(entry);
+      });
+    });
+    if (!grouped.size) return '<p class="tree-empty">No cooperated people listed</p>';
+    return Array.from(grouped.entries()).sort(([a], [b]) => a.localeCompare(b)).map(([person, entries]) => {
+      const first = entries[0];
+      const currentNode = entries.some(entry => slides[current]?.node === entry.node);
+      const eventRows = entries.map(entry => railButton(entry, 'level-2 event', compact([entry.node?.year, entry.node?.type]) || 'Event')).join('');
+      return `<div class="tree-branch person-branch${currentNode ? ' current' : ''}">
+        <button type="button" data-index="${first.index}" class="tree-node person${navState(first.index, first.node)}">
+          <i></i><span>${escapeHtml(person)}</span><small>${entries.length} event${entries.length === 1 ? '' : 's'}</small>
+        </button>
+        <div class="tree-children">${eventRows}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderRail() {
+    const allEntries = slides.map((item, index) => ({item, index, node: item.node || null}));
+    const textEntries = allEntries.filter(entry => entry.item.kind === 'text' && entry.node);
+    const deckEntries = allEntries.filter(entry => !entry.node && entry.item.kind !== 'closing');
+    const closingEntries = allEntries.filter(entry => entry.item.kind === 'closing');
+    rail.innerHTML = `<div class="rail-tree" role="tree">
+      <section class="tree-group">
+        <button type="button" data-index="${(deckEntries[0] || textEntries[0] || allEntries[0])?.index || 0}" class="tree-heading">
+          <b>01</b><span>Timeline</span><small>event - media - people</small>
+        </button>
+        <div class="tree-body">${renderTimelineTree(textEntries, deckEntries, allEntries)}${closingEntries.map(entry => railButton(entry, 'deck', 'Closing')).join('')}</div>
+      </section>
+      <section class="tree-group">
+        <button type="button" data-index="${(textEntries.slice().sort((a, b) => (Number(b.node?.impact) || 0) - (Number(a.node?.impact) || 0))[0] || allEntries[0])?.index || 0}" class="tree-heading">
+          <b>02</b><span>Achievement</span><small>highest impact first</small>
+        </button>
+        <div class="tree-body">${renderAchievementTree(textEntries)}</div>
+      </section>
+      <section class="tree-group">
+        <button type="button" data-index="${(textEntries[0] || allEntries[0])?.index || 0}" class="tree-heading">
+          <b>03</b><span>Cooperated People</span><small>people to events</small>
+        </button>
+        <div class="tree-body">${renderPeopleTree(textEntries)}</div>
+      </section>
+    </div>`;
+    rail.querySelectorAll('[data-index]').forEach(button => {
       button.addEventListener('click', () => show(Number(button.dataset.index)));
     });
-    rail.querySelector('.active')?.scrollIntoView({block: 'nearest', inline: 'nearest'});
+    rail.querySelector('.tree-node.active, .tree-node.related')?.scrollIntoView({block: 'nearest', inline: 'nearest'});
   }
 
   function restartTimer() {
