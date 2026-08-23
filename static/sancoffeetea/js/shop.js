@@ -61,7 +61,10 @@
   function cleanBase(value) {
     var base = String(value || '').trim() || 'https://anhmedia.vn/bom-inventory/';
     try {
-      return new URL(base, window.location.origin).href.replace(/\/+$/, '');
+      var url = new URL(base, window.location.origin);
+      url.hash = '';
+      url.search = '';
+      return url.href.replace(/\/+$/, '');
     } catch (ignored) {
       return 'https://anhmedia.vn/bom-inventory';
     }
@@ -69,7 +72,9 @@
 
   function menuBaseUrl() {
     var base = cleanBase(state.config && state.config.demoBaseUrl);
-    return /\/shop\/menu\/?$/.test(base) ? base.replace(/\/+$/, '') : join(base, '/shop/menu');
+    if (/\/shop\/menu\/?$/i.test(base)) return base.replace(/\/+$/, '');
+    if (/\/bom-inventory\/?$/i.test(base)) return join(base, '/shop/menu');
+    return join(base, '/shop/menu');
   }
 
   function demoOrigin() {
@@ -86,9 +91,34 @@
     if (searchName) {
       params.set('search', searchName);
       params.set('q', searchName);
+      params.set('item', searchName);
     }
     var query = params.toString();
     return menuBaseUrl() + (query ? '?' + query : '');
+  }
+
+  function hasShopConfig() {
+    var cfg = state.config || {};
+    return Boolean(cfg.tenantId && cfg.companyId);
+  }
+
+  function openOrder(searchName, event) {
+    if (event) event.preventDefault();
+    if (!hasShopConfig()) {
+      if (status) {
+        status.hidden = false;
+        status.textContent = 'Đang tải cấu hình cửa hàng, vui lòng thử lại sau vài giây.';
+      }
+      return false;
+    }
+    var url = orderUrl(searchName || '');
+    var opened = window.open(url, '_blank', 'noopener');
+    if (opened) {
+      try { opened.opener = null; opened.focus && opened.focus(); } catch (ignored) {}
+    } else {
+      window.location.href = url;
+    }
+    return false;
   }
 
   function money(value) {
@@ -133,13 +163,13 @@
       button.setAttribute('aria-pressed', button.getAttribute('data-san-lang-code') === state.lang ? 'true' : 'false');
     });
     document.querySelectorAll('[data-san-shop-menu]').forEach(function (a) {
-      a.href = orderUrl('');
+      a.href = hasShopConfig() ? orderUrl('') : '#';
       a.textContent = menuLabels[state.lang] || menuLabels.en;
       a.target = '_blank';
       a.rel = 'noopener';
     });
     document.querySelectorAll('[data-san-order]').forEach(function (a) {
-      a.href = orderUrl('');
+      a.href = hasShopConfig() ? orderUrl('') : '#';
       a.textContent = orderLabels[state.lang] || orderLabels.en;
       a.target = '_blank';
       a.rel = 'noopener';
@@ -209,6 +239,9 @@
       order.target = '_blank';
       order.rel = 'noopener';
       order.textContent = orderLabels[state.lang] || orderLabels.en;
+      order.addEventListener('click', function (event) {
+        openOrder(name, event);
+      });
 
       actions.appendChild(price);
       actions.appendChild(order);
@@ -224,6 +257,16 @@
   document.querySelectorAll('[data-san-lang-code]').forEach(function (button) {
     button.addEventListener('click', function () {
       setLanguage(button.getAttribute('data-san-lang-code'));
+    });
+  });
+  document.querySelectorAll('[data-san-shop-menu]').forEach(function (link) {
+    link.addEventListener('click', function (event) {
+      openOrder('', event);
+    });
+  });
+  document.querySelectorAll('[data-san-order]').forEach(function (link) {
+    link.addEventListener('click', function (event) {
+      openOrder('', event);
     });
   });
   updateLanguageUi();
