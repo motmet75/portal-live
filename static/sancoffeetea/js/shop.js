@@ -3,6 +3,9 @@
 
   var status = document.getElementById('san-menu-status');
   var grid = document.getElementById('san-menu-grid');
+  var searchInput = document.getElementById('san-menu-search');
+  var categoryList = document.getElementById('san-category-list');
+  var menuCount = document.getElementById('san-menu-count');
   var supportedLanguages = ['vi', 'en', 'cn', 'tw', 'ja', 'ko', 'th', 'es', 'ms', 'id', 'dv'];
   var orderLabels = {
     vi: 'Đặt món',
@@ -33,7 +36,9 @@
   var state = {
     lang: initialLanguage(),
     config: null,
-    rows: []
+    rows: [],
+    search: '',
+    category: ''
   };
   var shopServiceOrigin = 'https://anhmedia.vn';
   var shopServiceBase = shopServiceOrigin + '/bom-inventory';
@@ -160,6 +165,28 @@
     return localizedValue(item.category, item.categoryTranslations, state.lang);
   }
 
+  function normalizeSearch(value) {
+    return String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
+
+  function itemSearchText(item) {
+    return normalizeSearch([itemName(item), itemCategory(item), item.ingredients].filter(Boolean).join(' '));
+  }
+
+  function filteredRows() {
+    var query = normalizeSearch(state.search);
+    return (state.rows || []).filter(function (item) {
+      var category = itemCategory(item);
+      if (state.category && category !== state.category) return false;
+      if (query && itemSearchText(item).indexOf(query) < 0) return false;
+      return true;
+    });
+  }
+
   function safeImage(value) {
     if (!value) return '/dailocoffee/images/gallery_9.jpeg';
     if (/^https?:\/\//i.test(value)) return value;
@@ -197,14 +224,62 @@
       window.history.replaceState({}, '', url.toString());
     } catch (ignored) {}
     updateLanguageUi();
+    renderCategoryFilters();
     renderMenu();
+  }
+
+  function renderCategoryFilters() {
+    if (!categoryList) return;
+    var categories = [];
+    (state.rows || []).forEach(function (item) {
+      var category = itemCategory(item);
+      if (category && categories.indexOf(category) < 0) categories.push(category);
+    });
+    categories.sort(function (a, b) { return a.localeCompare(b); });
+    if (state.category && categories.indexOf(state.category) < 0) state.category = '';
+    categoryList.innerHTML = '';
+    var all = document.createElement('button');
+    all.type = 'button';
+    all.className = 'san-category-filter';
+    all.textContent = state.lang === 'en' ? 'All' : 'Tất cả';
+    all.setAttribute('aria-pressed', state.category ? 'false' : 'true');
+    all.addEventListener('click', function () {
+      state.category = '';
+      renderCategoryFilters();
+      renderMenu();
+    });
+    categoryList.appendChild(all);
+    categories.forEach(function (category) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'san-category-filter';
+      button.textContent = category;
+      button.setAttribute('aria-pressed', state.category === category ? 'true' : 'false');
+      button.addEventListener('click', function () {
+        state.category = state.category === category ? '' : category;
+        renderCategoryFilters();
+        renderMenu();
+      });
+      categoryList.appendChild(button);
+    });
   }
 
   function renderMenu() {
     if (!grid) return;
-    var rows = state.rows || [];
-    if (!rows.length) return;
+    var rows = filteredRows();
+    if (menuCount) {
+      menuCount.hidden = !(state.rows || []).length;
+      menuCount.textContent = rows.length + ' / ' + (state.rows || []).length + ' món';
+    }
     grid.innerHTML = '';
+    if (!rows.length) {
+      grid.hidden = true;
+      if (status) {
+        status.hidden = false;
+        status.textContent = state.search || state.category ? 'Không tìm thấy món phù hợp.' : 'Cửa hàng chưa có món đang bán.';
+      }
+      return;
+    }
     rows.forEach(function (item) {
       var name = itemName(item);
       var category = itemCategory(item);
@@ -279,6 +354,12 @@
       openOrder('', event);
     });
   });
+  if (searchInput) {
+    searchInput.addEventListener('input', function () {
+      state.search = searchInput.value || '';
+      renderMenu();
+    });
+  }
   updateLanguageUi();
 
   fetch('/api/public/shopfront/current', { credentials: 'same-origin' }).then(function (r) {
@@ -288,8 +369,8 @@
     if (!cfg.tenantId || !cfg.companyId) throw new Error('Chưa cấu hình Tenant ID và Company ID trong Portal Admin → SAN Shop Connection.');
     state.config = cfg;
     updateLanguageUi();
-    document.querySelectorAll('[data-san-address]').forEach(function (el) { el.textContent = cfg.address || 'Đang cập nhật'; });
-    document.querySelectorAll('[data-san-hours]').forEach(function (el) { el.textContent = cfg.openingHours || 'Đang cập nhật'; });
+    if (cfg.address) document.querySelectorAll('[data-san-address]').forEach(function (el) { el.textContent = cfg.address; });
+    if (cfg.openingHours) document.querySelectorAll('[data-san-hours]').forEach(function (el) { el.textContent = cfg.openingHours; });
     if (!grid) return [];
     return fetch('/api/public/shopfront/current/menu', { credentials: 'same-origin' }).then(function (r) {
       if (!r.ok) throw new Error('Không tải được menu từ demo (' + r.status + ').');
@@ -300,6 +381,7 @@
     var rows = Array.isArray(menu) ? menu : (menu.items || menu.content || []);
     if (!rows.length) throw new Error('Cửa hàng chưa có món đang bán.');
     state.rows = rows;
+    renderCategoryFilters();
     renderMenu();
   }).catch(function (error) {
     if (status) status.textContent = error.message;

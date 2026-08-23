@@ -1,1 +1,25 @@
-<!DOCTYPE html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head th:replace="~{sancoffeetea :: head('Thực đơn — SAN Coffee & Tea', 'Thực đơn trực tuyến SAN Coffee & Tea.')}"></head><body><nav th:replace="~{sancoffeetea :: nav('products')}"></nav><section id="menu" class="san-menu" style="padding-top:140px"><div class="container"><div class="fh5co-heading"><h2>Thực đơn SAN</h2></div><div id="san-menu-status" class="san-error">Đang tải thực đơn…</div><div id="san-menu-grid" class="san-grid" hidden></div></div></section><footer th:replace="~{sancoffeetea :: footer}"></footer></body></html>
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{sancoffeetea :: head('Thực đơn - SAN Coffee & Tea', 'Thực đơn trực tuyến SAN Coffee & Tea.')}"></head>
+<body>
+<nav th:replace="~{sancoffeetea :: nav('products')}"></nav>
+<section id="menu" class="san-menu" style="padding-top:140px">
+  <div class="container">
+    <div class="fh5co-heading">
+      <h2>Thực đơn SAN</h2>
+      <p>Tìm món theo tên, danh mục hoặc thành phần.</p>
+    </div>
+    <div class="san-menu-tools">
+      <label class="san-search-label" for="san-menu-search">Tìm món
+        <input id="san-menu-search" type="search" placeholder="Nhập tên món hoặc danh mục">
+      </label>
+      <div id="san-category-list" class="san-category-list" aria-label="Danh mục thực đơn"></div>
+    </div>
+    <div id="san-menu-count" class="san-menu-count" hidden></div>
+    <div id="san-menu-status" class="san-error">Đang tải thực đơn…</div>
+    <div id="san-menu-grid" class="san-grid" hidden></div>
+  </div>
+</section>
+<footer th:replace="~{sancoffeetea :: footer}"></footer>
+</body>
+</html>

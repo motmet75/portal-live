@@ -1,4 +1,68 @@
-<!DOCTYPE html><html lang="vi" xmlns:th="http://www.thymeleaf.org"><head th:replace="~{sancoffeetea :: head('SAN Coffee & Tea', 'Đặt cà phê và trà trực tuyến từ SAN Coffee & Tea.')}"></head><body>
-<nav th:replace="~{sancoffeetea :: nav('home')}"></nav><header class="fh5co-cover js-fullheight san-hero"><div class="container"><div class="row"><div class="col-md-12 text-center"><div class="display-t js-fullheight"><div class="display-tc js-fullheight"><p>COFFEE · TEA · MATCHA</p><h1>SAN Coffee & Tea</h1><h2>Menu cửa hàng luôn mới, đặt món trực tiếp trên hệ thống SAN.</h2><p><a class="btn btn-primary btn-outline" href="#menu">Xem thực đơn</a> <a class="btn btn-primary" data-san-order href="#">Đặt món ngay</a></p></div></div></div></div></div></header>
-<section id="menu" class="san-menu"><div class="container"><div class="fh5co-heading"><h2>Thực đơn hôm nay</h2><p>Dữ liệu được tải trực tiếp từ Profile Shop theo Tenant ID và Company ID đã cấu hình.</p></div><div id="san-menu-status" class="san-error">Đang tải thực đơn…</div><div id="san-menu-grid" class="san-grid" hidden></div></div></section>
-<footer th:replace="~{sancoffeetea :: footer}"></footer></body></html>
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{sancoffeetea :: head(${client != null and client.clientName != null and client.clientName != '' ? client.clientName : 'SAN COFFEE AND TEA - TÊN LỬA'}, 'Đặt cà phê và trà trực tuyến từ SAN Coffee & Tea.')}"></head>
+<body>
+<nav th:replace="~{sancoffeetea :: nav('home')}"></nav>
+<header class="fh5co-cover js-fullheight san-hero">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12 text-center">
+        <div class="display-t js-fullheight">
+          <div class="display-tc js-fullheight">
+            <p class="san-hero-kicker">Coffee · Tea · Matcha</p>
+            <h1 th:text="${client != null and client.clientName != null and client.clientName != '' ? client.clientName : 'SAN COFFEE AND TEA - TÊN LỬA'}">SAN COFFEE AND TEA - TÊN LỬA</h1>
+            <p class="san-hero-address" data-san-address th:text="${client != null and client.clientAddress != null and client.clientAddress != '' ? client.clientAddress : '326 Tên Lửa, P. Bình Trị Đông B, Bình Tân, TP. HCM'}">326 Tên Lửa, P. Bình Trị Đông B, Bình Tân, TP. HCM</p>
+            <p><a class="btn btn-primary btn-outline" href="#menu">Xem thực đơn</a> <a class="btn btn-primary" data-san-order href="#">Đặt món ngay</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+<section class="san-place">
+  <div class="container">
+    <div class="san-place-grid">
+      <div class="san-place-copy">
+        <span class="san-kicker">SAN Coffee & Tea</span>
+        <h2 th:text="${client != null and client.clientName != null and client.clientName != '' ? client.clientName : 'SAN COFFEE AND TEA - TÊN LỬA'}">SAN COFFEE AND TEA - TÊN LỬA</h2>
+        <p class="san-place-address" data-san-address th:text="${client != null and client.clientAddress != null and client.clientAddress != '' ? client.clientAddress : '326 Tên Lửa, P. Bình Trị Đông B, Bình Tân, TP. HCM'}">326 Tên Lửa, P. Bình Trị Đông B, Bình Tân, TP. HCM</p>
+        <div class="san-place-actions">
+          <a class="san-place-button" data-san-order href="#">Đặt món</a>
+          <a class="san-place-button secondary" href="#menu">Xem thực đơn</a>
+        </div>
+      </div>
+      <div class="san-place-card">
+        <div class="san-place-card-head">
+          <strong>Địa chỉ cửa hàng</strong>
+          <span data-san-address th:text="${client != null and client.clientAddress != null and client.clientAddress != '' ? client.clientAddress : '326 Tên Lửa, P. Bình Trị Đông B, Bình Tân, TP. HCM'}">326 Tên Lửa, P. Bình Trị Đông B, Bình Tân, TP. HCM</span>
+        </div>
+        <div class="san-map-embed" th:if="${client != null and client.clientMapEmbeded != null and client.clientMapEmbeded != ''}" th:utext="${client.clientMapEmbeded}">
+          <iframe src="https://www.google.com/maps?q=326%20T%C3%AAn%20L%E1%BB%ADa%2C%20B%C3%ACnh%20T%C3%A2n%2C%20TP.%20HCM&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+        <div class="san-map-embed" th:unless="${client != null and client.clientMapEmbeded != null and client.clientMapEmbeded != ''}">
+          <iframe src="https://www.google.com/maps?q=326%20T%C3%AAn%20L%E1%BB%ADa%2C%20P.%20B%C3%ACnh%20Tr%E1%BB%8B%20%C4%90%C3%B4ng%20B%2C%20B%C3%ACnh%20T%C3%A2n%2C%20TP.%20HCM&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section id="menu" class="san-menu">
+  <div class="container">
+    <div class="fh5co-heading">
+      <h2>Thực đơn hôm nay</h2>
+      <p>Tìm món theo tên, danh mục hoặc thành phần. Dữ liệu được tải trực tiếp từ Profile Shop.</p>
+    </div>
+    <div class="san-menu-tools">
+      <label class="san-search-label" for="san-menu-search">Tìm món
+        <input id="san-menu-search" type="search" placeholder="Nhập tên món hoặc danh mục">
+      </label>
+      <div id="san-category-list" class="san-category-list" aria-label="Danh mục thực đơn"></div>
+    </div>
+    <div id="san-menu-count" class="san-menu-count" hidden></div>
+    <div id="san-menu-status" class="san-error">Đang tải thực đơn…</div>
+    <div id="san-menu-grid" class="san-grid" hidden></div>
+  </div>
+</section>
+<footer th:replace="~{sancoffeetea :: footer}"></footer>
+</body>
+</html>
