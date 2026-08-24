@@ -12,7 +12,7 @@
             <p class="san-hero-kicker">Coffee · Tea · Matcha</p>
             <h1 th:text="${client != null and client.clientName != null and client.clientName != '' ? client.clientName : 'SAN COFFEE AND TEA - TÊN LỬA'}">SAN COFFEE AND TEA - TÊN LỬA</h1>
             <p class="san-hero-address" data-san-address th:text="${client != null and client.clientAddress != null and client.clientAddress != '' ? client.clientAddress : '326 Tên Lửa, P. Bình Trị Đông B, Bình Tân, TP. HCM'}">326 Tên Lửa, P. Bình Trị Đông B, Bình Tân, TP. HCM</p>
-            <p><a class="btn btn-primary btn-outline" href="#menu">Xem thực đơn</a> <a class="btn btn-primary" data-san-order href="#">Đặt món ngay</a></p>
+            <p><a class="btn btn-primary btn-outline" href="#menu">Xem thực đơn</a> <a class="btn btn-primary btn-outline" data-san-group-order href="#">Đặt nhóm</a> <a class="btn btn-primary" data-san-order href="#">Đặt món ngay</a></p>
           </div>
         </div>
       </div>
@@ -28,6 +28,7 @@
         <p class="san-place-address" data-san-address th:text="${client != null and client.clientAddress != null and client.clientAddress != '' ? client.clientAddress : '326 Tên Lửa, P. Bình Trị Đông B, Bình Tân, TP. HCM'}">326 Tên Lửa, P. Bình Trị Đông B, Bình Tân, TP. HCM</p>
         <div class="san-place-actions">
           <a class="san-place-button" data-san-order href="#">Đặt món</a>
+          <a class="san-place-button secondary" data-san-group-order href="#">Đặt nhóm</a>
           <a class="san-place-button secondary" href="#menu">Xem thực đơn</a>
         </div>
       </div>
