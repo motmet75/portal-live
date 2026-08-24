@@ -7,6 +7,32 @@
   var categoryList = document.getElementById('san-category-list');
   var menuCount = document.getElementById('san-menu-count');
   var supportedLanguages = ['vi', 'en', 'cn', 'tw', 'ja', 'ko', 'th', 'es', 'ms', 'id', 'dv'];
+  var languageOptionLabels = {
+    vi: '🇻🇳 Tiếng Việt',
+    en: '🇺🇸 English',
+    cn: '🇨🇳 简体中文',
+    tw: '🇹🇼 繁體中文',
+    ja: '🇯🇵 日本語',
+    ko: '🇰🇷 한국어',
+    th: '🇹🇭 ไทย',
+    es: '🇪🇸 Español',
+    ms: '🇲🇾 Melayu',
+    id: '🇮🇩 Indonesia',
+    dv: '🇲🇻 Dhivehi'
+  };
+  var languageLocales = {
+    vi: 'vi-VN',
+    en: 'en-US',
+    cn: 'zh-CN',
+    tw: 'zh-TW',
+    ja: 'ja-JP',
+    ko: 'ko-KR',
+    th: 'th-TH',
+    es: 'es-ES',
+    ms: 'ms-MY',
+    id: 'id-ID',
+    dv: 'dv-MV'
+  };
   var orderLabels = {
     vi: 'Đặt món',
     en: 'Order',
@@ -65,6 +91,7 @@
       subtitle: 'Xác nhận thông tin để kích hoạt phiếu.',
       orderLimit: 'Số đơn trên phiếu',
       orderLimitHelp: 'Tối đa 99 đơn.',
+      slipLanguage: 'Ngôn ngữ phiếu',
       name: 'Tên người tạo',
       phone: 'Số điện thoại',
       address: 'Địa chỉ',
@@ -93,6 +120,7 @@
       subtitle: 'Confirm details before activating the slip.',
       orderLimit: 'Orders on slip',
       orderLimitHelp: 'Maximum 99 orders.',
+      slipLanguage: 'Slip language',
       name: 'Organizer name',
       phone: 'Phone number',
       address: 'Address',
@@ -121,6 +149,7 @@
       subtitle: '确认信息后激活单据。',
       orderLimit: '单据订单数',
       orderLimitHelp: '最多 99 单。',
+      slipLanguage: '单据语言',
       name: '发起人姓名',
       phone: '电话号码',
       address: '地址',
@@ -149,6 +178,7 @@
       subtitle: '確認資訊後啟用單據。',
       orderLimit: '單據訂單數',
       orderLimitHelp: '最多 99 單。',
+      slipLanguage: '單據語言',
       name: '發起人姓名',
       phone: '電話號碼',
       address: '地址',
@@ -177,6 +207,7 @@
       subtitle: '内容を確認して伝票を有効化します。',
       orderLimit: '伝票の注文数',
       orderLimitHelp: '最大 99 件。',
+      slipLanguage: '伝票の言語',
       name: '作成者名',
       phone: '電話番号',
       address: '住所',
@@ -205,6 +236,7 @@
       subtitle: '정보를 확인한 뒤 전표를 활성화합니다.',
       orderLimit: '전표 주문 수',
       orderLimitHelp: '최대 99건.',
+      slipLanguage: '전표 언어',
       name: '생성자 이름',
       phone: '전화번호',
       address: '주소',
@@ -233,6 +265,7 @@
       subtitle: 'ยืนยันข้อมูลก่อนเปิดใช้สลิป',
       orderLimit: 'จำนวนออร์เดอร์บนสลิป',
       orderLimitHelp: 'สูงสุด 99 ออร์เดอร์',
+      slipLanguage: 'ภาษาของสลิป',
       name: 'ชื่อผู้สร้าง',
       phone: 'เบอร์โทร',
       address: 'ที่อยู่',
@@ -261,6 +294,7 @@
       subtitle: 'Confirma los datos antes de activar el comprobante.',
       orderLimit: 'Pedidos en el comprobante',
       orderLimitHelp: 'Máximo 99 pedidos.',
+      slipLanguage: 'Idioma del comprobante',
       name: 'Nombre del organizador',
       phone: 'Teléfono',
       address: 'Dirección',
@@ -289,6 +323,7 @@
       subtitle: 'Sahkan butiran sebelum mengaktifkan slip.',
       orderLimit: 'Pesanan pada slip',
       orderLimitHelp: 'Maksimum 99 pesanan.',
+      slipLanguage: 'Bahasa slip',
       name: 'Nama penganjur',
       phone: 'Nombor telefon',
       address: 'Alamat',
@@ -317,6 +352,7 @@
       subtitle: 'Konfirmasi detail sebelum slip aktif.',
       orderLimit: 'Pesanan pada slip',
       orderLimitHelp: 'Maksimal 99 pesanan.',
+      slipLanguage: 'Bahasa slip',
       name: 'Nama pembuat',
       phone: 'Nomor telepon',
       address: 'Alamat',
@@ -345,6 +381,7 @@
       subtitle: 'ސްލިޕް އެކްޓިވް ކުރަން ކުރިން މަޢުލޫމާތު ޔަގީން ކުރޭ.',
       orderLimit: 'ސްލިޕްގައި އޯޑަރު',
       orderLimitHelp: 'މެކްސިމަމް 99 އޯޑަރު.',
+      slipLanguage: 'ސްލިޕް ބަސް',
       name: 'ހެދި މީހާގެ ނަން',
       phone: 'ފޯން ނަންބަރު',
       address: 'އެޑްރެސް',
@@ -470,8 +507,9 @@
     return false;
   }
 
-  function groupText(key) {
-    var map = groupOrderText[state.lang] || groupOrderText.en;
+  function groupText(key, lang) {
+    var code = normalizeLanguage(lang) || state.lang;
+    var map = groupOrderText[code] || groupOrderText.en;
     return map[key] || (groupOrderText.en && groupOrderText.en[key]) || key;
   }
 
@@ -506,7 +544,7 @@
       '.san-group-close{appearance:none;width:36px;height:36px;border:1px solid #d8e5dc;background:#fff;color:#172015;border-radius:8px;font-size:24px;line-height:1;display:inline-flex;align-items:center;justify-content:center}' +
       '.san-group-body{padding:20px 24px 24px}.san-group-form{display:grid;gap:14px}' +
       '.san-group-field{display:grid;gap:7px;color:#335c3b;font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}' +
-      '.san-group-field input,.san-group-field textarea{width:100%;border:1px solid #d8e5dc;border-radius:8px;background:#fff;color:#172015;font-size:16px;font-weight:700;letter-spacing:0;text-transform:none;padding:12px 14px;box-shadow:0 8px 24px rgba(24,53,29,.08)}' +
+      '.san-group-field input,.san-group-field textarea,.san-group-field select{width:100%;border:1px solid #d8e5dc;border-radius:8px;background:#fff;color:#172015;font-size:16px;font-weight:700;letter-spacing:0;text-transform:none;padding:12px 14px;box-shadow:0 8px 24px rgba(24,53,29,.08)}' +
       '.san-group-field textarea{resize:vertical;min-height:92px}.san-group-help{margin-top:-6px;color:#5f6d63;font-size:13px;font-weight:700}' +
       '.san-group-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:4px}.san-group-button{appearance:none;border:1px solid #335c3b;border-radius:8px;min-height:44px;padding:0 16px;background:#335c3b;color:#fff;font-weight:900}.san-group-button.secondary{background:#fff;color:#335c3b}.san-group-button:disabled{opacity:.6;cursor:wait}' +
       '.san-group-status{min-height:20px;color:#335c3b;font-weight:800}.san-group-status[data-tone="error"]{color:#a5342c}' +
@@ -529,6 +567,21 @@
     return label;
   }
 
+  function fillLanguageOptions(select) {
+    select.innerHTML = '';
+    supportedLanguages.forEach(function (code) {
+      var option = document.createElement('option');
+      option.value = code;
+      option.textContent = languageOptionLabels[code] || code.toUpperCase();
+      select.appendChild(option);
+    });
+  }
+
+  function languageLocale(lang) {
+    var code = normalizeLanguage(lang) || state.lang;
+    return languageLocales[code] || 'vi-VN';
+  }
+
   function updateGroupOrderUi() {
     document.querySelectorAll('[data-san-group-order]').forEach(function (link) {
       link.href = '#';
@@ -540,6 +593,10 @@
     groupModal.querySelectorAll('[data-san-group-text]').forEach(function (el) {
       el.textContent = groupText(el.getAttribute('data-san-group-text'));
     });
+    if (groupSlipState && groupFields.slipLabel) {
+      groupFields.slipLabel.textContent = groupText('slipNumber', groupSlipState.language);
+      if (groupFields.qrImage) groupFields.qrImage.alt = groupText('shareTitle', groupSlipState.language) + ' ' + groupSlipState.slipNumber;
+    }
     if (groupFields.closeButton) groupFields.closeButton.setAttribute('aria-label', groupText('close'));
     if (groupFields.form && groupFields.form.getAttribute('data-busy') === 'true') {
       groupFields.submitButton.textContent = groupText('generating');
@@ -596,6 +653,12 @@
     help.className = 'san-group-help';
     help.setAttribute('data-san-group-text', 'orderLimitHelp');
     form.appendChild(help);
+
+    var slipLanguage = document.createElement('select');
+    slipLanguage.required = true;
+    fillLanguageOptions(slipLanguage);
+    slipLanguage.value = state.lang;
+    form.appendChild(groupField('slipLanguage', slipLanguage));
 
     var name = document.createElement('input');
     name.type = 'text';
@@ -696,6 +759,7 @@
     groupFields = {
       form: form,
       maxOrders: maxOrders,
+      slipLanguage: slipLanguage,
       name: name,
       phone: phone,
       address: address,
@@ -703,6 +767,7 @@
       submitButton: submitButton,
       closeButton: closeButton,
       result: result,
+      slipLabel: slipLabel,
       slipNumber: slipNumber,
       qrImage: qrImage,
       meta: meta,
@@ -726,6 +791,7 @@
     if (!groupFields.form) return;
     groupFields.form.reset();
     groupFields.maxOrders.value = '12';
+    groupFields.slipLanguage.value = state.lang;
     groupFields.result.hidden = true;
     setGroupStatus('', '');
     groupSlipState = null;
@@ -760,6 +826,7 @@
     var name = (groupFields.name.value || '').trim();
     var phone = (groupFields.phone.value || '').trim();
     var address = (groupFields.address.value || '').trim();
+    var language = normalizeLanguage(groupFields.slipLanguage.value) || state.lang;
     if (!name || !phone || !address || !groupFields.maxOrders.value) {
       setGroupStatus(groupText('required'), 'error');
       return null;
@@ -773,7 +840,7 @@
       phone: phone,
       address: address,
       maxOrders: maxOrders,
-      language: state.lang
+      language: language
     };
   }
 
@@ -822,10 +889,10 @@
     return /^data:image\//i.test(base64) ? base64 : 'data:image/png;base64,' + base64;
   }
 
-  function formatDateTime(value) {
+  function formatDateTime(value, lang) {
     if (!value) return '';
     try {
-      return new Intl.DateTimeFormat(state.lang === 'en' ? 'en-US' : 'vi-VN', {
+      return new Intl.DateTimeFormat(languageLocale(lang), {
         dateStyle: 'short',
         timeStyle: 'short'
       }).format(new Date(value));
@@ -834,11 +901,11 @@
     }
   }
 
-  function addGroupMeta(labelKey, value) {
+  function addGroupMeta(labelKey, value, lang) {
     if (!value) return;
     var item = document.createElement('div');
     var label = document.createElement('span');
-    label.textContent = groupText(labelKey);
+    label.textContent = groupText(labelKey, lang);
     var strong = document.createElement('strong');
     strong.textContent = value;
     item.appendChild(label);
@@ -850,6 +917,7 @@
     var slipNumber = String(data.slipNumber || '').trim() || String(data.token || '').slice(0, 8).toUpperCase();
     var qrDataUrl = dataUrlFromQr(data.qrBase64);
     var qrUrl = data.qrUrl || '';
+    var slipLanguage = normalizeLanguage(data.language || payload.language) || state.lang;
     groupSlipState = {
       slipNumber: slipNumber,
       qrDataUrl: qrDataUrl,
@@ -858,18 +926,21 @@
       name: data.name || payload.name,
       phone: data.phone || payload.phone,
       address: data.address || payload.address,
+      language: slipLanguage,
       expiresAt: data.expiresAt || ''
     };
     groupFields.slipNumber.textContent = slipNumber;
+    groupFields.slipLabel.textContent = groupText('slipNumber', slipLanguage);
     groupFields.qrImage.src = qrDataUrl;
-    groupFields.qrImage.alt = groupText('shareTitle') + ' ' + slipNumber;
+    groupFields.qrImage.alt = groupText('shareTitle', slipLanguage) + ' ' + slipNumber;
     groupFields.openLink.href = qrUrl;
     groupFields.meta.innerHTML = '';
-    addGroupMeta('orderLimitResult', String(groupSlipState.maxOrders));
-    addGroupMeta('name', groupSlipState.name);
-    addGroupMeta('phone', groupSlipState.phone);
-    addGroupMeta('address', groupSlipState.address);
-    addGroupMeta('expiresAt', formatDateTime(groupSlipState.expiresAt));
+    addGroupMeta('slipLanguage', languageOptionLabels[slipLanguage] || slipLanguage.toUpperCase(), slipLanguage);
+    addGroupMeta('orderLimitResult', String(groupSlipState.maxOrders), slipLanguage);
+    addGroupMeta('name', groupSlipState.name, slipLanguage);
+    addGroupMeta('phone', groupSlipState.phone, slipLanguage);
+    addGroupMeta('address', groupSlipState.address, slipLanguage);
+    addGroupMeta('expiresAt', formatDateTime(groupSlipState.expiresAt, slipLanguage), slipLanguage);
     groupFields.result.hidden = false;
     setGroupStatus(groupText('ready'), '');
   }
@@ -912,6 +983,7 @@
 
   function downloadGroupSlip() {
     if (!groupSlipState || !groupSlipState.qrDataUrl) return;
+    var slipLanguage = groupSlipState.language || state.lang;
     var image = new Image();
     image.onload = function () {
       var canvas = document.createElement('canvas');
@@ -930,10 +1002,10 @@
       ctx.fillText('SAN Coffee & Tea', 120, 130);
       ctx.fillStyle = '#172015';
       ctx.font = '800 44px Arial, sans-serif';
-      ctx.fillText(groupText('shareTitle'), 120, 195);
+      ctx.fillText(groupText('shareTitle', slipLanguage), 120, 195);
       ctx.fillStyle = '#5f6d63';
       ctx.font = '700 24px Arial, sans-serif';
-      ctx.fillText(groupText('slipNumber'), 120, 255);
+      ctx.fillText(groupText('slipNumber', slipLanguage), 120, 255);
       ctx.fillStyle = '#172015';
       ctx.font = '900 76px Arial, sans-serif';
       ctx.fillText(groupSlipState.slipNumber, 120, 335);
@@ -941,16 +1013,17 @@
       ctx.fillStyle = '#172015';
       ctx.font = '700 26px Arial, sans-serif';
       var y = 860;
-      y = drawWrappedText(ctx, groupText('orderLimitResult') + ': ' + groupSlipState.maxOrders, 120, y, 660, 34, 2);
-      y = drawWrappedText(ctx, groupText('name') + ': ' + groupSlipState.name, 120, y + 8, 660, 34, 2);
-      y = drawWrappedText(ctx, groupText('phone') + ': ' + groupSlipState.phone, 120, y + 8, 660, 34, 2);
-      y = drawWrappedText(ctx, groupText('address') + ': ' + groupSlipState.address, 120, y + 8, 660, 34, 3);
+      y = drawWrappedText(ctx, groupText('slipLanguage', slipLanguage) + ': ' + (languageOptionLabels[slipLanguage] || slipLanguage.toUpperCase()), 120, y, 660, 34, 2);
+      y = drawWrappedText(ctx, groupText('orderLimitResult', slipLanguage) + ': ' + groupSlipState.maxOrders, 120, y + 8, 660, 34, 2);
+      y = drawWrappedText(ctx, groupText('name', slipLanguage) + ': ' + groupSlipState.name, 120, y + 8, 660, 34, 2);
+      y = drawWrappedText(ctx, groupText('phone', slipLanguage) + ': ' + groupSlipState.phone, 120, y + 8, 660, 34, 2);
+      y = drawWrappedText(ctx, groupText('address', slipLanguage) + ': ' + groupSlipState.address, 120, y + 8, 660, 34, 3);
       if (groupSlipState.expiresAt) {
-        y = drawWrappedText(ctx, groupText('expiresAt') + ': ' + formatDateTime(groupSlipState.expiresAt), 120, y + 8, 660, 34, 2);
+        y = drawWrappedText(ctx, groupText('expiresAt', slipLanguage) + ': ' + formatDateTime(groupSlipState.expiresAt, slipLanguage), 120, y + 8, 660, 34, 2);
       }
       ctx.fillStyle = '#5f6d63';
       ctx.font = '700 22px Arial, sans-serif';
-      drawWrappedText(ctx, groupText('shareText').replace('{slip}', groupSlipState.slipNumber), 120, 1075, 660, 30, 2);
+      drawWrappedText(ctx, groupText('shareText', slipLanguage).replace('{slip}', groupSlipState.slipNumber), 120, 1075, 660, 30, 2);
       downloadCanvas(canvas, groupSlipState.slipNumber);
     };
     image.src = groupSlipState.qrDataUrl;
@@ -958,10 +1031,11 @@
 
   function shareGroupSlip() {
     if (!groupSlipState || !groupSlipState.qrUrl) return;
-    var shareText = groupText('shareText').replace('{slip}', groupSlipState.slipNumber);
+    var slipLanguage = groupSlipState.language || state.lang;
+    var shareText = groupText('shareText', slipLanguage).replace('{slip}', groupSlipState.slipNumber);
     if (navigator.share) {
       navigator.share({
-        title: groupText('shareTitle'),
+        title: groupText('shareTitle', slipLanguage),
         text: shareText,
         url: groupSlipState.qrUrl
       }).catch(function () {});
