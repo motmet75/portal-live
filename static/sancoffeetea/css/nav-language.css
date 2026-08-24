@@ -1,0 +1,173 @@
+.san-nav .row {
+  display: flex;
+  align-items: center;
+}
+
+.san-nav .col-xs-5,
+.san-nav .col-xs-7 {
+  float: none;
+}
+
+.san-nav-tools {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-width: 0;
+}
+
+.san-lang {
+  position: relative;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+}
+
+.san-lang:after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid #17371f;
+  border-bottom: 2px solid #17371f;
+  pointer-events: none;
+  transform: translateY(-65%) rotate(45deg);
+}
+
+.san-lang-select {
+  width: 88px;
+  height: 38px;
+  appearance: none;
+  border: 1px solid #d8e5dc;
+  border-radius: 999px;
+  background: #fff;
+  color: #17371f;
+  box-shadow: 0 2px 8px #00000014;
+  font: 800 13px/1 Arial, sans-serif;
+  padding: 0 30px 0 12px;
+  cursor: pointer;
+}
+
+.san-lang-select:focus {
+  border-color: #f6d36a;
+  box-shadow: 0 0 0 3px #f6d36a44;
+  outline: 0;
+}
+
+.san-nav-links {
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.san-nav-links a {
+  white-space: nowrap;
+}
+
+.san-hero .display-tc {
+  padding-top: 88px;
+}
+
+@media (max-width: 767px) {
+  .san-nav {
+    padding: 10px 0;
+  }
+
+  .san-nav .container {
+    width: 100%;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .san-nav .row {
+    margin-left: -8px;
+    margin-right: -8px;
+  }
+
+  .san-nav .col-xs-5,
+  .san-nav .col-xs-7 {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .san-nav #fh5co-logo a {
+    font-size: 34px;
+  }
+
+  .san-nav-tools {
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .san-lang-select {
+    width: 76px;
+    height: 34px;
+    padding-left: 9px;
+    padding-right: 24px;
+    font-size: 12px;
+  }
+
+  .san-lang:after {
+    right: 10px;
+  }
+
+  .san-nav-links {
+    gap: 7px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: 100%;
+  }
+
+  .san-nav-links a {
+    font-size: 12px;
+  }
+
+  .san-order {
+    padding: 8px 12px !important;
+  }
+
+  .san-hero .display-tc {
+    padding-top: 118px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .san-nav .col-xs-5 {
+    width: 30%;
+  }
+
+  .san-nav .col-xs-7 {
+    width: 70%;
+  }
+
+  .san-nav #fh5co-logo a {
+    font-size: 28px;
+  }
+
+  .san-lang-select {
+    width: 70px;
+    height: 32px;
+    padding-left: 8px;
+    padding-right: 22px;
+    font-size: 11px;
+  }
+
+  .san-nav-tools {
+    gap: 6px;
+  }
+
+  .san-nav-links {
+    gap: 6px;
+  }
+
+  .san-nav-links a {
+    font-size: 10px;
+  }
+
+  .san-order {
+    padding: 6px 8px !important;
+  }
+}

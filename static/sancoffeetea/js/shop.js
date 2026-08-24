@@ -1041,6 +1041,9 @@
     document.querySelectorAll('[data-san-lang-code]').forEach(function (button) {
       button.setAttribute('aria-pressed', button.getAttribute('data-san-lang-code') === state.lang ? 'true' : 'false');
     });
+    document.querySelectorAll('[data-san-lang-select]').forEach(function (select) {
+      select.value = state.lang;
+    });
     document.querySelectorAll('[data-san-shop-menu]').forEach(function (a) {
       a.href = hasShopConfig() ? orderUrl('') : '#';
       a.textContent = menuLabels[state.lang] || menuLabels.en;
@@ -1196,6 +1199,11 @@
   document.querySelectorAll('[data-san-lang-code]').forEach(function (button) {
     button.addEventListener('click', function () {
       setLanguage(button.getAttribute('data-san-lang-code'));
+    });
+  });
+  document.querySelectorAll('[data-san-lang-select]').forEach(function (select) {
+    select.addEventListener('change', function () {
+      setLanguage(select.value);
     });
   });
   document.querySelectorAll('[data-san-shop-menu]').forEach(function (link) {
