@@ -129,12 +129,14 @@
 <body>
 
 <div class="syncbar">
+  <button id="googleBtn">Login with Google</button>
+  <button id="logoutBtn" style="display:none">Logout</button>
   <button id="loadScriptBtn">&#8635; Reload</button>
   <button id="saveScriptBtn" class="play">Save</button>
   <button id="clearScriptBtn" class="stop">Clear</button>
   <span id="syncStatus" class="status">&nbsp;</span>
 </div>
-<div id="signedOutBanner" class="signedout-banner" style="display:none">Not signed in — this script stays on this device only. Log in to sync it across devices.</div>
+<div id="signedOutBanner" class="signedout-banner" style="display:none">Not signed in — log in with Google to sync this script across devices.</div>
 
 <div class="controls">
   <button class="play" onclick="play()">&#9658; Play</button>
@@ -199,7 +201,8 @@
   var editor=document.getElementById('editor');
   editor.value=defaultText;
   var lines=[],index=0,timer=null,running=false,animating=false;
-  var currentRevision=null,signedIn=true;
+  var currentRevision=null,signedIn=false;
+  var loginPopup=null,loginPoll=null;
   var statusEl=document.getElementById('syncStatus');
   var signedOutBanner=document.getElementById('signedOutBanner');
   var playback=document.getElementById('playback');
@@ -361,38 +364,94 @@
     statusEl.className='status'+(cls?(' '+cls):'');
   }
 
+  /* Same helper as japanese-reader.js: raw XMLHttpRequest with
+     withCredentials, since fetch() only landed in Safari 10.1+ and this
+     needs to work on however old an iPad 4 someone still has. */
+  function xhr(method,url,body,headers,done){
+    var x=new XMLHttpRequest();
+    x.open(method,url,true);
+    x.withCredentials=true;
+    if(headers){for(var k in headers){if(headers.hasOwnProperty(k))x.setRequestHeader(k,headers[k]);}}
+    x.onreadystatechange=function(){
+      if(x.readyState===4)done(x.status,x.responseText,x);
+    };
+    try{x.send(body||null);}catch(e){done(0,'',x);}
+  }
+  function jsonParse(s){try{return JSON.parse(s);}catch(e){return null;}}
+
   function apiGetState(onSuccess,onError){
-    fetch(API_BASE+'/state',{credentials:'same-origin'})
-            .then(function(res){
-              if(res.status===401){onError('unauthenticated');return null}
-              if(!res.ok){onError('error');return null}
-              return res.json();
-            })
-            .then(function(data){if(data)onSuccess(data)})
-            .catch(function(){onError('network')});
+    xhr('GET',API_BASE+'/state',null,{'Accept':'application/json','Cache-Control':'no-cache'},function(status,text){
+      if(status===401){onError('unauthenticated');return}
+      if(status<200||status>=300){onError('error');return}
+      var data=jsonParse(text);
+      if(data)onSuccess(data);else onError('error');
+    });
   }
   function apiSaveState(payload,onSuccess,onConflict,onError){
-    fetch(API_BASE+'/state',{
-      method:'POST',
-      credentials:'same-origin',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)
-    }).then(function(res){
-      if(res.status===409){res.json().then(onConflict);return}
-      if(!res.ok){
-        res.json().then(function(d){onError(d&&d.error?d.error:('HTTP '+res.status))})
-                .catch(function(){onError('HTTP '+res.status)});
+    xhr('POST',API_BASE+'/state',JSON.stringify(payload),{'Accept':'application/json','Content-Type':'application/json'},function(status,text){
+      var data=jsonParse(text);
+      if(status===409){onConflict(data||{});return}
+      if(status<200||status>=300){onError(data&&data.error?data.error:('HTTP '+status));return}
+      if(data)onSuccess(data);else onError('HTTP '+status);
+    });
+  }
+
+  /* ---------- Google login (same popup+poll pattern as japanese-reader.js) ---------- */
+
+  function rememberReturn(){
+    try{
+      var target=window.location.pathname+window.location.search+window.location.hash;
+      document.cookie='PORTAL_LOGIN_RETURN='+encodeURIComponent(target)+'; Max-Age=600; Path=/; SameSite=Lax';
+    }catch(e){}
+  }
+
+  function updateAuthButtons(isLoggedIn){
+    var google=document.getElementById('googleBtn');
+    var logoutBtn=document.getElementById('logoutBtn');
+    if(google)google.style.display=isLoggedIn?'none':'inline-block';
+    if(logoutBtn)logoutBtn.style.display=isLoggedIn?'inline-block':'none';
+  }
+
+  function openGoogle(){
+    rememberReturn();
+    var w=520,h=700,left=Math.max(0,Math.round((screen.width-w)/2)),top=Math.max(0,Math.round((screen.height-h)/2));
+    loginPopup=window.open('/oauth2/authorization/google','portal-google-login','width='+w+',height='+h+',left='+left+',top='+top+',resizable=yes,scrollbars=yes');
+    if(!loginPopup){window.location.href='/oauth2/authorization/google';return}
+    setStatus('Waiting for Google sign-in\u2026');
+    clearInterval(loginPoll);
+    loginPoll=setInterval(function(){
+      apiGetState(function(){
+        clearInterval(loginPoll);
+        try{loginPopup.close();}catch(e){}
+        window.location.reload();
+      },function(){
+        try{if(loginPopup&&loginPopup.closed){clearInterval(loginPoll);setStatus('Local only');}}catch(e){}
+      });
+    },1500);
+  }
+
+  function logout(){
+    var b=document.getElementById('logoutBtn');
+    if(b){b.disabled=true;b.textContent='Logging out\u2026';}
+    xhr('POST','/logout',null,{'X-Requested-With':'XMLHttpRequest'},function(status){
+      if(status>=200&&status<400){
+        window.location.reload();
         return;
       }
-      res.json().then(onSuccess);
-    }).catch(function(){onError('network')});
+      if(b){b.disabled=false;b.textContent='Logout';}
+      setStatus('Could not log out','error');
+    });
   }
+
+  document.getElementById('googleBtn').addEventListener('click',openGoogle);
+  document.getElementById('logoutBtn').addEventListener('click',logout);
 
   function loadFromServer(confirmIfDirty){
     if(confirmIfDirty&&!confirm('Reload from the server? This replaces the text currently in the editor.'))return;
     setStatus('Loading\u2026');
     apiGetState(function(data){
       signedIn=true;
+      updateAuthButtons(true);
       signedOutBanner.style.display='none';
       currentRevision=data.revision;
       if(data.content){
@@ -401,8 +460,9 @@
       }
       setStatus(data.content?'Synced':'No saved script yet');
     },function(reason){
+      signedIn=false;
+      updateAuthButtons(false);
       if(reason==='unauthenticated'){
-        signedIn=false;
         signedOutBanner.style.display='block';
         setStatus('Local only');
       } else {
@@ -445,6 +505,7 @@
   lines=parseLines();
   renderFresh();
   updatePlaybackUI();
+  updateAuthButtons(false);
   loadFromServer(false);
 </script>
 </body>
