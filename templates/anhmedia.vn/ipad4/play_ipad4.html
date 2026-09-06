@@ -1,129 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<meta name="format-detection" content="telephone=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<title>3-Line Teleprompter</title>
-<style>
-*{box-sizing:border-box;-webkit-box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{-webkit-text-size-adjust:100%}
-:root{--font-size:48px;--stage-offset:0px}
-body{
-  margin:0;min-height:100vh;background:#0d0d0d;color:#fff;
-  font-family:Arial,Helvetica,sans-serif;
-  display:-webkit-box;display:-webkit-flex;display:flex;
-  -webkit-box-orient:vertical;-webkit-box-direction:normal;
-  -webkit-flex-direction:column;flex-direction:column;
-  overflow:hidden;
-}
-.controls{
-  background:#1c1c1c;border-top:1px solid #3a3a3a;padding:12px;
-  display:-webkit-box;display:-webkit-flex;display:flex;
-  -webkit-flex-wrap:wrap;flex-wrap:wrap;
-  -webkit-box-align:center;-webkit-align-items:center;align-items:center;
-  gap:10px 14px;z-index:10;
-  -webkit-box-ordinal-group:5;-webkit-order:4;order:4;
-  -webkit-user-select:none;user-select:none;
-}
-button{
-  border:0;border-radius:8px;padding:10px 16px;font-size:15px;cursor:pointer;
-  -webkit-appearance:none;appearance:none;
-  min-height:44px;
-}
-button:active{opacity:.8}
-.play{background:#1b9b5a;color:#fff}
-.stop{background:#d34a4a;color:#fff}
-label{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;gap:7px;font-size:14px;color:#ddd}
-input[type=range]{
-  width:125px;height:34px;-webkit-appearance:none;appearance:none;
-  background:transparent;
-}
-input[type=range]::-webkit-slider-runnable-track{
-  height:4px;background:#3a3a3a;border-radius:2px;
-}
-input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none;appearance:none;
-  width:26px;height:26px;border-radius:50%;
-  background:#8de9ff;margin-top:-11px;border:0;
-}
-.value{color:#8de9ff;min-width:52px}
-#editor{
-  order:1;-webkit-order:1;width:100%;height:150px;resize:vertical;
-  border:0;border-bottom:1px solid #333;padding:14px;background:#151515;
-  color:#ddd;font-size:16px;line-height:1.5;outline:none;
-  -webkit-user-select:text;user-select:text;
-  -webkit-appearance:none;appearance:none;
-}
-#stage{
-  order:3;-webkit-order:3;position:relative;
-  -webkit-box-flex:1;-webkit-flex:1;flex:1;
-  min-height:340px;overflow:hidden;
-  display:-webkit-box;display:-webkit-flex;display:flex;
-  -webkit-box-align:center;-webkit-align-items:center;align-items:center;
-  -webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;
-  padding:20px;
-}
-#teleprompter{
-  position:relative;width:94%;max-width:1200px;
-  height:64vh;max-height:680px;min-height:300px;
-  -webkit-transform:translateY(var(--stage-offset));transform:translateY(var(--stage-offset));
-}
-.line{
-  position:absolute;left:5%;width:90%;height:26%;
-  display:-webkit-box;display:-webkit-flex;display:flex;
-  -webkit-box-align:center;-webkit-align-items:center;align-items:center;
-  -webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;
-  text-align:center;font-size:var(--font-size);font-weight:700;line-height:1.22;
-  padding:10px 20px;
-  -webkit-transition:top .5s ease,opacity .5s ease,-webkit-transform .5s ease,-webkit-filter .5s ease;
-  transition:top .5s ease,opacity .5s ease,transform .5s ease,filter .5s ease;
-}
-.top{top:24%;opacity:.20;-webkit-transform:scale(.88);transform:scale(.88);-webkit-filter:blur(.3px);filter:blur(.3px)}
-.current{top:37%;opacity:1;-webkit-transform:scale(1);transform:scale(1);-webkit-filter:none;filter:none}
-.bottom{top:50%;opacity:.42;-webkit-transform:scale(.92);transform:scale(.92);-webkit-filter:none;filter:none}
-.incoming{top:76%;opacity:0;-webkit-transform:scale(.9);transform:scale(.9)}
-.outgoing{top:0%;opacity:0;-webkit-transform:scale(.82);transform:scale(.82)}
-.guide{position:absolute;left:2%;right:2%;top:49%;border-top:1px solid rgba(255,255,255,.12);pointer-events:none}
-.guide:after{content:"READ HERE";position:absolute;right:0;top:-20px;font-size:11px;letter-spacing:1px;color:rgba(255,255,255,.28)}
-.help{color:#777;font-size:12px;padding:7px 12px 10px;text-align:center;background:#111}
-.playback{order:2;-webkit-order:2;background:#111;border-top:1px solid #333;padding:9px 14px 7px;z-index:10}
-.playback-row{
-  display:-webkit-box;display:-webkit-flex;display:flex;
-  -webkit-box-align:center;-webkit-align-items:center;align-items:center;
-  gap:10px;
-}
-.playback-row>span:first-child,.playback-row>span:nth-last-child(2){font-size:12px;color:#aaa;min-width:28px;text-align:center}
-#playback{-webkit-box-flex:1;-webkit-flex:1;flex:1;width:auto}
-.playback-label{text-align:center;color:#777;font-size:11px;margin-top:4px}
-#playbackValue{min-width:48px}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <title>3-Line Teleprompter</title>
+  <style>
+    *{box-sizing:border-box;-webkit-box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html{-webkit-text-size-adjust:100%}
+    :root{--font-size:48px;--stage-offset:0px}
+    body{
+      margin:0;min-height:100vh;background:#0d0d0d;color:#fff;
+      font-family:Arial,Helvetica,sans-serif;
+      display:-webkit-box;display:-webkit-flex;display:flex;
+      -webkit-box-orient:vertical;-webkit-box-direction:normal;
+      -webkit-flex-direction:column;flex-direction:column;
+      overflow:hidden;
+    }
+    .syncbar{
+      order:0;-webkit-order:0;background:#161616;border-bottom:1px solid #333;
+      padding:10px 12px;
+      display:-webkit-box;display:-webkit-flex;display:flex;
+      -webkit-flex-wrap:wrap;flex-wrap:wrap;
+      -webkit-box-align:center;-webkit-align-items:center;align-items:center;
+      gap:8px 10px;z-index:11;
+    }
+    .syncbar button{min-height:40px}
+    .status{font-size:12px;color:#8de9ff;min-width:110px}
+    .status.dirty{color:#e9c86a}
+    .status.error{color:#e97a7a}
+    .signedout-banner{background:#241a1a;color:#e9a5a5;font-size:12px;padding:7px 12px;text-align:center;order:0;-webkit-order:0}
+    .controls{
+      background:#1c1c1c;border-top:1px solid #3a3a3a;padding:12px;
+      display:-webkit-box;display:-webkit-flex;display:flex;
+      -webkit-flex-wrap:wrap;flex-wrap:wrap;
+      -webkit-box-align:center;-webkit-align-items:center;align-items:center;
+      gap:10px 14px;z-index:10;
+      -webkit-box-ordinal-group:5;-webkit-order:4;order:4;
+      -webkit-user-select:none;user-select:none;
+    }
+    button{
+      border:0;border-radius:8px;padding:10px 16px;font-size:15px;cursor:pointer;
+      -webkit-appearance:none;appearance:none;
+      min-height:44px;
+    }
+    button:active{opacity:.8}
+    .play{background:#1b9b5a;color:#fff}
+    .stop{background:#d34a4a;color:#fff}
+    label{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-align:center;-webkit-align-items:center;align-items:center;gap:7px;font-size:14px;color:#ddd}
+    input[type=range]{
+      width:125px;height:34px;-webkit-appearance:none;appearance:none;
+      background:transparent;
+    }
+    input[type=range]::-webkit-slider-runnable-track{
+      height:4px;background:#3a3a3a;border-radius:2px;
+    }
+    input[type=range]::-webkit-slider-thumb{
+      -webkit-appearance:none;appearance:none;
+      width:26px;height:26px;border-radius:50%;
+      background:#8de9ff;margin-top:-11px;border:0;
+    }
+    .value{color:#8de9ff;min-width:52px}
+    #editor{
+      order:1;-webkit-order:1;width:100%;height:150px;resize:vertical;
+      border:0;border-bottom:1px solid #333;padding:14px;background:#151515;
+      color:#ddd;font-size:16px;line-height:1.5;outline:none;
+      -webkit-user-select:text;user-select:text;
+      -webkit-appearance:none;appearance:none;
+    }
+    #stage{
+      order:3;-webkit-order:3;position:relative;
+      -webkit-box-flex:1;-webkit-flex:1;flex:1;
+      min-height:340px;overflow:hidden;
+      display:-webkit-box;display:-webkit-flex;display:flex;
+      -webkit-box-align:center;-webkit-align-items:center;align-items:center;
+      -webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;
+      padding:20px;
+    }
+    #teleprompter{
+      position:relative;width:94%;max-width:1200px;
+      height:64vh;max-height:680px;min-height:300px;
+      -webkit-transform:translateY(var(--stage-offset));transform:translateY(var(--stage-offset));
+    }
+    .line{
+      position:absolute;left:5%;width:90%;height:26%;
+      display:-webkit-box;display:-webkit-flex;display:flex;
+      -webkit-box-align:center;-webkit-align-items:center;align-items:center;
+      -webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;
+      text-align:center;font-size:var(--font-size);font-weight:700;line-height:1.22;
+      padding:10px 20px;
+      -webkit-transition:top .5s ease,opacity .5s ease,-webkit-transform .5s ease,-webkit-filter .5s ease;
+      transition:top .5s ease,opacity .5s ease,transform .5s ease,filter .5s ease;
+    }
+    .top{top:24%;opacity:.20;-webkit-transform:scale(.88);transform:scale(.88);-webkit-filter:blur(.3px);filter:blur(.3px)}
+    .current{top:37%;opacity:1;-webkit-transform:scale(1);transform:scale(1);-webkit-filter:none;filter:none}
+    .bottom{top:50%;opacity:.42;-webkit-transform:scale(.92);transform:scale(.92);-webkit-filter:none;filter:none}
+    .incoming{top:76%;opacity:0;-webkit-transform:scale(.9);transform:scale(.9)}
+    .outgoing{top:0%;opacity:0;-webkit-transform:scale(.82);transform:scale(.82)}
+    .guide{position:absolute;left:2%;right:2%;top:49%;border-top:1px solid rgba(255,255,255,.12);pointer-events:none}
+    .guide:after{content:"READ HERE";position:absolute;right:0;top:-20px;font-size:11px;letter-spacing:1px;color:rgba(255,255,255,.28)}
+    .help{color:#777;font-size:12px;padding:7px 12px 10px;text-align:center;background:#111}
+    .playback{order:2;-webkit-order:2;background:#111;border-top:1px solid #333;padding:9px 14px 7px;z-index:10}
+    .playback-row{
+      display:-webkit-box;display:-webkit-flex;display:flex;
+      -webkit-box-align:center;-webkit-align-items:center;align-items:center;
+      gap:10px;
+    }
+    .playback-row>span:first-child,.playback-row>span:nth-last-child(2){font-size:12px;color:#aaa;min-width:28px;text-align:center}
+    #playback{-webkit-box-flex:1;-webkit-flex:1;flex:1;width:auto}
+    .playback-label{text-align:center;color:#777;font-size:11px;margin-top:4px}
+    #playbackValue{min-width:48px}
 
-@media(max-width:1024px){
-  .controls{padding:10px;gap:8px 10px}
-  button{padding:11px 14px;font-size:14px}
-  #teleprompter{height:58vh}
-}
-@media(max-width:700px){
-  :root{--font-size:34px}
-  #editor{height:120px}
-  .line{left:2%;width:96%;padding:8px}
-  #teleprompter{height:62vh}
-}
-</style>
+    @media(max-width:1024px){
+      .controls{padding:10px;gap:8px 10px}
+      button{padding:11px 14px;font-size:14px}
+      #teleprompter{height:58vh}
+    }
+    @media(max-width:700px){
+      :root{--font-size:34px}
+      #editor{height:120px}
+      .line{left:2%;width:96%;padding:8px}
+      #teleprompter{height:62vh}
+    }
+  </style>
 </head>
 <body>
+
+<div class="syncbar">
+  <button id="loadScriptBtn">&#8635; Reload</button>
+  <button id="saveScriptBtn" class="play">Save</button>
+  <button id="clearScriptBtn" class="stop">Clear</button>
+  <span id="syncStatus" class="status">&nbsp;</span>
+</div>
+<div id="signedOutBanner" class="signedout-banner" style="display:none">Not signed in — this script stays on this device only. Log in to sync it across devices.</div>
+
 <div class="controls">
-<button class="play" onclick="play()">&#9658; Play</button>
-<button onclick="pausePrompter()">&#10074;&#10074; Pause</button>
-<button class="stop" onclick="stopPrompter()">&#9632; Stop</button>
-<button onclick="previousLine()">&#8592; Previous</button>
-<button onclick="nextLine()">Next &#8594;</button>
-<label>Speed <input id="speed" type="range" min="0.35" max="2.5" step="0.05" value="1"><span id="speedValue" class="value">1.00x</span></label>
-<label>Font <input id="font" type="range" min="24" max="90" step="1" value="48"><span id="fontValue" class="value">48px</span></label>
-<label>Position <input id="position" type="range" min="-380" max="280" step="9" value="0"><span id="positionValue" class="value">0px</span></label>
-<label>Extra pause <input id="pauseDelay" type="range" min="0" max="2500" step="100" value="400"><span id="pauseValue" class="value">400ms</span></label>
+  <button class="play" onclick="play()">&#9658; Play</button>
+  <button onclick="pausePrompter()">&#10074;&#10074; Pause</button>
+  <button class="stop" onclick="stopPrompter()">&#9632; Stop</button>
+  <button onclick="previousLine()">&#8592; Previous</button>
+  <button onclick="nextLine()">Next &#8594;</button>
+  <label>Speed <input id="speed" type="range" min="0.35" max="2.5" step="0.05" value="1"><span id="speedValue" class="value">1.00x</span></label>
+  <label>Font <input id="font" type="range" min="24" max="90" step="1" value="48"><span id="fontValue" class="value">48px</span></label>
+  <label>Position <input id="position" type="range" min="-380" max="280" step="9" value="0"><span id="positionValue" class="value">0px</span></label>
+  <label>Extra pause <input id="pauseDelay" type="range" min="0" max="2500" step="100" value="400"><span id="pauseValue" class="value">400ms</span></label>
 </div>
 
 <div class="playback">
@@ -140,195 +162,290 @@ input[type=range]::-webkit-slider-thumb{
 <textarea id="editor" spellcheck="true"></textarea>
 
 <div id="stage">
-<div id="teleprompter">
-<div class="guide"></div>
-<div id="lineTop" class="line top"></div>
-<div id="lineCurrent" class="line current"></div>
-<div id="lineBottom" class="line bottom"></div>
-</div>
+  <div id="teleprompter">
+    <div class="guide"></div>
+    <div id="lineTop" class="line top"></div>
+    <div id="lineCurrent" class="line current"></div>
+    <div id="lineBottom" class="line bottom"></div>
+  </div>
 </div>
 <div class="help">Best result: put each sentence or short phrase on its own line. The center line is the one to read.</div>
 
 <script>
-var defaultText=[
-"Smart Business Starts with QR Technology",
-"",
-"Running a business should be simple, fast, and connected.",
-"",
-"Our platform helps businesses manage their products, orders, customers, and daily operations \u2014 all in one place.",
-"",
-"With our smart QR solution, your customers can simply scan a QR code to view your products, place an order, and make payment.",
-"",
-"No complicated process. No waiting. Just scan, order, and pay.",
-"",
-"For business owners, our system helps reduce manual work, improve order accuracy, and manage information more efficiently.",
-"",
-"You can also connect your business with our online portal to share products, news, services, and important information with your customers.",
-"",
-"Whether you run a restaurant, shop, warehouse, service business, or growing company, our QR technology can help you work smarter.",
-"",
-"Scan. Order. Manage. Grow.",
-"",
-"Start your digital journey with us today."
-].join("\n");
+  var defaultText=[
+    "Smart Business Starts with QR Technology",
+    "",
+    "Running a business should be simple, fast, and connected.",
+    "",
+    "Our platform helps businesses manage their products, orders, customers, and daily operations \u2014 all in one place.",
+    "",
+    "With our smart QR solution, your customers can simply scan a QR code to view your products, place an order, and make payment.",
+    "",
+    "No complicated process. No waiting. Just scan, order, and pay.",
+    "",
+    "For business owners, our system helps reduce manual work, improve order accuracy, and manage information more efficiently.",
+    "",
+    "You can also connect your business with our online portal to share products, news, services, and important information with your customers.",
+    "",
+    "Whether you run a restaurant, shop, warehouse, service business, or growing company, our QR technology can help you work smarter.",
+    "",
+    "Scan. Order. Manage. Grow.",
+    "",
+    "Start your digital journey with us today."
+  ].join("\n");
 
-var editor=document.getElementById('editor');
-editor.value=defaultText;
-var lines=[],index=0,timer=null,running=false,animating=false;
-var playback=document.getElementById('playback');
-var playbackValue=document.getElementById('playbackValue');
-var playbackStart=document.getElementById('playbackStart');
-var playbackEnd=document.getElementById('playbackEnd');
+  var API_BASE='/api/teleprompter';
 
-function parseLines(){
-  var raw=editor.value.split(/\n+/);
-  var out=[];
-  for(var i=0;i<raw.length;i++){
-    var t=raw[i].replace(/^\s+|\s+$/g,'');
-    if(t)out.push(t);
+  var editor=document.getElementById('editor');
+  editor.value=defaultText;
+  var lines=[],index=0,timer=null,running=false,animating=false;
+  var currentRevision=null,signedIn=true;
+  var statusEl=document.getElementById('syncStatus');
+  var signedOutBanner=document.getElementById('signedOutBanner');
+  var playback=document.getElementById('playback');
+  var playbackValue=document.getElementById('playbackValue');
+  var playbackStart=document.getElementById('playbackStart');
+  var playbackEnd=document.getElementById('playbackEnd');
+
+  function parseLines(){
+    var raw=editor.value.split(/\n+/);
+    var out=[];
+    for(var i=0;i<raw.length;i++){
+      var t=raw[i].replace(/^\s+|\s+$/g,'');
+      if(t)out.push(t);
+    }
+    return out;
   }
-  return out;
-}
 
-function updatePlaybackUI(){
-  var total=Math.max(1,lines.length);
-  playback.max=Math.max(0,total-1);
-  playback.value=Math.min(index,Math.max(0,total-1));
-  playbackStart.textContent=lines.length?1:0;
-  playbackEnd.textContent=lines.length?lines.length:0;
-  var pct=lines.length<=1?100:Math.round((index/(lines.length-1))*100);
-  playbackValue.textContent=pct+'%';
-}
-
-function seekToLine(target){
-  lines=parseLines();
-  if(!lines.length)return;
-  target=Math.max(0,Math.min(lines.length-1,Number(target)));
-  clearTimeout(timer);
-  running=false;
-  animating=false;
-  index=target;
-  renderFresh();
-  updatePlaybackUI();
-}
-
-function seekAndPlay(target){
-  lines=parseLines();
-  if(!lines.length)return;
-  target=Math.max(0,Math.min(lines.length-1,Number(target)));
-  clearTimeout(timer);
-  running=false;
-  animating=false;
-  index=target;
-  renderFresh();
-  updatePlaybackUI();
-  running=true;
-  scheduleNext();
-}
-
-function safeLine(i){return (i<0||i>=lines.length)?"":lines[i]}
-function refs(){
-  return {
-    top:document.getElementById('lineTop'),
-    current:document.getElementById('lineCurrent'),
-    bottom:document.getElementById('lineBottom')
-  };
-}
-function renderFresh(){
-  var tele=document.getElementById('teleprompter');
-  var existing=tele.querySelectorAll('.line');
-  for(var i=0;i<existing.length;i++){
-    if(existing[i].parentNode)existing[i].parentNode.removeChild(existing[i]);
+  function updatePlaybackUI(){
+    var total=Math.max(1,lines.length);
+    playback.max=Math.max(0,total-1);
+    playback.value=Math.min(index,Math.max(0,total-1));
+    playbackStart.textContent=lines.length?1:0;
+    playbackEnd.textContent=lines.length?lines.length:0;
+    var pct=lines.length<=1?100:Math.round((index/(lines.length-1))*100);
+    playbackValue.textContent=pct+'%';
   }
-  var a=document.createElement('div');a.id='lineTop';a.className='line top';a.textContent=safeLine(index-1);
-  var b=document.createElement('div');b.id='lineCurrent';b.className='line current';b.textContent=safeLine(index);
-  var c=document.createElement('div');c.id='lineBottom';c.className='line bottom';c.textContent=safeLine(index+1);
-  tele.appendChild(a);tele.appendChild(b);tele.appendChild(c);
-}
-function readingDuration(text){
-  var speed=Number(document.getElementById('speed').value);
-  var extra=Number(document.getElementById('pauseDelay').value);
-  var words=Math.max(1,text.replace(/^\s+|\s+$/g,'').split(/\s+/).length);
-  var punctMatches=text.match(/[,.!?;:]/g);
-  var punctuation=(punctMatches?punctMatches.length:0)*120;
-  return Math.max(1200,(words*290+punctuation)/speed)+extra;
-}
-function scheduleNext(){
-  clearTimeout(timer);
-  if(!running||index>=lines.length-1){if(index>=lines.length-1)running=false;return}
-  timer=setTimeout(function(){moveNext(false)},readingDuration(safeLine(index)));
-}
-function moveNext(manual){
-  if(manual===undefined)manual=false;
-  if(animating||index>=lines.length-1)return;
-  animating=true;
-  var r=refs(),tele=document.getElementById('teleprompter');
-  var incoming=document.createElement('div');
-  incoming.className='line incoming';
-  incoming.textContent=safeLine(index+2);
-  tele.appendChild(incoming);
-  incoming.offsetHeight;
-  r.top.className='line outgoing';
-  r.current.className='line top';
-  r.bottom.className='line current';
-  incoming.className='line bottom';
-  setTimeout(function(){
-    if(r.top.parentNode)r.top.parentNode.removeChild(r.top);
-    index++;
-    r.current.id='lineTop';
-    r.bottom.id='lineCurrent';
-    incoming.id='lineBottom';
+
+  function seekToLine(target){
+    lines=parseLines();
+    if(!lines.length)return;
+    target=Math.max(0,Math.min(lines.length-1,Number(target)));
+    clearTimeout(timer);
+    running=false;
+    animating=false;
+    index=target;
+    renderFresh();
+    updatePlaybackUI();
+  }
+
+  function seekAndPlay(target){
+    lines=parseLines();
+    if(!lines.length)return;
+    target=Math.max(0,Math.min(lines.length-1,Number(target)));
+    clearTimeout(timer);
+    running=false;
+    animating=false;
+    index=target;
+    renderFresh();
+    updatePlaybackUI();
+    running=true;
+    scheduleNext();
+  }
+
+  function safeLine(i){return (i<0||i>=lines.length)?"":lines[i]}
+  function refs(){
+    return {
+      top:document.getElementById('lineTop'),
+      current:document.getElementById('lineCurrent'),
+      bottom:document.getElementById('lineBottom')
+    };
+  }
+  function renderFresh(){
+    var tele=document.getElementById('teleprompter');
+    var existing=tele.querySelectorAll('.line');
+    for(var i=0;i<existing.length;i++){
+      if(existing[i].parentNode)existing[i].parentNode.removeChild(existing[i]);
+    }
+    var a=document.createElement('div');a.id='lineTop';a.className='line top';a.textContent=safeLine(index-1);
+    var b=document.createElement('div');b.id='lineCurrent';b.className='line current';b.textContent=safeLine(index);
+    var c=document.createElement('div');c.id='lineBottom';c.className='line bottom';c.textContent=safeLine(index+1);
+    tele.appendChild(a);tele.appendChild(b);tele.appendChild(c);
+  }
+  function readingDuration(text){
+    var speed=Number(document.getElementById('speed').value);
+    var extra=Number(document.getElementById('pauseDelay').value);
+    var words=Math.max(1,text.replace(/^\s+|\s+$/g,'').split(/\s+/).length);
+    var punctMatches=text.match(/[,.!?;:]/g);
+    var punctuation=(punctMatches?punctMatches.length:0)*120;
+    return Math.max(1200,(words*290+punctuation)/speed)+extra;
+  }
+  function scheduleNext(){
+    clearTimeout(timer);
+    if(!running||index>=lines.length-1){if(index>=lines.length-1)running=false;return}
+    timer=setTimeout(function(){moveNext(false)},readingDuration(safeLine(index)));
+  }
+  function moveNext(manual){
+    if(manual===undefined)manual=false;
+    if(animating||index>=lines.length-1)return;
+    animating=true;
+    var r=refs(),tele=document.getElementById('teleprompter');
+    var incoming=document.createElement('div');
+    incoming.className='line incoming';
+    incoming.textContent=safeLine(index+2);
+    tele.appendChild(incoming);
+    incoming.offsetHeight;
+    r.top.className='line outgoing';
     r.current.className='line top';
     r.bottom.className='line current';
     incoming.className='line bottom';
-    animating=false;
-    if(!manual&&running)scheduleNext();
-  },520);
-}
-function play(){
+    setTimeout(function(){
+      if(r.top.parentNode)r.top.parentNode.removeChild(r.top);
+      index++;
+      r.current.id='lineTop';
+      r.bottom.id='lineCurrent';
+      incoming.id='lineBottom';
+      r.current.className='line top';
+      r.bottom.className='line current';
+      incoming.className='line bottom';
+      animating=false;
+      if(!manual&&running)scheduleNext();
+    },520);
+  }
+  function play(){
+    lines=parseLines();
+    if(!lines.length)return;
+    if(index>=lines.length)index=0;
+    renderFresh();
+    running=true;
+    scheduleNext();
+  }
+  function pausePrompter(){running=false;clearTimeout(timer)}
+  function stopPrompter(){running=false;clearTimeout(timer);index=0;lines=parseLines();renderFresh()}
+  function nextLine(){lines=parseLines();clearTimeout(timer);moveNext(true);if(running)setTimeout(scheduleNext,550)}
+  function previousLine(){lines=parseLines();clearTimeout(timer);if(index<=0||animating)return;index--;renderFresh();if(running)scheduleNext()}
+
+  playback.addEventListener('input',function(e){
+    seekToLine(e.target.value);
+  });
+
+  playback.addEventListener('change',function(e){
+    seekAndPlay(e.target.value);
+  });
+
+  document.getElementById('speed').addEventListener('input',function(e){
+    document.getElementById('speedValue').textContent=Number(e.target.value).toFixed(2)+'x';
+    if(running)scheduleNext();
+  });
+  document.getElementById('font').addEventListener('input',function(e){
+    document.documentElement.style.setProperty('--font-size',e.target.value+'px');
+    document.getElementById('fontValue').textContent=e.target.value+'px';
+  });
+  document.getElementById('position').addEventListener('input',function(e){
+    document.documentElement.style.setProperty('--stage-offset',e.target.value+'px');
+    document.getElementById('positionValue').textContent=e.target.value+'px';
+  });
+  document.getElementById('pauseDelay').addEventListener('input',function(e){
+    document.getElementById('pauseValue').textContent=e.target.value+'ms';
+    if(running)scheduleNext();
+  });
+  editor.addEventListener('input',function(){
+    if(!running){lines=parseLines();index=Math.min(index,Math.max(0,lines.length-1));renderFresh()}
+    if(signedIn)setStatus('Unsaved changes','dirty');
+  });
+
+  /* ---------- backend sync ---------- */
+
+  function setStatus(text,cls){
+    statusEl.textContent=text;
+    statusEl.className='status'+(cls?(' '+cls):'');
+  }
+
+  function apiGetState(onSuccess,onError){
+    fetch(API_BASE+'/state',{credentials:'same-origin'})
+            .then(function(res){
+              if(res.status===401){onError('unauthenticated');return null}
+              if(!res.ok){onError('error');return null}
+              return res.json();
+            })
+            .then(function(data){if(data)onSuccess(data)})
+            .catch(function(){onError('network')});
+  }
+  function apiSaveState(payload,onSuccess,onConflict,onError){
+    fetch(API_BASE+'/state',{
+      method:'POST',
+      credentials:'same-origin',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    }).then(function(res){
+      if(res.status===409){res.json().then(onConflict);return}
+      if(!res.ok){
+        res.json().then(function(d){onError(d&&d.error?d.error:('HTTP '+res.status))})
+                .catch(function(){onError('HTTP '+res.status)});
+        return;
+      }
+      res.json().then(onSuccess);
+    }).catch(function(){onError('network')});
+  }
+
+  function loadFromServer(confirmIfDirty){
+    if(confirmIfDirty&&!confirm('Reload from the server? This replaces the text currently in the editor.'))return;
+    setStatus('Loading\u2026');
+    apiGetState(function(data){
+      signedIn=true;
+      signedOutBanner.style.display='none';
+      currentRevision=data.revision;
+      if(data.content){
+        editor.value=data.content;
+        lines=parseLines();index=0;renderFresh();updatePlaybackUI();
+      }
+      setStatus(data.content?'Synced':'No saved script yet');
+    },function(reason){
+      if(reason==='unauthenticated'){
+        signedIn=false;
+        signedOutBanner.style.display='block';
+        setStatus('Local only');
+      } else {
+        setStatus('Could not reach server','error');
+      }
+    });
+  }
+
+  document.getElementById('loadScriptBtn').addEventListener('click',function(){loadFromServer(true)});
+
+  document.getElementById('saveScriptBtn').addEventListener('click',function(){
+    if(!signedIn){setStatus('Log in to sync','error');return}
+    setStatus('Saving\u2026');
+    apiSaveState({content:editor.value,baseRevision:currentRevision},function(saved){
+      currentRevision=saved.revision;
+      setStatus('Saved');
+    },function(conflict){
+      var loadServer=confirm('This script changed on another device.\n\nOK = load the latest version (discards your local changes)\nCancel = keep editing, then press Save again to overwrite it');
+      if(loadServer){
+        editor.value=conflict.content;
+        currentRevision=conflict.revision;
+        lines=parseLines();index=0;renderFresh();updatePlaybackUI();
+        setStatus('Loaded latest version');
+      } else {
+        currentRevision=conflict.revision;
+        setStatus('Ready to overwrite — press Save again','dirty');
+      }
+    },function(err){
+      setStatus(err,'error');
+    });
+  });
+
+  document.getElementById('clearScriptBtn').addEventListener('click',function(){
+    if(!confirm('Clear the editor? This does not delete your saved copy until you press Save.'))return;
+    editor.value='';
+    lines=parseLines();index=0;renderFresh();updatePlaybackUI();
+    if(signedIn)setStatus('Unsaved changes','dirty');
+  });
+
   lines=parseLines();
-  if(!lines.length)return;
-  if(index>=lines.length)index=0;
   renderFresh();
-  running=true;
-  scheduleNext();
-}
-function pausePrompter(){running=false;clearTimeout(timer)}
-function stopPrompter(){running=false;clearTimeout(timer);index=0;lines=parseLines();renderFresh()}
-function nextLine(){lines=parseLines();clearTimeout(timer);moveNext(true);if(running)setTimeout(scheduleNext,550)}
-function previousLine(){lines=parseLines();clearTimeout(timer);if(index<=0||animating)return;index--;renderFresh();if(running)scheduleNext()}
-
-playback.addEventListener('input',function(e){
-  seekToLine(e.target.value);
-});
-
-playback.addEventListener('change',function(e){
-  seekAndPlay(e.target.value);
-});
-
-document.getElementById('speed').addEventListener('input',function(e){
-  document.getElementById('speedValue').textContent=Number(e.target.value).toFixed(2)+'x';
-  if(running)scheduleNext();
-});
-document.getElementById('font').addEventListener('input',function(e){
-  document.documentElement.style.setProperty('--font-size',e.target.value+'px');
-  document.getElementById('fontValue').textContent=e.target.value+'px';
-});
-document.getElementById('position').addEventListener('input',function(e){
-  document.documentElement.style.setProperty('--stage-offset',e.target.value+'px');
-  document.getElementById('positionValue').textContent=e.target.value+'px';
-});
-document.getElementById('pauseDelay').addEventListener('input',function(e){
-  document.getElementById('pauseValue').textContent=e.target.value+'ms';
-  if(running)scheduleNext();
-});
-editor.addEventListener('input',function(){
-  if(!running){lines=parseLines();index=Math.min(index,Math.max(0,lines.length-1));renderFresh()}
-});
-
-lines=parseLines();
-renderFresh();
-updatePlaybackUI();
+  updatePlaybackUI();
+  loadFromServer(false);
 </script>
 </body>
 </html>
