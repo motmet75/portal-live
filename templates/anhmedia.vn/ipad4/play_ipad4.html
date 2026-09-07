@@ -42,7 +42,7 @@
       -webkit-user-select:none;user-select:none;
     }
     button{
-      border:0;border-radius:8px;padding:10px 16px;font-size:15px;cursor:pointer;
+      border:0;border-radius:8px;padding:102px 16px;font-size:15px;cursor:pointer;
       -webkit-appearance:none;appearance:none;background:#fff;color:#000;
       min-height:44px;
     }
@@ -211,6 +211,42 @@
   var playbackStart=document.getElementById('playbackStart');
   var playbackEnd=document.getElementById('playbackEnd');
 
+  /* ---------- remember speed / font / position for this browser tab ---------- */
+  var CONTROLS_SESSION_KEY='teleprompter.controls.v1';
+
+  function saveControlsToSession(){
+    var data={
+      speed:document.getElementById('speed').value,
+      font:document.getElementById('font').value,
+      position:document.getElementById('position').value
+    };
+    try{sessionStorage.setItem(CONTROLS_SESSION_KEY,JSON.stringify(data));}catch(e){}
+  }
+
+  function restoreControlsFromSession(){
+    var raw=null;
+    try{raw=sessionStorage.getItem(CONTROLS_SESSION_KEY);}catch(e){}
+    if(!raw)return;
+    var saved=null;
+    try{saved=JSON.parse(raw);}catch(e){}
+    if(!saved)return;
+
+    if(saved.speed!=null){
+      document.getElementById('speed').value=saved.speed;
+      document.getElementById('speedValue').textContent=Number(saved.speed).toFixed(2)+'x';
+    }
+    if(saved.font!=null){
+      document.getElementById('font').value=saved.font;
+      document.documentElement.style.setProperty('--font-size',saved.font+'px');
+      document.getElementById('fontValue').textContent=saved.font+'px';
+    }
+    if(saved.position!=null){
+      document.getElementById('position').value=saved.position;
+      document.documentElement.style.setProperty('--stage-offset',saved.position+'px');
+      document.getElementById('positionValue').textContent=saved.position+'px';
+    }
+  }
+
   function parseLines(){
     var raw=editor.value.split(/\n+/);
     var out=[];
@@ -340,14 +376,17 @@
   document.getElementById('speed').addEventListener('input',function(e){
     document.getElementById('speedValue').textContent=Number(e.target.value).toFixed(2)+'x';
     if(running)scheduleNext();
+    saveControlsToSession();
   });
   document.getElementById('font').addEventListener('input',function(e){
     document.documentElement.style.setProperty('--font-size',e.target.value+'px');
     document.getElementById('fontValue').textContent=e.target.value+'px';
+    saveControlsToSession();
   });
   document.getElementById('position').addEventListener('input',function(e){
     document.documentElement.style.setProperty('--stage-offset',e.target.value+'px');
     document.getElementById('positionValue').textContent=e.target.value+'px';
+    saveControlsToSession();
   });
   document.getElementById('pauseDelay').addEventListener('input',function(e){
     document.getElementById('pauseValue').textContent=e.target.value+'ms';
@@ -503,6 +542,7 @@
     if(signedIn)setStatus('Unsaved changes','dirty');
   });
 
+  restoreControlsFromSession();
   lines=parseLines();
   renderFresh();
   updatePlaybackUI();
