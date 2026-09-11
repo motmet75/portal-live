@@ -238,56 +238,29 @@
         if(!count)el.innerHTML='<small style="color:#68736f">Không tìm thấy.</small>';
     };
 
+    function isIOS(){return /iPad|iPhone|iPod/.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1);}
     function isVietnameseVoice(v){
-        return /^vi(?:-|_)/i.test(String(v?.lang||'')) ||
-            /vietnam|tiếng việt|vietnamese/i.test(String(v?.name||''));
+        const lang=String(v?.lang||'').replace('_','-').toLowerCase();
+        const name=String(v?.name||'').toLowerCase();
+        return /^vi(-|$)/i.test(lang)||/vietnam|vietnamese|tiếng việt|tieng viet/.test(name);
     }
     let availableVoices=[];
-
     function getVoices(){
-        const select=$('voice');
-        if(!select)return;
-        const all=speechSynthesis.getVoices();
-        const vi=all.filter(isVietnameseVoice);
-
-        if(!all.length){
-            select.innerHTML='<option value="">Đang tải giọng đọc...</option>';
-            setTimeout(getVoices,250);
-            return;
-        }
-
-        availableVoices=vi.length?vi:all;
-
-        // Do not silently select the first system voice (for example de-DE).
-        if(!vi.length){
-            select.innerHTML='<option value="__missing__">🇻🇳 Tiếng Việt — chưa có giọng trên máy</option>';
-            select.value='__missing__';
-            select.title='Chrome chưa cung cấp giọng Tiếng Việt. Hãy cài giọng vi-VN trên hệ điều hành.';
-            return;
-        }
-
+        const select=$('voice');if(!select||!('speechSynthesis'in window))return;
+        const all=speechSynthesis.getVoices();const vi=all.filter(isVietnameseVoice);
+        if(!all.length){select.innerHTML='<option value="">Đang tải giọng đọc...</option>';setTimeout(getVoices,250);return;}
+        availableVoices=vi;
+        if(!vi.length){select.innerHTML='<option value="__missing__">🇻🇳 Tiếng Việt — chưa có giọng trên thiết bị</option>';select.value='__missing__';select.title=isIOS()?'Safari chưa cung cấp voice Tiếng Việt cho Web Speech trên thiết bị này.':'Chrome chưa cung cấp giọng Tiếng Việt.';return;}
         select.title='Giọng đọc Tiếng Việt';
-        select.innerHTML=vi.map((v,i)=>
-            `<option value="${i}">🇻🇳 ${esc(v.name)} · ${esc(v.lang)} · Tiếng Việt</option>`
-        ).join('');
-
-        const preferred=vi.findIndex(v=>/^vi-VN$/i.test(String(v.lang||'')));
-        select.value=String(preferred>=0?preferred:0);
+        select.innerHTML=vi.map((v,i)=>`<option value="${i}">🇻🇳 ${esc(v.name)} · ${esc(v.lang)} · Tiếng Việt</option>`).join('');
+        const preferred=vi.findIndex(v=>/^vi-VN$/i.test(String(v.lang||'')));select.value=String(preferred>=0?preferred:0);
     }
-
     function chosenVoice(){
-        const all=speechSynthesis.getVoices();
-        const vi=all.filter(isVietnameseVoice);
-        if(!vi.length)return null;
+        const all=speechSynthesis.getVoices();const vi=all.filter(isVietnameseVoice);if(!vi.length)return null;
         const selectedIndex=Number($('voice')?.value);
-        return vi[selectedIndex>=0?selectedIndex:0] ||
-            vi.find(v=>/^vi-VN$/i.test(String(v.lang||''))) || vi[0];
+        return vi[selectedIndex>=0?selectedIndex:0]||vi.find(v=>/^vi-VN$/i.test(String(v.lang||'')))||vi[0];
     }
-
-    speechSynthesis.onvoiceschanged=getVoices;
-    getVoices();
-    setTimeout(getVoices,500);
-    setTimeout(getVoices,1500);
+    speechSynthesis.onvoiceschanged=getVoices;getVoices();setTimeout(getVoices,300);setTimeout(getVoices,1000);setTimeout(getVoices,2500);
 
     function pageSentences(){return [...$('paper').querySelectorAll('.sent')]}
     function speakFrom(idx=0){
