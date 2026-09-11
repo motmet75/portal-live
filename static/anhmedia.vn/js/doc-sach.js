@@ -2,7 +2,7 @@
     'use strict';
     const $=id=>document.getElementById(id);
     const KEY='anhmedia.doc-sach.v1';
-    const JS_VERSION='20260911-2';
+    const JS_VERSION='20260911-3';
     let state=loadLocal(), serverRevision=0, serverSynced=false, serverStateCache={};
     let currentId=null, pageIndex=0, pages=[], speech=null, sentenceIndex=-1, timerEnd=0, timerId=null;
     let lang='vi';
@@ -232,31 +232,55 @@
     };
 
     function isVietnameseVoice(v){
-        return /^vi(?:-|_)/i.test(String(v?.lang||'')) || /vietnam|tiếng việt|vietnamese/i.test(String(v?.name||''));
+        return /^vi(?:-|_)/i.test(String(v?.lang||'')) ||
+            /vietnam|tiếng việt|vietnamese/i.test(String(v?.name||''));
     }
+    let availableVoices=[];
+
     function getVoices(){
-        const all=speechSynthesis.getVoices();
-        const vi=all.filter(isVietnameseVoice);
-        const list=vi.length?vi:all;
         const select=$('voice');
         if(!select)return;
-        select.innerHTML=list.map((v,i)=>`<option value="${i}">${esc(v.name)} · ${esc(v.lang)}${isVietnameseVoice(v)?' · Tiếng Việt':''}</option>`).join('');
-        // Always prefer Vietnamese when the browser provides a Vietnamese voice.
-        if(vi.length){
-            const preferred=vi.findIndex(v=>/^vi-VN$/i.test(v.lang))>=0?vi.findIndex(v=>/^vi-VN$/i.test(v.lang)):0;
-            select.value=String(preferred);
+        const all=speechSynthesis.getVoices();
+        const vi=all.filter(isVietnameseVoice);
+
+        if(!all.length){
+            select.innerHTML='<option value="">Đang tải giọng đọc...</option>';
+            setTimeout(getVoices,250);
+            return;
         }
+
+        availableVoices=vi.length?vi:all;
+
+        // Do not silently select the first system voice (for example de-DE).
+        if(!vi.length){
+            select.innerHTML='<option value="__missing__">🇻🇳 Tiếng Việt — chưa có giọng trên máy</option>';
+            select.value='__missing__';
+            select.title='Chrome chưa cung cấp giọng Tiếng Việt. Hãy cài giọng vi-VN trên hệ điều hành.';
+            return;
+        }
+
+        select.title='Giọng đọc Tiếng Việt';
+        select.innerHTML=vi.map((v,i)=>
+            `<option value="${i}">🇻🇳 ${esc(v.name)} · ${esc(v.lang)} · Tiếng Việt</option>`
+        ).join('');
+
+        const preferred=vi.findIndex(v=>/^vi-VN$/i.test(String(v.lang||'')));
+        select.value=String(preferred>=0?preferred:0);
     }
+
     function chosenVoice(){
         const all=speechSynthesis.getVoices();
         const vi=all.filter(isVietnameseVoice);
-        if(vi.length){
-            const selected=vi[Number($('voice')?.value)||0];
-            return selected||vi.find(v=>/^vi-VN$/i.test(v.lang))||vi[0];
-        }
-        return all[Number($('voice')?.value)||0]||null;
+        if(!vi.length)return null;
+        const selectedIndex=Number($('voice')?.value);
+        return vi[selectedIndex>=0?selectedIndex:0] ||
+            vi.find(v=>/^vi-VN$/i.test(String(v.lang||''))) || vi[0];
     }
-    speechSynthesis.onvoiceschanged=getVoices;getVoices();
+
+    speechSynthesis.onvoiceschanged=getVoices;
+    getVoices();
+    setTimeout(getVoices,500);
+    setTimeout(getVoices,1500);
 
     function pageSentences(){return [...$('paper').querySelectorAll('.sent')]}
     function speakFrom(idx=0){
@@ -265,7 +289,16 @@
         speechSynthesis.cancel();sentenceIndex=Math.max(0,Math.min(idx,els.length-1));
         const text=els[sentenceIndex].textContent.trim();if(!text)return;
         els.forEach(x=>x.classList.remove('active'));els[sentenceIndex].classList.add('active');
-        const u=new SpeechSynthesisUtterance(text);const voice=chosenVoice();u.lang=voice?.lang||'vi-VN';if(voice)u.voice=voice;u.rate=Number($('speed').value);u.pitch=Number($('pitch').value);
+        const voice=chosenVoice();
+        if(!voice){
+            toast('Chưa có giọng đọc Tiếng Việt (vi-VN) trên trình duyệt. Vui lòng cài giọng Tiếng Việt trên Debian/Chrome.');
+            return;
+        }
+        const u=new SpeechSynthesisUtterance(text);
+        u.lang='vi-VN';
+        u.voice=voice;
+        u.rate=Number($('speed').value);
+        u.pitch=Number($('pitch').value);
         u.onend=()=>{if(timerExpired())return;sentenceIndex++;updateProgress();if(sentenceIndex<els.length)speakFrom(sentenceIndex);else if(pageIndex<pages.length-1){pageIndex++;renderPage();speakFrom(0)}else stopSpeech(false)};
         u.onerror=()=>{speech=null;els.forEach(x=>x.classList.remove('active'));};
         speech=u;speechSynthesis.speak(u);updateProgress();saveLocal();
