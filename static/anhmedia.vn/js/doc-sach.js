@@ -2,7 +2,7 @@
     'use strict';
     const $=id=>document.getElementById(id);
     const KEY='anhmedia.doc-sach.v1';
-    const JS_VERSION='20260911-3';
+    const JS_VERSION='20260911-4';
     let state=loadLocal(), serverRevision=0, serverSynced=false, serverStateCache={};
     let currentId=null, pageIndex=0, pages=[], speech=null, sentenceIndex=-1, timerEnd=0, timerId=null;
     let lang='vi';
@@ -90,6 +90,16 @@
     }
     function setAuthModal(open){
         const modal=$('ocrAuthModal');if(!modal)return;
+        // The auth modal may be declared after this script in the HTML.
+        // Wire its controls lazily the first time the modal is opened.
+        if(!modal.dataset.wired){
+            $('ocrGoogleBtn')?.addEventListener('click',openGoogleLoginPopup);
+            $('ocrAuthClose')?.addEventListener('click',()=>setAuthModal(false));
+            $('ocrAuthCancel')?.addEventListener('click',()=>setAuthModal(false));
+            $('ocrAuthContinue')?.addEventListener('click',continueOcrAuth);
+            modal.addEventListener('click',e=>{if(e.target===modal)setAuthModal(false);});
+            modal.dataset.wired='1';
+        }
         modal.hidden=!open;
         if(open){
             const c=loadOcrCredentials();$('ocrUserId').value=c.userId;$('ocrTokenId').value=c.tokenId;
@@ -143,11 +153,8 @@
     }
     async function beginOcrAction(action){
         pendingOcrAction=action;
-        if(await googleSessionAuthenticated()){
-            setAccountStatus(true);
-            if(action==='file')$('file').click();else await extractUrl();
-            pendingOcrAction=null;return;
-        }
+        // Always show the OCR token dialog when the user presses "Tải PDF".
+        // The PDF file chooser is opened only after User ID + Token are entered.
         setAuthModal(true);
     }
     async function continueOcrAuth(){
