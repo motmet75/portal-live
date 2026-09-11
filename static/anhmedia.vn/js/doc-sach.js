@@ -145,7 +145,14 @@
         $('progressRange').value=String(pct);$('percent').textContent=`${Math.round(pct)}%`;
         if(d){d.currentPage=pageIndex;d.readingPoint={pageIndex,sentenceIndex:Math.max(0,sentenceIndex),updatedAt:new Date().toISOString()}}
     }
-    $('progressRange').oninput=()=>{if(!pages.length)return;pageIndex=Math.round((Number($('progressRange').value)/100)*Math.max(0,pages.length-1));renderPage(false)}
+    $('progressRange').oninput=()=>{
+        if(!pages.length)return;
+        pageIndex=Math.round((Number($('progressRange').value)/100)*Math.max(0,pages.length-1));
+        renderPage(false);
+    };
+    $('progressRange').addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
+    $('progressRange').addEventListener('touchmove',e=>e.stopPropagation(),{passive:true});
+    $('progressRange').addEventListener('pointerdown',e=>e.stopPropagation());
     $('prev').onclick=$('prev2').onclick=()=>pageNext(-1);$('next').onclick=$('next2').onclick=()=>pageNext(1);
     $('jumpBtn').onclick=()=>{const n=Math.max(1,Math.min(pages.length,Number($('pageJump').value)||1));stopSpeech(false);pageIndex=n-1;renderPage()}
     $('pageJump').onkeydown=e=>{if(e.key==='Enter')$('jumpBtn').click()};
