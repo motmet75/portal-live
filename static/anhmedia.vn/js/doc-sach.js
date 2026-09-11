@@ -231,12 +231,31 @@
         if(!count)el.innerHTML='<small style="color:#68736f">Không tìm thấy.</small>';
     };
 
-    function getVoices(){
-        const voices=speechSynthesis.getVoices().filter(v=>/^vi(-|_)/i.test(v.lang)||/vietnam|tiếng việt|vietnamese/i.test(v.name));
-        const all=voices.length?voices:speechSynthesis.getVoices();
-        $('voice').innerHTML=all.map((v,i)=>`<option value="${i}">${esc(v.name)} · ${esc(v.lang)}</option>`).join('');
+    function isVietnameseVoice(v){
+        return /^vi(?:-|_)/i.test(String(v?.lang||'')) || /vietnam|tiếng việt|vietnamese/i.test(String(v?.name||''));
     }
-    function chosenVoice(){const all=speechSynthesis.getVoices();const vi=all.filter(v=>/^vi(-|_)/i.test(v.lang)||/vietnam/i.test(v.name));return (vi.length?vi:all)[Number($('voice').value)||0]}
+    function getVoices(){
+        const all=speechSynthesis.getVoices();
+        const vi=all.filter(isVietnameseVoice);
+        const list=vi.length?vi:all;
+        const select=$('voice');
+        if(!select)return;
+        select.innerHTML=list.map((v,i)=>`<option value="${i}">${esc(v.name)} · ${esc(v.lang)}${isVietnameseVoice(v)?' · Tiếng Việt':''}</option>`).join('');
+        // Always prefer Vietnamese when the browser provides a Vietnamese voice.
+        if(vi.length){
+            const preferred=vi.findIndex(v=>/^vi-VN$/i.test(v.lang))>=0?vi.findIndex(v=>/^vi-VN$/i.test(v.lang)):0;
+            select.value=String(preferred);
+        }
+    }
+    function chosenVoice(){
+        const all=speechSynthesis.getVoices();
+        const vi=all.filter(isVietnameseVoice);
+        if(vi.length){
+            const selected=vi[Number($('voice')?.value)||0];
+            return selected||vi.find(v=>/^vi-VN$/i.test(v.lang))||vi[0];
+        }
+        return all[Number($('voice')?.value)||0]||null;
+    }
     speechSynthesis.onvoiceschanged=getVoices;getVoices();
 
     function pageSentences(){return [...$('paper').querySelectorAll('.sent')]}
@@ -246,7 +265,7 @@
         speechSynthesis.cancel();sentenceIndex=Math.max(0,Math.min(idx,els.length-1));
         const text=els[sentenceIndex].textContent.trim();if(!text)return;
         els.forEach(x=>x.classList.remove('active'));els[sentenceIndex].classList.add('active');
-        const u=new SpeechSynthesisUtterance(text);u.lang='vi-VN';u.voice=chosenVoice();u.rate=Number($('speed').value);u.pitch=Number($('pitch').value);
+        const u=new SpeechSynthesisUtterance(text);const voice=chosenVoice();u.lang=voice?.lang||'vi-VN';if(voice)u.voice=voice;u.rate=Number($('speed').value);u.pitch=Number($('pitch').value);
         u.onend=()=>{if(timerExpired())return;sentenceIndex++;updateProgress();if(sentenceIndex<els.length)speakFrom(sentenceIndex);else if(pageIndex<pages.length-1){pageIndex++;renderPage();speakFrom(0)}else stopSpeech(false)};
         u.onerror=()=>{speech=null;els.forEach(x=>x.classList.remove('active'));};
         speech=u;speechSynthesis.speak(u);updateProgress();saveLocal();
