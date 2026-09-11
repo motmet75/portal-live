@@ -101,6 +101,25 @@
   </aside>
 </div>
 
+<div id="ocrAuthModal" class="ocr-modal" hidden aria-hidden="true">
+  <div class="ocr-dialog" role="dialog" aria-modal="true" aria-labelledby="ocrAuthTitle">
+    <h2 id="ocrAuthTitle">🔐 Xác thực OCR</h2>
+    <p>Nhập User ID và Token OCR trước khi tải PDF. Bạn cũng có thể đăng nhập Google.</p>
+    <button id="ocrGoogleBtn" class="ocr-google" type="button">G — Đăng nhập Google</button>
+    <div id="ocrAuthStatus" class="ocr-status">Chưa đăng nhập Google.</div>
+    <label for="ocrUserId">User ID OCR</label>
+    <input id="ocrUserId" autocomplete="username" placeholder="Nhập User ID OCR">
+    <label for="ocrTokenId">Token OCR</label>
+    <input id="ocrTokenId" type="password" autocomplete="current-password" placeholder="Nhập Token OCR">
+    <div id="ocrAuthError" class="ocr-error" hidden></div>
+    <div class="ocr-actions">
+      <button id="ocrAuthCancel" type="button">Hủy</button>
+      <button id="ocrAuthContinue" class="primary" type="button">Tiếp tục</button>
+    </div>
+    <button id="ocrAuthClose" type="button" style="position:absolute;opacity:0;pointer-events:none" aria-hidden="true">Đóng</button>
+  </div>
+</div>
+
 <script src="/anhmedia.vn/js/doc-sach.js?v=20260911-6"></script>
 </body>
 </html>
