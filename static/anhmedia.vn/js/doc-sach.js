@@ -21,6 +21,72 @@
     function setStatus(s){$('extractStatus').textContent=s||''}
     function toast(s){setStatus(s);clearTimeout(window._toast);window._toast=setTimeout(()=>setStatus(''),5000)}
 
+    function splitManualTextA4(text, targetLines=24){
+        const normalized=String(text||'').replace(/\r\n?/g,'\n').trim();
+        if(!normalized)return [];
+        targetLines=Math.max(10,Math.min(60,Number(targetLines)||24));
+        // Estimate line wrapping using the same reading font/size as .paper.
+        const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+        ctx.font='21px Georgia, "Times New Roman", serif';
+        const paper=document.querySelector('.paper');
+        const width=Math.max(320,(paper?.clientWidth||900)-144);
+        const lineHeight=21*1.9;
+        const maxChars=Math.max(35,Math.floor(width/ctx.measureText('abcdefghijklmnopqrstuvwxyz').width*26));
+        const out=[];let page='',lines=0;
+        const pushPage=()=>{const t=page.trim();if(t)out.push({pageNumber:out.length+1,text:t});page='';lines=0};
+        const addParagraph=(para)=>{
+            if(!para.trim()){ if(page && !page.endsWith('\n\n')){page+='\n';lines++;} return; }
+            const words=para.trim().split(/\s+/); let line='';
+            for(const word of words){
+                const candidate=line?line+' '+word:word;
+                const tooWide=ctx.measureText(candidate).width>width;
+                if(tooWide && line){
+                    if(lines>=targetLines)pushPage();
+                    page+=(page?'\n':'')+line;lines++;line=word;
+                }else line=candidate;
+                // Very long token: hard-wrap it so one URL/string cannot overflow a page.
+                while(ctx.measureText(line).width>width){
+                    let cut=Math.min(line.length,Math.max(1,Math.floor(line.length*width/ctx.measureText(line).width)));
+                    while(cut>1&&ctx.measureText(line.slice(0,cut)).width>width)cut--;
+                    while(cut<line.length&&ctx.measureText(line.slice(0,cut+1)).width<=width)cut++;
+                    const piece=line.slice(0,cut);line=line.slice(cut);
+                    if(lines>=targetLines)pushPage();
+                    page+=(page?'\n':'')+piece;lines++;
+                }
+            }
+            if(line){if(lines>=targetLines)pushPage();page+=(page?'\n':'')+line;lines++;}
+        };
+        normalized.split(/\n{2,}/).forEach(addParagraph);
+        if(page.trim())pushPage();
+        return out;
+    }
+    function manualPages(text,a4,lines){
+        if(!a4)return [{pageNumber:1,text:String(text||'').replace(/\r\n?/g,'\n').trim()}];
+        return splitManualTextA4(text,lines);
+    }
+    function updateManualPreview(){
+        const text=$('manualText')?.value||'',preview=$('manualPreview');if(!preview)return;
+        const a4=$('manualA4')?.checked!==false;const lines=Number($('manualLines')?.value)||24;
+        const n=text.trim()?manualPages(text,a4,lines).length:0;preview.textContent=`${n} trang dự kiến`;
+    }
+    function openManualDocModal(){
+        const modal=$('manualDocModal');if(!modal)return;
+        modal.hidden=false;modal.setAttribute('aria-hidden','false');
+        $('manualTitle').value='';$('manualText').value='';$('manualA4').checked=true;$('manualLines').value='24';$('manualError').hidden=true;updateManualPreview();
+        setTimeout(()=>$('manualTitle').focus(),30);
+    }
+    function closeManualDocModal(){const modal=$('manualDocModal');if(!modal)return;modal.hidden=true;modal.setAttribute('aria-hidden','true');}
+    function saveManualDoc(){
+        const text=$('manualText')?.value.trim()||'', title=$('manualTitle')?.value.trim()||'Tài liệu mới';
+        const err=$('manualError');
+        if(!text){if(err){err.textContent='Hãy nhập hoặc dán nội dung trước khi lưu.';err.hidden=false;}return;}
+        const docPages=manualPages(text,$('manualA4')?.checked!==false,Number($('manualLines')?.value)||24);
+        if(!docPages.length){if(err){err.textContent='Không tạo được trang từ nội dung này.';err.hidden=false;}return;}
+        const d={id:uid(),title,pages:docPages,currentPage:0,bookmarks:[],readingPoint:{pageIndex:0,sentenceIndex:0},updatedAt:new Date().toISOString(),source:'manual'};
+        state.documents.unshift(d);currentId=d.id;pages=d.pages;pageIndex=0;sentenceIndex=-1;
+        closeManualDocModal();renderPage();renderDocs();renderBookmarks();toast(`Đã lưu “${title}” với ${docPages.length} trang.`);
+    }
+
     function renderDocs(){
         const el=$('docs'); el.innerHTML='';
         if(!state.documents.length){el.innerHTML='<small style="color:#68736f">Chưa có sách.</small>';return}
@@ -317,7 +383,7 @@
         try{
             const r=await fetch('/api/japanese-learning/state',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({state:JSON.stringify(payload),baseRevision:serverRevision})});
             const data=await r.json().catch(()=>({}));
-            if(r.status===409&&data.state){serverStateCache=JSON.parse(data.state);const remote=Array.isArray(serverStateCache.docSachDocuments)?serverStateCache.docSachDocuments:[];const rm=Array.isArray(remote.docSachDocuments)?remote.docSachDocuments:[];const map=new Map(state.documents.map(d=>[d.id,d]));rm.forEach(d=>{const old=map.get(d.id);if(!old||new Date(d.updatedAt||0)>new Date(old.updatedAt||0))map.set(d.id,d)});state.documents=[...map.values()];localStorage.setItem(KEY,JSON.stringify(state));serverRevision=Number(data.revision)||serverRevision;return syncServer()}
+            if(r.status===409&&data.state){serverStateCache=JSON.parse(data.state);const remote=Array.isArray(serverStateCache.docSachDocuments)?serverStateCache.docSachDocuments:[];const rm=remote;const map=new Map(state.documents.map(d=>[d.id,d]));rm.forEach(d=>{const old=map.get(d.id);if(!old||new Date(d.updatedAt||0)>new Date(old.updatedAt||0))map.set(d.id,d)});state.documents=[...map.values()];localStorage.setItem(KEY,JSON.stringify(state));serverRevision=Number(data.revision)||serverRevision;return syncServer()}
             if(r.ok){serverRevision=Number(data.revision)||serverRevision;serverStateCache.docSachDocuments=state.documents;}
         }catch(_){}
     }
@@ -332,7 +398,16 @@
     const viBtn=$('viBtn'); if(viBtn) viBtn.onclick=()=>setLang('vi');
     const enBtn=$('enBtn'); if(enBtn) enBtn.onclick=()=>setLang('en');
     function setLang(x){lang=x;document.documentElement.lang=x;document.querySelectorAll('[data-i18n]').forEach(e=>{const key=e.dataset.i18n;e.textContent=x==='en'?({library:'LIBRARY',upload:'Upload PDF',uploadHint:'Text or scanned PDF; source page order is preserved.',url:'PDF FROM URL',books:'YOUR BOOKS'}[key]||e.textContent):({library:'THƯ VIỆN',upload:'Tải PDF / Upload PDF',uploadHint:'PDF chữ hoặc PDF scan; hệ thống giữ nguyên thứ tự trang.',url:'PDF TỪ URL',books:'SÁCH CỦA BẠN'}[key]||e.textContent)})}
-    setLang('vi');renderDocs();renderBookmarks();loadServer();
+    setLang('vi');
+    const newDocBtn=$('newDocBtn');if(newDocBtn)newDocBtn.onclick=openManualDocModal;
+    $('manualCancel')?.addEventListener('click',closeManualDocModal);
+    $('manualSave')?.addEventListener('click',saveManualDoc);
+    $('manualText')?.addEventListener('input',updateManualPreview);
+    $('manualA4')?.addEventListener('change',updateManualPreview);
+    $('manualLines')?.addEventListener('input',updateManualPreview);
+    $('manualDocModal')?.addEventListener('click',e=>{if(e.target===$('manualDocModal'))closeManualDocModal()});
+    $('manualText')?.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveManualDoc()}});
+    renderDocs();renderBookmarks();loadServer();
     googleSessionAuthenticated().then(ok=>{if(ok){setAccountStatus(true);const loginBtn=$('login');if(loginBtn)loginBtn.textContent='Google ✓';}});
     setInterval(updateTimer,1000);
     window.addEventListener('beforeunload',()=>{const d=current();if(d){d.currentPage=pageIndex;d.readingPoint={pageIndex,sentenceIndex};d.updatedAt=new Date().toISOString();localStorage.setItem(KEY,JSON.stringify(state))}});
