@@ -2,7 +2,7 @@
     'use strict';
     const $=id=>document.getElementById(id);
     const KEY='anhmedia.doc-sach.v1';
-    const JS_VERSION='20260911-5';
+    const JS_VERSION='20260911-6';
     let state=loadLocal(), serverRevision=0, serverSynced=false, serverStateCache={};
     let currentId=null, pageIndex=0, pages=[], speech=null, sentenceIndex=-1, timerEnd=0, timerId=null;
     let lang='vi';
@@ -176,18 +176,22 @@
     }
     async function continueOcrAuth(){
         const userId=$('ocrUserId')?.value.trim()||'', tokenId=$('ocrTokenId')?.value.trim()||'';
-        if(!userId||!tokenId){
+        const googleOk=await googleSessionAuthenticated();
+        // Google login is sufficient. Token OCR is only needed without a Google session.
+        if(!googleOk && (!userId||!tokenId)){
             const err=$('ocrAuthError');
-            if(err){err.textContent='Vui lòng nhập User ID và Token OCR để chạy OCR.';err.hidden=false;}
+            if(err){err.textContent='Hãy đăng nhập Google hoặc nhập đầy đủ User ID + Token OCR.';err.hidden=false;}
             return;
         }
-        saveOcrCredentials(userId,tokenId);
+        if(userId||tokenId) saveOcrCredentials(userId,tokenId);
         const err=$('ocrAuthError');if(err)err.hidden=true;
         const action=pendingOcrAction||'file';
         setAuthModal(false);
         pendingOcrAction=null;
-        if(action==='file') $('file')?.click();
-        else if(action==='url') await extractUrl();
+        if(action==='file'){
+            const input=$('file');
+            if(input){input.value='';setTimeout(()=>input.click(),80);}
+        }else if(action==='url') await extractUrl();
     }
     function getOcrCredentials(){
         const saved=loadOcrCredentials();
