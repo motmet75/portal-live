@@ -2,7 +2,7 @@
     'use strict';
     const $=id=>document.getElementById(id);
     const KEY='anhmedia.doc-sach.v1';
-    const JS_VERSION='20260911-4';
+    const JS_VERSION='20260911-5';
     let state=loadLocal(), serverRevision=0, serverSynced=false, serverStateCache={};
     let currentId=null, pageIndex=0, pages=[], speech=null, sentenceIndex=-1, timerEnd=0, timerId=null;
     let lang='vi';
@@ -25,11 +25,28 @@
         const el=$('docs'); el.innerHTML='';
         if(!state.documents.length){el.innerHTML='<small style="color:#68736f">Chưa có sách.</small>';return}
         [...state.documents].sort((a,b)=>new Date(b.updatedAt||0)-new Date(a.updatedAt||0)).forEach(d=>{
+            const row=document.createElement('div');row.className='doc-row';
             const b=document.createElement('button');b.className='doc'+(d.id===currentId?' active':'');
             const pct=d.pages?.length?Math.round(((d.currentPage||0)/(d.pages.length-1||1))*100):0;
             b.innerHTML=`<strong>${esc(d.title||'Sách')}</strong><small>${d.pages?.length||0} trang · ${pct}%</small>`;
-            b.onclick=()=>openDoc(d.id);el.appendChild(b);
+            b.onclick=()=>openDoc(d.id);
+            const del=document.createElement('button');del.className='doc-remove';del.type='button';del.title='Xóa sách';del.setAttribute('aria-label',`Xóa ${d.title||'sách'}`);del.textContent='🗑';
+            del.onclick=e=>{e.preventDefault();e.stopPropagation();removeDoc(d.id)};
+            row.appendChild(b);row.appendChild(del);el.appendChild(row);
         });
+    }
+    function removeDoc(id){
+        const d=state.documents.find(x=>x.id===id);if(!d)return;
+        const title=d.title||'Sách';
+        if(!confirm(`Xóa “${title}” khỏi thư viện?\n\nThao tác này sẽ xóa sách khỏi dữ liệu đã lưu trên thiết bị và đồng bộ máy chủ nếu đang đăng nhập.`))return;
+        state.documents=state.documents.filter(x=>x.id!==id);
+        if(id===currentId){
+            stopSpeech(false);currentId=null;pages=[];pageIndex=0;sentenceIndex=-1;
+            const next=[...state.documents].sort((a,b)=>new Date(b.updatedAt||0)-new Date(a.updatedAt||0))[0];
+            if(next){currentId=next.id;pages=Array.isArray(next.pages)?next.pages.map(p=>typeof p==='string'?{pageNumber:0,text:p}:p):[];pageIndex=Math.max(0,Math.min(Number(next.currentPage)||0,Math.max(0,pages.length-1)));renderPage(false)}
+            else{$('title').textContent='Chưa có sách';$('pageLabel').textContent='Trang 0 / 0';$('pageLabel2').textContent='Trang 0 / 0';$('paper').innerHTML='<div class="empty">Tải một PDF để bắt đầu đọc.</div>';$('progressRange').value='0';$('percent').textContent='0%';$('prev').disabled=$('prev2').disabled=$('next').disabled=$('next2').disabled=true;$('pageJump').value='';renderBookmarks()}
+        }
+        saveLocal();toast(`Đã xóa sách: ${title}`);
     }
     function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
@@ -244,34 +261,21 @@
         const name=String(v?.name||'').toLowerCase();
         return /^vi(-|$)/i.test(lang)||/vietnam|vietnamese|tiếng việt|tieng viet/.test(name);
     }
-    let voiceList=[];
-    let hasNativeVietnamese=false;
+    let availableVoices=[];
     function getVoices(){
         const select=$('voice');if(!select||!('speechSynthesis'in window))return;
-        const all=speechSynthesis.getVoices();
+        const all=speechSynthesis.getVoices();const vi=all.filter(isVietnameseVoice);
         if(!all.length){select.innerHTML='<option value="">Đang tải giọng đọc...</option>';setTimeout(getVoices,250);return;}
-        const vi=all.filter(isVietnameseVoice);
-        const prevValue=select.value;
-        if(vi.length){
-            hasNativeVietnamese=true;voiceList=vi;
-            select.title='Giọng đọc Tiếng Việt';
-            select.innerHTML=vi.map((v,i)=>`<option value="${i}">🇻🇳 ${esc(v.name)} · ${esc(v.lang)}</option>`).join('');
-            const preferred=vi.findIndex(v=>/^vi-VN$/i.test(String(v.lang||'')));
-            const keep=prevValue!==''&&Number(prevValue)<vi.length?Number(prevValue):(preferred>=0?preferred:0);
-            select.value=String(keep);
-        }else{
-            // No Vietnamese voice installed on this browser/OS. Fall back to whatever
-            // voices are available so playback still works, rather than refusing to speak.
-            hasNativeVietnamese=false;voiceList=all;
-            select.title=isIOS()?'Thiết bị chưa có giọng Tiếng Việt (Cài đặt ▸ Trợ năng ▸ Nội dung đọc ▸ Giọng đọc để tải thêm). Đang dùng giọng mặc định để vẫn đọc được.':'Trình duyệt chưa có giọng Tiếng Việt cài sẵn. Đang dùng giọng mặc định để vẫn đọc được.';
-            select.innerHTML=all.map((v,i)=>`<option value="${i}">${esc(v.name)} · ${esc(v.lang)}</option>`).join('');
-            select.value=prevValue!==''&&Number(prevValue)<all.length?prevValue:'0';
-        }
+        availableVoices=vi;
+        if(!vi.length){select.innerHTML='<option value="__missing__">🇻🇳 Tiếng Việt — chưa có giọng trên thiết bị</option>';select.value='__missing__';select.title=isIOS()?'Safari chưa cung cấp voice Tiếng Việt cho Web Speech trên thiết bị này.':'Chrome chưa cung cấp giọng Tiếng Việt.';return;}
+        select.title='Giọng đọc Tiếng Việt';
+        select.innerHTML=vi.map((v,i)=>`<option value="${i}">🇻🇳 ${esc(v.name)} · ${esc(v.lang)} · Tiếng Việt</option>`).join('');
+        const preferred=vi.findIndex(v=>/^vi-VN$/i.test(String(v.lang||'')));select.value=String(preferred>=0?preferred:0);
     }
     function chosenVoice(){
-        if(!voiceList.length)return null;
-        const idx=Number($('voice')?.value);
-        return voiceList[idx>=0&&idx<voiceList.length?idx:0]||voiceList[0];
+        const all=speechSynthesis.getVoices();const vi=all.filter(isVietnameseVoice);if(!vi.length)return null;
+        const selectedIndex=Number($('voice')?.value);
+        return vi[selectedIndex>=0?selectedIndex:0]||vi.find(v=>/^vi-VN$/i.test(String(v.lang||'')))||vi[0];
     }
     speechSynthesis.onvoiceschanged=getVoices;getVoices();setTimeout(getVoices,300);setTimeout(getVoices,1000);setTimeout(getVoices,2500);
 
@@ -284,15 +288,14 @@
         els.forEach(x=>x.classList.remove('active'));els[sentenceIndex].classList.add('active');
         const voice=chosenVoice();
         if(!voice){
-            toast('Trình duyệt chưa tải xong giọng đọc. Vui lòng thử lại sau vài giây.');
+            toast('Chưa có giọng đọc Tiếng Việt (vi-VN) trên trình duyệt. Vui lòng cài giọng Tiếng Việt trên Debian/Chrome.');
             return;
         }
         const u=new SpeechSynthesisUtterance(text);
+        u.lang='vi-VN';
         u.voice=voice;
-        u.lang=voice.lang||'vi-VN';
         u.rate=Number($('speed').value);
         u.pitch=Number($('pitch').value);
-        if(!hasNativeVietnamese&&sentenceIndex===0)toast('Không có giọng Tiếng Việt trên thiết bị này — đang đọc bằng giọng mặc định.');
         u.onend=()=>{if(timerExpired())return;sentenceIndex++;updateProgress();if(sentenceIndex<els.length)speakFrom(sentenceIndex);else if(pageIndex<pages.length-1){pageIndex++;renderPage();speakFrom(0)}else stopSpeech(false)};
         u.onerror=()=>{speech=null;els.forEach(x=>x.classList.remove('active'));};
         speech=u;speechSynthesis.speak(u);updateProgress();saveLocal();
@@ -346,8 +349,7 @@
     const ocrAuthModal=$('ocrAuthModal');
     if(ocrAuthModal) ocrAuthModal.addEventListener('click',e=>{if(e.target===ocrAuthModal)setAuthModal(false);});
 
-    const menuBtn=$('menuBtn'); if(menuBtn) menuBtn.onclick=()=>{$('right')?.classList.remove('open');$('left')?.classList.toggle('open')};
-    const rightBtn=$('rightBtn'); if(rightBtn) rightBtn.onclick=()=>{$('left')?.classList.remove('open');$('right')?.classList.toggle('open')};
+    const menuBtn=$('menuBtn'); if(menuBtn) menuBtn.onclick=()=>$('left')?.classList.toggle('open');
     const viBtn=$('viBtn'); if(viBtn) viBtn.onclick=()=>setLang('vi');
     const enBtn=$('enBtn'); if(enBtn) enBtn.onclick=()=>setLang('en');
     function setLang(x){lang=x;document.documentElement.lang=x;document.querySelectorAll('[data-i18n]').forEach(e=>{const key=e.dataset.i18n;e.textContent=x==='en'?({library:'LIBRARY',upload:'Upload PDF',uploadHint:'Text or scanned PDF; source page order is preserved.',url:'PDF FROM URL',books:'YOUR BOOKS'}[key]||e.textContent):({library:'THƯ VIỆN',upload:'Tải PDF / Upload PDF',uploadHint:'PDF chữ hoặc PDF scan; hệ thống giữ nguyên thứ tự trang.',url:'PDF TỪ URL',books:'SÁCH CỦA BẠN'}[key]||e.textContent)})}
