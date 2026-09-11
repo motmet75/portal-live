@@ -105,28 +105,28 @@
             return r.ok;
         }catch(_){return false}
     }
-    function setAuthModal(open){
-        const modal=$('ocrAuthModal');if(!modal)return;
-        // The auth modal may be declared after this script in the HTML.
-        // Wire its controls lazily the first time the modal is opened.
-        if(!modal.dataset.wired){
-            $('ocrGoogleBtn')?.addEventListener('click',openGoogleLoginPopup);
-            $('ocrAuthClose')?.addEventListener('click',()=>setAuthModal(false));
-            $('ocrAuthCancel')?.addEventListener('click',()=>setAuthModal(false));
-            $('ocrAuthContinue')?.addEventListener('click',continueOcrAuth);
-            modal.addEventListener('click',e=>{if(e.target===modal)setAuthModal(false);});
-            modal.dataset.wired='1';
-        }
-        modal.hidden=!open;
-        if(open){
-            const c=loadOcrCredentials();$('ocrUserId').value=c.userId;$('ocrTokenId').value=c.tokenId;
-            $('ocrAuthError').hidden=true;
-            googleSessionAuthenticated().then(ok=>{
-                if(ok){setAccountStatus(true);$('ocrAuthStatus').textContent='✓ Đã đăng nhập Google. Có thể tiếp tục mà không cần token OCR.'}
-                else $('ocrAuthStatus').textContent='Chưa đăng nhập Google. Bạn có thể dùng User ID + Token OCR.'
-            });
-            setTimeout(()=>$('ocrGoogleBtn')?.focus(),30);
-        }else pendingOcrAction=null;
+    function updateOcrAuthStatus(message){
+        const el=$('ocrAuthStatus');if(el)el.textContent=message;
+    }
+    function wireOcrCredentials(){
+        const user=$('ocrUserId'),token=$('ocrTokenId');
+        if(!user||!token)return;
+        const c=loadOcrCredentials();user.value=c.userId;token.value=c.tokenId;
+        const save=()=>{
+            const userId=user.value.trim(),tokenId=token.value.trim();
+            saveOcrCredentials(userId,tokenId);
+            updateOcrAuthStatus(userId&&tokenId?'✓ Token OCR đã lưu trên trình duyệt.':'Token OCR chưa được lưu đầy đủ.');
+        };
+        $('ocrSaveBtn')?.addEventListener('click',save);
+        $('ocrClearBtn')?.addEventListener('click',()=>{
+            user.value='';token.value='';saveOcrCredentials('','');
+            updateOcrAuthStatus('Token OCR đã xóa.');
+        });
+        [user,token].forEach(el=>el.addEventListener('change',save));
+        if(c.userId&&c.tokenId)updateOcrAuthStatus('✓ Đã có User ID + Token OCR.');
+        googleSessionAuthenticated().then(ok=>{
+            if(ok)updateOcrAuthStatus('✓ Đã đăng nhập Google. Có thể dùng OCR.');
+        });
     }
     function clearGoogleWatch(){
         if(googleLoginPoll){clearInterval(googleLoginPoll);googleLoginPoll=null}
@@ -145,7 +145,6 @@
         setAccountStatus(true);
         const loginBtn=$('login');
         if(loginBtn)loginBtn.textContent='Google ✓';
-        // The login action is complete: refresh the reader so the new server session is used.
         setTimeout(()=>location.reload(),250);
     }
     function openGoogleLoginPopup(){
@@ -154,8 +153,7 @@
         googleLoginPopup=window.open('/oauth2/authorization/google','anhmedia-google-login',
             `popup=yes,width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`);
         if(!googleLoginPopup){
-            $('ocrAuthError').textContent='Trình duyệt đang chặn popup Google. Hãy cho phép popup rồi thử lại.';
-            $('ocrAuthError').hidden=false;return;
+            const err=$('ocrAuthError');if(err){err.textContent='Trình duyệt đang chặn popup Google. Hãy cho phép popup rồi thử lại.';err.hidden=false;}return;
         }
         try{googleLoginPopup.focus()}catch(_){}
         clearGoogleWatch();
@@ -169,33 +167,20 @@
         },180000);
     }
     async function beginOcrAction(action){
-        pendingOcrAction=action;
-        // Always show the OCR token dialog when the user presses "Tải PDF".
-        // The PDF file chooser is opened only after User ID + Token are entered.
-        setAuthModal(true);
-    }
-    async function continueOcrAuth(){
-        const userId=$('ocrUserId')?.value.trim()||'', tokenId=$('ocrTokenId')?.value.trim()||'';
-        const googleOk=await googleSessionAuthenticated();
-        // Google login is sufficient. Token OCR is only needed without a Google session.
-        if(!googleOk && (!userId||!tokenId)){
-            const err=$('ocrAuthError');
-            if(err){err.textContent='Hãy đăng nhập Google hoặc nhập đầy đủ User ID + Token OCR.';err.hidden=false;}
-            return;
-        }
-        if(userId||tokenId) saveOcrCredentials(userId,tokenId);
-        const err=$('ocrAuthError');if(err)err.hidden=true;
-        const action=pendingOcrAction||'file';
-        setAuthModal(false);
-        pendingOcrAction=null;
+        const credentials=getOcrCredentials();
         if(action==='file'){
             const input=$('file');
-            if(input){input.value='';setTimeout(()=>input.click(),80);}
-        }else if(action==='url') await extractUrl();
+            if(input){input.value='';setTimeout(()=>input.click(),50);}
+        }else if(action==='url'){
+            await extractUrl();
+        }
     }
     function getOcrCredentials(){
         const saved=loadOcrCredentials();
-        return{userId:$('ocrUserId')?.value.trim()||saved.userId,tokenId:$('ocrTokenId')?.value.trim()||saved.tokenId};
+        const userId=$('ocrUserId')?.value.trim()||saved.userId;
+        const tokenId=$('ocrTokenId')?.value.trim()||saved.tokenId;
+        if(userId||tokenId)saveOcrCredentials(userId,tokenId);
+        return{userId,tokenId};
     }
 
     async function extract(file){
@@ -220,6 +205,7 @@
     if(uploadBtn) uploadBtn.onclick=()=>beginOcrAction('file');
     const fileInput=$('file');
     if(fileInput) fileInput.onchange=e=>extract(e.target.files[0]);
+    wireOcrCredentials();
 
     async function extractUrl(){
         const resourceUrl=$('url').value.trim();if(!resourceUrl)return;
@@ -231,7 +217,7 @@
                 body:JSON.stringify({resourceUrl,language:'vie',userId:credentials.userId,tokenId:credentials.tokenId})
             });
             const data=await r.json().catch(()=>({}));
-            if(r.status===401){pendingOcrAction='url';setAuthModal(true);throw new Error('Cần đăng nhập Google hoặc nhập token OCR hợp lệ.')}
+            if(r.status===401)throw new Error('Cần đăng nhập Google hoặc token OCR hợp lệ.')
             if(!r.ok||data.status!=='success')throw new Error(data.error||'Không thể tải URL');
             const extracted=(data.pages||[]).map((p,i)=>({pageNumber:Number(p.pageNumber)||i+1,text:String(p.text||'')}));
             if(!extracted.length)throw new Error('PDF không có trang nào.');
@@ -341,17 +327,6 @@
     if(loginBtn){
         loginBtn.onclick=(e)=>{e.preventDefault();pendingOcrAction=null;openGoogleLoginPopup()};
     }
-
-    const ocrGoogleBtn=$('ocrGoogleBtn');
-    if(ocrGoogleBtn) ocrGoogleBtn.onclick=()=>openGoogleLoginPopup();
-    const ocrAuthClose=$('ocrAuthClose');
-    if(ocrAuthClose) ocrAuthClose.onclick=()=>setAuthModal(false);
-    const ocrAuthCancel=$('ocrAuthCancel');
-    if(ocrAuthCancel) ocrAuthCancel.onclick=()=>setAuthModal(false);
-    const ocrAuthContinue=$('ocrAuthContinue');
-    if(ocrAuthContinue) ocrAuthContinue.onclick=()=>continueOcrAuth();
-    const ocrAuthModal=$('ocrAuthModal');
-    if(ocrAuthModal) ocrAuthModal.addEventListener('click',e=>{if(e.target===ocrAuthModal)setAuthModal(false);});
 
     const menuBtn=$('menuBtn'); if(menuBtn) menuBtn.onclick=()=>$('left')?.classList.toggle('open');
     const viBtn=$('viBtn'); if(viBtn) viBtn.onclick=()=>setLang('vi');
