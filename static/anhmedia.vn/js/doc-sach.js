@@ -2,6 +2,7 @@
     'use strict';
     const $=id=>document.getElementById(id);
     const KEY='anhmedia.doc-sach.v1';
+    const JS_VERSION='20260911-2';
     let state=loadLocal(), serverRevision=0, serverSynced=false, serverStateCache={};
     let currentId=null, pageIndex=0, pages=[], speech=null, sentenceIndex=-1, timerEnd=0, timerId=null;
     let lang='vi';
@@ -152,13 +153,17 @@
     async function continueOcrAuth(){
         const userId=$('ocrUserId')?.value.trim()||'', tokenId=$('ocrTokenId')?.value.trim()||'';
         if(!userId||!tokenId){
-            $('ocrAuthError').textContent='Vui lòng nhập đầy đủ User ID và Token OCR.';
-            $('ocrAuthError').hidden=false;return;
+            const err=$('ocrAuthError');
+            if(err){err.textContent='Vui lòng nhập User ID và Token OCR để chạy OCR.';err.hidden=false;}
+            return;
         }
-        saveOcrCredentials(userId,tokenId);$('ocrAuthError').hidden=true;
-        const action=pendingOcrAction||'file';setAuthModal(false);
-        if(action==='file') $('file')?.click(); else await extractUrl();
+        saveOcrCredentials(userId,tokenId);
+        const err=$('ocrAuthError');if(err)err.hidden=true;
+        const action=pendingOcrAction||'file';
+        setAuthModal(false);
         pendingOcrAction=null;
+        if(action==='file') $('file')?.click();
+        else if(action==='url') await extractUrl();
     }
     function getOcrCredentials(){
         const saved=loadOcrCredentials();
@@ -280,7 +285,9 @@
     const syncNow=$('syncNow');
     if(syncNow) syncNow.onclick=()=>syncServer().then(()=>toast('Đã gửi trạng thái đọc lên máy chủ.'));
     const loginBtn=$('login');
-    if(loginBtn) loginBtn.onclick=(e)=>{e.preventDefault();pendingOcrAction=null;openGoogleLoginPopup()};
+    if(loginBtn){
+        loginBtn.onclick=(e)=>{e.preventDefault();pendingOcrAction=null;openGoogleLoginPopup()};
+    }
 
     const ocrGoogleBtn=$('ocrGoogleBtn');
     if(ocrGoogleBtn) ocrGoogleBtn.onclick=()=>openGoogleLoginPopup();
