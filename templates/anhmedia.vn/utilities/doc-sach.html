@@ -13,19 +13,6 @@
     .reader{min-width:0;overflow:auto;padding:22px 20px 110px}.reader-head{max-width:900px;margin:0 auto 12px;display:flex;gap:8px;align-items:center}.title{flex:1;font-size:19px;font-weight:900}.pagejump{width:95px}.paper{max-width:900px;min-height:65vh;margin:auto;background:var(--paper);border:1px solid #e2dfd5;border-radius:14px;box-shadow:var(--shadow);padding:42px clamp(22px,5vw,72px);font-family:Georgia,"Times New Roman",serif;font-size:21px;line-height:1.9;white-space:pre-wrap;word-break:break-word}.paper .sent{border-radius:4px;transition:background .15s}.paper .sent.active{background:var(--gold);box-shadow:0 0 0 2px #f5df8b88}.empty{color:var(--muted);text-align:center;padding:70px 20px;font-family:system-ui}.nav{max-width:900px;margin:12px auto;display:flex;gap:8px;align-items:center}.nav button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:9px 13px}.nav .label{flex:1;text-align:center;font-weight:800}.bar{max-width:900px;margin:12px auto;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px}.barrow{display:flex;align-items:center;gap:8px}.range{flex:1}.percent{width:50px;text-align:right;font-size:12px;color:var(--muted)}
     .controls{display:grid;gap:10px}.controls label{font-size:11px;color:var(--muted);font-weight:800}.controls input[type=range]{width:100%}.controlrow{display:flex;gap:6px}.controlrow button{flex:1;border:1px solid var(--line);background:#fff;border-radius:8px;padding:9px}.bigplay{background:var(--green)!important;color:#fff;border-color:var(--green)!important}.bookmarks{display:grid;gap:6px}.mark{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px;text-align:left}.mark small{display:block;color:var(--muted);margin-top:3px}.timer{font-weight:800;color:var(--green);font-size:13px}.status{font-size:11px;color:var(--muted);line-height:1.5}.login{display:inline-block;text-decoration:none;color:#fff;background:var(--green);border-radius:8px;padding:9px 11px;font-weight:800}.search{margin-bottom:8px}.search-results{display:grid;gap:5px}.result{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px;text-align:left}.result b{color:var(--green);font-size:11px}.result span{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.note{width:100%;min-height:70px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:8px}
     @media(max-width:1100px){.layout{grid-template-columns:250px minmax(0,1fr)}.right{display:none}}@media(max-width:720px){.top{height:auto;min-height:58px;flex-wrap:wrap;padding:8px}.account{display:none}.layout{display:block}.left{position:fixed;z-index:45;top:58px;bottom:0;left:0;width:min(88vw,310px);transform:translateX(-105%);transition:.2s;box-shadow:10px 0 30px #0002}.left.open{transform:none}.reader{padding:12px 10px 100px}.paper{font-size:19px;line-height:1.8;padding:28px 19px;min-height:70vh}.reader-head{flex-wrap:wrap}.title{width:100%}}
-
-    .auth-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(20,30,28,.58);backdrop-filter:blur(3px)}
-    .auth-modal[hidden]{display:none!important}.auth-card{position:relative;width:min(460px,94vw);padding:22px;border-radius:16px;background:#fffdf9;box-shadow:0 24px 80px rgba(0,0,0,.30)}
-    .auth-card h2{margin:4px 0 8px;color:var(--green);font-size:21px}.auth-card p{margin:0 0 14px;color:var(--muted);font-size:12px;line-height:1.55}
-    .auth-card label{display:block;margin:10px 0;color:#40504c;font-size:11px;font-weight:800}.auth-card input{display:block;width:100%;height:42px;margin-top:5px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:14px}
-    .auth-close{position:absolute;right:9px;top:8px;width:36px;height:36px;border:0;background:transparent;color:var(--danger);font-size:24px}
-    .auth-google{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:11px 14px;border:1px solid #9fbeb2;border-radius:9px;background:#fff;color:#315f55;font-weight:900}
-    .auth-google svg{width:18px;height:18px}.auth-divider{display:flex;align-items:center;gap:9px;margin:14px 0;color:#8a9490;font-size:10px;font-weight:800}
-    .auth-divider:before,.auth-divider:after{content:"";height:1px;flex:1;background:var(--line)}
-    .auth-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:15px}.auth-actions button{padding:10px 14px;border:1px solid var(--line);border-radius:9px;background:#fff;color:#315f55;font-weight:900}
-    .auth-actions .primary{background:var(--green);color:#fff;border-color:var(--green)}.auth-status{margin-top:9px;padding:9px;border-radius:8px;background:#eef7f3;color:#315f55;font-size:11px;line-height:1.45}
-    .auth-error{margin-top:9px;padding:9px;border-radius:8px;background:#f8e7e3;color:#8b3f36;font-size:11px;font-weight:700}.auth-help{margin-top:10px!important;font-size:10px!important}
-
   </style>
 </head>
 <body>
@@ -114,34 +101,28 @@
   </aside>
 </div>
 
+<div id="ocrAuthModal" hidden style="position:fixed;inset:0;background:#0007;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div style="width:min(430px,100%);background:#fffdf9;border:1px solid #d8e0dc;border-radius:14px;padding:18px;box-shadow:0 20px 60px #0003">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <h3 style="margin:0">🔐 Xác thực OCR</h3>
+      <button id="ocrAuthClose" type="button">✕</button>
+    </div>
+    <p class="status">Để tải PDF và chạy OCR, vui lòng nhập User ID + Token OCR. Nếu bạn đã đăng nhập Google ở nút trên cùng thì cửa sổ này sẽ không xuất hiện.</p>
+    <div id="ocrAuthStatus" class="status">Nhập thông tin OCR để tiếp tục.</div>
+    <label style="display:block;margin-top:10px;font-size:12px;font-weight:800">User ID OCR</label>
+    <input class="input" id="ocrUserId" autocomplete="username" placeholder="User ID">
+    <label style="display:block;margin-top:8px;font-size:12px;font-weight:800">Token OCR</label>
+    <input class="input" id="ocrTokenId" type="password" autocomplete="off" placeholder="Token OCR">
+    <p id="ocrAuthError" class="status" style="color:#a44539" hidden></p>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button id="ocrAuthCancel" type="button" style="flex:1">Hủy</button>
+      <button id="ocrAuthContinue" class="primary" type="button" style="flex:1">Tiếp tục</button>
+    </div>
+  </div>
+</div>
+
 <script src="/anhmedia.vn/js/doc-sach.js?v=20260911-1"></script>
 
-<div class="auth-modal" id="ocrAuthModal" hidden>
-  <section class="auth-card" role="dialog" aria-modal="true" aria-labelledby="ocrAuthTitle">
-    <button class="auth-close" id="ocrAuthClose" type="button" aria-label="Đóng">×</button>
-    <h2 id="ocrAuthTitle">🔐 Xác thực để đọc PDF</h2>
-    <p>Đăng nhập Google để dùng phiên đăng nhập hiện tại, hoặc nhập User ID + Token OCR của máy chủ. Nếu Google đã đăng nhập thành công thì không cần token.</p>
-    <button class="auth-google" id="ocrGoogleBtn" type="button">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path fill="#4285f4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.4a4.6 4.6 0 0 1-2 3v2.5h3.2c1.9-1.8 3-4.4 3-7.3Z"/>
-        <path fill="#34a853" d="M12 22c2.7 0 5-.9 6.7-2.5l-3.2-2.5c-.9.6-2 1-3.5 1a6 6 0 0 1-5.6-4.1H3.1v2.6A10 10 0 0 0 12 22Z"/>
-        <path fill="#fbbc05" d="M6.4 13.9a6 6 0 0 1 0-3.8V7.4H3.1a10 10 0 0 0 0 9.2l3.3-2.7Z"/>
-        <path fill="#ea4335" d="M12 6c1.5 0 2.8.5 3.8 1.5l2.9-2.8A9.8 9.8 0 0 0 12 2a10 10 0 0 0-8.9 5.4l3.3 2.7A6 6 0 0 1 12 6Z"/>
-      </svg>
-      Đăng nhập bằng Google
-    </button>
-    <div class="auth-divider"><span>HOẶC DÙNG TOKEN OCR</span></div>
-    <label>User ID<input id="ocrUserId" autocomplete="username" placeholder="anhmedia"></label>
-    <label>Token OCR<input id="ocrTokenId" type="password" autocomplete="current-password" placeholder="Token máy chủ"></label>
-    <div class="auth-status" id="ocrAuthStatus">Chưa xác thực.</div>
-    <div class="auth-error" id="ocrAuthError" hidden></div>
-    <div class="auth-actions">
-      <button id="ocrAuthCancel" type="button">Hủy</button>
-      <button id="ocrAuthContinue" class="primary" type="button">Tiếp tục chọn PDF</button>
-    </div>
-    <p class="auth-help">Token chỉ được gửi tới máy chủ OCR khi bạn chọn PDF hoặc tải PDF từ URL.</p>
-  </section>
-</div>
 
 </body>
 </html>

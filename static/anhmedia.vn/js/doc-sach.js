@@ -112,10 +112,13 @@
     }
     async function finishGoogleLogin(){
         clearGoogleWatch();
-        try{if(googleLoginPopup&&!googleLoginPopup.closed)googleLoginPopup.close()}catch(_){}
-        googleLoginPopup=null;setAccountStatus(true);
-        $('ocrAuthStatus').textContent='✓ Google đã đăng nhập. Bạn có thể tiếp tục mà không cần token OCR.';
-        $('ocrAuthError').hidden=true;$('login').textContent='Google ✓';
+        try{if(googleLoginPopup&&!googleLoginPopup.closed)googleLoginPopup.close()}catch(_){ }
+        googleLoginPopup=null;
+        setAccountStatus(true);
+        const loginBtn=$('login');
+        if(loginBtn)loginBtn.textContent='Google ✓';
+        // The login action is complete: refresh the reader so the new server session is used.
+        setTimeout(()=>location.reload(),250);
     }
     function openGoogleLoginPopup(){
         rememberLoginReturn();
@@ -147,15 +150,14 @@
         setAuthModal(true);
     }
     async function continueOcrAuth(){
-        const userId=$('ocrUserId').value.trim(),tokenId=$('ocrTokenId').value.trim();
-        const googleOk=await googleSessionAuthenticated();
-        if(!googleOk&&(!userId||!tokenId)){
-            $('ocrAuthError').textContent='Hãy đăng nhập Google hoặc nhập đầy đủ User ID và Token OCR.';
+        const userId=$('ocrUserId')?.value.trim()||'', tokenId=$('ocrTokenId')?.value.trim()||'';
+        if(!userId||!tokenId){
+            $('ocrAuthError').textContent='Vui lòng nhập đầy đủ User ID và Token OCR.';
             $('ocrAuthError').hidden=false;return;
         }
         saveOcrCredentials(userId,tokenId);$('ocrAuthError').hidden=true;
         const action=pendingOcrAction||'file';setAuthModal(false);
-        if(action==='file')$('file').click();else await extractUrl();
+        if(action==='file') $('file')?.click(); else await extractUrl();
         pendingOcrAction=null;
     }
     function getOcrCredentials(){
@@ -181,7 +183,10 @@
             $('progress').style.width='100%';renderPage();renderDocs();renderBookmarks();toast(`Đã tạo sách ${extracted.length} trang. Thứ tự trang được giữ nguyên.`);
         }catch(e){toast(e.message||'Lỗi trích xuất')}finally{$('progressWrap').hidden=true;$('file').value=''}
     }
-    $('uploadBtn').onclick=()=>beginOcrAction('file');$('file').onchange=e=>extract(e.target.files[0]);
+    const uploadBtn=$('uploadBtn');
+    if(uploadBtn) uploadBtn.onclick=()=>beginOcrAction('file');
+    const fileInput=$('file');
+    if(fileInput) fileInput.onchange=e=>extract(e.target.files[0]);
 
     async function extractUrl(){
         const resourceUrl=$('url').value.trim();if(!resourceUrl)return;
@@ -201,7 +206,8 @@
             state.documents.unshift(d);currentId=d.id;pages=d.pages;pageIndex=0;renderPage();renderDocs();renderBookmarks();toast(`Đã tạo sách ${extracted.length} trang.`);
         }catch(e){toast(e.message||'Lỗi tải URL')}
     }
-    $('urlBtn').onclick=()=>beginOcrAction('url');
+    const urlBtn=$('urlBtn');
+    if(urlBtn) urlBtn.onclick=()=>beginOcrAction('url');
 
     function renderBookmarks(){
         const d=current();const el=$('bookmarks');el.innerHTML='';if(!d)return;
@@ -271,20 +277,28 @@
             if(r.ok){serverRevision=Number(data.revision)||serverRevision;serverStateCache.docSachDocuments=state.documents;}
         }catch(_){}
     }
-    $('syncNow').onclick=()=>syncServer().then(()=>toast('Đã gửi trạng thái đọc lên máy chủ.'));
-    $('login').onclick=()=>{pendingOcrAction=null;setAuthModal(true)};
+    const syncNow=$('syncNow');
+    if(syncNow) syncNow.onclick=()=>syncServer().then(()=>toast('Đã gửi trạng thái đọc lên máy chủ.'));
+    const loginBtn=$('login');
+    if(loginBtn) loginBtn.onclick=(e)=>{e.preventDefault();pendingOcrAction=null;openGoogleLoginPopup()};
 
-    $('ocrGoogleBtn').onclick=()=>openGoogleLoginPopup();
-    $('ocrAuthClose').onclick=()=>setAuthModal(false);
-    $('ocrAuthCancel').onclick=()=>setAuthModal(false);
-    $('ocrAuthContinue').onclick=()=>continueOcrAuth();
-    $('ocrAuthModal').addEventListener('click',e=>{if(e.target===$('ocrAuthModal'))setAuthModal(false);});
+    const ocrGoogleBtn=$('ocrGoogleBtn');
+    if(ocrGoogleBtn) ocrGoogleBtn.onclick=()=>openGoogleLoginPopup();
+    const ocrAuthClose=$('ocrAuthClose');
+    if(ocrAuthClose) ocrAuthClose.onclick=()=>setAuthModal(false);
+    const ocrAuthCancel=$('ocrAuthCancel');
+    if(ocrAuthCancel) ocrAuthCancel.onclick=()=>setAuthModal(false);
+    const ocrAuthContinue=$('ocrAuthContinue');
+    if(ocrAuthContinue) ocrAuthContinue.onclick=()=>continueOcrAuth();
+    const ocrAuthModal=$('ocrAuthModal');
+    if(ocrAuthModal) ocrAuthModal.addEventListener('click',e=>{if(e.target===ocrAuthModal)setAuthModal(false);});
 
-    $('menuBtn').onclick=()=>$('left').classList.toggle('open');
-    $('viBtn').onclick=()=>setLang('vi');$('enBtn').onclick=()=>setLang('en');
+    const menuBtn=$('menuBtn'); if(menuBtn) menuBtn.onclick=()=>$('left')?.classList.toggle('open');
+    const viBtn=$('viBtn'); if(viBtn) viBtn.onclick=()=>setLang('vi');
+    const enBtn=$('enBtn'); if(enBtn) enBtn.onclick=()=>setLang('en');
     function setLang(x){lang=x;document.documentElement.lang=x;document.querySelectorAll('[data-i18n]').forEach(e=>{const key=e.dataset.i18n;e.textContent=x==='en'?({library:'LIBRARY',upload:'Upload PDF',uploadHint:'Text or scanned PDF; source page order is preserved.',url:'PDF FROM URL',books:'YOUR BOOKS'}[key]||e.textContent):({library:'THƯ VIỆN',upload:'Tải PDF / Upload PDF',uploadHint:'PDF chữ hoặc PDF scan; hệ thống giữ nguyên thứ tự trang.',url:'PDF TỪ URL',books:'SÁCH CỦA BẠN'}[key]||e.textContent)})}
     setLang('vi');renderDocs();renderBookmarks();loadServer();
-    googleSessionAuthenticated().then(ok=>{if(ok){setAccountStatus(true);$('login').textContent='Google ✓';}});
+    googleSessionAuthenticated().then(ok=>{if(ok){setAccountStatus(true);const loginBtn=$('login');if(loginBtn)loginBtn.textContent='Google ✓';}});
     setInterval(updateTimer,1000);
     window.addEventListener('beforeunload',()=>{const d=current();if(d){d.currentPage=pageIndex;d.readingPoint={pageIndex,sentenceIndex};d.updatedAt=new Date().toISOString();localStorage.setItem(KEY,JSON.stringify(state))}});
 })();
