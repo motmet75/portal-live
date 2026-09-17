@@ -103,6 +103,17 @@
     .guide{position:absolute;left:2%;right:2%;top:49%;border-top:1px solid rgba(255,255,255,.12);pointer-events:none}
     .guide:after{content:"READ HERE";position:absolute;right:0;top:-20px;font-size:11px;letter-spacing:1px;color:rgba(255,255,255,.28)}
     .help{color:#777;font-size:12px;padding:7px 12px 10px;text-align:center;background:#111}
+    /* Remote-control feedback: a large, short flash that is easy to see from a distance. */
+    #remoteFlash{
+      position:fixed;inset:0;z-index:9999;pointer-events:none;
+      opacity:0;background:#fff;
+    }
+    #remoteFlash.show{animation:remoteFlashAnim .32s ease-out}
+    @keyframes remoteFlashAnim{
+      0%{opacity:.82}
+      100%{opacity:0}
+    }
+    .remote-help{color:#999;font-size:11px;text-align:center;padding:4px 12px 7px;background:#111}
     .playback{order:2;-webkit-order:2;background:#111;border-top:1px solid #333;padding:9px 14px 7px;z-index:10}
     .playback-row{
       display:-webkit-box;display:-webkit-flex;display:flex;
@@ -173,6 +184,8 @@
   </div>
 </div>
 <div class="help">Best result: put each sentence or short phrase on its own line. The center line is the one to read.</div>
+<div class="remote-help">Remote mouse: Left click = Play / Pause · Right click = Next sentence · Double right click = Previous sentence + Pause</div>
+<div id="remoteFlash" aria-hidden="true"></div>
 
 <script>
   var defaultText=[
@@ -203,6 +216,11 @@
   editor.value=defaultText;
   var lines=[],index=0,timer=null,running=false,animating=false;
   var currentRevision=null,signedIn=false;
+
+  // Remote mouse control.
+  var rightClickTimer=null;
+  var rightClickCount=0;
+  var RIGHT_DOUBLE_MS=280;
   var loginPopup=null,loginPoll=null;
   var statusEl=document.getElementById('syncStatus');
   var signedOutBanner=document.getElementById('signedOutBanner');
@@ -352,6 +370,84 @@
       if(!manual&&running)scheduleNext();
     },520);
   }
+  function remoteFlash(type){
+    var el=document.getElementById('remoteFlash');
+    if(!el)return;
+    el.className='';
+    // Force a reflow so repeated clicks always restart the flash.
+    void el.offsetWidth;
+    el.style.background=(type==='play')?'#39ff88':(type==='pause'?'#ffdf4d':'#62a8ff');
+    el.className='show';
+    setTimeout(function(){el.className='';},340);
+  }
+
+  function togglePlayPause(){
+    if(running){
+      pausePrompter();
+      remoteFlash('pause');
+    }else{
+      play();
+      remoteFlash('play');
+    }
+  }
+
+  function remoteRightClick(){
+    nextLine();
+    remoteFlash('next');
+  }
+
+  function remoteDoubleRightClick(){
+    clearTimeout(rightClickTimer);
+    rightClickTimer=null;
+    rightClickCount=0;
+    pausePrompter();
+    previousLine();
+    remoteFlash('previous');
+  }
+
+  /*
+   * Mouse remote:
+   *   Left click       -> toggle Play/Pause
+   *   Right click      -> next sentence
+   *   Double right     -> previous sentence and pause
+   *
+   * Only the teleprompter/stage is a remote-control surface, so normal
+   * buttons, sliders, editor, login controls, etc. remain usable.
+   */
+  (function installRemoteMouse(){
+    var stage=document.getElementById('stage');
+    if(!stage)return;
+
+    stage.addEventListener('contextmenu',function(e){
+      e.preventDefault();
+    });
+
+    stage.addEventListener('mousedown',function(e){
+      if(e.target!==stage && !e.target.closest('#teleprompter'))return;
+
+      if(e.button===0){
+        e.preventDefault();
+        togglePlayPause();
+        return;
+      }
+
+      if(e.button===2){
+        e.preventDefault();
+        rightClickCount++;
+        if(rightClickCount===2){
+          remoteDoubleRightClick();
+        }else{
+          clearTimeout(rightClickTimer);
+          rightClickTimer=setTimeout(function(){
+            if(rightClickCount===1)remoteRightClick();
+            rightClickCount=0;
+            rightClickTimer=null;
+          },RIGHT_DOUBLE_MS);
+        }
+      }
+    });
+  })();
+
   function play(){
     lines=parseLines();
     if(!lines.length)return;
