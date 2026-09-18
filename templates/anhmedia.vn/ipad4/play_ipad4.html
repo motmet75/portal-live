@@ -184,7 +184,7 @@
   </div>
 </div>
 <div class="help">Best result: put each sentence or short phrase on its own line. The center line is the one to read.</div>
-<div class="remote-help">Remote mouse: Left click = Play / Pause · Right click = Next sentence · Double right click = Previous sentence + Pause</div>
+<div class="remote-help">Remote mouse: Left click = Play / Pause · Right click = Next sentence · Double right click = Previous sentence + Pause · Keyboard: D = Next · C = Previous · X = Play/Pause</div>
 <div id="remoteFlash" aria-hidden="true"></div>
 
 <script>
@@ -447,6 +447,32 @@
       }
     });
   })();
+
+  /*
+   * Keyboard remote:
+   *   d -> next line
+   *   c -> previous line
+   *   x -> toggle play / pause
+   * Ignored while typing in the editor or any input/textarea so normal
+   * typing still works.
+   */
+  document.addEventListener('keydown',function(e){
+    var t=e.target,tag=t&&t.tagName;
+    if(tag==='INPUT'||tag==='TEXTAREA'||(t&&t.isContentEditable))return;
+    var key=(e.key||'').toLowerCase();
+    if(key==='d'){
+      e.preventDefault();
+      nextLine();
+      remoteFlash('next');
+    }else if(key==='c'){
+      e.preventDefault();
+      previousLine();
+      remoteFlash('previous');
+    }else if(key==='x'){
+      e.preventDefault();
+      togglePlayPause();
+    }
+  });
 
   function play(){
     lines=parseLines();
