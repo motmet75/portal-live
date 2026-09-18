@@ -103,7 +103,21 @@
     .guide{position:absolute;left:2%;right:2%;top:49%;border-top:1px solid rgba(255,255,255,.12);pointer-events:none}
     .guide:after{content:"READ HERE";position:absolute;right:0;top:-20px;font-size:11px;letter-spacing:1px;color:rgba(255,255,255,.28)}
     .help{color:#777;font-size:12px;padding:7px 12px 10px;text-align:center;background:#111}
-    /* Remote-control feedback: a large, short flash that is easy to see from a distance. */
+    /* Current-line highlight: flashes the active sentence (not the whole screen)
+       so play/pause feedback is visible without being jarring. */
+    .line.flash-highlight-play{animation:lineHighlightPlay .7s ease}
+    .line.flash-highlight-pause{animation:lineHighlightPause .7s ease}
+    @keyframes lineHighlightPlay{
+      0%{text-shadow:0 0 0 rgba(57,255,136,0)}
+      30%{text-shadow:0 0 26px rgba(57,255,136,.9);color:#39ff88}
+      100%{text-shadow:0 0 0 rgba(57,255,136,0);color:#fff}
+    }
+    @keyframes lineHighlightPause{
+      0%{text-shadow:0 0 0 rgba(255,223,77,0)}
+      30%{text-shadow:0 0 26px rgba(255,223,77,.9);color:#ffdf4d}
+      100%{text-shadow:0 0 0 rgba(255,223,77,0);color:#fff}
+    }
+
     #remoteFlash{
       position:fixed;inset:0;z-index:9999;pointer-events:none;
       opacity:0;background:#fff;
@@ -184,7 +198,7 @@
   </div>
 </div>
 <div class="help">Best result: put each sentence or short phrase on its own line. The center line is the one to read.</div>
-<div class="remote-help">Remote mouse: Left click = Play / Pause · Right click = Next sentence · Double right click = Previous sentence + Pause · Keyboard: D = Next · C = Previous · X = Play/Pause</div>
+<div class="remote-help">Remote mouse: Left click = Play / Pause (highlights current line) · Right click = Next sentence · Double right click = Previous sentence + Pause · Keyboard: D = Next · C = Previous · X = Play/Pause</div>
 <div id="remoteFlash" aria-hidden="true"></div>
 
 <script>
@@ -381,13 +395,22 @@
     setTimeout(function(){el.className='';},340);
   }
 
+  /* Highlights the current sentence instead of flashing the whole screen.
+     Used for play/pause feedback (mouse remote, keyboard, and toolbar buttons). */
+  function highlightCurrent(type){
+    var el=document.getElementById('lineCurrent');
+    if(!el)return;
+    el.classList.remove('flash-highlight-play','flash-highlight-pause');
+    void el.offsetWidth;
+    el.classList.add(type==='pause'?'flash-highlight-pause':'flash-highlight-play');
+    setTimeout(function(){el.classList.remove('flash-highlight-play','flash-highlight-pause');},700);
+  }
+
   function togglePlayPause(){
     if(running){
       pausePrompter();
-      remoteFlash('pause');
     }else{
       play();
-      remoteFlash('play');
     }
   }
 
@@ -481,8 +504,9 @@
     renderFresh();
     running=true;
     scheduleNext();
+    highlightCurrent('play');
   }
-  function pausePrompter(){running=false;clearTimeout(timer)}
+  function pausePrompter(){running=false;clearTimeout(timer);highlightCurrent('pause')}
   function stopPrompter(){running=false;clearTimeout(timer);index=0;lines=parseLines();renderFresh()}
   function nextLine(){lines=parseLines();clearTimeout(timer);moveNext(true);if(running)setTimeout(scheduleNext,550)}
   function previousLine(){lines=parseLines();clearTimeout(timer);if(index<=0||animating)return;index--;renderFresh();if(running)scheduleNext()}
