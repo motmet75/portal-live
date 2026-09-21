@@ -79,3 +79,115 @@
 2026-08-13T15:55:15.250760975	fd05ddf3-ffae-4820-9b22-a0517d95d00c	anhmedia	USING_DATABASE	migiatruyen	Waiting
 2026-08-13T15:55:15.659841797	fd05ddf3-ffae-4820-9b22-a0517d95d00c	anhmedia	REGISTERING_TENANT	migiatruyen	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
 2026-08-13T15:55:15.857226876	fd05ddf3-ffae-4820-9b22-a0517d95d00c	anhmedia	READY	migiatruyen	https://migiatruyen.vn | template=migiatruyen.vn
+2026-08-14T13:52:03.276739504	74539e8d-1834-4247-a8b6-302c566d99d4	anhmedia	QUEUED	anhmedia	Waiting
+2026-08-14T13:52:03.280641930	74539e8d-1834-4247-a8b6-302c566d99d4	anhmedia	USING_DATABASE	anhmedia	Waiting
+2026-08-14T13:52:03.301491709	74539e8d-1834-4247-a8b6-302c566d99d4	anhmedia	FAILED	anhmedia	Target live template/static folder already exists; nothing was overwritten.
+2026-08-15T10:13:53.854541513	63d1a026-68fa-4445-8670-de3c13e32df5	anhmedia	QUEUED	anhmedia	Waiting
+2026-08-15T10:13:53.857284611	63d1a026-68fa-4445-8670-de3c13e32df5	anhmedia	VALIDATING_EXISTING	anhmedia	Checking existing database and live template
+2026-08-15T10:13:53.873341307	63d1a026-68fa-4445-8670-de3c13e32df5	anhmedia	REGISTERING_TENANT	anhmedia	Checking existing database and live template
+2026-08-15T10:13:54.074184221	63d1a026-68fa-4445-8670-de3c13e32df5	anhmedia	READY	anhmedia	https://anhmedia.vn | template=anhmedia.vn
+2026-08-15T10:18:57.831700053	68592bb4-bb08-4067-9689-4264b74ef405	anhmedia	QUEUED	anhmedia	Waiting
+2026-08-15T10:18:57.831918013	68592bb4-bb08-4067-9689-4264b74ef405	anhmedia	VALIDATING_EXISTING	anhmedia	Checking existing database and live template
+2026-08-15T10:18:57.847388677	68592bb4-bb08-4067-9689-4264b74ef405	anhmedia	REGISTERING_TENANT	anhmedia	Checking existing database and live template
+2026-08-15T10:18:57.924349773	68592bb4-bb08-4067-9689-4264b74ef405	anhmedia	READY	anhmedia	https://anhmedia.vn | template=anhmedia.vn
+2026-08-15T10:34:54.783409156	739b0363-7a69-4ed4-90f8-643461c81db3	anhmedia	QUEUED	anhmedia	Waiting
+2026-08-15T10:34:54.789216168	739b0363-7a69-4ed4-90f8-643461c81db3	anhmedia	USING_DATABASE	anhmedia	Waiting
+2026-08-15T10:34:54.809799694	739b0363-7a69-4ed4-90f8-643461c81db3	anhmedia	FAILED	anhmedia	A live template cannot be cloned onto itself. Edit it directly or choose another target name.
+2026-08-15T10:35:11.297643760	53e8d70f-99e8-4b25-b103-81bd45a948c3	anhmedia	QUEUED	anhmedia	Waiting
+2026-08-15T10:35:11.297907844	53e8d70f-99e8-4b25-b103-81bd45a948c3	anhmedia	VALIDATING_EXISTING	anhmedia	Checking existing database and live template
+2026-08-15T10:35:11.324847912	53e8d70f-99e8-4b25-b103-81bd45a948c3	anhmedia	REGISTERING_TENANT	anhmedia	Checking existing database and live template
+2026-08-15T10:35:11.569927075	53e8d70f-99e8-4b25-b103-81bd45a948c3	anhmedia	READY	anhmedia	https://anhmedia.vn | template=anhmedia.vn
+2026-08-15T07:33:09.491508942	0aa1bf33-100b-49aa-a5c9-7f3eca7a41c3	anhmedia	QUEUED	anhmedia	Waiting
+2026-08-15T07:33:09.497342621	0aa1bf33-100b-49aa-a5c9-7f3eca7a41c3	anhmedia	VALIDATING_EXISTING	anhmedia	Checking existing database and live template
+2026-08-15T07:33:09.515295794	0aa1bf33-100b-49aa-a5c9-7f3eca7a41c3	anhmedia	REGISTERING_TENANT	anhmedia	Checking existing database and live template
+2026-08-15T07:33:09.693961857	0aa1bf33-100b-49aa-a5c9-7f3eca7a41c3	anhmedia	READY	anhmedia	https://anhmedia.vn | template=anhmedia.vn
+2026-08-15T07:36:00.667141058	33006267-4afa-46bc-8c82-b93595027c87	anhmedia	QUEUED	anhmedia	Waiting
+2026-08-15T07:36:00.667397369	33006267-4afa-46bc-8c82-b93595027c87	anhmedia	VALIDATING_EXISTING	anhmedia	Checking existing database and live template
+2026-08-15T07:36:00.697039974	33006267-4afa-46bc-8c82-b93595027c87	anhmedia	REGISTERING_TENANT	anhmedia	Checking existing database and live template
+2026-08-15T07:36:00.796759327	33006267-4afa-46bc-8c82-b93595027c87	anhmedia	READY	anhmedia	https://anhmedia.vn | template=anhmedia.vn
+2026-08-15T07:36:55.781355863	fc1e1794-660c-4c1f-a7bf-eb951bfdb0a3	anhmedia	QUEUED	anhmedia	Waiting
+2026-08-15T07:36:55.782068338	fc1e1794-660c-4c1f-a7bf-eb951bfdb0a3	anhmedia	VALIDATING_EXISTING	anhmedia	Checking existing database and live template
+2026-08-15T07:36:55.799895472	fc1e1794-660c-4c1f-a7bf-eb951bfdb0a3	anhmedia	REGISTERING_TENANT	anhmedia	Checking existing database and live template
+2026-08-15T07:36:55.880624026	fc1e1794-660c-4c1f-a7bf-eb951bfdb0a3	anhmedia	READY	anhmedia	https://anhmedia.vn | template=anhmedia.vn
+2026-08-15T07:37:04.544428201	c97383fb-5d77-4675-866b-cc5b9d660a5a	anhmedia	QUEUED	anhmedia	Waiting
+2026-08-15T07:37:04.544718459	c97383fb-5d77-4675-866b-cc5b9d660a5a	anhmedia	USING_DATABASE	anhmedia	Waiting
+2026-08-15T07:37:04.564162588	c97383fb-5d77-4675-866b-cc5b9d660a5a	anhmedia	FAILED	anhmedia	A live template cannot be cloned onto itself. Edit it directly or choose another target name.
+2026-08-15T07:37:55.934219901	46ccdf41-7197-4383-a670-b08295f835b6	anhmedia	QUEUED	anhmedia	Waiting
+2026-08-15T07:37:55.934454454	46ccdf41-7197-4383-a670-b08295f835b6	anhmedia	VALIDATING_EXISTING	anhmedia	Checking existing database and live template
+2026-08-15T07:37:55.953395961	46ccdf41-7197-4383-a670-b08295f835b6	anhmedia	REGISTERING_TENANT	anhmedia	Checking existing database and live template
+2026-08-15T07:37:56.010486151	46ccdf41-7197-4383-a670-b08295f835b6	anhmedia	READY	anhmedia	https://anhmedia.vn | template=anhmedia.vn
+2026-08-15T07:39:50.370388562	34f107fe-9613-48f3-8f70-de061a75067e	anhmedia	QUEUED	anhmedia	Waiting
+2026-08-15T07:39:50.370640851	34f107fe-9613-48f3-8f70-de061a75067e	anhmedia	VALIDATING_EXISTING	anhmedia	Checking existing database and live template
+2026-08-15T07:39:50.387459161	34f107fe-9613-48f3-8f70-de061a75067e	anhmedia	REGISTERING_TENANT	anhmedia	Checking existing database and live template
+2026-08-15T07:39:50.457551395	34f107fe-9613-48f3-8f70-de061a75067e	anhmedia	READY	anhmedia	https://anhmedia.vn | template=anhmedia.vn
+2026-08-15T07:41:11.960497090	fa11985e-059e-47eb-a628-a5ebeafaf291	anhmedia	QUEUED	anhmedia	Waiting
+2026-08-15T07:41:11.963845962	fa11985e-059e-47eb-a628-a5ebeafaf291	anhmedia	USING_DATABASE	anhmedia	Waiting
+2026-08-15T07:41:11.975337947	fa11985e-059e-47eb-a628-a5ebeafaf291	anhmedia	FAILED	anhmedia	A live template cannot be cloned onto itself. Edit it directly or choose another target name.
+2026-08-15T07:41:23.733405253	7196faa7-a0b9-4d05-8325-f0596f087a5d	anhmedia	QUEUED	anhmedia	Waiting
+2026-08-15T07:41:23.733615100	7196faa7-a0b9-4d05-8325-f0596f087a5d	anhmedia	VALIDATING_EXISTING	anhmedia	Checking existing database and live template
+2026-08-15T07:41:23.761436232	7196faa7-a0b9-4d05-8325-f0596f087a5d	anhmedia	REGISTERING_TENANT	anhmedia	Checking existing database and live template
+2026-08-15T07:41:23.816312490	7196faa7-a0b9-4d05-8325-f0596f087a5d	anhmedia	READY	anhmedia	https://anhmedia.vn | template=anhmedia.vn
+2026-08-15T07:44:24.227990448	bbcf57e9-4613-4dab-bf45-01c07122781d	anhmedia	QUEUED	migiatruyen	Waiting
+2026-08-15T07:44:24.228236627	bbcf57e9-4613-4dab-bf45-01c07122781d	anhmedia	VALIDATING_EXISTING	migiatruyen	Checking existing database and live template
+2026-08-15T07:44:24.228630802	bbcf57e9-4613-4dab-bf45-01c07122781d	anhmedia	FAILED	migiatruyen	Existing root template was not found: templates/migiatruyen.vn.html
+2026-08-15T07:45:05.848218123	412076a1-7b27-4c96-b379-599046d825e5	anhmedia	QUEUED	migiatruyen	Waiting
+2026-08-15T07:45:05.848447331	412076a1-7b27-4c96-b379-599046d825e5	anhmedia	VALIDATING_EXISTING	migiatruyen	Checking existing database and live template
+2026-08-15T07:45:05.848593975	412076a1-7b27-4c96-b379-599046d825e5	anhmedia	FAILED	migiatruyen	Existing root template was not found: templates/migiatruyen.vn.html
+2026-08-15T07:45:19.177493188	f7a6eea5-e6f0-4746-a801-7160bdc5d8ae	anhmedia	QUEUED	migiatruyen	Waiting
+2026-08-15T07:45:19.180152606	f7a6eea5-e6f0-4746-a801-7160bdc5d8ae	anhmedia	VALIDATING_EXISTING	migiatruyen	Checking existing database and live template
+2026-08-15T07:45:19.180298440	f7a6eea5-e6f0-4746-a801-7160bdc5d8ae	anhmedia	FAILED	migiatruyen	Existing root template was not found: templates/migiatruyen.vn.html
+2026-08-15T07:45:51.652530122	7d16a708-e444-4bd1-9425-c40d59cd85cd	anhmedia	QUEUED	migiatruyen	Waiting
+2026-08-15T07:45:51.652746502	7d16a708-e444-4bd1-9425-c40d59cd85cd	anhmedia	USING_DATABASE	migiatruyen	Waiting
+2026-08-15T07:45:51.662153686	7d16a708-e444-4bd1-9425-c40d59cd85cd	anhmedia	FAILED	migiatruyen	A live template cannot be cloned onto itself. Edit it directly or choose another target name.
+2026-08-15T07:46:26.183907026	d10e7631-3c5d-4319-bfcb-527b9afe070e	anhmedia	QUEUED	migiatruyen	Waiting
+2026-08-15T07:46:26.184944820	d10e7631-3c5d-4319-bfcb-527b9afe070e	anhmedia	VALIDATING_EXISTING	migiatruyen	Checking existing database and live template
+2026-08-15T07:46:26.185143590	d10e7631-3c5d-4319-bfcb-527b9afe070e	anhmedia	FAILED	migiatruyen	Existing root template was not found: templates/migiatruyen.vn.html
+2026-08-15T07:46:41.315357220	a79b3802-303a-40e7-a825-c58c083b04b5	anhmedia	QUEUED	migiatruyen	Waiting
+2026-08-15T07:46:41.315584484	a79b3802-303a-40e7-a825-c58c083b04b5	anhmedia	VALIDATING_EXISTING	migiatruyen	Checking existing database and live template
+2026-08-15T07:46:41.315769257	a79b3802-303a-40e7-a825-c58c083b04b5	anhmedia	FAILED	migiatruyen	Existing root template was not found: templates/migiatruyen.vn.html
+2026-08-15T07:46:53.718929513	42517991-1517-47a6-ab93-1fe915859b9b	anhmedia	QUEUED	migiatruyen	Waiting
+2026-08-15T07:46:53.721188882	42517991-1517-47a6-ab93-1fe915859b9b	anhmedia	VALIDATING_EXISTING	migiatruyen	Checking existing database and live template
+2026-08-15T07:46:53.721392435	42517991-1517-47a6-ab93-1fe915859b9b	anhmedia	FAILED	migiatruyen	Existing root template was not found: templates/migiatruyen.vn.html
+2026-08-15T07:47:28.705966756	eabcea07-8153-452d-90d9-5a7eedf067c8	anhmedia	QUEUED	migiatruyen	Waiting
+2026-08-15T07:47:28.706190238	eabcea07-8153-452d-90d9-5a7eedf067c8	anhmedia	VALIDATING_EXISTING	migiatruyen	Checking existing database and live template
+2026-08-15T07:47:28.706335297	eabcea07-8153-452d-90d9-5a7eedf067c8	anhmedia	FAILED	migiatruyen	Existing root template was not found: templates/migiatruyen.vn.html
+2026-08-15T07:48:49.902185237	abdfbaf4-07b6-47a7-9b21-a2c17b73de3a	anhmedia	QUEUED	migiatruyen	Waiting
+2026-08-15T07:48:49.902409448	abdfbaf4-07b6-47a7-9b21-a2c17b73de3a	anhmedia	USING_DATABASE	migiatruyen	Waiting
+2026-08-15T07:48:49.911319602	abdfbaf4-07b6-47a7-9b21-a2c17b73de3a	anhmedia	FAILED	migiatruyen	A live template cannot be cloned onto itself. Edit it directly or choose another target name.
+2026-08-15T07:49:51.082010600	604ed780-0987-4324-b8cb-f130a3f393cb	anhmedia	QUEUED	migiatruyen	Waiting
+2026-08-15T07:49:51.082216658	604ed780-0987-4324-b8cb-f130a3f393cb	anhmedia	VALIDATING_EXISTING	migiatruyen	Checking existing database and live template
+2026-08-15T07:49:51.082360195	604ed780-0987-4324-b8cb-f130a3f393cb	anhmedia	FAILED	migiatruyen	Existing root template was not found: templates/migiatruyen.vn.html
+2026-08-15T07:50:10.573734953	71da914f-34e3-44fe-81c1-bdb3f1b0aace	anhmedia	QUEUED	migiatruyen	Waiting
+2026-08-15T07:50:10.573946042	71da914f-34e3-44fe-81c1-bdb3f1b0aace	anhmedia	VALIDATING_EXISTING	migiatruyen	Checking existing database and live template
+2026-08-15T07:50:10.574097552	71da914f-34e3-44fe-81c1-bdb3f1b0aace	anhmedia	FAILED	migiatruyen	Existing root template was not found: templates/migiatruyen.vn.html
+2026-08-16T09:25:59.250250571	98bafdb1-178e-4c41-8ff8-e917fc3d0ae1	anhmedia	QUEUED	phuonganhamara	Waiting
+2026-08-16T09:25:59.253831400	98bafdb1-178e-4c41-8ff8-e917fc3d0ae1	anhmedia	VALIDATING_EXISTING	phuonganhamara	Checking existing database and live template
+2026-08-16T09:25:59.282738449	98bafdb1-178e-4c41-8ff8-e917fc3d0ae1	anhmedia	FAILED	phuonganhamara	Existing PostgreSQL database is unavailable: phuonganhamara
+2026-08-16T09:26:20.456518181	33fa9aa5-541f-45ce-9ed2-6f74a0e77d74	anhmedia	QUEUED	phuonganhamara	Waiting
+2026-08-16T09:26:20.459973156	33fa9aa5-541f-45ce-9ed2-6f74a0e77d74	anhmedia	CLONING_DATABASE	phuonganhamara	Waiting
+2026-08-16T09:26:23.592791760	33fa9aa5-541f-45ce-9ed2-6f74a0e77d74	anhmedia	REGISTERING_TENANT	phuonganhamara	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
+2026-08-16T09:26:23.777700878	33fa9aa5-541f-45ce-9ed2-6f74a0e77d74	anhmedia	READY	phuonganhamara	https://phuonganhamara.anhmedia.vn | template=phuonganhamara.anhmedia.vn
+2026-08-16T16:02:39.647195720	a787fad6-2baf-4e0b-8d9a-bf89f60c1382	anhmedia	QUEUED	real_estate_anhmedia	Waiting
+2026-08-16T16:02:39.648118213	a787fad6-2baf-4e0b-8d9a-bf89f60c1382	anhmedia	CLONING_DATABASE	real_estate_anhmedia	Waiting
+2026-08-16T16:02:42.107961770	a787fad6-2baf-4e0b-8d9a-bf89f60c1382	anhmedia	REGISTERING_TENANT	real_estate_anhmedia	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
+2026-08-16T16:02:42.164575758	a787fad6-2baf-4e0b-8d9a-bf89f60c1382	anhmedia	READY	real_estate_anhmedia	https://real-estate.anhmedia.vn | template=real-estate.anhmedia.vn
+2026-08-16T16:13:17.173484545	ca7e9967-5184-493e-b52e-b2c0045b4932	anhmedia	QUEUED	comestic	Waiting
+2026-08-16T16:13:17.173715585	ca7e9967-5184-493e-b52e-b2c0045b4932	anhmedia	VALIDATING_EXISTING	comestic	Checking existing database and live template
+2026-08-16T16:13:17.174884075	ca7e9967-5184-493e-b52e-b2c0045b4932	anhmedia	FAILED	comestic	Existing live template must contain templates/cosmetic.anhmedia.vn/index.html
+2026-08-16T16:15:34.621691410	cfdc4364-0e2b-41d2-94a2-c35459f3c59f	anhmedia	QUEUED	comestic	Waiting
+2026-08-16T16:15:34.621975141	cfdc4364-0e2b-41d2-94a2-c35459f3c59f	anhmedia	USING_DATABASE	comestic	Waiting
+2026-08-16T16:15:34.631894411	cfdc4364-0e2b-41d2-94a2-c35459f3c59f	anhmedia	FAILED	comestic	Source template folder does not exist: /opt/portal-live/templates/comestic.anhmedia.vn
+2026-08-22T00:51:55.000395568	31ff64cb-d961-4e74-9f09-40b2728f23b9	anhmedia	QUEUED	open2job	Waiting
+2026-08-22T00:51:55.008118844	31ff64cb-d961-4e74-9f09-40b2728f23b9	anhmedia	VALIDATING_EXISTING	open2job	Checking existing database and live template
+2026-08-22T00:51:55.008586564	31ff64cb-d961-4e74-9f09-40b2728f23b9	anhmedia	FAILED	open2job	Existing root template was not found: templates/open2job.com.html
+2026-08-22T03:02:02.380648318	76e269a1-7b50-47c0-bd11-22d1961e29fa	anhmedia	QUEUED	sancoffeetea	Waiting
+2026-08-22T03:02:02.384189594	76e269a1-7b50-47c0-bd11-22d1961e29fa	anhmedia	CLONING_DATABASE	sancoffeetea	Waiting
+2026-08-22T03:02:02.512618048	76e269a1-7b50-47c0-bd11-22d1961e29fa	anhmedia	FAILED	sancoffeetea	Source database 'drinkandfood' does not exist.
+2026-08-22T03:04:00.076747476	437be482-9256-4408-9089-0fc044245dbf	anhmedia	QUEUED	sancoffeetea	Waiting
+2026-08-22T03:04:00.079575395	437be482-9256-4408-9089-0fc044245dbf	anhmedia	CLONING_DATABASE	sancoffeetea	Waiting
+2026-08-22T03:04:03.663805553	437be482-9256-4408-9089-0fc044245dbf	anhmedia	REGISTERING_TENANT	sancoffeetea	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
+2026-08-22T03:04:03.855227605	437be482-9256-4408-9089-0fc044245dbf	anhmedia	READY	sancoffeetea	https://sancoffeetea.anhmedia.vn | template=sancoffeetea
+2026-08-22T03:59:31.814360846	feb8f49a-0657-4751-8ba4-be09f4271452	anhmedia	QUEUED	sancoffeetea	Waiting
+2026-08-22T03:59:31.818143412	feb8f49a-0657-4751-8ba4-be09f4271452	anhmedia	CLONING_DATABASE	sancoffeetea	Waiting
+2026-08-22T03:59:35.242490451	feb8f49a-0657-4751-8ba4-be09f4271452	anhmedia	REGISTERING_TENANT	sancoffeetea	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
+2026-08-22T03:59:35.327894901	feb8f49a-0657-4751-8ba4-be09f4271452	anhmedia	READY	sancoffeetea	https://sancoffeetea.anhmedia.vn | template=sancoffeetea
