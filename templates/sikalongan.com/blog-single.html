@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:if="${article != null}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title th:text="${article.articleTitle}">AnhMedia Article</title>
+  <link rel="shortcut icon" th:href="'/' + ${domain} + '/img/favicon.png'">
+  <meta name="keywords" th:content="${article.articleKeyWord}">
+  <meta name="description" th:content="${article.articleDescription}">
+  <link rel="canonical" th:href="'https://' + ${domain} + '/' + ${midpath} + '/' + ${article.articleLink}">
+  <meta property="og:title" th:content="${article.articleTitle}">
+  <meta property="og:description" th:content="${article.articleDescription}">
+  <meta property="og:image" th:content="${article.articleThumnailURLWithHost2}">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700,800" rel="stylesheet">
+  <link rel="stylesheet" th:href="'/' + ${domain} + '/css/bootstrap.min.css'">
+  <link rel="stylesheet" th:href="'/' + ${domain} + '/css/font-awesome.min.css'">
+  <link rel="stylesheet" th:href="'/' + ${domain} + '/css/style.css'">
+  <link rel="stylesheet" th:href="'/' + ${domain} + '/css/cart.css'">
+  <style>
+    .am-article { --blue:#356ba2; --dark:#0d1b2a; --muted:#64748b; --line:#dbeafe; font-family:Montserrat,Arial,sans-serif; background:#f8fbff; }
+    .am-article-hero { padding:64px 0 92px; color:#fff; background:linear-gradient(135deg,#0d1b2a,#1e4a75); }
+    .am-article-hero-inner { max-width:850px; margin:auto; text-align:center; }
+    .am-article-back { display:inline-flex; align-items:center; gap:7px; margin-bottom:22px; color:#99ccff; font-size:13px; font-weight:700; text-decoration:none; }
+    .am-article-hero h1 { margin:0; color:#fff; font-size:clamp(30px,5vw,50px); line-height:1.22; font-weight:800; }
+    .am-article-desc { max-width:720px; margin:18px auto 0; color:rgba(255,255,255,.7); font-size:16px; line-height:1.75; }
+    .am-article-meta { display:flex; justify-content:center; flex-wrap:wrap; gap:18px; margin-top:22px; color:rgba(255,255,255,.66); font-size:12px; }
+    .am-article-meta i { margin-right:5px; color:#99ccff; }
+    .am-article-shell { max-width:920px; margin:-48px auto 80px; padding:0 22px; position:relative; }
+    .am-article-card { padding:clamp(24px,5vw,58px); border:1px solid var(--line); border-radius:22px; background:#fff; box-shadow:0 18px 55px rgba(53,107,162,.16); }
+    .am-video { position:relative; width:100%; padding-top:56.25%; overflow:hidden; border-radius:16px; margin-bottom:34px; background:var(--dark); }
+    .am-video iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+    .am-article-content { color:#334155; font-size:16px; line-height:1.85; overflow-wrap:anywhere; }
+    .am-article-content h1,.am-article-content h2,.am-article-content h3 { color:var(--dark); line-height:1.35; margin:1.7em 0 .65em; }
+    .am-article-content img { max-width:100%; height:auto!important; margin:24px auto; border-radius:14px; }
+    .am-article-content iframe { max-width:100%; }
+    .am-article-content a { color:var(--blue); }
+    @media(max-width:600px){.am-article-hero{padding:46px 0 78px}.am-article-shell{padding:0 12px}.am-article-card{border-radius:16px}}
+  </style>
+    <link rel="stylesheet" href="/css/article-reader-controls.css">
+</head>
+<body>
+<header th:replace="anhmedia :: topheader"></header>
+<main class="am-article">
+  <section class="am-article-hero">
+    <div class="container">
+      <div class="am-article-hero-inner">
+        <a class="am-article-back" th:href="'/bai-viet.html'"><i class="fa fa-arrow-left"></i> Tất cả bài viết</a>
+        <h1 th:text="${article.articleTitle}">Article title</h1>
+        <p class="am-article-desc" th:text="${article.articleDescription}">Article summary</p>
+        <div class="am-article-meta">
+          <span><i class="fa fa-user"></i><span th:text="${article.username}">AnhMedia</span></span>
+          <span th:if="${article.articleTime != null}"><i class="fa fa-calendar"></i><span th:text="${#temporals.format(article.articleTime,'dd-MM-yyyy')}">01-01-2026</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="am-article-shell">
+    <article class="am-article-card">
+      <th:block th:with="vid=${article.videoUrl},hasVid=${vid != null and vid != '' and vid != 'videoUrl' and vid != 'none'},isYt=${hasVid and (#strings.contains(vid,'youtube.com/watch') or #strings.contains(vid,'youtu.be/'))},afterV=${(hasVid and isYt) ? (#strings.contains(vid,'v=') ? #strings.substringAfter(vid,'v=') : #strings.substringAfterLast(vid,'/')) : ''},ytId=${#strings.substringBefore(#strings.substringBefore(afterV,'&'),'?')},embedSrc=${(hasVid and isYt) ? ('https://www.youtube.com/embed/' + ytId) : vid}">
+        <div class="am-video" th:if="${hasVid}">
+          <iframe th:src="${embedSrc}" allow="autoplay; fullscreen; picture-in-picture; web-share" allowfullscreen title="Article video"></iframe>
+        </div>
+      </th:block>
+      <section class="article-editorial-summary" th:if="${articleAiSummary != null and !#strings.isEmpty(articleAiSummary)}" style="margin:0 0 2rem;padding:1rem 0;border-top:1px solid #d9dedb;border-bottom:1px solid #d9dedb;">
+        <h2 th:text="${articleAiSummaryTitle}" style="font-size:1.25rem;margin:0 0 .75rem;">Editorial summary</h2>
+        <div th:utext="${articleAiSummary}"></div>
+      </section>
+      <div class="am-article-content article-reader-content" th:utext="${article.articleContent}" data-reader-content></div>
+    </article>
+  </div>
+</main>
+<div th:replace="anhmedia :: footer"></div>
+<script th:src="'/' + ${domain} + '/js/jquery.min.js'"></script>
+<script th:src="'/' + ${domain} + '/js/bootstrap.min.js'"></script>
+    <script src="/js/article-reader-controls.js" defer></script>
+</body>
+</html>
