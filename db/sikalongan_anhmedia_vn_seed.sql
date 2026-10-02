@@ -208,7 +208,7 @@ $pa2e$, $pa2f$about.html$pa2f$, '2', TIMESTAMP '2022-03-29 03:29:25'),
   padding-bottom: 30px;
 }
 #section_603591378 .section-bg.bg-loaded {
-  background-image: url(/sikalongan.com/images/pages/trang-chu-bg-1.png);
+  background-image: url(/sikalongan.com/images/pages/trang-chu-bg-1.jpg);
 }
 </style>
 </section>
@@ -269,7 +269,7 @@ $pa2e$, $pa2f$about.html$pa2f$, '2', TIMESTAMP '2022-03-29 03:29:25'),
 <p><span class="widget-title"><br />
 <span>HOTLINE</span></span></p>
 <p><img src="/sikalongan.com/images/pages/trang-chu-1.jpg"></p>
-<div class="hotline"><img src="/sikalongan.com/images/pages/trang-chu-2.png"></div>
+<div class="hotline"><img src="/sikalongan.com/images/pages/trang-chu-2.jpg"></div>
 </p>
 <div class="sdt"><a href="tel:0909933575">0909 933 575</a>
 </div>
@@ -287,7 +287,7 @@ $pa2e$, $pa2f$about.html$pa2f$, '2', TIMESTAMP '2022-03-29 03:29:25'),
 </aside>
 <aside id="block-9" class="widget widget_block widget_media_image">
 <div class="wp-block-image">
-<figure class="aligncenter size-full is-resized"><a href="/sikalongan.com/images/pages/trang-chu-4.png"><img src="/sikalongan.com/images/pages/trang-chu-4.png" alt="" class="wp-image-4745" width="242" height="804" /></a></figure>
+<figure class="aligncenter size-full is-resized"><a href="/sikalongan.com/images/pages/trang-chu-4.jpg"><img src="/sikalongan.com/images/pages/trang-chu-4.jpg" alt="" class="wp-image-4745" width="242" height="804" /></a></figure>
 </div>
 </aside>
 </ul></div>
@@ -873,7 +873,7 @@ $pa2e$, $pa2f$about.html$pa2f$, '2', TIMESTAMP '2022-03-29 03:29:25'),
 <div class="box-image">
 <div class="image-zoom">
 				<a href="https://sikalongan.com/son-chong-tham-kanshield-ks9999"><br />
-					<img width="300" height="300" src="/sikalongan.com/images/pages/trang-chu-25.png" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="" />				</a>
+					<img width="300" height="300" src="/sikalongan.com/images/pages/trang-chu-25.jpg" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="" />				</a>
 			</div>
 <div class="image-tools is-small top right show-on-hover">
 							</div>
@@ -898,7 +898,7 @@ $pa2e$, $pa2f$about.html$pa2f$, '2', TIMESTAMP '2022-03-29 03:29:25'),
 <div class="box-image">
 <div class="image-zoom">
 				<a href="https://sikalongan.com/bot-tret-cao-cap-kanshield-ks3333-2"><br />
-					<img width="300" height="300" src="/sikalongan.com/images/pages/trang-chu-26.png" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="" />				</a>
+					<img width="300" height="300" src="/sikalongan.com/images/pages/trang-chu-26.jpg" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="" />				</a>
 			</div>
 <div class="image-tools is-small top right show-on-hover">
 							</div>
@@ -1411,7 +1411,7 @@ $pa2e$, $pa2f$about.html$pa2f$, '2', TIMESTAMP '2022-03-29 03:29:25'),
 <div class="col-inner"  >
 <div class="icon-box testimonial-box icon-box-center text-center is-small">
 <div class="icon-box-img testimonial-image circle" style="width: 100px">
-              <img width="150" height="150" src="/sikalongan.com/images/pages/trang-chu-44.png" class="attachment-thumbnail size-thumbnail" alt="" />        </div>
+              <img width="150" height="150" src="/sikalongan.com/images/pages/trang-chu-44.jpg" class="attachment-thumbnail size-thumbnail" alt="" />        </div>
 <div class="icon-box-text p-last-0">
 <div class="star-rating"><span style="width:100%"><strong class="rating"></strong></span></div>
 <div class="testimonial-text line-height-small italic test_text first-reset last-reset is-italic">
@@ -1437,7 +1437,7 @@ $pa2e$, $pa2f$about.html$pa2f$, '2', TIMESTAMP '2022-03-29 03:29:25'),
 <div class="col-inner"  >
 <div class="icon-box testimonial-box icon-box-center text-center is-small">
 <div class="icon-box-img testimonial-image circle" style="width: 100px">
-              <img width="150" height="150" src="/sikalongan.com/images/pages/trang-chu-45.png" class="attachment-thumbnail size-thumbnail" alt="" />        </div>
+              <img width="150" height="150" src="/sikalongan.com/images/pages/trang-chu-45.jpg" class="attachment-thumbnail size-thumbnail" alt="" />        </div>
 <div class="icon-box-text p-last-0">
 <div class="star-rating"><span style="width:100%"><strong class="rating"></strong></span></div>
 <div class="testimonial-text line-height-small italic test_text first-reset last-reset is-italic">
@@ -2096,7 +2096,7 @@ $pa2e$, $pa2f$about.html$pa2f$, '2', TIMESTAMP '2022-03-29 03:29:25'),
 <div class="box-image">
 <div class="image-zoom">
 				<a href="https://sikalongan.com/son-chong-tham-kanshield-ks9999"><br />
-					<img width="300" height="300" src="/sikalongan.com/images/pages/trang-chu-25.png" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="" />				</a>
+					<img width="300" height="300" src="/sikalongan.com/images/pages/trang-chu-25.jpg" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="" />				</a>
 			</div>
 <div class="image-tools is-small top right show-on-hover">
 							</div>
@@ -2121,7 +2121,7 @@ $pa2e$, $pa2f$about.html$pa2f$, '2', TIMESTAMP '2022-03-29 03:29:25'),
 <div class="box-image">
 <div class="image-zoom">
 				<a href="https://sikalongan.com/bot-tret-cao-cap-kanshield-ks3333-2"><br />
-					<img width="300" height="300" src="/sikalongan.com/images/pages/trang-chu-26.png" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="" />				</a>
+					<img width="300" height="300" src="/sikalongan.com/images/pages/trang-chu-26.jpg" class="attachment-woocommerce_thumbnail size-woocommerce_thumbnail" alt="" />				</a>
 			</div>
 <div class="image-tools is-small top right show-on-hover">
 							</div>
@@ -2601,7 +2601,7 @@ $pa2e$, $pa2f$about.html$pa2f$, '2', TIMESTAMP '2022-03-29 03:29:25'),
 <p><span class="widget-title"><br />
 <span>HOTLINE</span></span></p>
 <p><img src="/sikalongan.com/images/pages/trang-chu-1.jpg"></p>
-<div class="hotline"><img src="/sikalongan.com/images/pages/trang-chu-2.png"></div>
+<div class="hotline"><img src="/sikalongan.com/images/pages/trang-chu-2.jpg"></div>
 </p>
 <div class="sdt"><a href="tel:0909933575">0909 933 575</a>
 </div>
@@ -2619,7 +2619,7 @@ $pa2e$, $pa2f$about.html$pa2f$, '2', TIMESTAMP '2022-03-29 03:29:25'),
 </aside>
 <aside id="block-9" class="widget widget_block widget_media_image">
 <div class="wp-block-image">
-<figure class="aligncenter size-full is-resized"><a href="/sikalongan.com/images/pages/trang-chu-4.png"><img src="/sikalongan.com/images/pages/trang-chu-4.png" alt="" class="wp-image-4745" width="242" height="804" /></a></figure>
+<figure class="aligncenter size-full is-resized"><a href="/sikalongan.com/images/pages/trang-chu-4.jpg"><img src="/sikalongan.com/images/pages/trang-chu-4.jpg" alt="" class="wp-image-4745" width="242" height="804" /></a></figure>
 </div>
 </aside>
 </ul></div>
@@ -2702,18 +2702,18 @@ CREATE TEMP TABLE tmp_sikalongan_products (
 ) ON COMMIT DROP;
 
 INSERT INTO tmp_sikalongan_products VALUES
-(1, 4777, $pr0a$SIKALONGAN-4777$pr0a$, $pr0b$chong-tham-pha-mau-noi-that-kanshield-max$pr0b$, $pr0c$Chống thấm pha màu nội thất Kanshield Max$pr0c$, $pr0d$vat-lieu-chong-tham$pr0d$, $pr0e$kanshield$pr0e$, $pr0f$Sản phẩm | SƠN KANSHIELD | Vật liệu chống thấm$pr0f$, $pr0g$Chống thấm pha màu nội thất Kanshield Max – liên hệ để được tư vấn kỹ thuật và báo giá.$pr0g$, $pr0h$<p><img class="aligncenter size-full wp-image-4780" src="/sikalongan.com/images/products/chong-tham-pha-mau-noi-that-kanshield-max-2.png" alt="" width="594" height="839" /></p>
-<p><img class="aligncenter size-full wp-image-4779" src="/sikalongan.com/images/products/chong-tham-pha-mau-noi-that-kanshield-max-3.png" alt="" width="594" height="839" /></p>$pr0h$, $pr0i$/sikalongan.com/images/products/chong-tham-pha-mau-noi-that-kanshield-max-1.jpg
-/sikalongan.com/images/products/chong-tham-pha-mau-noi-that-kanshield-max-2.png
-/sikalongan.com/images/products/chong-tham-pha-mau-noi-that-kanshield-max-3.png$pr0i$, $pr0j$/sikalongan.com/images/products/chong-tham-pha-mau-noi-that-kanshield-max-1.jpg$pr0j$, TIMESTAMP '2023-09-29 05:25:47'),
-(2, 4773, $pr1a$SIKALONGAN-4773$pr1a$, $pr1b$son-lot-chong-kiem-cao-cap-kanshield-curved$pr1b$, $pr1c$Sơn lót chống kiềm cao cấp Kanshield Curved$pr1c$, $pr1d$son-kanshield$pr1d$, $pr1e$kanshield$pr1e$, $pr1f$Sản phẩm | SƠN KANSHIELD$pr1f$, $pr1g$Sơn lót chống kiềm cao cấp Kanshield Curved – liên hệ để được tư vấn kỹ thuật và báo giá.$pr1g$, $pr1h$<p><img class="aligncenter size-full wp-image-4776" src="/sikalongan.com/images/products/son-lot-chong-kiem-cao-cap-kanshield-curved-2.png" alt="" width="594" height="840" /></p>
-<p><img class="aligncenter size-full wp-image-4775" src="/sikalongan.com/images/products/son-lot-chong-kiem-cao-cap-kanshield-curved-3.png" alt="" width="594" height="841" /></p>$pr1h$, $pr1i$/sikalongan.com/images/products/son-lot-chong-kiem-cao-cap-kanshield-curved-1.jpg
-/sikalongan.com/images/products/son-lot-chong-kiem-cao-cap-kanshield-curved-2.png
-/sikalongan.com/images/products/son-lot-chong-kiem-cao-cap-kanshield-curved-3.png$pr1i$, $pr1j$/sikalongan.com/images/products/son-lot-chong-kiem-cao-cap-kanshield-curved-1.jpg$pr1j$, TIMESTAMP '2023-09-29 05:21:55'),
-(3, 4767, $pr2a$SIKALONGAN-4767$pr2a$, $pr2b$chong-tham-pha-mau-ngoai-that-kanshield-plush$pr2b$, $pr2c$Chống thấm pha màu ngoại thất Kanshield Plush$pr2c$, $pr2d$vat-lieu-chong-tham$pr2d$, $pr2e$kanshield$pr2e$, $pr2f$Sản phẩm | SƠN KANSHIELD | Vật liệu chống thấm$pr2f$, $pr2g$Chống thấm pha màu ngoại thất Kanshield Plush – liên hệ để được tư vấn kỹ thuật và báo giá.$pr2g$, $pr2h$<p><img class="aligncenter size-full wp-image-4772" src="/sikalongan.com/images/products/chong-tham-pha-mau-ngoai-that-kanshield-plush-2.png" alt="" width="594" height="839" /></p>
-<p><img class="aligncenter size-full wp-image-4771" src="/sikalongan.com/images/products/chong-tham-pha-mau-ngoai-that-kanshield-plush-3.png" alt="" width="594" height="840" /></p>$pr2h$, $pr2i$/sikalongan.com/images/products/chong-tham-pha-mau-ngoai-that-kanshield-plush-1.jpg
-/sikalongan.com/images/products/chong-tham-pha-mau-ngoai-that-kanshield-plush-2.png
-/sikalongan.com/images/products/chong-tham-pha-mau-ngoai-that-kanshield-plush-3.png$pr2i$, $pr2j$/sikalongan.com/images/products/chong-tham-pha-mau-ngoai-that-kanshield-plush-1.jpg$pr2j$, TIMESTAMP '2023-09-29 04:38:21'),
+(1, 4777, $pr0a$SIKALONGAN-4777$pr0a$, $pr0b$chong-tham-pha-mau-noi-that-kanshield-max$pr0b$, $pr0c$Chống thấm pha màu nội thất Kanshield Max$pr0c$, $pr0d$vat-lieu-chong-tham$pr0d$, $pr0e$kanshield$pr0e$, $pr0f$Sản phẩm | SƠN KANSHIELD | Vật liệu chống thấm$pr0f$, $pr0g$Chống thấm pha màu nội thất Kanshield Max – liên hệ để được tư vấn kỹ thuật và báo giá.$pr0g$, $pr0h$<p><img class="aligncenter size-full wp-image-4780" src="/sikalongan.com/images/products/chong-tham-pha-mau-noi-that-kanshield-max-2.jpg" alt="" width="594" height="839" /></p>
+<p><img class="aligncenter size-full wp-image-4779" src="/sikalongan.com/images/products/chong-tham-pha-mau-noi-that-kanshield-max-3.jpg" alt="" width="594" height="839" /></p>$pr0h$, $pr0i$/sikalongan.com/images/products/chong-tham-pha-mau-noi-that-kanshield-max-1.jpg
+/sikalongan.com/images/products/chong-tham-pha-mau-noi-that-kanshield-max-2.jpg
+/sikalongan.com/images/products/chong-tham-pha-mau-noi-that-kanshield-max-3.jpg$pr0i$, $pr0j$/sikalongan.com/images/products/chong-tham-pha-mau-noi-that-kanshield-max-1.jpg$pr0j$, TIMESTAMP '2023-09-29 05:25:47'),
+(2, 4773, $pr1a$SIKALONGAN-4773$pr1a$, $pr1b$son-lot-chong-kiem-cao-cap-kanshield-curved$pr1b$, $pr1c$Sơn lót chống kiềm cao cấp Kanshield Curved$pr1c$, $pr1d$son-kanshield$pr1d$, $pr1e$kanshield$pr1e$, $pr1f$Sản phẩm | SƠN KANSHIELD$pr1f$, $pr1g$Sơn lót chống kiềm cao cấp Kanshield Curved – liên hệ để được tư vấn kỹ thuật và báo giá.$pr1g$, $pr1h$<p><img class="aligncenter size-full wp-image-4776" src="/sikalongan.com/images/products/son-lot-chong-kiem-cao-cap-kanshield-curved-2.jpg" alt="" width="594" height="840" /></p>
+<p><img class="aligncenter size-full wp-image-4775" src="/sikalongan.com/images/products/son-lot-chong-kiem-cao-cap-kanshield-curved-3.jpg" alt="" width="594" height="841" /></p>$pr1h$, $pr1i$/sikalongan.com/images/products/son-lot-chong-kiem-cao-cap-kanshield-curved-1.jpg
+/sikalongan.com/images/products/son-lot-chong-kiem-cao-cap-kanshield-curved-2.jpg
+/sikalongan.com/images/products/son-lot-chong-kiem-cao-cap-kanshield-curved-3.jpg$pr1i$, $pr1j$/sikalongan.com/images/products/son-lot-chong-kiem-cao-cap-kanshield-curved-1.jpg$pr1j$, TIMESTAMP '2023-09-29 05:21:55'),
+(3, 4767, $pr2a$SIKALONGAN-4767$pr2a$, $pr2b$chong-tham-pha-mau-ngoai-that-kanshield-plush$pr2b$, $pr2c$Chống thấm pha màu ngoại thất Kanshield Plush$pr2c$, $pr2d$vat-lieu-chong-tham$pr2d$, $pr2e$kanshield$pr2e$, $pr2f$Sản phẩm | SƠN KANSHIELD | Vật liệu chống thấm$pr2f$, $pr2g$Chống thấm pha màu ngoại thất Kanshield Plush – liên hệ để được tư vấn kỹ thuật và báo giá.$pr2g$, $pr2h$<p><img class="aligncenter size-full wp-image-4772" src="/sikalongan.com/images/products/chong-tham-pha-mau-ngoai-that-kanshield-plush-2.jpg" alt="" width="594" height="839" /></p>
+<p><img class="aligncenter size-full wp-image-4771" src="/sikalongan.com/images/products/chong-tham-pha-mau-ngoai-that-kanshield-plush-3.jpg" alt="" width="594" height="840" /></p>$pr2h$, $pr2i$/sikalongan.com/images/products/chong-tham-pha-mau-ngoai-that-kanshield-plush-1.jpg
+/sikalongan.com/images/products/chong-tham-pha-mau-ngoai-that-kanshield-plush-2.jpg
+/sikalongan.com/images/products/chong-tham-pha-mau-ngoai-that-kanshield-plush-3.jpg$pr2i$, $pr2j$/sikalongan.com/images/products/chong-tham-pha-mau-ngoai-that-kanshield-plush-1.jpg$pr2j$, TIMESTAMP '2023-09-29 04:38:21'),
 (4, 4707, $pr3a$SIKALONGAN-4707$pr3a$, $pr3b$bot-tret-tuong-trong-nha-kanshield$pr3b$, $pr3c$Bột trét tường trong nhà Kanshield$pr3c$, $pr3d$bot-tret-tuong$pr3d$, $pr3e$kanshield$pr3e$, $pr3f$Sản phẩm | BỘT TRÉT TƯỜNG | SƠN KANSHIELD$pr3f$, $pr3g$Độ bám dính cao Dễ thi công Bề mặt nhẵn mịn$pr3g$, $pr3h$<p>Độ bám dính cao</p>
 <p>Dễ thi công</p>
 <p>Bề mặt nhẵn mịn</p>$pr3h$, $pr3i$/sikalongan.com/images/products/bot-tret-tuong-trong-nha-kanshield-1.jpg$pr3i$, $pr3j$/sikalongan.com/images/products/bot-tret-tuong-trong-nha-kanshield-1.jpg$pr3j$, TIMESTAMP '2023-08-23 10:43:58'),
@@ -2745,10 +2745,10 @@ INSERT INTO tmp_sikalongan_products VALUES
 <p>Độc hại: Không độc hại</p>
 <p>Hạn sử dụng:  Hạn sử dụng 1 năm nếu được bảo quản đúng trong bao bì kín chưa mở và tránh ánh nắng mặt trời</p>
 <p>Đóng gói: 5kg/20kg</p>
-<p><img class="aligncenter size-full wp-image-4703" src="/sikalongan.com/images/products/son-chong-tham-kanshield-ks9999-2.jpg" alt="" width="1280" height="902" /></p>$pr5h$, $pr5i$/sikalongan.com/images/products/son-chong-tham-kanshield-ks9999-1.png
-/sikalongan.com/images/products/son-chong-tham-kanshield-ks9999-2.jpg$pr5i$, $pr5j$/sikalongan.com/images/products/son-chong-tham-kanshield-ks9999-1.png$pr5j$, TIMESTAMP '2023-08-23 10:18:33'),
+<p><img class="aligncenter size-full wp-image-4703" src="/sikalongan.com/images/products/son-chong-tham-kanshield-ks9999-2.jpg" alt="" width="1280" height="902" /></p>$pr5h$, $pr5i$/sikalongan.com/images/products/son-chong-tham-kanshield-ks9999-1.jpg
+/sikalongan.com/images/products/son-chong-tham-kanshield-ks9999-2.jpg$pr5i$, $pr5j$/sikalongan.com/images/products/son-chong-tham-kanshield-ks9999-1.jpg$pr5j$, TIMESTAMP '2023-08-23 10:18:33'),
 (7, 4691, $pr6a$SIKALONGAN-4691$pr6a$, $pr6b$bot-tret-cao-cap-kanshield-ks3333-2$pr6b$, $pr6c$Bột trét cao cấp KANSHIELD KS3333$pr6c$, $pr6d$bot-tret-tuong$pr6d$, $pr6e$kanshield$pr6e$, $pr6f$Sản phẩm | BỘT TRÉT TƯỜNG | SƠN KANSHIELD$pr6f$, $pr6g$– BỀN VỚI THỜI TIẾT – BỀ MẶT TRẮNG MỊN – DỄ THI CÔNG$pr6g$, $pr6h$<p>Bột trét tường KS3333 là loại bột vừa lót mịn, được đặc chết để sử dụng làm phẳng, mịn bề măt trước khi sơn, giúp hoàn thiện phẳng đẹp.</p>
-<p><img class="aligncenter size-full wp-image-4692" src="/sikalongan.com/images/products/bot-tret-cao-cap-kanshield-ks3333-2-2.png" alt="" width="589" height="812" /></p>
+<p><img class="aligncenter size-full wp-image-4692" src="/sikalongan.com/images/products/bot-tret-cao-cap-kanshield-ks3333-2-2.jpg" alt="" width="589" height="812" /></p>
 <p><strong>THÀNH PHẦN CẤU TẠO VÀ ĐỘ CHE PHỦ</strong></p>
 <p>&#8211; Bột khoáng, xu măng và phụ gia</p>
 <p>&#8211; Độ che phủ từ 1 – 1.2m3/kg/2 lớp với độ dày từ 2-3mm/2 lớp</p>
@@ -2761,8 +2761,8 @@ INSERT INTO tmp_sikalongan_products VALUES
 <p>&#8211; Sau khi trét xong từ 1-2 ngày chà phẳng lại bằng giấy nhám.</p>
 <p>&#8211; Vệ sinh bụi sau khi chà nhám</p>
 <p>&#8211; Thực hiện sơn lót sau khi tường khô.</p>
-<p><img class="aligncenter size-full wp-image-4693" src="/sikalongan.com/images/products/bot-tret-cao-cap-kanshield-ks3333-2-3.jpg" alt="" width="1179" height="824" /></p>$pr6h$, $pr6i$/sikalongan.com/images/products/bot-tret-cao-cap-kanshield-ks3333-2-2.png
-/sikalongan.com/images/products/bot-tret-cao-cap-kanshield-ks3333-2-3.jpg$pr6i$, $pr6j$/sikalongan.com/images/products/bot-tret-cao-cap-kanshield-ks3333-2-2.png$pr6j$, TIMESTAMP '2023-08-23 09:55:10'),
+<p><img class="aligncenter size-full wp-image-4693" src="/sikalongan.com/images/products/bot-tret-cao-cap-kanshield-ks3333-2-3.jpg" alt="" width="1179" height="824" /></p>$pr6h$, $pr6i$/sikalongan.com/images/products/bot-tret-cao-cap-kanshield-ks3333-2-2.jpg
+/sikalongan.com/images/products/bot-tret-cao-cap-kanshield-ks3333-2-3.jpg$pr6i$, $pr6j$/sikalongan.com/images/products/bot-tret-cao-cap-kanshield-ks3333-2-2.jpg$pr6j$, TIMESTAMP '2023-08-23 09:55:10'),
 (8, 4690, $pr7a$SIKALONGAN-4690$pr7a$, $pr7b$son-nuoc-ngoai-that-cao-cap-kanshield-ks-2222$pr7b$, $pr7c$Sơn nước ngoại thất Kanshield KS 2222$pr7c$, $pr7d$son-kanshield$pr7d$, $pr7e$kanshield$pr7e$, $pr7f$Sản phẩm | SƠN KANSHIELD$pr7f$, $pr7g$Sơn nước ngoại thất cao cấp Kanshield KS 2222 – ĐỘ BÁM DÍNH CAO, ĐỘ PHỦ CAO – GIỮ MÀU SẮC BỀN LÂU – MÀNG SƠN MỊN MÀNG NHƯ LỤA – LAU CHÙI ĐƯỢC, THÂN THIỆN VỚI MÔI TRƯỜNG$pr7g$, $pr7h$<p>Sơn ngoại thất cao cấp KS2222 là loại sơn gốc nước trong nhà chất lượng. Được sản xuất theo tiêu chuẩn công nghệ hiện đại KANSHIELD phù hợp với điều kiện khí hậu VIệt Nam. Giữ màu tuyệt đối, màng bóng mờ sang trọng, mịn màng như lụa, kháng kiềm, chống bám bụi, chống rêu mốc tuyệt vời, là giải pháp hoàn hảo trong việc trang trí và bảo vệ các mặt tường trong nhà.</p>
 <p><img class="aligncenter size-full wp-image-4689" src="/sikalongan.com/images/products/son-nuoc-ngoai-that-cao-cap-kanshield-ks-2222-2.jpg" alt="" width="2560" height="2176" /></p>
 <p><strong>THÀNH PHẦN CẤU TẠO</strong></p>
@@ -2816,7 +2816,7 @@ INSERT INTO tmp_sikalongan_products VALUES
 <p>SikaWall SkimCoat VN (hay Skimcoat Sika hay Sika Skimcoat) là vật liệu phủ bề mặt cao cấp gốc xi măng được thiết kế với công thức đặc biệt dùng để làm lớp phủ cho các bề mặt tường và trần. Sau khi thi công thì tạo thành lớp phủ kiến trúc nhẵn mịn, có độ bám dính tuyệt hảo và phù hợp cho việc thi công cho các hạng mục trong nhà cũng như ngoài trời.</p>
 <p>&nbsp;</p>
 <h2>CÁC ỨNG DỤNG CỦA BỘT TRÉT SKIMCOAT SIKA</h2>
-<p>Bột trét SkimCoat Sika thích hợp với các bề mặt như bê tông, sàn bê tông nhẹ, các tấm bê tông đúc sẵn, tường gạch xây, mặt dưới vòm, tường gạch block, gạch bê tông khí trưng áp, vữa trát.</p>$pr9h$, $pr9i$/sikalongan.com/images/products/sikawall-skimcoat-vn-1.png$pr9i$, $pr9j$/sikalongan.com/images/products/sikawall-skimcoat-vn-1.png$pr9j$, TIMESTAMP '2022-09-19 08:35:08'),
+<p>Bột trét SkimCoat Sika thích hợp với các bề mặt như bê tông, sàn bê tông nhẹ, các tấm bê tông đúc sẵn, tường gạch xây, mặt dưới vòm, tường gạch block, gạch bê tông khí trưng áp, vữa trát.</p>$pr9h$, $pr9i$/sikalongan.com/images/products/sikawall-skimcoat-vn-1.jpg$pr9i$, $pr9j$/sikalongan.com/images/products/sikawall-skimcoat-vn-1.jpg$pr9j$, TIMESTAMP '2022-09-19 08:35:08'),
 (11, 4605, $pr10a$SIKALONGAN-4605$pr10a$, $pr10b$inertol-poxitar-f$pr10b$, $pr10c$INERTOL POXITAR F$pr10c$, $pr10d$chat-bao-ve-thep$pr10d$, $pr10e$sika$pr10e$, $pr10f$CHẤT BẢO VỆ THÉP$pr10f$, $pr10g$Inertol Poxitar F là lớp phủ gốc epoxy – hắc ín – dầu công nghệ cao cho bê tông và thép$pr10g$, $pr10h$<h2><strong>CÁC ỨNG DỤNG CỦA INERTOL POXITAR F</strong></h2>
 <ul>
 <li>Inertol Poxitar F thích hợp thi công trên bê tông và thép đặc biệt trong các trường hợp thi công lên các bề mặt ẩm, đồng thời cũng được dùng làm lớp phủ bên trong và bên ngoài cho các kết cấu ngập trong nước hoặc chôn dưới đất chẳng hạn như hệ thống nước thải, công nghiệp hóa chất…</li>
@@ -3270,7 +3270,7 @@ Nơi sửa chữa cần cường độ cao.</p>
 <p>&#8211; Sau khi mở nắp thùng, sơn phải được sử dụng hết trong vòng 24 giờ.</p>$pr39h$, $pr39i$/sikalongan.com/images/products/son-bong-cao-cap-kanshield-ks8888-18l-1.jpg
 /sikalongan.com/images/products/son-bong-cao-cap-kanshield-ks8888-18l-2.jpg$pr39i$, $pr39j$/sikalongan.com/images/products/son-bong-cao-cap-kanshield-ks8888-18l-1.jpg$pr39j$, TIMESTAMP '2022-09-16 06:46:53'),
 (41, 4472, $pr40a$SIKALONGAN-4472$pr40a$, $pr40b$son-chong-tham-cao-cap-kanshield-ks9999$pr40b$, $pr40c$Sơn chống thấm cao cấp Kanshield KS9999$pr40c$, $pr40d$son-kanshield$pr40d$, $pr40e$kanshield$pr40e$, $pr40f$SƠN KANSHIELD$pr40f$, $pr40g$Sơn chống thấm cao cấp Kanshield KS9999 sử dụng hợp chất chống thấm đàn hồi kháng UV dạng sệt gốc Acrylic giúp chống thấm tốt trên sàn mái bê tông, bề mặt hoàn thiện, khe mối nối và các vị trí ốc vít, chân tường trên mái, tường ngoài. Đóng gói: 5kg/20kg$pr40g$, $pr40h$<p>Sơn chống thấm cao cấp Kanshield KS9999 sử dụng hợp chất chống thấm đàn hồi kháng UV dạng sệt gốc Acrylic giúp chống thấm tốt trên sàn mái bê tông, bề mặt hoàn thiện, khe mối nối và các vị trí ốc vít, chân tường trên mái, tường ngoài.<br />
-Đóng gói: 5kg/20kg</p>$pr40h$, $pr40i$/sikalongan.com/images/products/son-chong-tham-cao-cap-kanshield-ks9999-1.png$pr40i$, $pr40j$/sikalongan.com/images/products/son-chong-tham-cao-cap-kanshield-ks9999-1.png$pr40j$, TIMESTAMP '2022-09-16 06:45:22'),
+Đóng gói: 5kg/20kg</p>$pr40h$, $pr40i$/sikalongan.com/images/products/son-chong-tham-cao-cap-kanshield-ks9999-1.jpg$pr40i$, $pr40j$/sikalongan.com/images/products/son-chong-tham-cao-cap-kanshield-ks9999-1.jpg$pr40j$, TIMESTAMP '2022-09-16 06:45:22'),
 (42, 4443, $pr41a$SIKALONGAN-4443$pr41a$, $pr41b$sika-waterbar-v20-eco$pr41b$, $pr41c$SIKA WATERBAR V20 ECO$pr41c$, $pr41d$vat-lieu-chong-tham$pr41d$, $pr41e$bestmix$pr41e$, $pr41f$BESTMIX | Vật liệu chống thấm$pr41f$, $pr41g$Sử dụng: Chống thấm mạch ngừng bê tông Đóng gói: Cuộn 20 mét$pr41g$, $pr41h$<p>Sử dụng: Chống thấm mạch ngừng bê tông Đóng gói: Cuộn 20 mét</p>$pr41h$, $pr41i$/sikalongan.com/images/products/sika-waterbar-v20-eco-1.jpg$pr41i$, $pr41j$/sikalongan.com/images/products/sika-waterbar-v20-eco-1.jpg$pr41j$, TIMESTAMP '2022-09-05 06:32:58'),
 (43, 4441, $pr42a$SIKALONGAN-4441$pr42a$, $pr42b$separol-25l$pr42b$, $pr42c$Separol – 25l$pr42c$, $pr42d$vat-lieu-chong-tham$pr42d$, $pr42e$bestmix$pr42e$, $pr42f$BESTMIX | Vật liệu chống thấm$pr42f$, $pr42g$Sika Separol là tác nhân tháo dỡ cho các loại khuôn gỗ, thép. Separol giúp cho việc tháo dỡ và làm vệ sinh ván khuôn được dễ dàng.$pr42g$, $pr42h$<p>Sika Separol là tác nhân tháo dỡ cho các loại khuôn gỗ, thép. Separol giúp cho việc tháo dỡ và làm vệ sinh ván khuôn được dễ dàng.</p>$pr42h$, $pr42i$/sikalongan.com/images/products/separol-25l-1.jpg$pr42i$, $pr42j$/sikalongan.com/images/products/separol-25l-1.jpg$pr42j$, TIMESTAMP '2022-09-05 06:31:02'),
 (44, 4438, $pr43a$SIKALONGAN-4438$pr43a$, $pr43b$son-lot-cao-cap-kanshield-ks7777$pr43b$, $pr43c$Sơn lót cao cấp Kanshield KS7777$pr43c$, $pr43d$son-kanshield$pr43d$, $pr43e$kanshield$pr43e$, $pr43f$SƠN KANSHIELD$pr43f$, $pr43g$Sơn lót cao cấp Kanshield KS7777 là loại sơn lót cao cấp ngoài trời, kháng kiềm, gốc nước thân thiện với môi trường. Đóng gói: Thùng 18 lít/ lon 5 lít$pr43g$, $pr43h$<p>Sơn lót kháng kiềm ngoại thất KS7777 là loại sơn lót cao cấp ngoài trời gốc nước thân thiện với môi trường.</p>
