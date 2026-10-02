@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title, description)">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffd500">
+  <meta name="description" th:content="${description}">
+  <title th:text="${title}">Sika Long An — Huỳnh Toàn</title>
+  <link rel="stylesheet" href="/sikalongan.com/css/site.css">
+</head>
+<body>
+<header th:fragment="header(active)" class="site-header">
+  <div class="topline">
+    <div class="shell"><span>Đại lý vật liệu xây dựng tại Long An</span><span class="topline__right">153 Quốc Lộ 62, P. 2, Tân An · <a href="mailto:sonhuyntoan@gmail.com">sonhuyntoan@gmail.com</a></span></div>
+  </div>
+  <div class="brandbar shell">
+    <a class="brand" href="/home" aria-label="Sika Long An — Trang chủ">
+      <span class="brand__mark">SIKA</span>
+      <span><b>Sika Long An</b><small>HUỲNH TOÀN · Từ 2011</small></span>
+    </a>
+    <a class="hotline" href="tel:0909933575"><span class="hotline__icon">☎</span><span><small>Hỗ trợ khách hàng</small><b>0909 933 575</b></span></a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-label="Mở menu" data-menu-toggle>☰</button>
+  </div>
+  <nav class="mainnav" data-main-menu><div class="shell">
+    <a href="/home" th:classappend="${active == 'home'} ? 'active'">Trang chủ</a>
+    <a href="/gioi-thieu.html" th:classappend="${active == 'about'} ? 'active'">Giới thiệu</a>
+    <a href="/products.html" th:classappend="${active == 'products'} ? 'active'">Sản phẩm</a>
+    <a href="/products.html?brand=kanshield">Sơn Kanshield</a>
+    <a href="/hinh-anh.html" th:classappend="${active == 'gallery'} ? 'active'">Hình ảnh</a>
+    <a href="/lien-he.html" th:classappend="${active == 'contact'} ? 'active'">Liên hệ</a>
+  </div></nav>
+</header>
+
+<footer th:fragment="footer" class="site-footer">
+  <div class="shell footer-grid">
+    <div><a class="brand brand--footer" href="/home"><span class="brand__mark">SIKA</span><span><b>Sika Long An</b><small>HUỲNH TOÀN</small></span></a><p>Nhà phân phối hóa chất xây dựng, sơn và giải pháp chống thấm tại Long An. Nhận đơn hàng trên toàn quốc.</p></div>
+    <div><h3>Thông tin liên hệ</h3><p>153 Quốc Lộ 62, Phường 2<br>TP. Tân An, Long An, Việt Nam</p><p><a href="tel:0909933575">0909 933 575</a><br><a href="tel:0933866505">0933 866 505 · Nhung</a></p></div>
+    <div><h3>Danh mục</h3><a href="/products.html">Tất cả sản phẩm</a><a href="/products.html?catalog=vat-lieu-chong-tham">Vật liệu chống thấm</a><a href="/products.html?brand=kanshield">Sơn Kanshield</a><a href="/lien-he.html">Yêu cầu báo giá</a></div>
+  </div>
+  <div class="footer-bottom"><div class="shell">© 2026 Sika Long An · Công ty Huỳnh Toàn <span>Website giới thiệu phục vụ bản trình diễn</span></div></div>
+  <a class="floating-call" href="tel:0909933575" aria-label="Gọi 0909 933 575">☎</a>
+  <script src="/sikalongan.com/js/catalog.js"></script>
+</footer>
+</body>
+</html>

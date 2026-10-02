@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{sikalongan.com :: head('Sika Long An — Sơn &amp; chống thấm Huỳnh Toàn', 'Nhà phân phối Sika, Kanshield và vật liệu chống thấm tại Long An. Tư vấn kỹ thuật, giao hàng toàn quốc.')}"></head>
+<body>
+<header th:replace="~{sikalongan.com :: header('home')}"></header>
+<main>
+  <section class="hero"><div class="hero__texture"></div><div class="shell hero__inner">
+    <div class="hero__copy"><span class="eyebrow">Đồng hành cùng công trình Việt</span><h1>Giải pháp bền vững<br>cho mọi <em>công trình.</em></h1><p>Sơn, chống thấm và hóa chất xây dựng chính hãng — được tư vấn bởi đội ngũ Huỳnh Toàn với hơn 13 năm kinh nghiệm.</p><div class="hero__actions"><a class="button button--dark" href="/products.html">Khám phá sản phẩm</a><a class="text-link" href="tel:0909933575">Gọi tư vấn 0909 933 575 →</a></div></div>
+    <div class="hero__visual" aria-hidden="true"><div class="hero__bucket"><span>KANSHIELD</span><b>MAX</b><small>CHỐNG THẤM<br>PHA MÀU</small></div><div class="hero__tile"><span>SIKA</span><b>Chất lượng<br>cho công trình</b></div><div class="hero__badge"><b>13+</b><span>năm kinh nghiệm</span></div></div>
+  </div></section>
+
+  <section class="trustbar"><div class="shell"><div><b>Chính hãng</b><span>Nguồn gốc rõ ràng</span></div><div><b>Tư vấn kỹ thuật</b><span>Chọn đúng giải pháp</span></div><div><b>Giao toàn quốc</b><span>Đơn hàng lớn và nhỏ</span></div><div><b>Báo giá nhanh</b><span>Hotline 0909 933 575</span></div></div></section>
+
+  <section class="section intro"><div class="shell split"><div><span class="eyebrow eyebrow--red">Về Huỳnh Toàn</span><h2>Một địa chỉ tin cậy<br>từ năm 2011.</h2></div><div><p class="lead">Khởi đầu là nhà phân phối sơn nhỏ lẻ tại TP. Tân An, Huỳnh Toàn đã trở thành đại lý phân phối hóa chất xây dựng Sika và đơn vị cung cấp sơn cao cấp tại miền Nam.</p><p>Chúng tôi tập trung vào sản phẩm chính hãng, an toàn và tư vấn sát nhu cầu thực tế của từng công trình.</p><a class="text-link text-link--red" href="/gioi-thieu.html">Câu chuyện của chúng tôi →</a></div></div></section>
+
+  <section class="section section--soft"><div class="shell"><div class="section-head"><div><span class="eyebrow eyebrow--red">Danh mục nổi bật</span><h2>Chọn theo nhu cầu công trình</h2></div><a class="text-link" href="/products.html">Xem tất cả 53 sản phẩm →</a></div>
+    <div class="category-grid"><a href="/products.html?catalog=vat-lieu-chong-tham"><span>01</span><b>Vật liệu<br>chống thấm</b><small>Giải pháp sàn mái, tường và bê tông</small></a><a href="/products.html?brand=kanshield"><span>02</span><b>Sơn<br>Kanshield</b><small>Nội thất, ngoại thất và sơn lót</small></a><a href="/products.html?catalog=chat-ket-dinh-cuong-do-cao"><span>03</span><b>Keo &amp; chất<br>kết dính</b><small>Sửa chữa và liên kết kết cấu</small></a><a href="/products.html?catalog=vua-rot-dinh-vi"><span>04</span><b>Vữa kỹ thuật</b><small>Vữa rót, tự san và trộn sẵn</small></a></div>
+  </div></section>
+
+  <section class="section"><div class="shell"><div class="section-head"><div><span class="eyebrow eyebrow--red">Sản phẩm mới</span><h2>Giải pháp được quan tâm</h2></div><a class="button button--outline" href="/products.html">Toàn bộ sản phẩm</a></div>
+    <div class="product-grid product-grid--featured">
+      <article class="product-card" th:each="product, stat : ${products}" th:if="${stat.index &lt; 8}"><a class="product-card__image" th:href="'/product/' + ${product.path}"><span class="product-card__tag" th:text="${product.productBrand}">Sika</span><img loading="lazy" th:src="${product.productImageDesUrl}" th:alt="${product.productName}"></a><div class="product-card__body"><small th:text="${product.productCatalog}">Chống thấm</small><h3><a th:href="'/product/' + ${product.path}" th:text="${product.productName}">Tên sản phẩm</a></h3><p th:text="${product.productShortDes}">Mô tả sản phẩm</p><div class="product-card__foot"><strong>Liên hệ báo giá</strong><a th:href="'/product/' + ${product.path}" aria-label="Xem chi tiết">↗</a></div></div></article>
+    </div>
+  </div></section>
+
+  <section class="cta"><div class="shell"><div><span class="eyebrow">Bạn cần chọn đúng vật liệu?</span><h2>Gửi yêu cầu. Nhận tư vấn<br>cho công trình của bạn.</h2></div><div><p>Đội ngũ Huỳnh Toàn hỗ trợ lựa chọn sản phẩm, định mức và quy trình thi công.</p><a class="button button--light" href="/lien-he.html">Yêu cầu tư vấn</a></div></div></section>
+</main>
+<footer th:replace="~{sikalongan.com :: footer}"></footer>
+</body></html>

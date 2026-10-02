@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{sikalongan.com :: head(${product != null ? product.productName + ' — Sika Long An' : 'Chi tiết sản phẩm — Sika Long An'}, ${product != null ? product.productShortDes : 'Thông tin sản phẩm và tư vấn kỹ thuật tại Sika Long An.'})}"></head>
+<body>
+<header th:replace="~{sikalongan.com :: header('products')}"></header>
+<main class="single section"><div class="shell">
+  <nav class="breadcrumb"><a href="/home">Trang chủ</a><span>/</span><a href="/products.html">Sản phẩm</a><span>/</span><b th:text="${product.productName}">Tên sản phẩm</b></nav>
+  <div class="single-grid">
+    <div class="single-image"><span class="product-card__tag" th:text="${product.productBrand}">Sika</span><img th:src="${product.productImageDesUrl}" th:alt="${product.productName}"></div>
+    <div class="single-summary"><span class="eyebrow eyebrow--red" th:text="${product.productCatalog}">Vật liệu chống thấm</span><h1 th:text="${product.productName}">Tên sản phẩm</h1><p class="single-lead" th:text="${product.productShortDes}">Mô tả sản phẩm</p><div class="quote-price"><small>Giá sản phẩm</small><strong>Liên hệ báo giá</strong><span>Báo giá theo số lượng và địa điểm giao hàng</span></div><div class="single-actions"><a class="button button--red" href="tel:0909933575">Gọi 0909 933 575</a><a class="button button--outline" href="/lien-he.html">Gửi yêu cầu</a></div><dl><div><dt>Thương hiệu</dt><dd th:text="${product.productBrand}">Sika</dd></div><div><dt>Danh mục</dt><dd th:text="${product.productCatalog}">Chống thấm</dd></div><div><dt>Mã sản phẩm</dt><dd th:text="${product.productCode}">SIKALONGAN</dd></div></dl></div>
+  </div>
+  <section class="product-detail"><div class="product-detail__title"><span class="eyebrow eyebrow--red">Thông tin chi tiết</span><h2>Mô tả sản phẩm</h2></div><div class="product-description" th:utext="${product.productLongDes}"></div></section>
+  <div class="single-back"><a class="text-link text-link--red" href="/products.html">← Quay lại tất cả sản phẩm</a></div>
+</div></main>
+<footer th:replace="~{sikalongan.com :: footer}"></footer>
+</body></html>

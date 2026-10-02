@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-labelledby="title desc">
+  <title id="title">Sika Long An</title>
+  <desc id="desc">Hình đại diện sản phẩm vật liệu xây dựng</desc>
+  <rect width="800" height="800" fill="#f5f5ee"/>
+  <path d="M135 660h530l-48-382H183z" fill="#ffd500"/>
+  <path d="M183 278h434l-17-70H200z" fill="#e42b2f"/>
+  <path d="M223 175c26-81 328-81 354 0" fill="none" stroke="#d8d8d0" stroke-width="32"/>
+  <rect x="230" y="350" width="340" height="145" rx="8" fill="#fff"/>
+  <text x="400" y="410" fill="#e42b2f" font-family="Arial, sans-serif" font-size="58" font-weight="900" text-anchor="middle">SIKA</text>
+  <text x="400" y="459" fill="#171713" font-family="Arial, sans-serif" font-size="28" font-weight="700" text-anchor="middle">LONG AN</text>
+  <text x="400" y="566" fill="#171713" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">HUỲNH TOÀN</text>
+</svg>
