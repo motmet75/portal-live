@@ -6,7 +6,17 @@
 <main>
   <section class="page-hero"><div class="shell"><span class="eyebrow">Danh mục Huỳnh Toàn</span><h1>Sản phẩm cho<br><em>công trình bền vững.</em></h1><p>53 sản phẩm được nhập từ danh mục Sika Long An. Liên hệ để nhận báo giá và tư vấn kỹ thuật phù hợp.</p></div></section>
   <section class="catalog section"><div class="shell">
-    <div class="catalog-tools"><label class="search"><span>⌕</span><input type="search" placeholder="Tìm tên sản phẩm…" aria-label="Tìm sản phẩm" data-product-search></label><div class="filter-chips"><button class="active" type="button" data-product-filter="all">Tất cả</button><button type="button" data-product-filter="vat-lieu-chong-tham">Chống thấm</button><button type="button" data-product-filter="son-kanshield">Kanshield</button><button type="button" data-product-filter="vua-rot-dinh-vi">Vữa rót</button><button type="button" data-product-filter="chat-ket-dinh-cuong-do-cao">Kết dính</button></div></div>
+    <div class="catalog-tools">
+      <div class="product-search-wrapper">
+        <form class="product-search-form" action="/products.html" method="get" data-product-search-form>
+          <label class="search" for="productSearchBox"><span aria-hidden="true">⌕</span><input id="productSearchBox" type="search" name="keyword" placeholder="Tìm tên sản phẩm…" aria-label="Tìm sản phẩm" aria-autocomplete="list" aria-controls="productSearchResults" autocomplete="off" th:value="${keyword != null ? keyword : ''}" data-product-search></label>
+          <input id="productCatalogSelect" type="hidden" name="catalog" th:value="${selectedCatalog != null ? selectedCatalog : '0'}">
+          <button class="search-submit" type="submit">Tìm</button>
+        </form>
+        <div id="productSearchResults" class="product-search-popup" role="listbox" aria-label="Gợi ý sản phẩm" aria-live="polite" data-product-search-results hidden></div>
+      </div>
+      <div class="filter-chips"><button class="active" type="button" data-product-filter="all">Tất cả</button><button type="button" data-product-filter="vat-lieu-chong-tham">Chống thấm</button><button type="button" data-product-filter="son-kanshield">Kanshield</button><button type="button" data-product-filter="vua-rot-dinh-vi">Vữa rót</button><button type="button" data-product-filter="chat-ket-dinh-cuong-do-cao">Kết dính</button></div>
+    </div>
     <p class="result-count"><b data-visible-count th:text="${products != null ? #lists.size(products) : 0}">53</b> sản phẩm phù hợp</p>
     <div class="product-grid">
       <article class="product-card" th:each="product : ${products}" th:attr="data-product-card='',data-name=${#strings.toLowerCase(product.productName)},data-catalog=${#strings.toLowerCase(product.productCatalog)},data-brand=${#strings.toLowerCase(product.productBrand)}"><a class="product-card__image" th:href="'/product/' + ${product.path}"><span class="product-card__tag" th:text="${product.productBrand}">Sika</span><img loading="lazy" th:src="${product.productImageDesUrl}" th:alt="${product.productName}"></a><div class="product-card__body"><small th:text="${product.productCatalog}">Chống thấm</small><h3><a th:href="'/product/' + ${product.path}" th:text="${product.productName}">Tên sản phẩm</a></h3><p th:text="${product.productShortDes}">Mô tả sản phẩm</p><div class="product-card__foot"><strong>Liên hệ báo giá</strong><a th:href="'/product/' + ${product.path}">↗</a></div></div></article>
@@ -15,4 +25,5 @@
   </div></section>
 </main>
 <footer th:replace="~{sikalongan.com :: footer}"></footer>
+<script src="/sikalongan.com/js/product-search.js"></script>
 </body></html>

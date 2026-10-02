@@ -3,7 +3,13 @@ document.documentElement.classList.add('js');
 (() => {
   document.addEventListener('error', event => {
     const image = event.target;
-    if (image instanceof HTMLImageElement && !image.dataset.fallbackApplied) {
+    if (!(image instanceof HTMLImageElement)) return;
+    if (!image.dataset.jpgRetry && /\/sikalongan\.com\/images\/.*\.png(?:\?.*)?$/i.test(image.src)) {
+      image.dataset.jpgRetry = 'true';
+      image.src = image.src.replace(/\.png(?=\?|$)/i, '.jpg');
+      return;
+    }
+    if (!image.dataset.fallbackApplied) {
       image.dataset.fallbackApplied = 'true';
       image.src = '/sikalongan.com/images/product-placeholder.svg';
     }
