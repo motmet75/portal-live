@@ -273,32 +273,128 @@
 					</div>
 
 					<!-- Product Video (YouTube or Dailymotion) -->
-                    <th:block th:if="${product.youtubeVideoURL != null}">
-                    <th:block th:with="
-                        rawVid=${product.youtubeVideoURL},
-                        hasHttps=${#strings.contains(rawVid,'https://')},
-                        isYtWatch=${#strings.contains(rawVid,'youtube.com/watch') and #strings.contains(rawVid,'v=')},
-                        isYtShort=${#strings.contains(rawVid,'youtu.be/')},
-                        isYtEmbed=${#strings.contains(rawVid,'youtube.com/embed/')},
-                        isDmPlayer=${#strings.contains(rawVid,'dailymotion.com/player') and #strings.contains(rawVid,'video=')},
-                        isDmPath=${#strings.contains(rawVid,'dailymotion.com/video/')},
-                        ytWatchRaw=${isYtWatch ? #strings.substringAfter(rawVid,'v=') : ''},
-                        ytShortRaw=${isYtShort ? #strings.substringAfter(rawVid,'youtu.be/') : ''},
-                        ytEmbedRaw=${isYtEmbed ? #strings.substringAfter(rawVid,'youtube.com/embed/') : ''},
-                        dmPlayerRaw=${isDmPlayer ? #strings.substringAfter(rawVid,'video=') : ''},
-                        dmPathRaw=${isDmPath ? #strings.substringAfter(rawVid,'dailymotion.com/video/') : ''},
-                        ytWatchId=${#strings.substringBefore(#strings.substringBefore(#strings.substringBefore(ytWatchRaw,'&'),'?'),'#')},
-                        ytShortId=${#strings.substringBefore(#strings.substringBefore(#strings.substringBefore(ytShortRaw,'?'),'&'),'#')},
-                        ytEmbedId=${#strings.substringBefore(#strings.substringBefore(#strings.substringBefore(ytEmbedRaw,'?'),'&'),'#')},
-                        dmPlayerId=${#strings.substringBefore(#strings.substringBefore(#strings.substringBefore(dmPlayerRaw,'&'),'?'),'#')},
-                        dmPathId=${#strings.substringBefore(#strings.substringBefore(#strings.substringBefore(dmPathRaw,'_'),'?'),'#')},
-                        isYtVideo=${isYtWatch or isYtShort or isYtEmbed},
-                        isDmVideo=${isDmPlayer or isDmPath},
-                        videoId=${isYtWatch ? ytWatchId : (isYtShort ? ytShortId : (isYtEmbed ? ytEmbedId : (isDmPlayer ? dmPlayerId : (isDmPath ? dmPathId : ''))))},
-                        isValidVideo=${hasHttps and videoId != '' and (isYtVideo or isDmVideo)},
-                        embedSrc=${isYtVideo ? ('https://www.youtube.com/embed/' + videoId) : (isDmPath ? ('https://geo.dailymotion.com/player.html?video=' + videoId) : rawVid)},
-                        shareUrl=${isYtVideo ? ('https://www.youtube.com/watch?v=' + videoId) : (isDmVideo ? ('https://www.dailymotion.com/video/' + videoId) : rawVid)}
-                    ">
+					<th:block th:if="${product.youtubeVideoURL != null and !#strings.isEmpty(product.youtubeVideoURL)}">
+						<th:block th:with="
+        rawVid=${#strings.trim(product.youtubeVideoURL)},
+
+        isYtWatch=${#strings.contains(rawVid,'youtube.com/watch') and #strings.contains(rawVid,'v=')},
+        isYtShort=${#strings.contains(rawVid,'youtu.be/')},
+        isYtEmbed=${#strings.contains(rawVid,'youtube.com/embed/')},
+        isYtShorts=${#strings.contains(rawVid,'youtube.com/shorts/')},
+
+        ytWatchRaw=${isYtWatch ? #strings.substringAfter(rawVid,'v=') : ''},
+        ytShortRaw=${isYtShort ? #strings.substringAfter(rawVid,'youtu.be/') : ''},
+        ytEmbedRaw=${isYtEmbed ? #strings.substringAfter(rawVid,'youtube.com/embed/') : ''},
+        ytShortsRaw=${isYtShorts ? #strings.substringAfter(rawVid,'youtube.com/shorts/') : ''},
+
+        ytWatchId=${#strings.substringBefore(#strings.substringBefore(#strings.substringBefore(ytWatchRaw,'&'),'?'),'#')},
+        ytShortId=${#strings.substringBefore(#strings.substringBefore(#strings.substringBefore(ytShortRaw,'?'),'&'),'#')},
+        ytEmbedId=${#strings.substringBefore(#strings.substringBefore(#strings.substringBefore(ytEmbedRaw,'?'),'&'),'#')},
+        ytShortsId=${#strings.substringBefore(#strings.substringBefore(#strings.substringBefore(ytShortsRaw,'?'),'&'),'#')},
+
+        isYoutube=${isYtWatch or isYtShort or isYtEmbed or isYtShorts},
+
+        videoId=${isYtWatch ? ytWatchId :
+                (isYtShort ? ytShortId :
+                (isYtEmbed ? ytEmbedId :
+                (isYtShorts ? ytShortsId : '')))},
+
+        embedSrc=${isYoutube and videoId != ''
+                ? ('https://www.youtube.com/embed/' + videoId + '?rel=0')
+                : ''},
+
+        shareUrl=${isYoutube and videoId != ''
+                ? ('https://www.youtube.com/watch?v=' + videoId)
+                : rawVid}
+    ">
+
+							<div th:if="${isYoutube and videoId != ''}" style="margin-top:18px;">
+								<div style="position:relative;width:100%;padding-top:56.25%;overflow:hidden;border-radius:6px;box-shadow:0 2px 10px rgba(0,0,0,0.12);background:#000;">
+									<iframe
+											th:src="${embedSrc}"
+											title="YouTube video player"
+											frameborder="0"
+											referrerpolicy="strict-origin-when-cross-origin"
+											allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+											allowfullscreen
+											style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;">
+									</iframe>
+								</div>
+
+								<div style="display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;">
+									<span style="font-size:0.85rem;color:#555;">Chia sẻ video:</span>
+
+									<button type="button"
+											onclick="copyVideoLink(this)"
+											th:data-url="${shareUrl}"
+											style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border:1px solid #ccc;border-radius:4px;background:#fff;cursor:pointer;font-size:0.83rem;">
+										<i class="fa fa-link"></i> Sao chép link
+									</button>
+
+									<a th:href="'https://www.facebook.com/sharer/sharer.php?u=' + ${shareUrl}"
+									   target="_blank"
+									   rel="noopener"
+									   style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:4px;background:#1877f2;color:#fff;text-decoration:none;font-size:0.83rem;">
+										<i class="fa fa-facebook"></i> Facebook
+									</a>
+
+									<a th:href="'https://twitter.com/intent/tweet?url=' + ${shareUrl} + '&text=' + ${product.productName}"
+									   target="_blank"
+									   rel="noopener"
+									   style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:4px;background:#1da1f2;color:#fff;text-decoration:none;font-size:0.83rem;">
+										<i class="fa fa-twitter"></i> Twitter/X
+									</a>
+
+									<span id="copiedMsg"
+										  style="display:none;color:green;font-size:0.82rem;">
+                    ✓ Đã sao chép!
+                </span>
+								</div>
+							</div>
+
+						</th:block>
+					</th:block>
+					<!-- /Product Video -->
+
+					<script>
+						function copyVideoLink(btn) {
+							var url = btn.getAttribute('data-url');
+
+							if (navigator.clipboard && window.isSecureContext) {
+								navigator.clipboard.writeText(url).then(function() {
+									showVideoCopiedMessage();
+								}).catch(function() {
+									fallbackCopyVideoLink(url);
+								});
+							} else {
+								fallbackCopyVideoLink(url);
+							}
+						}
+
+						function fallbackCopyVideoLink(url) {
+							var ta = document.createElement('textarea');
+							ta.value = url;
+							ta.style.position = 'fixed';
+							ta.style.left = '-9999px';
+							document.body.appendChild(ta);
+							ta.focus();
+							ta.select();
+							document.execCommand('copy');
+							document.body.removeChild(ta);
+							showVideoCopiedMessage();
+						}
+
+						function showVideoCopiedMessage() {
+							var msg = document.getElementById('copiedMsg');
+							if (!msg) return;
+
+							msg.style.display = 'inline';
+
+							setTimeout(function() {
+								msg.style.display = 'none';
+							}, 2500);
+						}
+					</script>
                     <th:block th:if="${isValidVideo}">
                     <div style="margin-top: 18px;">
                         <div style="position:relative;width:100%;padding-top:56.25%;overflow:hidden;border-radius:6px;box-shadow:0 2px 10px rgba(0,0,0,0.12);">
