@@ -273,9 +273,9 @@
 					</div>
 
 					<!-- Product Video (YouTube or Dailymotion) -->
-                    <th:block th:if="${product.productVideoAdd != null}">
+                    <th:block th:if="${product.youtubeVideoURL != null}">
                     <th:block th:with="
-                        rawVid=${product.productVideoAdd},
+                        rawVid=${product.youtubeVideoURL},
                         hasHttps=${#strings.contains(rawVid,'https://')},
                         isYtWatch=${#strings.contains(rawVid,'youtube.com/watch') and #strings.contains(rawVid,'v=')},
                         isYtShort=${#strings.contains(rawVid,'youtu.be/')},
