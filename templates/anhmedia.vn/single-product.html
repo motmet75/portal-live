@@ -89,6 +89,25 @@
 			}
 		}
 
+		/* ── Language switcher (self-contained: no external css / flag files needed) ── */
+		#top-header .lang-switch form { display: inline-flex; align-items: center; gap: 6px; margin: 0; }
+		#top-header .lang-flag {
+			display: none;
+			width: 20px; height: 14px;
+			border-radius: 2px;
+			box-shadow: 0 0 0 1px rgba(255,255,255,0.35);
+			background-repeat: no-repeat; background-position: center; background-size: cover;
+		}
+		#top-header .lang-flag[data-lang="vi"] { display: inline-block; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 20'%3E%3Crect width='30' height='20' fill='%23da251d'/%3E%3Cpolygon fill='%23ff0' points='15.00,4.00 16.48,8.56 21.28,8.56 17.40,11.38 18.88,15.94 15.00,13.12 11.12,15.94 12.60,11.38 8.72,8.56 13.52,8.56'/%3E%3C/svg%3E"); }
+		#top-header .lang-flag[data-lang="en"] { display: inline-block; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30'%3E%3CclipPath id='s'%3E%3Cpath d='M0,0 v30 h60 v-30 z'/%3E%3C/clipPath%3E%3CclipPath id='t'%3E%3Cpath d='M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z'/%3E%3C/clipPath%3E%3Cg clip-path='url(%23s)'%3E%3Cpath d='M0,0 v30 h60 v-30 z' fill='%23012169'/%3E%3Cpath d='M0,0 L60,30 M60,0 L0,30' stroke='%23fff' stroke-width='6'/%3E%3Cpath d='M0,0 L60,30 M60,0 L0,30' clip-path='url(%23t)' stroke='%23C8102E' stroke-width='4'/%3E%3Cpath d='M30,0 v30 M0,15 h60' stroke='%23fff' stroke-width='10'/%3E%3Cpath d='M30,0 v30 M0,15 h60' stroke='%23C8102E' stroke-width='6'/%3E%3C/g%3E%3C/svg%3E"); }
+		#top-header #language {
+			height: 24px; padding: 0 22px 0 6px;
+			font-size: 12px; line-height: 22px;
+			color: #333; background-color: #fff;
+			border: 1px solid #ccc; border-radius: 3px;
+			cursor: pointer; width: auto; min-width: 0;
+		}
+
 		/* ── Main header ── */
 		@media (max-width: 767px) {
 			#header { padding: 6px 0; }
@@ -165,16 +184,22 @@
 													 th:text="${session.SPRING_SECURITY_CONTEXT.authentication.name}"></a>
 				</li>
 				<li><a><i class="fa fa-user-o"></i> Language:</a></li>
-				<li>
+				<li class="lang-switch">
 					<form action="#" th:action="@{/setLanguage}" method="get">
-						<select th:each="language : ${languages}" name="lang"
-								id="language" onchange="this.form.submit()">
-							<option th:value="${language.langId}"
+						<span class="lang-flag" id="langFlag" aria-hidden="true"></span>
+						<select name="lang" id="language" onchange="this.form.submit()">
+							<option th:each="language : ${languages}"
+									th:value="${language.langId}"
 									th:selected="${language.seleted}"
 									th:text="${language.langName}">Tiếng Việt</option>
-							<!-- Add more language options here if needed -->
 						</select>
 					</form>
+					<script>
+						(function () {
+							var s = document.getElementById('language'), f = document.getElementById('langFlag');
+							if (s && f) f.setAttribute('data-lang', (s.value || '').toLowerCase().slice(0, 2));
+						})();
+					</script>
 				</li>
 				<li><a href="#"><i class="fa fa-dollar"></i>  VNĐ</a></li>
 			</ul>
