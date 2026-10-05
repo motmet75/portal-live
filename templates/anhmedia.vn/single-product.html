@@ -274,126 +274,108 @@
 
 				<!-- Product Video (YouTube or Dailymotion) -->
 				<th:block th:if="${product.youtubeVideoURL != null and !#strings.isEmpty(#strings.trim(product.youtubeVideoURL))}">
-					<th:block th:with="
-							rawVid=${#strings.trim(product.youtubeVideoURL)},
+					<div id="productVideo"
+						 th:data-url="${#strings.trim(product.youtubeVideoURL)}"
+						 th:data-title="${product.productName}"
+						 style="margin-top:18px;display:none;">
+						<div id="productVideoFrame" style="position:relative;width:100%;padding-top:56.25%;overflow:hidden;border-radius:6px;box-shadow:0 2px 10px rgba(0,0,0,0.12);background:#000;"></div>
 
-							isYtWatch=${#strings.contains(rawVid,'youtube.com/watch') and #strings.contains(rawVid,'v=')},
-							isYtShort=${#strings.contains(rawVid,'youtu.be/')},
-							isYtEmbed=${#strings.contains(rawVid,'youtube.com/embed/') or #strings.contains(rawVid,'youtube-nocookie.com/embed/')},
-							isYtShorts=${#strings.contains(rawVid,'youtube.com/shorts/')},
-							isYtLive=${#strings.contains(rawVid,'youtube.com/live/')},
-							isDm=${#strings.contains(rawVid,'dailymotion.com/video/') or #strings.contains(rawVid,'dai.ly/')},
-							isBareId=${#strings.length(rawVid) == 11 and !#strings.contains(rawVid,'/') and !#strings.contains(rawVid,'.')},
+						<div style="display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;">
+							<span style="font-size:0.85rem;color:#555;">Chia sẻ video:</span>
 
-							ytWatchRaw=${isYtWatch ? #strings.substringAfter(rawVid,'v=') : ''},
-							ytShortRaw=${isYtShort ? #strings.substringAfter(rawVid,'youtu.be/') : ''},
-							ytEmbedRaw=${isYtEmbed ? #strings.substringAfter(rawVid,'/embed/') : ''},
-							ytShortsRaw=${isYtShorts ? #strings.substringAfter(rawVid,'youtube.com/shorts/') : ''},
-							ytLiveRaw=${isYtLive ? #strings.substringAfter(rawVid,'youtube.com/live/') : ''},
-							dmRaw=${#strings.contains(rawVid,'dailymotion.com/video/') ? #strings.substringAfter(rawVid,'dailymotion.com/video/') : (#strings.contains(rawVid,'dai.ly/') ? #strings.substringAfter(rawVid,'dai.ly/') : '')},
+							<button type="button" id="pvCopy"
+									style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border:1px solid #ccc;border-radius:4px;background:#fff;cursor:pointer;font-size:0.83rem;">
+								<i class="fa fa-link"></i> Sao chép link
+							</button>
 
-							ytWatchId=${#strings.substringBefore(#strings.substringBefore(#strings.substringBefore(ytWatchRaw,'&'),'?'),'#')},
-							ytShortId=${#strings.substringBefore(#strings.substringBefore(#strings.substringBefore(ytShortRaw,'?'),'&'),'#')},
-							ytEmbedId=${#strings.substringBefore(#strings.substringBefore(#strings.substringBefore(ytEmbedRaw,'?'),'&'),'#')},
-							ytShortsId=${#strings.substringBefore(#strings.substringBefore(#strings.substringBefore(ytShortsRaw,'?'),'&'),'#')},
-							ytLiveId=${#strings.substringBefore(#strings.substringBefore(#strings.substringBefore(ytLiveRaw,'?'),'&'),'#')},
-							dmId=${#strings.substringBefore(#strings.substringBefore(#strings.substringBefore(#strings.substringBefore(dmRaw,'?'),'&'),'#'),'_')},
+							<a id="pvFb" href="#" target="_blank" rel="noopener"
+							   style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:4px;background:#1877f2;color:#fff;text-decoration:none;font-size:0.83rem;">
+								<i class="fa fa-facebook"></i> Facebook
+							</a>
 
-							isYoutube=${isYtWatch or isYtShort or isYtEmbed or isYtShorts or isYtLive or isBareId},
+							<a id="pvTw" href="#" target="_blank" rel="noopener"
+							   style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:4px;background:#1da1f2;color:#fff;text-decoration:none;font-size:0.83rem;">
+								<i class="fa fa-twitter"></i> Twitter/X
+							</a>
 
-							videoId=${isYtWatch ? ytWatchId :
-									(isYtShort ? ytShortId :
-									(isYtEmbed ? ytEmbedId :
-									(isYtShorts ? ytShortsId :
-									(isYtLive ? ytLiveId :
-									(isBareId ? rawVid :
-									(isDm ? dmId : ''))))))},
+							<a id="pvOpen" href="#" target="_blank" rel="noopener"
+							   style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border:1px solid #ccc;border-radius:4px;background:#fff;color:#333;text-decoration:none;font-size:0.83rem;">
+								<i class="fa fa-external-link"></i> Mở video
+							</a>
 
-							embedSrc=${videoId == '' ? '' :
-									(isYoutube ? ('https://www.youtube.com/embed/' + videoId + '?rel=0&modestbranding=1&playsinline=1')
-									: ('https://www.dailymotion.com/embed/video/' + videoId))},
-
-							shareUrl=${videoId == '' ? rawVid :
-									(isYoutube ? ('https://www.youtube.com/watch?v=' + videoId)
-									: ('https://www.dailymotion.com/video/' + videoId))}
-						">
-						<div th:if="${embedSrc != ''}" style="margin-top:18px;">
-							<div style="position:relative;width:100%;padding-top:56.25%;overflow:hidden;border-radius:6px;box-shadow:0 2px 10px rgba(0,0,0,0.12);background:#000;">
-								<iframe
-										th:src="${embedSrc}"
-										title="Product video player"
-										loading="lazy"
-										frameborder="0"
-										referrerpolicy="strict-origin-when-cross-origin"
-										allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
-										allowfullscreen
-										style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;">
-								</iframe>
-							</div>
-
-							<div style="display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;">
-								<span style="font-size:0.85rem;color:#555;">Chia sẻ video:</span>
-
-								<button type="button"
-										onclick="copyVideoLink(this)"
-										th:data-url="${shareUrl}"
-										style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border:1px solid #ccc;border-radius:4px;background:#fff;cursor:pointer;font-size:0.83rem;">
-									<i class="fa fa-link"></i> Sao chép link
-								</button>
-
-								<a th:href="'https://www.facebook.com/sharer/sharer.php?u=' + ${#uris.escapeQueryParam(shareUrl)}"
-								   target="_blank"
-								   rel="noopener"
-								   style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:4px;background:#1877f2;color:#fff;text-decoration:none;font-size:0.83rem;">
-									<i class="fa fa-facebook"></i> Facebook
-								</a>
-
-								<a th:href="'https://twitter.com/intent/tweet?url=' + ${#uris.escapeQueryParam(shareUrl)} + '&text=' + ${#uris.escapeQueryParam(product.productName)}"
-								   target="_blank"
-								   rel="noopener"
-								   style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:4px;background:#1da1f2;color:#fff;text-decoration:none;font-size:0.83rem;">
-									<i class="fa fa-twitter"></i> Twitter/X
-								</a>
-
-								<span id="copiedMsg" style="display:none;color:green;font-size:0.82rem;">✓ Đã sao chép!</span>
-							</div>
+							<span id="copiedMsg" style="display:none;color:green;font-size:0.82rem;">✓ Đã sao chép!</span>
 						</div>
-					</th:block>
+					</div>
+
+					<script>
+						(function () {
+							var box = document.getElementById('productVideo');
+							if (!box) return;
+
+							var raw = (box.getAttribute('data-url') || '').trim();
+							var title = box.getAttribute('data-title') || '';
+							var embed = '', share = '', m;
+
+							// YouTube: watch?v=, youtu.be/, embed/, shorts/, live/, v/ (also m. / music. / nocookie), or bare 11-char ID
+							m = raw.match(/(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/)([\w-]{11})/i)
+									|| raw.match(/^([\w-]{11})$/);
+							if (m) {
+								embed = 'https://www.youtube.com/embed/' + m[1] + '?rel=0&modestbranding=1&playsinline=1';
+								share = 'https://www.youtube.com/watch?v=' + m[1];
+							} else {
+								// Dailymotion: /video/ID, /embed/video/ID, dai.ly/ID
+								m = raw.match(/(?:dailymotion\.com\/(?:embed\/)?video\/|dai\.ly\/)([a-zA-Z0-9]+)/i);
+								if (m) {
+									embed = 'https://www.dailymotion.com/embed/video/' + m[1];
+									share = 'https://www.dailymotion.com/video/' + m[1];
+								}
+							}
+							if (!embed) { return; } // unrecognised URL -> keep video box hidden
+
+							var f = document.createElement('iframe');
+							f.src = embed;
+							f.title = 'Product video player';
+							f.setAttribute('loading', 'lazy');
+							f.setAttribute('frameborder', '0');
+							f.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+							f.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen');
+							f.setAttribute('allowfullscreen', '');
+							f.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:0;';
+							document.getElementById('productVideoFrame').appendChild(f);
+
+							document.getElementById('pvFb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(share);
+							document.getElementById('pvTw').href = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(share) + '&text=' + encodeURIComponent(title);
+							document.getElementById('pvOpen').href = share;
+							box.style.display = 'block';
+
+							function copied() {
+								var msg = document.getElementById('copiedMsg');
+								msg.style.display = 'inline';
+								setTimeout(function () { msg.style.display = 'none'; }, 2500);
+							}
+							function fallbackCopy() {
+								var ta = document.createElement('textarea');
+								ta.value = share;
+								ta.style.position = 'fixed';
+								ta.style.left = '-9999px';
+								document.body.appendChild(ta);
+								ta.focus();
+								ta.select();
+								try { document.execCommand('copy'); } catch (e) {}
+								document.body.removeChild(ta);
+								copied();
+							}
+							document.getElementById('pvCopy').addEventListener('click', function () {
+								if (navigator.clipboard && window.isSecureContext) {
+									navigator.clipboard.writeText(share).then(copied).catch(fallbackCopy);
+								} else {
+									fallbackCopy();
+								}
+							});
+						})();
+					</script>
 				</th:block>
 				<!-- /Product Video -->
-
-				<script>
-					function copyVideoLink(btn) {
-						var url = btn.getAttribute('data-url');
-						if (navigator.clipboard && window.isSecureContext) {
-							navigator.clipboard.writeText(url).then(showVideoCopiedMessage).catch(function() {
-								fallbackCopyVideoLink(url);
-							});
-						} else {
-							fallbackCopyVideoLink(url);
-						}
-					}
-
-					function fallbackCopyVideoLink(url) {
-						var ta = document.createElement('textarea');
-						ta.value = url;
-						ta.style.position = 'fixed';
-						ta.style.left = '-9999px';
-						document.body.appendChild(ta);
-						ta.focus();
-						ta.select();
-						try { document.execCommand('copy'); } catch (e) {}
-						document.body.removeChild(ta);
-						showVideoCopiedMessage();
-					}
-
-					function showVideoCopiedMessage() {
-						var msg = document.getElementById('copiedMsg');
-						if (!msg) return;
-						msg.style.display = 'inline';
-						setTimeout(function() { msg.style.display = 'none'; }, 2500);
-					}
-				</script>
 			</div>
 			<!-- /Product main img -->
 
