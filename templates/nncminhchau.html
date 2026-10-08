@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<!-- ===================== HEAD fragment ===================== -->
+<head th:fragment="head(pageTitle)">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+    <title th:text="${pageTitle}">Minh Châu</title>
+    <link rel="shortcut icon" th:href="'/' + ${domain} + '/img/favicon.png'">
+    <!-- Bootstrap core CSS -->
+    <link th:href="'/' + ${domain} + '/vendor/bootstrap/css/bootstrap.min.css'" rel="stylesheet">
+    <link href="/portal.tuonghoa-imex.com/fontawesome/css/all.min.css" rel="stylesheet">
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" th:href="'/' + ${domain} + '/css/tooplate-main.css'">
+    <link rel="stylesheet" th:href="'/' + ${domain} + '/css/owl.css'">
+    <link rel="stylesheet" th:href="'/' + ${domain} + '/css/utilities.css'">
+    <link rel="stylesheet" th:href="'/' + ${domain} + '/css/flex-slider.css'">
+    <link rel="stylesheet" th:href="'/' + ${domain} + '/css/video-social-links.css'">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script th:src="'/' + ${domain} + '/js/utilities.js'"></script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GZZPBFQPNS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-GZZPBFQPNS');
+    </script>
+</head>
+
+<body>
+
+<!-- ===================== HEADER fragment ===================== -->
+<header th:fragment="header">
+    <!-- Pre Header -->
+    <div id="pre-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <span>CÔNG TY TNHH TM DV NÔNG NGƯ CƠ MINH CHÂU</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <style>
+        /* Desktop: wrap complete menu items, never the text inside an item. */
+        @media (min-width: 992px) {
+            #navbarResponsive .navbar-nav {
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+            #navbarResponsive .nav-item,
+            #navbarResponsive .nav-link {
+                flex-shrink: 0;
+                white-space: nowrap;
+            }
+        }
+        /* Fix mobile menu background */
+        @media (max-width: 991.98px) {
+            .navbar .navbar-brand img {
+                width: 120px;
+                max-width: 120px;
+                height: auto;
+            }
+            .navbar .navbar-brand span {
+                display: block;
+                font-size: 0.85rem;
+                line-height: 1.1;
+            }
+            #navbarResponsive {
+                background-color: #ffffff !important;
+                padding: 10px 15px;
+                border-radius: 4px;
+                margin-top: 5px;
+            }
+            #navbarResponsive .nav-link {
+                color: #212529 !important;
+            }
+            #navbarResponsive .nav-link:hover {
+                color: #f4a301 !important;
+            }
+        }
+        /* Mobile quick-access buttons */
+        .btn-mobile-products {
+            display: none;
+        }
+        .mobile-header-tools {
+            display: none;
+        }
+        .mobile-quick-links {
+            display: none;
+        }
+        .mobile-language-direct {
+            display: none;
+        }
+        .nav-language-item {
+            display: flex;
+            align-items: center;
+        }
+        .language-selector {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 6px;
+        }
+        .lang-flag-current {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-width: 54px;
+            height: 34px;
+            padding: 0 9px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            cursor: pointer;
+            outline: none;
+        }
+        .lang-flag-current:hover {
+            background: rgba(255, 255, 255, 0.22);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+        .lang-flag-current img,
+        .lang-flag-option img {
+            width: 24px;
+            height: 16px;
+            border-radius: 2px;
+            object-fit: cover;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
+        }
+        .lang-flag-current i {
+            font-size: 0.7rem;
+            opacity: 0.8;
+        }
+        .lang-flag-menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 8px);
+            z-index: 1100;
+            display: none;
+            grid-template-columns: repeat(4, 36px);
+            gap: 5px;
+            padding: 8px;
+            background: #212529;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 10px;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.28);
+        }
+        .language-selector.open .lang-flag-menu {
+            display: grid;
+        }
+        .lang-flag-option {
+            width: 36px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            border: 0;
+            border-radius: 7px;
+            background: transparent;
+            cursor: pointer;
+            padding: 0;
+        }
+        .lang-flag-option:hover,
+        .lang-flag-option.active {
+            background: rgba(244, 163, 1, 0.22);
+        }
+        @media (max-width: 991.98px) {
+            .mobile-header-tools {
+                display: flex;
+                align-items: flex-start;
+                gap: 8px;
+                margin-left: auto;
+            }
+            .mobile-language-direct {
+                display: flex;
+                align-items: center;
+                margin-top: 1px;
+            }
+            .mobile-quick-links {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+                gap: 6px;
+                max-width: min(78vw, 360px);
+            }
+            .btn-mobile-products {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 5px;
+                margin-right: 0;
+                margin-bottom: 0;
+                font-size: 0.88rem;
+                font-weight: 700;
+                line-height: 1.2;
+                padding: 6px 10px;
+                min-width: 96px;
+            }
+            .nav-language-item {
+                padding: 6px 0;
+            }
+            #navbarResponsive .nav-language-item {
+                display: none;
+            }
+            .language-selector {
+                justify-content: flex-start;
+                padding-left: 0;
+            }
+            .lang-flag-current {
+                border-color: rgba(0, 0, 0, 0.18);
+                color: #212529;
+                background: rgba(0, 0, 0, 0.04);
+            }
+            .lang-flag-menu {
+                left: 0;
+                right: auto;
+                background: #fff;
+                border-color: rgba(0, 0, 0, 0.12);
+            }
+        }
+    </style>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+        <div class="container">
+            <a class="navbar-brand" href="/index.html">
+                <img th:src="'/' + ${domain} + '/img/header-logo.png'" alt=""><br>
+                <span style="color: blue">nncminhchau.vn</span>
+            </a>
+            <!-- Mobile: quick links + toggler -->
+            <div class="mobile-header-tools ml-auto d-lg-none">
+                <div class="mobile-language-direct">
+                    <div class="language-selector" data-language-switcher>
+                        <button class="lang-flag-current" type="button" aria-label="Change language" aria-expanded="false"
+                                th:title="${selectedLanguageName != null ? selectedLanguageName : 'English'}">
+                            <img th:src="${selectedLanguageFlagUrl != null ? selectedLanguageFlagUrl : '/img/languageflags/en.png'}"
+                                 src="/img/languageflags/en.png"
+                                 th:alt="${selectedLanguageName != null ? selectedLanguageName : 'English'}" alt="English">
+                            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                        </button>
+                        <div class="lang-flag-menu" role="listbox">
+                            <button type="button" class="lang-flag-option" th:each="lang : ${languageOptions}"
+                                    th:classappend="${lang.selected} ? ' active'"
+                                    th:attr="data-lang=${lang.code}, aria-label=${lang.name}, title=${lang.name}, aria-selected=${lang.selected}"
+                                    data-lang="en" aria-label="English" title="English">
+                                <img th:src="${lang.flagUrl}" src="/img/languageflags/en.png" th:alt="${lang.name}" alt="English">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="mobile-quick-links">
+                    <a href="/videos.html" class="btn btn-danger btn-mobile-products">
+                        <i class="fas fa-play-circle" aria-hidden="true"></i> <span data-i18n="menu.videos">Videos</span>
+                    </a>
+                    <a href="/products.html" class="btn btn-warning btn-mobile-products">
+                        <i class="fas fa-shopping-cart" aria-hidden="true"></i> <span data-i18n="menu.products">Sản phẩm</span>
+                    </a>
+                    <a href="/contact.html" class="btn btn-info btn-mobile-products">
+                        <i class="fas fa-phone" aria-hidden="true"></i> <span data-i18n="menu.contact">Liên hệ</span>
+                    </a>
+                    <a href="/login" class="btn btn-primary btn-mobile-products">
+                        <i class="fas fa-user" aria-hidden="true"></i> <span data-i18n="menu.login">Đăng nhập</span>
+                    </a>
+                </div>
+                <button class="navbar-toggler" type="button" data-toggle="collapse"
+                        data-target="#navbarResponsive" aria-controls="navbarResponsive"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse" id="navbarResponsive"
+                 th:replace="nncminhchau :: navbarResponsive">
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- ===================== VIDEO SOCIAL LINKS fragment ===================== -->
+<div th:fragment="videoSocialLinks" class="container video-social-links-container">
+    <div class="video-social-links">
+        <a href="https://www.youtube.com/@NNCMinhChau" class="video-social-btn youtube-btn"
+           target="_blank" rel="noopener noreferrer">
+            <i class="fab fa-youtube"></i>
+            <span>YouTube</span>
+        </a>
+        <a href="https://www.tiktok.com/@nncminhchau.vn" class="video-social-btn tiktok-btn"
+           target="_blank" rel="noopener noreferrer">
+            <i class="fab fa-tiktok"></i>
+            <span>TikTok</span>
+        </a>
+        <a href="https://www.facebook.com/nncminhchau.vn" class="video-social-btn facebook-btn"
+           target="_blank" rel="noopener noreferrer">
+            <i class="fab fa-facebook-f"></i>
+            <span>Facebook</span>
+        </a>
+    </div>
+</div>
+
+<!-- ===================== FOOTER fragment ===================== -->
+<footer th:fragment="footer">
+    <!-- Subscribe Form -->
+    <div class="subscribe-form">
+        <div class="container"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="logo">
+                        <img th:src="'/' + ${domain} + '/img/header-logo.png'" alt="">
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="footer-menu">
+                        <ul>
+                            <li><a href="/index.html" data-i18n="menu.home"> TRANG CHỦ</a></li>
+                            <li><a href="/products.html" data-i18n="menu.products"> SẢN PHẨM</a></li>
+                            <li><a href="/videos.html" data-i18n="menu.videos"> VIDEOS CLIP</a></li>
+                             <li><a href="/marine.html" data-i18n="menu.marine"> Máy Thủy </a></li>
+                            <li><a href="/about.html" data-i18n="menu.about"> GIỚI THIỆU</a></li>
+                            <li><a href="/contact.html" data-i18n="menu.contact"> LIÊN HỆ</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="social-icons">
+                        <ul>
+                            <li><a href="#"><i class="fab fa-facebook" aria-hidden="true"></i></a></li>
+                            <li><a href="#"><i class="fab fa-twitter" aria-hidden="true"></i></a></li>
+                            <li><a href="#"><i class="fab fa-linkedin" aria-hidden="true"></i></a></li>
+                            <li><a href="#"><i class="fas fa-rss" aria-hidden="true"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Sub Footer -->
+    <div class="sub-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="copyright-text">
+                        <p>Copyright &copy; 2019 Nông Ngư Cơ Minh Châu - Design: <a rel="nofollow"
+                            href="https://www.facebook.com/tooplate">Tooplate</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- ===================== SCRIPTS fragment ===================== -->
+<div th:fragment="scripts">
+    <script th:src="'/' + ${domain} + '/vendor/jquery/jquery.min.js'"></script>
+    <script th:src="'/' + ${domain} + '/vendor/bootstrap/js/bootstrap.bundle.min.js'"></script>
+    <script th:src="'/' + ${domain} + '/js/custom.js'"></script>
+    <script th:src="'/' + ${domain} + '/js/owl.js'"></script>
+    <script th:src="'/' + ${domain} + '/js/isotope.js'"></script>
+    <script th:src="'/' + ${domain} + '/js/flex-slider.js'"></script>
+    <script th:inline="javascript">
+        window.NNC_SELECTED_LANGUAGE = /*[[${selectedLanguageCode}]]*/ 'en';
+    </script>
+    <script th:src="'/' + ${domain} + '/js/i18n.js'"></script>
+    <script>
+        window.changeLanguage = function(lang) {
+            window.location.href = '/setLanguage?lang=' + encodeURIComponent(lang);
+        };
+        (function() {
+            var languageSwitchers = document.querySelectorAll('[data-language-switcher]');
+            if (!languageSwitchers.length) return;
+
+            function closeAll(except) {
+                languageSwitchers.forEach(function(switcher) {
+                    if (switcher !== except) {
+                        switcher.classList.remove('open');
+                        var btn = switcher.querySelector('.lang-flag-current');
+                        if (btn) btn.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
+
+            languageSwitchers.forEach(function(switcher) {
+                var current = switcher.querySelector('.lang-flag-current');
+                var menu = switcher.querySelector('.lang-flag-menu');
+                if (!current || !menu) return;
+
+                current.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    var isOpen = switcher.classList.toggle('open');
+                    current.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                    closeAll(switcher);
+                });
+
+                menu.addEventListener('click', function(event) {
+                    var option = event.target.closest('[data-lang]');
+                    if (option) window.changeLanguage(option.getAttribute('data-lang'));
+                });
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('[data-language-switcher]')) closeAll(null);
+            });
+        })();
+    </script>
+
+    <script language="text/Javascript">
+        cleared[0] = cleared[1] = cleared[2] = 0;
+        function clearField(t){
+            if(!cleared[t.id]){
+                cleared[t.id] = 1;
+                t.value = '';
+                t.style.color = '#fff';
+            }
+        }
+    </script>
+</div>
+
+<!-- ===================== NAVBAR fragment (existing) ===================== -->
+<div th:fragment="navbarResponsive" class="collapse navbar-collapse" id="navbarResponsive">
+    <ul class="navbar-nav ml-auto">
+        <li class='nav-item'><a class='nav-link' href='/index.html' data-i18n="menu.home">TRANG CHỦ</a></li>
+        <li class='nav-item'><a class='nav-link' href='/products.html' data-i18n="menu.products">SẢN PHẨM</a></li>
+        <li class='nav-item'><a class='nav-link' href='/videos.html' data-i18n="menu.videos">VIDEOS CLIP</a></li>
+        <li class='nav-item'><a class='nav-link' href='/marine.html' data-i18n="menu.marine">MÁY THỦY</a></li>
+        <li class='nav-item'><a class='nav-link' href='/about.html' data-i18n="menu.about">GIỚI THIỆU</a></li>
+        <li class='nav-item'><a class='nav-link' href='/contact.html' data-i18n="menu.contact">LIÊN HỆ</a></li>
+        <li class='nav-item'><a class='nav-link' href='/login' data-i18n="menu.login">ĐĂNG NHẬP</a></li>
+        <li class="nav-item nav-language-item">
+            <div class="language-selector" data-language-switcher>
+                <button class="lang-flag-current" type="button" aria-label="Change language" aria-expanded="false"
+                        th:title="${selectedLanguageName != null ? selectedLanguageName : 'English'}">
+                    <img th:src="${selectedLanguageFlagUrl != null ? selectedLanguageFlagUrl : '/img/languageflags/en.png'}"
+                         src="/img/languageflags/en.png"
+                         th:alt="${selectedLanguageName != null ? selectedLanguageName : 'English'}" alt="English">
+                    <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                </button>
+                <div class="lang-flag-menu" role="listbox">
+                    <button type="button" class="lang-flag-option" th:each="lang : ${languageOptions}"
+                            th:classappend="${lang.selected} ? ' active'"
+                            th:attr="data-lang=${lang.code}, aria-label=${lang.name}, title=${lang.name}, aria-selected=${lang.selected}"
+                            data-lang="en" aria-label="English" title="English">
+                        <img th:src="${lang.flagUrl}" src="/img/languageflags/en.png" th:alt="${lang.name}" alt="English">
+                    </button>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<!-- ===================== SEARCH BAR fragment ===================== -->
+<div th:fragment="search" class="container" style="padding-bottom:2rem; padding-top:1.5rem;">
+    <div class="row">
+        <div class="col-md-8 col-sm-12">
+            <div class="header-search">
+                <form action="/products.html" method="GET">
+                    <span style="white-space: nowrap; display:flex; flex-wrap:nowrap; gap:5px;">
+                        <select name="catalog" class="input-select" style="padding:8px; border:1px solid #ccc; border-radius:4px;">
+                            <option value="0">Tất cả</option>
+                            <option th:each="catalog : ${catalogs}"
+                                    th:value="${catalog.catalogCode}"
+                                    th:text="${catalog.catalogName}">Danh mục</option>
+                        </select>
+                        <input class="form-control" name="keyword" placeholder="Từ khóa tìm kiếm..."
+                               style="flex:1; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                        <button type="submit" class="btn btn-dark" style="padding:8px 16px; border-radius:4px;">
+                            <i class="fas fa-search" aria-hidden="true"></i> Tìm
+                        </button>
+                    </span>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
