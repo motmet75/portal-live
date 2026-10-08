@@ -17,3 +17,7 @@
 2026-08-22T01:31:22.958905362	anhmedia	ASSIGN_LIVE	open2job.com	open2job
 2026-08-22T02:36:18.808520981	anhmedia	ASSIGN_LIVE	open2job.com	open2job
 2026-08-22T03:55:52.310282751	anhmedia	ASSIGN_LIVE	sancoffeetea.anhmedia.vn	sancoffeetea
+2026-10-02T13:20:48.560903410	anhmedia	ASSIGN_LIVE	caphemare.anhmedia.vn	caphemare
+2026-10-02T17:24:38.975013927	anhmedia	TRASH_TENANT	milktea.anhmedia.vn	/opt/portal-live/trash/milktea.anhmedia.vn/20261002-172438-846/tenant/milktea.anhmedia.vn.properties
+2026-10-02T17:25:37.760308492	anhmedia	TRASH_TENANT	cuchoami.anhmedia.vn	/opt/portal-live/trash/cuchoami.anhmedia.vn/20261002-172537-726/tenant/cuchoami.properties
+2026-10-02T17:26:15.581022518	anhmedia	TRASH_TENANT	phuonganhamara.anhmedia.vn	/opt/portal-live/trash/phuonganhamara.anhmedia.vn/20261002-172615-545/tenant/phuonganhamara.anhmedia.vn.properties

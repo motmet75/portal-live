@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en" th:lang="${selectedLanguageCode != null ? selectedLanguageCode : 'en'}" xmlns:th="http://www.thymeleaf.org">
+
+<head >
+   
+   <meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<title th:text="${product.productName}">Electro - HTML Ecommerce Template</title>
+		
+		<link rel="shortcut icon"  th:href="'/'+ ${domain} + '/img/favicon.png'">
+	   
+	    <meta name="keywords" th:content="${product.pageKeyword}">
+	    
+		<link rel="canonical" th:href="'https://' + ${domain} + '/product/' + ${product.path}"/>
+	    <meta property="og:title" th:content="${product.productName}" />
+		<meta property="og:description" th:content="${product.productShortDes}" />
+		<meta property="og:url" th:content="'https://' + ${domain} + '/product/' + ${product.path}" />
+		<meta property="og:type" th:content="website" />
+		<meta property="og:image" th:content=" ${product.productImageDesUrl}" />
+		<meta property="og:image:height" content="200" />
+		<meta property="og:image:width" content="200" />
+   
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+    <link rel="shortcut icon" th:href="'/' + ${domain} + '/img/favicon.png'">
+    <!-- Bootstrap core CSS -->
+    <link th:href="'/' + ${domain} + '/vendor/bootstrap/css/bootstrap.min.css'" rel="stylesheet">
+     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" th:href="'/' + ${domain} + '/css/fontawesome.css'">
+    <link rel="stylesheet" th:href="'/' + ${domain} + '/css/tooplate-main.css'">
+    <link rel="stylesheet" th:href="'/' + ${domain} + '/css/owl.css'">
+    <link rel="stylesheet" th:href="'/' + ${domain} + '/css/utilities.css'">
+    <link rel="stylesheet" th:href="'/' + ${domain} + '/css/flex-slider.css'">
+    <link rel="stylesheet" th:href="'/' + ${domain} + '/css/video-social-links.css'">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script th:src="'/' + ${domain} + '/js/utilities.js'"></script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GZZPBFQPNS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-GZZPBFQPNS');
+    </script>
+</head>
+
+<style>
+    .product-search-wrapper {
+        position: relative;
+        margin: 18px 0 6px;
+    }
+    .product-search-container {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        gap: 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .product-search-container select.input-select {
+        padding: 10px 12px;
+        font-size: 0.92rem;
+        border: none;
+        border-right: 1px solid #ccc;
+        outline: none;
+        background: #fff;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+    .product-search-container input.search-box {
+        flex: 1;
+        padding: 10px 14px;
+        font-size: 0.92rem;
+        border: none;
+        outline: none;
+        min-width: 0;
+    }
+    .product-search-container button.search-btn {
+        padding: 10px 18px;
+        border: none;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+        font-size: 0.92rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition: background 0.2s;
+    }
+    .product-search-container button.search-btn:hover {
+        background-color: #0056b3;
+    }
+    @media (max-width: 600px) {
+        .product-search-container { flex-wrap: wrap; }
+        .product-search-container select.input-select {
+            width: 100%;
+            border-right: none;
+            border-bottom: 1px solid #ccc;
+            border-radius: 4px 4px 0 0;
+        }
+        .product-search-container input.search-box {
+            width: 100%;
+            border-bottom: 1px solid #ccc;
+        }
+        .product-search-container button.search-btn {
+            width: 100%;
+            border-radius: 0 0 4px 4px;
+        }
+    }
+    #slider > .slides > li:first-child,
+    #carousel > .slides > li:first-child {
+        display: block;
+    }
+</style>
+
+<body>
+	<script type="text/javascript">
+		window.onload = function() {
+			let x = document.getElementsByClassName("spanID");
+			for (let i = 0, len = x.length; i < len; i++) {
+				x[i].innerHTML = moneyload(x[i]);
+			}
+		}
+	</script>
+
+	<header th:replace="nncminhchau :: header"></header>
+
+	<div th:replace="nncminhchau :: videoSocialLinks"></div>
+
+	<!-- ── Product Search Bar ── -->
+	<div class="container">
+		<div class="product-search-wrapper">
+			<form action="/products.html" method="GET" style="margin:0;">
+				<div class="product-search-container">
+					<select id="productCatalogSelect" name="catalog" class="input-select">
+						<option value="0" data-i18n="search.allCategories">Tất cả danh mục</option>
+						<option th:each="catalog : ${catalogs}"
+								th:value="${catalog.catalogCode}"
+								th:text="${catalog.catalogName}">Danh mục</option>
+					</select>
+					<input type="text"
+						   id="productSearchBox"
+						   name="keyword"
+						   class="search-box"
+						   placeholder="Tìm kiếm sản phẩm..." data-i18n-placeholder="search.productPlaceholder"
+						   autocomplete="off">
+					<button type="submit" class="search-btn">
+						<i class="fa fa-search"></i> <span data-i18n="search.search">Tìm</span>
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- Page Content -->
+	<!-- Single Starts Here -->
+	<div class="single-product">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="section-heading">
+						<div class="line-dec"></div>
+						<h1 th:text="${product.productName}"></h1>
+					</div>
+				</div>
+				<textarea name="imageUrllist" id="imageUrls" hidden="hidden"
+					th:text=" ${product.productImageUrl1}">https://lh3.googleusercontent.com/pw/AL9nZEUrFXfUQsvefM1A4rROA8-2vwtUWz67G4_I-OxGyUt0LJVuZgLZHvyAEDFNLN5oFAgufTS9aLYnRvm76BM6zkmRfdm6durLeAMIR2Y-syxDA8FEXgpiB-IIwbg0x7PZeUpDumR-0a_JavZ-YWVhhHg=w1010-h757-no?authuser=0</textarea>
+
+				<div class="col-md-6">
+					<div class="product-slider">
+						<div id="slider" class="flexslider">
+							<ul class="slides">
+								<li th:each="imageURL, imageStat : ${imageURLs}"
+									th:classappend="${imageStat.first} ? 'flex-active-slide' : ''">
+									<img th:src="${imageURL}"
+										th:attr="loading=${imageStat.first} ? 'eager' : null,fetchpriority=${imageStat.first} ? 'high' : null"
+										draggable="false">
+								</li>
+							</ul>
+						</div>
+						<div id="carousel" class="flexslider">
+							<ul class="slides">
+								<li th:each="imageURL, imageStat : ${imageURLs}"
+									th:classappend="${imageStat.first} ? 'flex-active-slide' : ''">
+									<img th:src="${imageURL}"
+										th:attr="loading=${imageStat.first} ? 'eager' : null,fetchpriority=${imageStat.first} ? 'high' : null"
+										draggable="false">
+								</li>
+							</ul>
+						</div>
+					</div>
+
+					<!-- Video section: shown only when a real Dailymotion video is set -->
+					<div th:if="${product.youtubeVideoURL != null and product.youtubeVideoURL != 'https://geo.dailymotion.com/player.html?video=' and product.youtubeVideoURL != 'none'}"
+					     style="margin-top: 18px;">
+						<div style="position: relative; width: 100%; padding-top: 56.25%; overflow: hidden; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.12);">
+							<iframe
+								th:src="${product.youtubeVideoURL}"
+								frameborder="0"
+								allowfullscreen
+								allow="fullscreen; picture-in-picture"
+								style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+							</iframe>
+						</div>
+						<!-- Share row -->
+						<div style="display:flex; align-items:center; gap:8px; margin-top:10px; flex-wrap:wrap;">
+							<span style="font-size:0.85rem; color:#555;">Chia sẻ video:</span>
+
+							<!-- Copy link -->
+							<button onclick="copyVideoLink(this)"
+							        th:data-url="${product.youtubeVideoURL}"
+							        style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border:1px solid #ccc;border-radius:4px;background:#fff;cursor:pointer;font-size:0.83rem;">
+								<i class="fa fa-link"></i> Sao chép link
+							</button>
+
+							<!-- Facebook -->
+							<a th:href="'https://www.facebook.com/sharer/sharer.php?u=' + ${product.youtubeVideoURL}"
+							   target="_blank" rel="noopener"
+							   style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:4px;background:#1877f2;color:#fff;text-decoration:none;font-size:0.83rem;">
+								<i class="fa fa-facebook"></i> Facebook
+							</a>
+
+							<!-- Twitter / X -->
+							<a th:href="'https://twitter.com/intent/tweet?url=' + ${product.youtubeVideoURL} + '&text=' + ${product.productName}"
+							   target="_blank" rel="noopener"
+							   style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:4px;background:#1da1f2;color:#fff;text-decoration:none;font-size:0.83rem;">
+								<i class="fa fa-twitter"></i> Twitter/X
+							</a>
+
+							<!-- Copied tooltip -->
+							<span id="copiedMsg" style="display:none;color:green;font-size:0.82rem;">✅ Đã sao chép!</span>
+						</div>
+					</div>
+
+					<script>
+					function copyVideoLink(btn) {
+						var url = btn.getAttribute('data-url');
+						navigator.clipboard.writeText(url).then(function() {
+							var msg = document.getElementById('copiedMsg');
+							msg.style.display = 'inline';
+							setTimeout(function(){ msg.style.display = 'none'; }, 2500);
+						}).catch(function() {
+							// fallback for older browsers
+							var ta = document.createElement('textarea');
+							ta.value = url;
+							document.body.appendChild(ta);
+							ta.select();
+							document.execCommand('copy');
+							document.body.removeChild(ta);
+							var msg = document.getElementById('copiedMsg');
+							msg.style.display = 'inline';
+							setTimeout(function(){ msg.style.display = 'none'; }, 2500);
+						});
+					}
+					</script>
+				</div>
+				<div class="col-md-6">
+					<div class="right-content">
+						<h4 th:text="${product.productName}">YANMAR</h4>
+						<h6 class="spanID" th:if="${product.publicPrice == true}" th:text="${product.productPriceAmount}">0</h6>
+						<p th:text="${product.productShortDes}">YANMAR</p>
+						<p th:utext="${product.productLongDes}"></p>
+						<span hidden="hidden">7 left on stock</span>
+						<form hidden="hidden" action="" method="get">
+							<label for="quantity">Quantity:</label>
+							<input name="quantity" type="quantity" clasa	s="quantity-text" id="quantity"
+								onfocus="if(this.value == '1') { this.value = ''; }"
+								onblur="if(this.value == '') { this.value = '1';}" value="1">
+							<input type="submit" class="button" value="Order Now!">
+						</form>
+						<div class="down-content">
+							<div class="categories">
+								<h6>Category: <span><a href="#" th:text="${product.productCatalog}">Pants</a></span></h6>
+							</div>
+							<div class="share">
+								<h6>Share: <span><a href="#"><i class="fa fa-facebook"></i></a></span></h6>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Single Page Ends Here -->
+
+	<!-- Similar Items -->
+	<div class="featured-items">
+		<div class="container"></div>
+	</div>
+
+	<footer th:replace="nncminhchau :: footer"></footer>
+
+	<div th:replace="nncminhchau :: scripts"></div>
+	<script th:src="'/' + ${domain} + '/js/product-search.js'"></script>
+	<script>
+		(function(window, document) {
+			'use strict';
+
+			function resetSliderToFirst($element) {
+				var instance = $element.data('flexslider');
+				if (!instance) {
+					return;
+				}
+
+				instance.pause();
+				instance.animating = false;
+				instance.currentSlide = 0;
+				instance.animatingTo = 0;
+				if (typeof instance.currentItem === 'number') {
+					instance.currentItem = 0;
+				}
+				instance.doMath();
+				instance.setProps(0, 'setTouch', 0);
+				instance.slides.removeClass('flex-active-slide').eq(0).addClass('flex-active-slide');
+
+				if (instance.vars.smoothHeight && instance.viewport) {
+					var firstSlideHeight = instance.slides.eq(0).height();
+					if (firstSlideHeight) {
+						instance.viewport.height(firstSlideHeight);
+					}
+				}
+			}
+
+			function ensureFirstProductImage() {
+				var $ = window.jQuery;
+				if (!$ || !$.fn.flexslider) {
+					return;
+				}
+
+				var $carousel = $('#carousel');
+				var $slider = $('#slider');
+				if (!$slider.length || !$carousel.length) {
+					return;
+				}
+
+				if (!$carousel.data('flexslider')) {
+					$carousel.flexslider({
+						animation: 'slide',
+						controlNav: false,
+						animationLoop: false,
+						slideshow: false,
+						startAt: 0,
+						itemWidth: 210,
+						itemMargin: 5,
+						asNavFor: '#slider'
+					});
+				}
+				if (!$slider.data('flexslider')) {
+					$slider.flexslider({
+						animation: 'slide',
+						controlNav: false,
+						animationLoop: false,
+						slideshow: false,
+						startAt: 0,
+						smoothHeight: true,
+						sync: '#carousel'
+					});
+				}
+
+				resetSliderToFirst($slider);
+				resetSliderToFirst($carousel);
+			}
+
+			function scheduleFirstImageReset() {
+				var nextFrame = window.requestAnimationFrame || function(callback) {
+					window.setTimeout(callback, 0);
+				};
+				nextFrame(function() {
+					ensureFirstProductImage();
+					window.setTimeout(ensureFirstProductImage, 120);
+				});
+			}
+
+			window.addEventListener('load', scheduleFirstImageReset);
+			window.addEventListener('pageshow', scheduleFirstImageReset);
+
+			var $ = window.jQuery;
+			if ($) {
+				$(function() {
+					ensureFirstProductImage();
+					var firstImage = document.querySelector('#slider .slides > li:first-child img');
+					if (firstImage && !firstImage.complete) {
+						firstImage.addEventListener('load', scheduleFirstImageReset, { once: true });
+					}
+				});
+			}
+		})(window, document);
+	</script>
+
+</body>
+</html>

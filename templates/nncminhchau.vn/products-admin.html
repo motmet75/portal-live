@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
+
+<head th:replace="nncminhchau :: head('Minh Châu - Sản Phẩm')">
+</head>
+
+<style>
+    /* ── Product Search bar layout ── */
+    .product-search-wrapper {
+        position: relative;
+        margin: 18px 0 6px;
+    }
+
+    .product-search-container {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        gap: 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .product-search-container select.input-select {
+        padding: 10px 12px;
+        font-size: 0.92rem;
+        border: none;
+        border-right: 1px solid #ccc;
+        outline: none;
+        background: #fff;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .product-search-container input.search-box {
+        flex: 1;
+        padding: 10px 14px;
+        font-size: 0.92rem;
+        border: none;
+        outline: none;
+        min-width: 0;
+    }
+
+    .product-search-container button.search-btn {
+        padding: 10px 18px;
+        border: none;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+        font-size: 0.92rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition: background 0.2s;
+    }
+
+    .product-search-container button.search-btn:hover {
+        background-color: #0056b3;
+    }
+
+    /* mobile: stack vertically */
+    @media (max-width: 600px) {
+        .product-search-container { flex-wrap: wrap; }
+        .product-search-container select.input-select {
+            width: 100%;
+            border-right: none;
+            border-bottom: 1px solid #ccc;
+            border-radius: 4px 4px 0 0;
+        }
+        .product-search-container input.search-box {
+            width: 100%;
+            border-bottom: 1px solid #ccc;
+        }
+        .product-search-container button.search-btn {
+            width: 100%;
+            border-radius: 0 0 4px 4px;
+        }
+    }
+
+    /* ── store-pagination ── */
+    .store-pagination {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        gap: 8px;
+    }
+
+    .store-pagination li a {
+        display: inline-block;
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        text-decoration: none;
+        color: #333;
+    }
+
+    .store-pagination li.active a {
+        background-color: #333;
+        color: #fff;
+        border-color: #333;
+    }
+</style>
+
+<body th:if="${session.SPRING_SECURITY_CONTEXT != null}">
+	<script type="text/javascript">
+		window.onload = function() {
+			let x = document.getElementsByClassName("spanID");
+			for (let i = 0, len = x.length; i < len; i++) {
+				x[i].innerHTML = moneyload(x[i]);
+			}
+		}
+	</script>
+
+	<header th:replace="nncminhchau :: header"></header>
+
+	<div th:replace="nncminhchau :: videoSocialLinks"></div>
+
+	<!-- Page Content -->
+	<!-- Items Starts Here -->
+	<div class="featured-page">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-4 col-sm-12">
+					<div class="section-heading">
+						<div class="line-dec"></div>
+						<h1>Sản Phẩm</h1>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- ── Product Search Bar ── -->
+	<div class="container">
+		<div class="product-search-wrapper">
+			<form action="/products-admin.html" method="GET" style="margin:0;">
+				<div class="product-search-container">
+					<select id="productCatalogSelect" name="catalog" class="input-select">
+						<option value="0">Tất cả danh mục</option>
+						<option th:each="catalog : ${catalogs}"
+								th:value="${catalog.catalogCode}"
+								th:text="${catalog.catalogName}"
+								th:selected="${catalog.catalogCode == selectedCatalog}">Danh mục</option>
+					</select>
+					<input type="text"
+						   id="productSearchBox"
+						   name="keyword"
+						   class="search-box"
+						   placeholder="Tìm kiếm sản phẩm..."
+						   th:value="${keyword != null ? keyword : ''}"
+						   autocomplete="off">
+					<button type="submit" class="search-btn">
+						<i class="fa fa-search"></i> Tìm
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- <div class="featured container no-gutter">
+		<div class="row posts isotope"
+			style="position: relative; overflow: hidden; height: 1422.24px;">
+			<div id="1" class="item new col-md-4" th:each="product : ${products}">
+				<a th:href=" '/product/' +  ${product.path}">
+					<div class="featured-item">
+						<img th:src="${product.productImageDesUrl}" alt="">
+						<h4 th:text="${product.productName}"></h4>
+						<h6 id="spanID" class="spanID" th:text="${product.productPriceAmount}"></h6>
+					</div>
+				</a>
+			</div>
+		</div>
+	</div> -->
+
+	<!-- Featured Page Ends Here -->
+
+	<!-- Product Groups Start -->
+	<div class="container" th:each="group : ${productGroups}">
+
+		<!-- Group Header & Top Pagination -->
+		<div th:id="'productList'+ ${group.stringId}" th:fragment="'productList'+ ${group.stringId}">
+			<div class="row" style="background-color:#F1F1F1;">
+				<div class="store-filter clearfix" style="align-items: center;">
+					<h3 style="padding-top: 15px; padding-left:15px;" th:text="${group.productGroupName}"></h3>
+					<ul class="store-pagination">
+						<li th:each="page : ${group.pageCount}" th:class="${page.activeClassString}">
+							<a th:id="${group.stringId}" th:class="${page.activeClassString}"
+								th:text="${page.pageNumber}"
+								th:onclick="'loadPage(event,this,' + ${page.pageNumber} + ')'"></a>
+						</li>
+					</ul>
+				</div>
+
+				<!-- Group Products -->
+				<div class="featured container no-gutter">
+					<div class="row posts isotope">
+						<div class="item col-md-4" th:each="product : ${group.currentPageProductList}">
+							<a th:href="'/product/' + ${product.path}">
+								<div class="featured-item">
+									<img th:src="${product.productImageDesUrl}" alt="">
+									<h4 th:text="${product.productName}"></h4>
+									<h6 class="spanID" th:text="${product.productPriceAmount}"></h6>
+								</div>
+							</a>
+							<div class="product-actions" style="margin-top:8px; display:flex; gap:6px;">
+                                <!-- Approve button: only show if not approved and user is admin -->
+										                          <th:block th:if="${!product.approved}">
+										    <form th:if="${#strings.toString(session.SPRING_SECURITY_CONTEXT.authentication.authorities).contains('ADMIN')}"
+										          th:action="@{'/product/approve/' + ${product.id}}"
+										          method="post" style="display:inline;">
+										        <button type="submit" class="btn btn-success btn-sm">Duyệt</button>
+										    </form>
+										</th:block>
+										
+										<!-- Download Images button -->
+										<a sec:authorize="hasRole('ADMIN')"
+										   th:if="${product.imageGalaryListThumbnail!= null and #lists.size(product.imageGalaryListThumbnail) > 0}"
+										   th:href="@{'/product/download-images/' + ${product.id}}"
+										   class="btn btn-primary btn-sm" target="_blank">Tải ảnh</a>
+										
+										<!-- Download Video button -->
+										<!-- <a sec:authorize="hasRole('ADMIN')"
+										   th:if="${product.youtubeVideoURL != null and !#strings.isEmpty(product.youtubeVideoURL)}"
+										   th:href="@{'/product/download-video/' + ${product.id}}"
+										   class="btn btn-info btn-sm" target="_blank">Tải video</a> -->
+                            </div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Group Bottom Pagination -->
+			<div class="store-filter clearfix">
+				<ul class="store-pagination">
+					<li th:each="page : ${group.pageCount}" th:class="${page.activeClassString}">
+						<a th:id="${group.stringId}" th:class="${page.activeClassString}"
+							th:text="${page.pageNumber}"
+							th:onclick="'loadPage(event,this,' + ${page.pageNumber} + ')'"></a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- Product Groups End -->
+
+	<footer th:replace="nncminhchau :: footer"></footer>
+
+	<div th:replace="nncminhchau :: scripts"></div>
+	<script th:src="'/' + ${domain} + '/js/product-search-admin.js'"></script>
+	<script th:src="'/' + ${domain} + '/js/pagination.js?v=20260804-1'"></script>
+
+</body>
+</html>

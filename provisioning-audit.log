@@ -191,3 +191,15 @@
 2026-08-22T03:59:31.818143412	feb8f49a-0657-4751-8ba4-be09f4271452	anhmedia	CLONING_DATABASE	sancoffeetea	Waiting
 2026-08-22T03:59:35.242490451	feb8f49a-0657-4751-8ba4-be09f4271452	anhmedia	REGISTERING_TENANT	sancoffeetea	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
 2026-08-22T03:59:35.327894901	feb8f49a-0657-4751-8ba4-be09f4271452	anhmedia	READY	sancoffeetea	https://sancoffeetea.anhmedia.vn | template=sancoffeetea
+2026-10-02T13:24:05.949573876	52f71517-395f-4127-be25-fd89c3836f9d	anhmedia	QUEUED	caphemare	Waiting
+2026-10-02T13:24:05.953295706	52f71517-395f-4127-be25-fd89c3836f9d	anhmedia	VALIDATING_EXISTING	caphemare	Checking existing database and live template
+2026-10-02T13:24:05.969936357	52f71517-395f-4127-be25-fd89c3836f9d	anhmedia	REGISTERING_TENANT	caphemare	Checking existing database and live template
+2026-10-02T13:24:06.064643708	52f71517-395f-4127-be25-fd89c3836f9d	anhmedia	READY	caphemare	https://caphemare.anhmedia.vn | template=caphemare
+2026-10-02T15:36:16.902918302	c7783dee-e8ef-4953-92c9-dc5057c9da8a	anhmedia	QUEUED	sikalongan_anhmedia_vn	Waiting
+2026-10-02T15:36:16.904577512	c7783dee-e8ef-4953-92c9-dc5057c9da8a	anhmedia	CLONING_DATABASE	sikalongan_anhmedia_vn	Waiting
+2026-10-02T15:36:19.763009657	c7783dee-e8ef-4953-92c9-dc5057c9da8a	anhmedia	REGISTERING_TENANT	sikalongan_anhmedia_vn	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
+2026-10-02T15:36:19.807591209	c7783dee-e8ef-4953-92c9-dc5057c9da8a	anhmedia	READY	sikalongan_anhmedia_vn	https://sikalongan.anhmedia.vn | template=sikalongan.com
+2026-10-08T15:04:30.053946295	60fd3cd9-c08a-47b0-8ff1-2c7bd8d650cd	anhmedia	QUEUED	nncminhchau	Waiting
+2026-10-08T15:04:30.057875643	60fd3cd9-c08a-47b0-8ff1-2c7bd8d650cd	anhmedia	USING_DATABASE	nncminhchau	Waiting
+2026-10-08T15:04:30.334872291	60fd3cd9-c08a-47b0-8ff1-2c7bd8d650cd	anhmedia	REGISTERING_TENANT	nncminhchau	  PORTAL_LIVE_ROOT=/opt/portal-live java -jar portal.jar --spring.profiles.active=designer
+2026-10-08T15:04:30.580191424	60fd3cd9-c08a-47b0-8ff1-2c7bd8d650cd	anhmedia	READY	nncminhchau	https://nncminhchau.vn | template=nncminhchau.vn

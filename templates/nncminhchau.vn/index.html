@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" th:lang="${selectedLanguageCode != null ? selectedLanguageCode : 'en'}" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="nncminhchau :: head('Minh Châu - Trang Chủ')">
+   
+</head>
+
+<style>
+    .product-search-wrapper {
+        position: relative;
+        margin: 18px 0 6px;
+    }
+    .product-search-container {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        gap: 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .product-search-container select.input-select {
+        padding: 10px 12px;
+        font-size: 0.92rem;
+        border: none;
+        border-right: 1px solid #ccc;
+        outline: none;
+        background: #fff;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+    .product-search-container input.search-box {
+        flex: 1;
+        padding: 10px 14px;
+        font-size: 0.92rem;
+        border: none;
+        outline: none;
+        min-width: 0;
+    }
+    .product-search-container button.search-btn {
+        padding: 10px 18px;
+        border: none;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+        font-size: 0.92rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition: background 0.2s;
+    }
+    .product-search-container button.search-btn:hover {
+        background-color: #0056b3;
+    }
+    @media (max-width: 600px) {
+        .product-search-container { flex-wrap: wrap; }
+        .product-search-container select.input-select {
+            width: 100%;
+            border-right: none;
+            border-bottom: 1px solid #ccc;
+            border-radius: 4px 4px 0 0;
+        }
+        .product-search-container input.search-box {
+            width: 100%;
+            border-bottom: 1px solid #ccc;
+        }
+        .product-search-container button.search-btn {
+            width: 100%;
+            border-radius: 0 0 4px 4px;
+        }
+    }
+</style>
+
+<body>
+	<script type="text/javascript">
+		window.onload = function() {
+			let x = document.getElementsByClassName("spanID");
+			for (let i = 0, len = x.length; i < len; i++) {
+				x[i].innerHTML = moneyload(x[i]);
+			}
+		}
+	</script>
+
+	<header th:replace="nncminhchau :: header"></header>
+
+	<div th:replace="nncminhchau :: videoSocialLinks"></div>
+
+	<!-- Page Content -->
+	<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="caption">
+                <h2>NÔNG NGƯ CƠ MINH CHÂU</h2>
+                <p>Nông ngư cơ MINH CHÂU chuyên cung cấp các loại máy thủy, máy
+                    phát điện. Xuất xứ từ Nhật, Mỹ. Bạn có thể liên hệ với chúng tôi
+                    để được tư vấn và báo giá cụ thể.</p>
+                <div class="main-button">
+                    <a href="tel:0936837967">LH 0936837967</a>
+                    <a href="https://www.facebook.com/nncminhchau.vn" class="fab fa-facebook-f" target="_blank" style="background-color: #1877f2; margin-left: 10px;"></a>facebook
+                </div>
+                <div class="line-dec"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+	<!-- Banner Starts Here -->
+	<div class="banner" th:style="'margin-top:50px; background-image:url(' + ${client.clientBanner} + '); background-size:cover; background-repeat:no-repeat; padding:150px 0px; background-position:center center;'">
+	</div>
+	<!-- Banner Ends Here -->
+
+	<!-- Search Bar -->
+	<!-- <div th:replace="nncminhchau :: search"></div> -->
+
+	<!-- ── Product Search Bar ── -->
+	<div class="container">
+		<div class="product-search-wrapper">
+			<form action="/products.html" method="GET" style="margin:0;">
+				<div class="product-search-container">
+					<select id="productCatalogSelect" name="catalog" class="input-select">
+						<option value="0" data-i18n="search.allCategories">Tất cả danh mục</option>
+						<option th:each="catalog : ${catalogs}"
+								th:value="${catalog.catalogCode}"
+								th:text="${catalog.catalogName}">Danh mục</option>
+					</select>
+					<input type="text"
+						   id="productSearchBox"
+						   name="keyword"
+						   class="search-box"
+						   placeholder="Tìm kiếm sản phẩm..." data-i18n-placeholder="search.productPlaceholder"
+						   autocomplete="off">
+					<button type="submit" class="search-btn">
+						<i class="fa fa-search"></i> <span data-i18n="search.search">Tìm</span>
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<div class="container">
+        <div class="video-grid">
+            <div class="video-card" th:each="productv : ${productsWithVideos}">
+                <div class="video-wrapper">
+                    <iframe
+                        th:src="${productv.youtubeVideoURL}"
+                        frameborder="0"
+                        allowfullscreen
+                        allow="fullscreen; picture-in-picture"
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+                    </iframe>
+                </div>
+                <div class="video-content">
+                    <h2 class="video-title" th:text="${productv.productName}">Featured Video</h2>
+                    <p class="video-description" th:text="${productv.productShortDes}">
+                        Watch this amazing video content.
+                    </p>
+                    <a th:href="'/product/' + ${productv.path}" class="read-more-btn">Xem</a>
+                </div>
+            </div>
+        </div>
+	</div>
+	<div class="container" style="text-align: center; padding: 16px 0 24px;">
+		<a href="/products.html" class="btn btn-dark" style="padding: 10px 32px; font-size: 1rem; border-radius: 4px;" data-i18n="products.allProducts">
+			Tất cả sản phẩm
+		</a>
+	</div>
+
+	<!-- Featured Starts Here -->
+	<div class="featured-items">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="section-heading">
+						<div class="line-dec"></div>
+						<h1>Featured Items</h1>
+					</div>
+				</div>
+				<div class="col-md-12">
+					<div class="owl-carousel owl-theme owl-loaded owl-drag">
+						<div class="owl-stage-outer">
+							<div class="owl-stage"
+								style="transform: translate3d(-1412px, 0px, 0px); transition: all 0s ease 0s; width: 5650px;">
+								<div class="owl-item cloned" th:each="product : ${products}"
+									style="width: 262.5px; margin-right: 20px;">
+									<a th:href="'/product/' + ${product.path}">
+										<div class='featured-item'>
+											<img th:src="${product.productImageDesUrl}">
+											<h4 th:text="${product.productName}"></h4>
+											<h6 class='spanID' th:if="${product.publicPrice == true}" th:text="${product.productPriceAmount}"></h6>
+										</div>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Featured Ends Here -->
+
+	<footer th:replace="nncminhchau :: footer"></footer>
+
+	<div th:replace="nncminhchau :: scripts"></div>
+	<script th:src="'/' + ${domain} + '/js/product-search.js'"></script>
+
+</body>
+</html>

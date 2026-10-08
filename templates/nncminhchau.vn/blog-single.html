@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" th:if="${article != null}">
+
+<head th:fragment="head-article">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- SEO -->
+    <title th:text="${article.articleTitle} + ' | Nông Ngư Cơ Minh Châu'">Bài viết</title>
+    <meta name="keywords"    th:content="${article.articleKeyWord}">
+    <meta name="description" th:content="${article.articleDescription}">
+    <link rel="canonical"    th:href="'https://' + ${domain} + '/' + ${midpath} + '/' + ${article.articleLink}">
+    <link rel="shortcut icon" th:href="'/' + ${domain} + '/img/favicon.png'">
+
+    <!-- Open Graph -->
+    <meta property="og:title"       th:content="${article.articleTitle}">
+    <meta property="og:description" th:content="${article.articleDescription}">
+    <meta property="og:url"         th:content="'https://' + ${domain} + '/' + ${midpath} + '/' + ${article.articleLink}">
+    <meta property="og:type"        content="article">
+    <meta property="og:image"       th:content="${article.articleThumnailURLWithHost2}">
+    <meta property="og:image:width"  content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap + Site CSS -->
+    <link th:href="'/' + ${domain} + '/vendor/bootstrap/css/bootstrap.min.css'" rel="stylesheet">
+    <link rel="stylesheet" th:href="'/' + ${domain} + '/css/fontawesome.css'">
+    <link rel="stylesheet" th:href="'/' + ${domain} + '/css/tooplate-main.css'">
+    <link rel="stylesheet" th:href="'/' + ${domain} + '/css/video-social-links.css'">
+
+    <!-- Font Awesome 6 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GZZPBFQPNS"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-GZZPBFQPNS');
+    </script>
+
+    <style>
+        /* ── Hero Banner ───────────────────────────────────────── */
+        .article-hero {
+            position: relative;
+            width: 100%;
+            height: 420px;
+            overflow: hidden;
+            background: #1a1a2e;
+        }
+        .article-hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.45;
+        }
+        .article-hero .hero-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 0 0 36px;
+        }
+        .article-hero .hero-overlay .container {
+            max-width: 860px;
+        }
+        .article-hero .breadcrumb-bar {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 14px;
+        }
+        .article-hero .breadcrumb-bar a {
+            color: rgba(255,255,255,0.75);
+            text-decoration: none;
+        }
+        .article-hero .breadcrumb-bar a:hover { color: #fff; }
+        .article-hero .breadcrumb-bar span { margin: 0 6px; }
+        .article-hero h1.article-title {
+            font-family: 'Merriweather', serif;
+            font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.35;
+            margin-bottom: 16px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        .article-hero .article-meta-hero {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            font-size: 0.83rem;
+            color: rgba(255,255,255,0.8);
+        }
+        .article-hero .article-meta-hero i { margin-right: 5px; }
+
+        /* ── Layout ─────────────────────────────────────────────── */
+        .article-body-wrap {
+            padding: 48px 0 60px;
+            background: #f7f8fa;
+        }
+
+        /* ── Main content ───────────────────────────────────────── */
+        .article-content-card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 18px rgba(0,0,0,0.07);
+            padding: 38px 42px 44px;
+        }
+        .article-lead {
+            font-size: 1.08rem;
+            color: #555;
+            line-height: 1.8;
+            border-left: 4px solid #007bff;
+            padding-left: 18px;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        .article-text {
+            font-family: 'Merriweather', serif;
+            font-size: 0.97rem;
+            line-height: 1.95;
+            color: #333;
+        }
+        .article-text img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            margin: 16px 0;
+        }
+        .article-text h2, .article-text h3 {
+            margin-top: 32px;
+            margin-bottom: 14px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+        .article-text p { margin-bottom: 1.3em; }
+
+        /* ── Tags / Share row ───────────────────────────────────── */
+        .article-footer-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-top: 36px;
+            padding-top: 24px;
+            border-top: 1px solid #eee;
+        }
+        .share-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #555;
+            margin-right: 8px;
+        }
+        .share-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: #fff;
+            transition: opacity .2s;
+        }
+        .share-btn:hover { opacity: .82; color: #fff; text-decoration: none; }
+        .share-btn.fb  { background: #1877f2; }
+        .share-btn.tw  { background: #1da1f2; }
+        .share-btn.cp  { background: #6c757d; cursor: pointer; border: none; }
+
+        /* ── Back button ────────────────────────────────────────── */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 22px;
+            background: transparent;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            color: #007bff;
+            font-size: 0.88rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all .2s;
+        }
+        .back-btn:hover {
+            background: #007bff;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        /* ── Sidebar ────────────────────────────────────────────── */
+        .sidebar-card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 14px rgba(0,0,0,0.07);
+            padding: 24px 22px;
+            margin-bottom: 24px;
+        }
+        .sidebar-card h5 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            margin-bottom: 18px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        .sidebar-info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+            font-size: 0.87rem;
+            color: #555;
+        }
+        .sidebar-info-item i {
+            color: #007bff;
+            font-size: 1rem;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        .sidebar-contact-btn {
+            display: block;
+            text-align: center;
+            background: #007bff;
+            color: #fff;
+            padding: 11px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            transition: background .2s;
+        }
+        .sidebar-contact-btn:hover { background: #0056b3; color: #fff; text-decoration: none; }
+        .sidebar-contact-btn i { margin-right: 6px; }
+
+        /* Category badge */
+        .cat-badge {
+            display: inline-block;
+            background: #e9f3ff;
+            color: #0056b3;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        @media (max-width: 767px) {
+            .article-hero { height: 280px; }
+            .article-content-card { padding: 22px 18px 28px; }
+            .article-hero h1.article-title { font-size: 1.25rem; }
+        }
+    </style>
+    <link rel="stylesheet" href="/css/article-reader-controls.css">
+</head>
+
+<body>
+
+    <header th:replace="nncminhchau :: header"></header>
+
+	<div th:replace="nncminhchau :: videoSocialLinks"></div>
+
+    <!-- ── Hero Banner ─────────────────────────────────────────────── -->
+    <div class="article-hero">
+        <img th:src="${article.articleThumnailURLWithHost2}"
+             th:alt="${article.articleTitle}"
+             onerror="this.style.display='none'">
+        <div class="hero-overlay">
+            <div class="container">
+                <!-- Breadcrumb -->
+                <div class="breadcrumb-bar">
+                    <a href="/index.html"><i class="fa fa-home"></i> Trang chủ</a>
+                    <span>/</span>
+                    <a href="/tin-tuc.html">Tin tức</a>
+                    <span>/</span>
+                    <span th:text="${article.articleTitle}">Bài viết</span>
+                </div>
+                <!-- Title -->
+                <h1 class="article-title" th:text="${article.articleTitle}">Tiêu đề bài viết</h1>
+                <!-- Meta -->
+                <div class="article-meta-hero">
+                    <span th:if="${article.articleCategory != null and article.articleCategory != 'none'}">
+                        <span class="cat-badge" th:text="${article.articleCategory}">Danh mục</span>
+                    </span>
+                    <span>
+                        <i class="fa fa-user"></i>
+                        <span th:text="${article.username}">Tác giả</span>
+                    </span>
+                    <span>
+                        <i class="fa fa-calendar"></i>
+                        <span th:text="${#temporals.format(article.articleTime, 'dd/MM/yyyy')}">01/01/2025</span>
+                    </span>
+                    <span th:if="${article.articleLangCode != null}">
+                        <i class="fa fa-globe"></i>
+                        <span th:text="${article.articleLangCode}">vi</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ── End Hero ────────────────────────────────────────────────── -->
+
+    <!-- ── Body ────────────────────────────────────────────────────── -->
+    <div class="article-body-wrap">
+        <div class="container">
+            <div class="row">
+
+                <!-- Main column -->
+                <div class="col-lg-8 col-md-12 mb-4">
+                    <div class="article-content-card">
+
+                        <!-- Lead / description -->
+                        <p class="article-lead" th:if="${article.articleDescription != null}"
+                           th:utext="${article.articleDescription}">Mô tả bài viết...</p>
+
+                        <!-- Full content -->
+                        <th:block th:with="
+                            vid=${article.videoUrl},
+                            hasVid=${vid != null and vid != '' and vid != 'videoUrl' and vid != 'none'},
+                            isYtWatch=${hasVid and (#strings.contains(vid,'youtube.com/watch') or #strings.contains(vid,'youtu.be/'))},
+                            afterV=${(hasVid and isYtWatch) ? (#strings.contains(vid,'v=') ? #strings.substringAfter(vid,'v=') : #strings.substringAfterLast(vid,'/')) : ''},
+                            ytId=${#strings.substringBefore(#strings.substringBefore(afterV,'&'),'?')},
+                            embedSrc=${(hasVid and isYtWatch) ? ('https://www.youtube.com/embed/' + ytId) : vid}
+                        ">
+                            <div th:if="${hasVid}" style="position:relative;width:100%;padding-top:56.25%;overflow:hidden;border-radius:4px;margin-bottom:1rem;">
+                                <iframe th:src="${embedSrc}"
+                                        frameborder="0" allowfullscreen
+                                        allow="autoplay; fullscreen; picture-in-picture; web-share"
+                                        style="position:absolute;top:0;left:0;width:100%;height:100%;">
+                                </iframe>
+                            </div>
+                        </th:block>
+				<section class="article-editorial-summary" th:if="${articleAiSummary != null and !#strings.isEmpty(articleAiSummary)}" style="margin:0 0 2rem;padding:1rem 0;border-top:1px solid #d9dedb;border-bottom:1px solid #d9dedb;">
+					<h2 th:text="${articleAiSummaryTitle}" style="font-size:1.25rem;margin:0 0 .75rem;">Editorial summary</h2>
+					<div th:utext="${articleAiSummary}"></div>
+				</section>
+                        <div class="article-text article-reader-content" th:utext="${article.articleContent}" data-reader-content>
+                            Nội dung bài viết...
+                        </div>
+
+                        <!-- Footer row: share + back -->
+                        <div class="article-footer-row">
+                            <div>
+                                <span class="share-label">Chia sẻ:</span>
+                                <a class="share-btn fb" target="_blank" rel="noopener"
+                                   th:href="'https://www.facebook.com/sharer/sharer.php?u=' + 'https://' + ${domain} + '/' + ${midpath} + '/' + ${article.articleLink}">
+                                    <i class="fab fa-facebook-f"></i> Facebook
+                                </a>
+                                <a class="share-btn tw" target="_blank" rel="noopener"
+                                   th:href="'https://twitter.com/intent/tweet?url=' + 'https://' + ${domain} + '/' + ${midpath} + '/' + ${article.articleLink} + '&text=' + ${article.articleTitle}">
+                                    <i class="fab fa-twitter"></i> Twitter
+                                </a>
+                                <button class="share-btn cp"
+                                        onclick="navigator.clipboard.writeText(window.location.href); this.innerHTML='<i class=\'fas fa-check\'></i> Đã chép';">
+                                    <i class="fas fa-link"></i> Sao chép
+                                </button>
+                            </div>
+                            <a href="/tin-tuc.html" class="back-btn">
+                                <i class="fa fa-arrow-left"></i> Tất cả bài viết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4 col-md-12">
+
+                    <!-- Contact card -->
+                    <div class="sidebar-card">
+                        <h5><i class="fa fa-phone" style="color:#007bff;margin-right:6px;"></i> Liên hệ tư vấn</h5>
+                        <div class="sidebar-info-item">
+                            <i class="fas fa-building"></i>
+                            <span>CÔNG TY TNHH TM DV NÔNG NGƯ CƠ MINH CHÂU</span>
+                        </div>
+                        <div class="sidebar-info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>690C Kinh Dương Vương, An Lạc, Bình Tân, TP. Hồ Chí Minh</span>
+                        </div>
+                        <div class="sidebar-info-item">
+                            <i class="fas fa-phone-alt"></i>
+                            <span><strong>0936 837 967</strong></span>
+                        </div>
+                        <div class="sidebar-info-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>info@nncminhchau.vn</span>
+                        </div>
+                        <a href="tel:0936837967" class="sidebar-contact-btn">
+                            <i class="fas fa-phone-alt"></i> Gọi ngay
+                        </a>
+                        <a href="/contact.html" class="sidebar-contact-btn" style="background:#28a745; margin-top:8px;">
+                            <i class="fas fa-envelope"></i> Liên hệ
+                        </a>
+                    </div>
+
+                    <!-- Article info card -->
+                    <div class="sidebar-card">
+                        <h5><i class="fa fa-info-circle" style="color:#007bff;margin-right:6px;"></i> Thông tin bài viết</h5>
+                        <div class="sidebar-info-item">
+                            <i class="fa fa-user"></i>
+                            <div>
+                                <small style="color:#999;display:block;">Tác giả</small>
+                                <span th:text="${article.username}">Admin</span>
+                            </div>
+                        </div>
+                        <div class="sidebar-info-item">
+                            <i class="fa fa-calendar-alt"></i>
+                            <div>
+                                <small style="color:#999;display:block;">Ngày đăng</small>
+                                <span th:text="${#temporals.format(article.articleTime, 'dd/MM/yyyy HH:mm')}">01/01/2025</span>
+                            </div>
+                        </div>
+                        <div class="sidebar-info-item" th:if="${article.articleCategory != null and article.articleCategory != 'none'}">
+                            <i class="fa fa-tag"></i>
+                            <div>
+                                <small style="color:#999;display:block;">Danh mục</small>
+                                <span class="cat-badge" th:text="${article.articleCategory}">Danh mục</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick links card -->
+                    <div class="sidebar-card">
+                        <h5><i class="fa fa-link" style="color:#007bff;margin-right:6px;"></i> Xem thêm</h5>
+                        <ul style="list-style:none; padding:0; margin:0;">
+                            <li style="padding:7px 0; border-bottom:1px solid #f0f0f0;">
+                                <a href="/products.html" style="color:#333; text-decoration:none; font-size:.88rem;">
+                                    <i class="fa fa-angle-right" style="color:#007bff; margin-right:6px;"></i> Sản phẩm
+                                </a>
+                            </li>
+                            <li style="padding:7px 0; border-bottom:1px solid #f0f0f0;">
+                                <a href="/videos.html" style="color:#333; text-decoration:none; font-size:.88rem;">
+                                    <i class="fa fa-angle-right" style="color:#007bff; margin-right:6px;"></i> Videos Clip
+                                </a>
+                            </li>
+                            <li style="padding:7px 0; border-bottom:1px solid #f0f0f0;">
+                                <a href="/tin-tuc.html" style="color:#333; text-decoration:none; font-size:.88rem;">
+                                    <i class="fa fa-angle-right" style="color:#007bff; margin-right:6px;"></i> Tin tức
+                                </a>
+                            </li>
+                            <li style="padding:7px 0;">
+                                <a href="/about.html" style="color:#333; text-decoration:none; font-size:.88rem;">
+                                    <i class="fa fa-angle-right" style="color:#007bff; margin-right:6px;"></i> Giới thiệu
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+                <!-- / Sidebar -->
+
+            </div>
+        </div>
+    </div>
+    <!-- ── End Body ─────────────────────────────────────────────────── -->
+
+    <footer th:replace="nncminhchau :: footer"></footer>
+
+    <div th:replace="nncminhchau :: scripts"></div>
+
+    <script src="/js/article-reader-controls.js" defer></script>
+</body>
+</html>

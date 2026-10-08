@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en" th:lang="${selectedLanguageCode != null ? selectedLanguageCode : 'en'}" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="nncminhchau :: head('Minh Châu - Sản Phẩm')">
+</head>
+
+<style>
+    /* ── Product Search bar layout ── */
+    .product-search-wrapper {
+        position: relative;
+        margin: 18px 0 6px;
+    }
+
+    .product-search-container {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        gap: 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .product-search-container select.input-select {
+        padding: 10px 12px;
+        font-size: 0.92rem;
+        border: none;
+        border-right: 1px solid #ccc;
+        outline: none;
+        background: #fff;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .product-search-container input.search-box {
+        flex: 1;
+        padding: 10px 14px;
+        font-size: 0.92rem;
+        border: none;
+        outline: none;
+        min-width: 0;
+    }
+
+    .product-search-container button.search-btn {
+        padding: 10px 18px;
+        border: none;
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+        font-size: 0.92rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition: background 0.2s;
+    }
+
+    .product-search-container button.search-btn:hover {
+        background-color: #0056b3;
+    }
+
+    /* mobile: stack vertically */
+    @media (max-width: 600px) {
+        .product-search-container { flex-wrap: wrap; }
+        .product-search-container select.input-select {
+            width: 100%;
+            border-right: none;
+            border-bottom: 1px solid #ccc;
+            border-radius: 4px 4px 0 0;
+        }
+        .product-search-container input.search-box {
+            width: 100%;
+            border-bottom: 1px solid #ccc;
+        }
+        .product-search-container button.search-btn {
+            width: 100%;
+            border-radius: 0 0 4px 4px;
+        }
+    }
+
+    /* ── store-pagination ── */
+    .store-pagination {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+    }
+
+
+    .store-pagination li {
+        flex: 0 0 auto;
+    }
+    .store-pagination li a {
+        display: inline-block;
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        text-decoration: none;
+        color: #333;
+        min-width: 36px;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .store-pagination li.active a {
+        background-color: #333;
+        color: #fff;
+        border-color: #333;
+    }
+
+    @media (max-width: 600px) {
+        .store-filter .store-pagination {
+            width: 100%;
+            margin-top: 8px;
+            gap: 6px;
+        }
+
+        .store-pagination li a {
+            min-width: 34px;
+            padding: 6px 10px;
+        }
+    }
+
+    .result-filter-panel {
+        margin: 14px 0 20px;
+        padding: 14px 16px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: #fff;
+    }
+
+    .result-filter-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .result-filter-header h2 {
+        font-size: 1.05rem;
+        margin: 0;
+    }
+
+    .result-filter-count {
+        color: #666;
+        font-size: .88rem;
+    }
+
+    .result-filter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 14px;
+        align-items: start;
+    }
+
+    .result-filter-section {
+        min-width: 0;
+    }
+
+    .result-filter-section > label {
+        font-weight: 600;
+        font-size: .88rem;
+        color: #333;
+        display: block;
+        margin-bottom: 6px;
+        min-height: 20px;
+    }
+
+    .result-filter-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 14px;
+        max-height: 96px;
+        overflow: auto;
+    }
+
+    .result-filter-option {
+        display: inline-flex !important;
+        align-items: center;
+        gap: 6px;
+        font-size: .86rem !important;
+        color: #333 !important;
+        font-weight: 400 !important;
+        margin: 0 !important;
+    }
+
+    .result-filter-price {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .result-filter-price input {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .result-filter-available {
+        color: #777;
+        font-size: .78rem;
+        margin-top: 5px;
+    }
+
+    .result-filter-range-control {
+        margin-bottom: 10px;
+        padding: 8px 0 2px;
+    }
+
+    .result-filter-range-track {
+        position: relative;
+        height: 26px;
+    }
+
+    .result-filter-range-base,
+    .result-filter-range-fill {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 11px;
+        height: 4px;
+        border-radius: 999px;
+    }
+
+    .result-filter-range-base {
+        background: #d7dce2;
+    }
+
+    .result-filter-range-fill {
+        left: 0;
+        right: 0;
+        background: #007bff;
+    }
+
+    .result-filter-range-input {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 26px;
+        margin: 0;
+        background: transparent;
+        pointer-events: none;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .result-filter-range-input::-webkit-slider-runnable-track {
+        height: 4px;
+        background: transparent;
+    }
+
+    .result-filter-range-input::-moz-range-track {
+        height: 4px;
+        background: transparent;
+    }
+
+    .result-filter-range-input::-webkit-slider-thumb {
+        width: 18px;
+        height: 18px;
+        border: 2px solid #007bff;
+        border-radius: 50%;
+        background: #fff;
+        cursor: pointer;
+        pointer-events: auto;
+        -webkit-appearance: none;
+        appearance: none;
+        margin-top: -7px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+    }
+
+    .result-filter-range-input::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border: 2px solid #007bff;
+        border-radius: 50%;
+        background: #fff;
+        cursor: pointer;
+        pointer-events: auto;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+    }
+
+    .result-filter-range-max {
+        z-index: 3;
+    }
+
+    .result-filter-range-min {
+        z-index: 4;
+    }
+
+    .result-filter-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        align-self: end;
+        min-height: 38px;
+    }
+
+    .result-filter-actions button,
+    .result-filter-actions a {
+        min-height: 38px;
+        padding: 8px 13px;
+        border-radius: 4px;
+        font-size: .88rem;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .result-filter-actions a {
+        border: 1px solid #ccc;
+        color: #333;
+        text-decoration: none;
+    }
+
+    @media (min-width: 992px) {
+        .result-filter-grid {
+            grid-template-columns: minmax(230px, 1.2fr) minmax(190px, .85fr) minmax(230px, .95fr) auto;
+            align-items: start;
+        }
+
+        .result-filter-actions {
+            padding-top: 26px;
+            align-self: start;
+        }
+    }
+    @media (max-width: 768px) {
+        .result-filter-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .result-filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .result-filter-actions {
+            justify-content: flex-start;
+        }
+    }
+</style>
+
+<body>
+	<script type="text/javascript">
+		function initResultRangeControls() {
+			document.querySelectorAll('.result-filter-section').forEach(function (section) {
+				var rangeMin = section.querySelector('.result-filter-range-min');
+				var rangeMax = section.querySelector('.result-filter-range-max');
+				var numberMin = section.querySelector('.result-filter-number-min');
+				var numberMax = section.querySelector('.result-filter-number-max');
+				var fill = section.querySelector('.result-filter-range-fill');
+				if (!rangeMin || !rangeMax || !numberMin || !numberMax || !fill) {
+					return;
+				}
+
+				var min = parseFloat(rangeMin.min || '0');
+				var max = parseFloat(rangeMin.max || rangeMax.max || '0');
+				if (!isFinite(min) || !isFinite(max) || max <= min) {
+					section.querySelector('.result-filter-range-control').style.display = 'none';
+					return;
+				}
+
+				function clamp(value) {
+					var parsed = parseFloat(value);
+					if (!isFinite(parsed)) {
+						return min;
+					}
+					return Math.min(Math.max(parsed, min), max);
+				}
+
+				function paint(low, high) {
+					var lowPct = ((low - min) / (max - min)) * 100;
+					var highPct = ((high - min) / (max - min)) * 100;
+					fill.style.left = lowPct + '%';
+					fill.style.right = (100 - highPct) + '%';
+					rangeMin.style.zIndex = lowPct > 88 ? 5 : 4;
+					rangeMax.style.zIndex = 3;
+				}
+
+				function syncRange(source) {
+					var fromNumbers = source === numberMin || source === numberMax;
+					var low = clamp(fromNumbers ? numberMin.value : rangeMin.value);
+					var high = clamp(fromNumbers ? numberMax.value : rangeMax.value);
+					if (low > high) {
+						if (source === rangeMin || source === numberMin) {
+							low = high;
+						} else {
+							high = low;
+						}
+					}
+					rangeMin.value = low;
+					rangeMax.value = high;
+					numberMin.value = low;
+					numberMax.value = high;
+					paint(low, high);
+				}
+
+				[rangeMin, rangeMax].forEach(function (input) {
+					input.addEventListener('input', function () { syncRange(input); });
+				});
+				[numberMin, numberMax].forEach(function (input) {
+					// Do not rewrite a number field while it is being edited. Values such
+					// as "1", "10", "100" and decimals must remain typeable naturally.
+					input.addEventListener('input', function () {
+						var low = parseFloat(numberMin.value);
+						var high = parseFloat(numberMax.value);
+						if (!isFinite(low) || !isFinite(high)) return;
+						low = clamp(low);
+						high = clamp(high);
+						if (low > high) return;
+						rangeMin.value = low;
+						rangeMax.value = high;
+						paint(low, high);
+					});
+					input.addEventListener('change', function () { syncRange(input); });
+					input.addEventListener('blur', function () { syncRange(input); });
+					input.addEventListener('keydown', function (event) {
+						if (event.key === 'Enter') {
+							syncRange(input);
+						}
+					});
+				});
+				syncRange();
+			});
+		}
+
+		window.addEventListener('load', function() {
+			initResultRangeControls();
+			let x = document.getElementsByClassName("spanID");
+			for (let i = 0, len = x.length; i < len; i++) {
+				x[i].innerHTML = moneyload(x[i]);
+			}
+			initProductGroupPageOneObserver();
+		});
+	</script>
+
+	<header th:replace="nncminhchau :: header"></header>
+
+	<div th:replace="nncminhchau :: videoSocialLinks"></div>
+
+	<!-- Page Content -->
+	<!-- Items Starts Here -->
+	<div class="featured-page">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-4 col-sm-12">
+					<div class="section-heading">
+						<div class="line-dec"></div>
+						<h1 data-i18n="products.title">Sản Phẩm</h1>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- ── Product Search Bar ── -->
+	<div class="container">
+		<div class="product-search-wrapper">
+			<form action="/products.html" method="GET" style="margin:0;">
+				<div class="product-search-container">
+					<select id="productCatalogSelect" name="catalog" class="input-select">
+						<option value="0" data-i18n="search.allCategories">Tất cả danh mục</option>
+						<option th:each="catalog : ${catalogs}"
+								th:value="${catalog.catalogCode}"
+								th:text="${catalog.catalogName}"
+								th:selected="${catalog.catalogCode == selectedCatalog}">Danh mục</option>
+					</select>
+					<input type="text"
+						   id="productSearchBox"
+						   name="keyword"
+						   class="search-box"
+						   placeholder="Tìm kiếm sản phẩm..." data-i18n-placeholder="search.productPlaceholder"
+						   th:value="${keyword != null ? keyword : ''}"
+						   autocomplete="off">
+					<button type="submit" class="search-btn">
+						<i class="fa fa-search"></i> <span data-i18n="search.search">Tìm</span>
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<div class="container" th:if="${resultFilterVisible}">
+		<form class="result-filter-panel" action="/products.html" method="GET">
+			<input type="hidden" name="catalog" th:value="${selectedCatalog != null ? selectedCatalog : '0'}">
+			<input type="hidden" name="keyword" th:value="${keyword != null ? keyword : ''}">
+			<div class="result-filter-header">
+				<h2><i class="fa fa-filter"></i> <span data-i18n="products.filterResults">Lọc kết quả</span></h2>
+				<div class="result-filter-count" data-i18n-product-count
+					 th:text="${resultFilterFilteredCount} + ' / ' + ${resultFilterResultCount} + ' sản phẩm'">0 sản phẩm</div>
+			</div>
+			<div class="result-filter-grid">
+				<div class="result-filter-section" th:if="${resultFilterBrandOptions != null and !#lists.isEmpty(resultFilterBrandOptions)}">
+					<label data-i18n="products.brand">Thương hiệu</label>
+					<div class="result-filter-options">
+						<label class="result-filter-option" th:each="option : ${resultFilterBrandOptions}">
+							<input type="checkbox" name="brandFilter"
+								   th:value="${option['code']}"
+								   th:checked="${option['selected']}">
+							<span th:text="${option['name']}">Brand</span>
+							<span th:text="'(' + ${option['count']} + ')'">(0)</span>
+						</label>
+					</div>
+				</div>
+				<div class="result-filter-section">
+					<label data-i18n="products.priceRange">Khoảng giá</label>
+					<div class="result-filter-price">
+						<input type="number" name="minPrice" min="0" step="1000"
+							   placeholder="Từ" data-i18n-placeholder="products.from"
+							   th:value="${minPrice}">
+						<input type="number" name="maxPrice" min="0" step="1000"
+							   placeholder="Đến" data-i18n-placeholder="products.to"
+							   th:value="${maxPrice}">
+					</div>
+				</div>
+				<div class="result-filter-section" th:each="range : ${resultFilterRangeOptions}">
+					<label>
+						<span data-i18n-range-name th:text="${range['name']}">Công Suất</span>
+						<span data-i18n-range-unit th:if="${range['unit'] != null and range['unit'] != ''}"
+							  th:text="' (' + ${range['unit']} + ')'"> (Ngựa HP)</span>
+					</label>
+					<div class="result-filter-range-control"
+						 th:attr="data-min=${range['minAvailable']},data-max=${range['maxAvailable']}">
+						<div class="result-filter-range-track">
+							<div class="result-filter-range-base"></div>
+							<div class="result-filter-range-fill"></div>
+							<input type="range" class="result-filter-range-input result-filter-range-min"
+								   th:min="${range['minAvailable']}" th:max="${range['maxAvailable']}" step="0.01"
+								   th:value="${range['selectedMin'] != null and range['selectedMin'] != '' ? range['selectedMin'] : range['minAvailable']}">
+							<input type="range" class="result-filter-range-input result-filter-range-max"
+								   th:min="${range['minAvailable']}" th:max="${range['maxAvailable']}" step="0.01"
+								   th:value="${range['selectedMax'] != null and range['selectedMax'] != '' ? range['selectedMax'] : range['maxAvailable']}">
+						</div>
+					</div>
+					<div class="result-filter-price">
+						<input type="number" min="0" step="0.01" class="result-filter-number-min"
+							   th:name="${range['minParamName']}"
+							   placeholder="Từ" data-i18n-placeholder="products.from"
+							   th:value="${range['selectedMin'] != null and range['selectedMin'] != '' ? range['selectedMin'] : range['minAvailable']}">
+						<input type="number" min="0" step="0.01" class="result-filter-number-max"
+							   th:name="${range['maxParamName']}"
+							   placeholder="Đến" data-i18n-placeholder="products.to"
+							   th:value="${range['selectedMax'] != null and range['selectedMax'] != '' ? range['selectedMax'] : range['maxAvailable']}">
+					</div>
+					<div class="result-filter-available" data-i18n-available-range
+						 th:if="${range['minAvailable'] != null and range['minAvailable'] != '' and range['maxAvailable'] != null and range['maxAvailable'] != ''}"
+						 th:text="'Có sẵn: ' + ${range['minAvailable']} + ' - ' + ${range['maxAvailable']}">Có sẵn</div>
+				</div>
+				<div class="result-filter-actions">
+					<button type="submit" class="btn btn-primary" data-i18n="products.apply">Áp dụng</button>
+					<a th:href="@{/products.html(catalog=${selectedCatalog},keyword=${keyword})}" data-i18n="products.clear">Xóa lọc</a>
+				</div>
+			</div>
+		</form>
+	</div>
+
+	<!-- <div class="featured container no-gutter">
+		<div class="row posts isotope"
+			style="position: relative; overflow: hidden; height: 1422.24px;">
+			<div id="1" class="item new col-md-4" th:each="product : ${products}">
+				<a th:href=" 'product/' +  ${product.path}">
+					<div class="featured-item">
+						<img th:src="${product.productImageDesUrl}" alt="">
+						<h4 th:text="${product.productName}"></h4>
+						<h6 id="spanID" class="spanID" th:if="${product.publicPrice == true}" th:text="${product.productPriceAmount}"></h6>
+					</div>
+				</a>
+			</div>
+		</div>
+	</div> -->
+
+	<!-- Featured Page Ends Here -->
+
+	<!-- Product Groups Start -->
+	<div class="container"
+		 th:each="group, groupStat : ${productGroups}"
+		 th:attr="data-auto-page-one=${groupStat.first ? null : group.stringId}">
+
+		<!-- Group Header & Top Pagination -->
+		<div th:id="'productList'+ ${group.stringId}" th:fragment="'productList'+ ${group.stringId}">
+			<div class="row" style="background-color:#F1F1F1;">
+				<div class="store-filter clearfix" style="align-items: center;">
+					<h3 style="padding-top: 15px; padding-left:15px;" th:text="${group.productGroupName}"></h3>
+					<ul class="store-pagination">
+						<li th:each="page : ${group.pageCount}" th:class="${page.activeClassString}">
+							<a th:id="${group.stringId}" th:class="${page.activeClassString}"
+								th:text="${page.pageNumber}"
+								th:onclick="'loadPage(event,this,' + ${page.pageNumber} + ')'"></a>
+						</li>
+					</ul>
+				</div>
+
+				<!-- Group Products -->
+				<div class="featured container no-gutter">
+					<div class="row posts isotope">
+						<div class="item col-md-4" th:each="product : ${group.currentPageProductList}">
+							<a th:href="'product/' + ${product.path}">
+								<div class="featured-item">
+									<img th:src="${(groupStat.first or group.stringId == requestedProductGroup) ? product.productImageDesUrl : #strings.replace(product.productImageDesUrl, '_rslt_300x300', '_rslt_100x100')}"
+										 th:attr="loading='eager',fetchpriority=${groupStat.first ? 'high' : 'low'}"
+										 alt="">
+									<h4 th:text="${product.productName}"></h4>
+									<h6 class="spanID" th:if="${product.publicPrice == true}" th:text="${product.productPriceAmount}"></h6>
+								</div>
+							</a>
+							<form class="remove-product-from-group-form" th:action="@{/product/remove-from-group}" th:if="${session.SPRING_SECURITY_CONTEXT != null
+									and session.SPRING_SECURITY_CONTEXT.authentication != null
+									and #strings.toString(session.SPRING_SECURITY_CONTEXT.authentication.authorities).contains('ADMIN')}"
+									  method="post"
+									  style="margin-top:6px; display:inline;">
+									<input type="hidden" name="productId" th:value="${product.id}" />
+									<input type="hidden" name="groupStringId" th:value="${group.stringId}" />
+									<button type="submit"
+											class="btn btn-danger btn-sm"
+											onclick="return confirm('Xóa sản phẩm khỏi nhóm này?')">
+										Xóa khỏi nhóm
+									</button>
+									<!-- <a sec:authorize="hasRole('ADMIN')"
+										   th:if="${product.youtubeVideoURL != null and !#strings.isEmpty(product.youtubeVideoURL)}"
+										   th:href="@{'/product/download-video/' + ${product.id}}"
+										   class="btn btn-info btn-sm" target="_blank">Tải video</a> -->
+								</form>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Group Bottom Pagination -->
+			<div class="store-filter clearfix">
+				<ul class="store-pagination">
+					<li th:each="page : ${group.pageCount}" th:class="${page.activeClassString}">
+						<a th:id="${group.stringId}" th:class="${page.activeClassString}"
+							th:text="${page.pageNumber}"
+							th:onclick="'loadPage(event,this,' + ${page.pageNumber} + ')'"></a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- Product Groups End -->
+
+	<footer th:replace="nncminhchau :: footer"></footer>
+
+	<div th:replace="nncminhchau :: scripts"></div>
+	<script th:src="'/' + ${domain} + '/js/product-search.js'"></script>
+	<script th:src="'/' + ${domain} + '/js/pagination.js?v=20260804-1'"></script>
+
+</body>
+</html>

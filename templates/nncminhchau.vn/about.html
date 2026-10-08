@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" th:lang="${selectedLanguageCode != null ? selectedLanguageCode : 'en'}" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="nncminhchau :: head('Minh Châu - Giới Thiệu')">
+</head>
+
+<body>
+
+	<header th:replace="nncminhchau :: header"></header>
+
+	<div th:replace="nncminhchau :: videoSocialLinks"></div>
+
+	<!-- Page Content -->
+	<!-- About Page Starts Here -->
+	<div class="about-page">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="section-heading">
+						<div class="line-dec"></div>
+						<h1 data-i18n="about.title">About Us</h1>
+					</div>
+				</div>
+				<div class="col-md-12">
+					<div class="">
+						<h4></h4>
+						<p class="" th:utext="${page.articleContent}"></p>
+						<div class="share">
+							<h6>
+								<span data-i18n="about.findUsOn">Find us on:</span> <span><a href="https://www.facebook.com/nncminhchau.vn"> Facebook</a>
+										<!-- <i	class="fa fa-linkedin" ></i><i
+										class="fa fa-facebook"></i></a><a href="#"><i
+										class="fa fa-twitter"></i></a></span> -->
+							</h6>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- About Page Ends Here -->
+
+	<footer th:replace="nncminhchau :: footer"></footer>
+
+	<div th:replace="nncminhchau :: scripts"></div>
+
+</body>
+</html>
