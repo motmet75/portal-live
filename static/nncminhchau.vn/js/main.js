@@ -55,9 +55,9 @@
   var skyTop=new THREE.Color(0x27506a), deepTop=new THREE.Color(0x06202e), c=new THREE.Color();
   var sky=document.getElementById('sky');
 
-  var light=true, lTop=new THREE.Color(0xffffff), lDeep=new THREE.Color(0xc4dae6), mode=document.getElementById('mode');
+  var light=false, lTop=new THREE.Color(0xffffff), lDeep=new THREE.Color(0xc4dae6), mode=document.getElementById('mode');
   mode.addEventListener('click',function(){light=!light;document.body.classList.toggle('light',light);mode.textContent=light?'Dark mode':'Light mode';renderer.toneMappingExposure=light?1.0:1.1;bm.color.set(light?0x2a7fb0:0xcfeaff);});
-  bm.color.set(0x2a7fb0); renderer.toneMappingExposure=1.0;
+  bm.color.set(0xcfeaff); renderer.toneMappingExposure=1.1;
   var ready=false, target=0, cur=0;
   function onScroll(){var h=document.documentElement.scrollHeight-innerHeight;target=h>0?Math.min(1,Math.max(0,scrollY/h)):0;}
   addEventListener('scroll',onScroll,{passive:true}); onScroll();
