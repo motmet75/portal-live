@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DF250 Stealth V6 Outboard Motor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,500;12..96,800&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/nncminhchau.vn/css/style.css" th:href="@{/nncminhchau.vn/css/style.css}">
+</head>
+<body class="light" data-model="/nncminhchau.vn/assets/suzuki250.glb" th:attr="data-model=@{/nncminhchau.vn/assets/suzuki250.glb}">
+<div id="sky"></div>
+<div id="glow"></div>
+<canvas id="gl" aria-label="Interactive 3D model of a DF250 Stealth outboard motor" role="img"></canvas>
+<div id="load">Loading the motor…</div>
+<header><b>DF250</b><div class="nav"><a href="#specs">Specifications</a><button id="mode" type="button">Dark mode</button></div></header>
+<main>
+  <section id="hero-in"><div class="copy">
+    <h1>DF250</h1>
+    <p class="lede">The Stealth V-6 four-stroke outboard. 250 horsepower for tournament bass boats, large flat boats, performance pontoons and ski boats.</p>
+    <div class="cta"><a class="btn" href="#power">Explore the motor</a></div>
+  </div></section>
+
+  <section id="power" class="right"><div class="copy">
+    <h2>BigBlock V6. 4,028 cc.</h2>
+    <p>A 55° V6 with 24 valves and DOHC, built on Suzuki's BigBlock displacement. It gives a powerful hole shot and strong punch through the mid-range.</p>
+  </div></section>
+
+  <section id="burn"><div class="copy">
+    <h2>Precise fuel. Great economy.</h2>
+    <p>Multi-point sequential electronic injection with an oxygen sensor meters fuel to each cylinder, so you get the power you want and good fuel economy on 89 octane.</p>
+  </div></section>
+
+  <section id="lower" class="right"><div class="copy">
+    <h2>Where the power meets the water.</h2>
+    <p>An offset driveshaft and two-stage gear reduction (2.08:1) carry the power down to the propeller. Choose from the 17 to 30 propeller range with your dealer, in a 20 in or 25 in shaft.</p>
+  </div></section>
+
+  <section id="specs"><div class="copy">
+    <h2>DF250 Stealth specifications</h2>
+    <dl>
+      <dt>Body color</dt><dd>Matte black</dd>
+      <dt>Maximum output</dt><dd>250 hp</dd>
+      <dt>Operating range</dt><dd>5,300 to 6,300 rpm</dd>
+      <dt>Engine</dt><dd>6-cylinder, 24-valve DOHC, V6 (55°)</dd>
+      <dt>Displacement</dt><dd>245.6 cu in (4,028 cc)</dd>
+      <dt>Bore x stroke</dt><dd>98 x 89 mm</dd>
+      <dt>Fuel delivery</dt><dd>Multi-point sequential electronic injection with oxygen sensor</dd>
+      <dt>Recommended fuel</dt><dd>89 octane</dd>
+      <dt>Ignition</dt><dd>Solid-state direct ignition</dd>
+      <dt>Starting</dt><dd>Electric (Suzuki Start System)</dd>
+      <dt>System output</dt><dd>12V 54A</dd>
+      <dt>Gear ratio</dt><dd>2.08:1</dd>
+      <dt>Steering</dt><dd>Remote</dd>
+      <dt>Oil pan capacity</dt><dd>8 qt</dd>
+      <dt>Transom height</dt><dd>L: 20 in, X: 25 in</dd>
+      <dt>Weight</dt><dd>L: 578 lb, X: 606 lb</dd>
+      <dt>Standard propeller</dt><dd>Optional, see dealer</dd>
+      <dt>Propeller selection</dt><dd>17 to 30</dd>
+    </dl>
+    <a class="btn" href="#hero-in">Back to top</a>
+    <small>Specifications from the Suzuki Marine USA DF250 Stealth page. Suzuki and the DF250 name are Suzuki trademarks.</small>
+  </div></section>
+</main>
+
+<script src="/nncminhchau.vn/js/vendor/three.min.js" th:src="@{/nncminhchau.vn/js/vendor/three.min.js}"></script>
+<script src="/nncminhchau.vn/js/vendor/GLTFLoader.js" th:src="@{/nncminhchau.vn/js/vendor/GLTFLoader.js}"></script>
+<script src="/nncminhchau.vn/js/main.js" th:src="@{/nncminhchau.vn/js/main.js}"></script>
+</body>
+</html>
