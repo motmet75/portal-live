@@ -1,112 +1,265 @@
 <!DOCTYPE html>
+<html lang="en" th:lang="${selectedLanguageCode != null ? selectedLanguageCode : 'en'}" xmlns:th="http://www.thymeleaf.org">
 
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-	<meta charset="utf-8"/>
-	<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
-	<title>Suzuki Outboard Engines | DF250 DF200 DF30 DF25 DF6</title>
-	<link href="https://fonts.googleapis.com" rel="preconnect"/>
-	<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-	<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,500;12..96,800&amp;family=IBM+Plex+Sans:wght@400;500&amp;display=swap" rel="stylesheet"/>
-	<link href="/nncminhchau.vn/css/style.css" rel="stylesheet" th:href="@{/nncminhchau.vn/css/style.css}"/>
+<head th:replace="nncminhchau :: head('Minh Châu - Trang Chủ')">
+
 </head>
-<body data-model-200="/nncminhchau.vn/assets/suzuki200.glb" data-model-25="/nncminhchau.vn/assets/df25.glb" data-model-250="/nncminhchau.vn/assets/suzuki250.glb" data-model-30="/nncminhchau.vn/assets/df30.glb" data-model-6="/nncminhchau.vn/assets/df6.glb" th:attr="data-model-250=@{/nncminhchau.vn/assets/suzuki250.glb},data-model-200=@{/nncminhchau.vn/assets/suzuki200.glb},data-model-30=@{/nncminhchau.vn/assets/df30.glb},data-model-25=@{/nncminhchau.vn/assets/df25.glb},data-model-6=@{/nncminhchau.vn/assets/df6.glb}">
-<div id="sky"></div>
-<div id="glow"></div>
-<canvas aria-label="Interactive 3D model of a Suzuki outboard motor" id="gl" role="img"></canvas>
-<div aria-live="polite" id="load" role="status">Loading Suzuki DF250 3D model…</div>
-<header>
-	<b id="brand">DF250</b>
-	<div aria-label="Choose model and finish" id="picker" role="group">
-		<div class="seg">
-			<button aria-pressed="true" class="on" data-model-btn="250" type="button">DF250</button>
-			<button aria-pressed="false" data-model-btn="200" type="button">DF200</button>
-			<button aria-pressed="false" data-model-btn="30" type="button">DF30</button><button aria-pressed="false" data-model-btn="25" type="button">DF25</button><button aria-pressed="false" data-model-btn="6" type="button">DF6</button></div>
-		<div class="seg">
-			<button aria-label="Carbon black finish" aria-pressed="false" class="sw carbon" data-finish="carbon" title="Carbon black" type="button"></button>
-			<button aria-label="Pearl white finish" aria-pressed="true" class="sw white on" data-finish="white" title="Pearl white" type="button"></button>
+
+<!-- Font Awesome 5 (icons such as fab fa-facebook-f, fa fa-search, fa fa-ship) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<style>
+	.product-search-wrapper {
+		position: relative;
+		margin: 18px 0 6px;
+	}
+	.product-search-container {
+		display: flex;
+		flex-wrap: nowrap;
+		align-items: stretch;
+		gap: 0;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		overflow: hidden;
+	}
+	.product-search-container select.input-select {
+		padding: 10px 12px;
+		font-size: 0.92rem;
+		border: none;
+		border-right: 1px solid #ccc;
+		outline: none;
+		background: #fff;
+		cursor: pointer;
+		flex-shrink: 0;
+	}
+	.product-search-container input.search-box {
+		flex: 1;
+		padding: 10px 14px;
+		font-size: 0.92rem;
+		border: none;
+		outline: none;
+		min-width: 0;
+	}
+	.product-search-container button.search-btn {
+		padding: 10px 18px;
+		border: none;
+		background-color: #007bff;
+		color: #fff;
+		cursor: pointer;
+		font-size: 0.92rem;
+		white-space: nowrap;
+		flex-shrink: 0;
+		transition: background 0.2s;
+	}
+	.product-search-container button.search-btn:hover {
+		background-color: #0056b3;
+	}
+	@media (max-width: 600px) {
+		.product-search-container { flex-wrap: wrap; }
+		.product-search-container select.input-select {
+			width: 100%;
+			border-right: none;
+			border-bottom: 1px solid #ccc;
+			border-radius: 4px 4px 0 0;
+		}
+		.product-search-container input.search-box {
+			width: 100%;
+			border-bottom: 1px solid #ccc;
+		}
+		.product-search-container button.search-btn {
+			width: 100%;
+			border-radius: 0 0 4px 4px;
+		}
+	}
+	/* ── Suzuki outboard menu button ── */
+	.suzuki-menu {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		margin: 18px 0 6px;
+	}
+	.suzuki-menu a.suzuki-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 12px;
+		min-height: 48px;
+		padding: 10px 22px;
+		background: #0b3a8f;
+		color: #fff;
+		border-radius: 4px;
+		text-decoration: none;
+		font-weight: 600;
+		line-height: 1.25;
+		transition: background 0.2s;
+	}
+	.suzuki-menu a.suzuki-btn:hover,
+	.suzuki-menu a.suzuki-btn:focus {
+		background: #072a69;
+		color: #fff;
+		text-decoration: none;
+	}
+	.suzuki-menu a.suzuki-btn small {
+		display: block;
+		font-weight: 400;
+		font-size: 0.78rem;
+		opacity: 0.85;
+	}
+	.suzuki-menu a.suzuki-btn .fa {
+		font-size: 1.3rem;
+	}
+	@media (max-width: 600px) {
+		.suzuki-menu { flex-direction: column; }
+		.suzuki-menu a.suzuki-btn {
+			width: 100%;
+			justify-content: center;
+			text-align: center;
+			min-height: 54px;
+		}
+	}
+</style>
+
+<body>
+<script type="text/javascript">
+	window.onload = function() {
+		let x = document.getElementsByClassName("spanID");
+		for (let i = 0, len = x.length; i < len; i++) {
+			x[i].innerHTML = moneyload(x[i]);
+		}
+	}
+</script>
+
+<header th:replace="nncminhchau :: header"></header>
+
+<div th:replace="nncminhchau :: videoSocialLinks"></div>
+
+<!-- Page Content -->
+<div class="container">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="caption">
+				<h2>NÔNG NGƯ CƠ MINH CHÂU</h2>
+				<p>Nông ngư cơ MINH CHÂU chuyên cung cấp các loại máy thủy, máy
+					phát điện. Xuất xứ từ Nhật, Mỹ. Bạn có thể liên hệ với chúng tôi
+					để được tư vấn và báo giá cụ thể.</p>
+				<div class="main-button">
+					<a href="tel:0936837967">LH 0936837967</a>
+					<a href="https://www.facebook.com/nncminhchau.vn" class="fab fa-facebook-f" target="_blank" style="background-color: #1877f2; margin-left: 10px;"></a>facebook
+				</div>
+				<div class="line-dec"></div>
+			</div>
 		</div>
 	</div>
-	<div class="nav"><a href="#specs">Specifications</a><button id="mode" type="button">Light mode</button></div>
-</header>
-<main>
-	<section id="hero-in"><div class="copy">
-		<h1 data-for="250">DF250</h1>
-		<h1 data-for="200" hidden="">DF200</h1><h1 data-for="6" hidden="True">DF6</h1><h1 data-for="25" hidden="True">DF25</h1><h1 data-for="30" hidden="True">DF30</h1>
-		<p class="lede" data-for="250">The Stealth V-6 four-stroke outboard. 250 horsepower for tournament bass boats, large flat boats, performance pontoons and ski boats.</p>
-		<p class="lede" data-for="200" hidden="">The Suzuki DF200 four-stroke outboard. 200 horsepower for fishing, family and work boats.</p><p class="lede" data-for="6" hidden="True">Explore the Suzuki DF6 in 3D. Take a closer look at its compact outboard design.</p><p class="lede" data-for="25" hidden="True">Explore the Suzuki DF25 in 3D, including the cowling, mounting system and propeller.</p><p class="lede" data-for="30" hidden="True">Explore the Suzuki DF30 in 3D. Rotate through the engine assembly, cowling and lower unit.</p>
-		<div class="cta"><a class="btn" href="#power">Explore the motor</a></div>
-	</div></section>
-	<section class="right" id="power">
-		<div class="copy" data-for="250">
-			<h2>BigBlock V6. 4,028 cc.</h2>
-			<p>A 55° V6 with 24 valves and DOHC, built on Suzuki's BigBlock displacement. It gives a powerful hole shot and strong punch through the mid-range.</p>
+</div>
+
+<!-- ── Suzuki Outboard menu (button, also on mobile) ── -->
+<div class="container">
+	<nav class="suzuki-menu" aria-label="Suzuki Outboard">
+		<a class="suzuki-btn" th:href="@{/DFengine}" href="/DFengine">
+			<i class="fa fa-ship" aria-hidden="true"></i>
+			<span>Suzuki Outboard<small>Máy thủy gắn ngoài DF250 · DF200· D30· DF35· DF6</small></span>
+		</a>
+	</nav>
+</div>
+
+<!-- Banner Starts Here -->
+<div class="banner" th:style="'margin-top:50px; background-image:url(' + ${client.clientBanner} + '); background-size:cover; background-repeat:no-repeat; padding:150px 0px; background-position:center center;'">
+</div>
+<!-- Banner Ends Here -->
+
+<!-- Search Bar -->
+<!-- <div th:replace="nncminhchau :: search"></div> -->
+
+<!-- ── Product Search Bar ── -->
+<div class="container">
+	<div class="product-search-wrapper">
+		<form action="/products.html" method="GET" style="margin:0;">
+			<div class="product-search-container">
+				<select id="productCatalogSelect" name="catalog" class="input-select">
+					<option value="0" data-i18n="search.allCategories">Tất cả danh mục</option>
+					<option th:each="catalog : ${catalogs}"
+							th:value="${catalog.catalogCode}"
+							th:text="${catalog.catalogName}">Danh mục</option>
+				</select>
+				<input type="text"
+					   id="productSearchBox"
+					   name="keyword"
+					   class="search-box"
+					   placeholder="Tìm kiếm sản phẩm..." data-i18n-placeholder="search.productPlaceholder"
+					   autocomplete="off">
+				<button type="submit" class="search-btn">
+					<i class="fa fa-search"></i> <span data-i18n="search.search">Tìm</span>
+				</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<div class="container">
+	<div class="video-grid">
+		<div class="video-card" th:each="productv : ${productsWithVideos}">
+			<div class="video-wrapper">
+				<iframe
+						th:src="${productv.youtubeVideoURL}"
+						frameborder="0"
+						allowfullscreen
+						allow="fullscreen; picture-in-picture"
+						style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+				</iframe>
+			</div>
+			<div class="video-content">
+				<h2 class="video-title" th:text="${productv.productName}">Featured Video</h2>
+				<p class="video-description" th:text="${productv.productShortDes}">
+					Watch this amazing video content.
+				</p>
+				<a th:href="'/product/' + ${productv.path}" class="read-more-btn">Xem</a>
+			</div>
 		</div>
-		<div class="copy" data-for="200" hidden="">
-			<h2>200 horsepower.</h2>
-			<p>Smooth four-stroke power from Suzuki. Ask us which shaft length and propeller suit your boat.</p>
+	</div>
+</div>
+<div class="container" style="text-align: center; padding: 16px 0 24px;">
+	<a href="/products.html" class="btn btn-dark" style="padding: 10px 32px; font-size: 1rem; border-radius: 4px;" data-i18n="products.allProducts">
+		Tất cả sản phẩm
+	</a>
+</div>
+
+<!-- Featured Starts Here -->
+<div class="featured-items">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="section-heading">
+					<div class="line-dec"></div>
+					<h1>Featured Items</h1>
+				</div>
+			</div>
+			<div class="col-md-12">
+				<div class="owl-carousel owl-theme owl-loaded owl-drag">
+					<div class="owl-stage-outer">
+						<div class="owl-stage"
+							 style="transform: translate3d(-1412px, 0px, 0px); transition: all 0s ease 0s; width: 5650px;">
+							<div class="owl-item cloned" th:each="product : ${products}"
+								 style="width: 262.5px; margin-right: 20px;">
+								<a th:href="'/product/' + ${product.path}">
+									<div class='featured-item'>
+										<img th:src="${product.productImageDesUrl}">
+										<h4 th:text="${product.productName}"></h4>
+										<h6 class='spanID' th:if="${product.publicPrice == true}" th:text="${product.productPriceAmount}"></h6>
+									</div>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
-		<div class="copy" data-for="30" hidden="True"><h2>See the DF30 from every angle.</h2><p>Inspect the cowling, outboard mounting assembly and lower unit in the interactive 3D view.</p></div><div class="copy" data-for="25" hidden="True"><h2>Explore the DF25 in detail.</h2><p>View the engine exterior and component arrangement in the interactive model.</p></div><div class="copy" data-for="6" hidden="True"><h2>Compact outboard design.</h2><p>Look around the Suzuki DF6 and examine its exterior geometry.</p></div></section>
-	<section id="burn">
-		<div class="copy" data-for="250">
-			<h2>Precise fuel. Great economy.</h2>
-			<p>Multi-point sequential electronic injection with an oxygen sensor meters fuel to each cylinder, so you get the power you want and good fuel economy on 89 octane.</p>
-		</div>
-		<div class="copy" data-for="200" hidden="">
-			<h2>Ready for your boat.</h2>
-			<p>Talk to us about rigging, installation and a quote for your boat.</p>
-		</div>
-		<div class="copy" data-for="30" hidden="True"><h2>Find the right installation.</h2><p>Contact us for model-specific rigging, shaft length, accessories and availability.</p></div><div class="copy" data-for="25" hidden="True"><h2>Discuss your configuration.</h2><p>Ask us about model availability, installation and compatible boat setups.</p></div><div class="copy" data-for="6" hidden="True"><h2>Choose the appropriate setup.</h2><p>Contact us for installation and model-specific product details.</p></div></section>
-	<section class="right" id="lower">
-		<div class="copy" data-for="250">
-			<h2>Where the power meets the water.</h2>
-			<p>An offset driveshaft and two-stage gear reduction (2.08:1) carry the power down to the propeller. Choose from the 17 to 30 propeller range with your dealer, in a 20 in or 25 in shaft.</p>
-		</div>
-		<div class="copy" data-for="200" hidden="">
-			<h2>Where the power meets the water.</h2>
-			<p>The gear case and propeller, up close. We can help you choose the right propeller for your boat.</p>
-		</div>
-		<div class="copy" data-for="30" hidden="True"><h2>Inspect the lower unit.</h2><p>Explore the gearcase and propeller area and discuss installation requirements with our team.</p></div><div class="copy" data-for="25" hidden="True"><h2>A closer look at the propeller.</h2><p>Explore the lower unit and propeller geometry in the 3D viewer.</p></div><div class="copy" data-for="6" hidden="True"><h2>View the lower unit.</h2><p>Explore the DF6 gearcase and propeller arrangement in the viewer.</p></div></section>
-	<section id="specs"><div class="copy">
-		<div data-for="250">
-			<h2>DF250 Stealth specifications</h2>
-			<dl>
-				<dt>Body color</dt><dd>Matte black</dd>
-				<dt>Maximum output</dt><dd>250 hp</dd>
-				<dt>Operating range</dt><dd>5,300 to 6,300 rpm</dd>
-				<dt>Engine</dt><dd>6-cylinder, 24-valve DOHC, V6 (55°)</dd>
-				<dt>Displacement</dt><dd>245.6 cu in (4,028 cc)</dd>
-				<dt>Bore x stroke</dt><dd>98 x 89 mm</dd>
-				<dt>Fuel delivery</dt><dd>Multi-point sequential electronic injection with oxygen sensor</dd>
-				<dt>Recommended fuel</dt><dd>89 octane</dd>
-				<dt>Ignition</dt><dd>Solid-state direct ignition</dd>
-				<dt>Starting</dt><dd>Electric (Suzuki Start System)</dd>
-				<dt>System output</dt><dd>12V 54A</dd>
-				<dt>Gear ratio</dt><dd>2.08:1</dd>
-				<dt>Steering</dt><dd>Remote</dd>
-				<dt>Oil pan capacity</dt><dd>8 qt</dd>
-				<dt>Transom height</dt><dd>L: 20 in, X: 25 in</dd>
-				<dt>Weight</dt><dd>L: 578 lb, X: 606 lb</dd>
-				<dt>Standard propeller</dt><dd>Optional, see dealer</dd>
-				<dt>Propeller selection</dt><dd>17 to 30</dd>
-			</dl>
-		</div>
-		<div data-for="200" hidden="">
-			<h2>DF200 specifications</h2>
-			<dl>
-				<dt>Model</dt><dd>Suzuki DF200</dd>
-				<dt>Maximum output</dt><dd>200 hp</dd>
-				<dt>Engine type</dt><dd>Four-stroke</dd>
-				<dt>Full specifications</dt><dd>Call us for the details</dd>
-			</dl>
-		</div><div data-for="6" hidden="True"><h2>DF6 — product information</h2><dl><dt>Model</dt><dd>Suzuki DF6</dd><dt>3D preview</dt><dd>Interactive exterior model</dd><dt>Availability and details</dt><dd>Contact our team for confirmed specifications</dd></dl></div><div data-for="25" hidden="True"><h2>DF25 — product information</h2><dl><dt>Model</dt><dd>Suzuki DF25</dd><dt>3D preview</dt><dd>Interactive exterior model</dd><dt>Availability and details</dt><dd>Contact our team for confirmed specifications</dd></dl></div><div data-for="30" hidden="True"><h2>DF30 — product information</h2><dl><dt>Model</dt><dd>Suzuki DF30</dd><dt>3D preview</dt><dd>Interactive exterior model</dd><dt>Availability and details</dt><dd>Contact our team for confirmed specifications</dd></dl></div>
-		<a class="btn call" href="tel:0936837967">Call 0936837967</a>
-		<a class="btn ghost" href="#hero-in">Back to top</a>
-		<small>3D finishes are illustrative. Technical specifications vary by exact engine model and market; confirm with the dealer. Suzuki and model names are trademarks of Suzuki.</small>
-	</div></section>
-</main>
-<script src="/nncminhchau.vn/js/vendor/three.min.js" th:src="@{/nncminhchau.vn/js/vendor/three.min.js}"></script>
-<script src="/nncminhchau.vn/js/vendor/GLTFLoader.js" th:src="@{/nncminhchau.vn/js/vendor/GLTFLoader.js}"></script>
-<script src="/nncminhchau.vn/js/main.js" th:src="@{/nncminhchau.vn/js/main.js}"></script>
+	</div>
+</div>
+<!-- Featured Ends Here -->
+
+<footer th:replace="nncminhchau :: footer"></footer>
+
+<div th:replace="nncminhchau :: scripts"></div>
+<script th:src="'/' + ${domain} + '/js/product-search.js'"></script>
+
 </body>
 </html>
