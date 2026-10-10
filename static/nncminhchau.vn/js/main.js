@@ -162,7 +162,16 @@
       var hb=new THREE.Box3().setFromObject(hub),hs=hb.getSize(new THREE.Vector3()),hc=hb.getCenter(new THREE.Vector3());
       var e=[hs.x,hs.y,hs.z],best=0,bd=1e9; // shaft axis = the one whose two other extents are most alike (round hub)
       for(var a=0;a<3;a++){var dd=Math.abs(e[(a+1)%3]-e[(a+2)%3]);if(dd<bd){bd=dd;best=a;}}
-      var g2=new THREE.Group();g2.position.copy(hc);m.add(g2);m.updateMatrixWorld(true);
+      // Box3 center is WORLD-space, but g2 is parented under m.
+      // Convert the center into m-local space and orient the pivot in WORLD axes.
+      // This avoids pivot drift and unintended skew when rotating GLB parts.
+      var g2=new THREE.Group();
+      g2.position.copy(m.worldToLocal(hc.clone()));
+      var worldQ=new THREE.Quaternion();
+      m.getWorldQuaternion(worldQ);
+      g2.quaternion.copy(worldQ.invert());
+      m.add(g2);
+      m.updateMatrixWorld(true);
       parts.forEach(function(o){g2.attach(o);});
       var shaftAxis=PROPELLER_AXIS_OVERRIDE[id]||['x','y','z'][best];
       M.spin={g:g2,axis:shaftAxis,angle:0};
