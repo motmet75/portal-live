@@ -41,7 +41,7 @@
     {t:0,   ry:-0.6, x:1.15, cy:0.0,  cz:5.8, ty:0.0},
     {t:.25, ry:0.9,  x:-1.0, cy:0.85, cz:3.0, ty:0.75},
     {t:.5,  ry:2.3,  x:1.0,  cy:0.2,  cz:4.8, ty:0.1},
-    {t:.75, ry:3.9,  x:-1.0, cy:-0.75,cz:3.1, ty:-0.8},
+    {t:.75, ry:4.25, x:-0.8, cy:-0.7, cz:2.5, ty:-0.78},
     {t:1,   ry:6.0,  x:1.6,  cy:0.0,  cz:6.2, ty:0.0}
   ];
   function ease(u){return u*u*(3-2*u);}
@@ -55,9 +55,9 @@
   var skyTop=new THREE.Color(0x27506a), deepTop=new THREE.Color(0x06202e), c=new THREE.Color();
   var sky=document.getElementById('sky');
 
-  var light=false, lTop=new THREE.Color(0xffffff), lDeep=new THREE.Color(0xc4dae6), mode=document.getElementById('mode');
+  var light=true, lTop=new THREE.Color(0xffffff), lDeep=new THREE.Color(0xc4dae6), mode=document.getElementById('mode');
   mode.addEventListener('click',function(){light=!light;document.body.classList.toggle('light',light);mode.textContent=light?'Dark mode':'Light mode';renderer.toneMappingExposure=light?1.0:1.1;bm.color.set(light?0x2a7fb0:0xcfeaff);});
-  bm.color.set(0xcfeaff); renderer.toneMappingExposure=1.1;
+  bm.color.set(0x2a7fb0); renderer.toneMappingExposure=1.0;
   var ready=false, target=0, cur=0;
   function onScroll(){var h=document.documentElement.scrollHeight-innerHeight;target=h>0?Math.min(1,Math.max(0,scrollY/h)):0;}
   addEventListener('scroll',onScroll,{passive:true}); onScroll();
@@ -65,10 +65,18 @@
   addEventListener('resize',resize); resize();
 
   var t0=performance.now();
+  // Propeller spin. SPIN_DIR -1 = clockwise seen from behind the boat, 1 = counter-clockwise. Speeds are radians per second.
+  var SPIN_DIR=-1, SPIN_IDLE=1.2, SPIN_BOOST=7;
+  var spinGroup=null, spinAxis='x', spinAngle=0, lastT=performance.now();
   function frame(now){
     requestAnimationFrame(frame);
     cur += (target-cur)*0.07;
     var s=sample(cur), narrow=camera.aspect<0.9;
+    var dt=Math.min(0.05,(now-lastT)/1000); lastT=now;
+    if(spinGroup&&!reduce){ // faster while the lower unit is on screen
+      spinAngle+=SPIN_DIR*dt*(SPIN_IDLE+SPIN_BOOST*Math.exp(-Math.pow((cur-.75)/.14,2)));
+      spinGroup.rotation[spinAxis]=spinAngle;
+    }
     var idle = reduce?0:Math.sin((now-t0)/2400)*0.08;
     pivot.rotation.y = s.ry + idle;
     pivot.position.x = narrow?0:s.x;
@@ -114,6 +122,21 @@
         o.add(new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry,28),edgeMat));
       }
     });
+    // Propeller: gather its parts, put a pivot on the hub centre and turn them around the shaft axis
+    (function(){
+      var re=/^DF250_(Propeller_|Watergrip_)/, parts=[], hub=null;
+      m.updateMatrixWorld(true);
+      m.traverse(function(o){if(o.isMesh&&re.test(o.name)){parts.push(o);if(/Exhaust_Hub/.test(o.name))hub=o;}});
+      if(!hub||!parts.length)return;
+      var hb=new THREE.Box3().setFromObject(hub), hs=hb.getSize(new THREE.Vector3()), hc=hb.getCenter(new THREE.Vector3());
+      // the shaft axis is the one whose two other extents are most alike (the hub is round)
+      var e=[hs.x,hs.y,hs.z], best=0, bd=1e9;
+      for(var a=0;a<3;a++){var dd=Math.abs(e[(a+1)%3]-e[(a+2)%3]);if(dd<bd){bd=dd;best=a;}}
+      spinAxis=['x','y','z'][best];
+      var g2=new THREE.Group(); g2.position.copy(hc); m.add(g2); m.updateMatrixWorld(true);
+      parts.forEach(function(o){g2.attach(o);});
+      spinGroup=g2;
+    })();
     var box=new THREE.Box3().setFromObject(m), size=box.getSize(new THREE.Vector3()), ctr=box.getCenter(new THREE.Vector3());
     var sc=2/Math.max(size.y,1e-6);
     m.position.sub(ctr); var holder=new THREE.Group(); holder.add(m); holder.scale.setScalar(sc); pivot.add(holder);
