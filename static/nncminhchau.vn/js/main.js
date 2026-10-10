@@ -66,6 +66,9 @@
   var t0=performance.now();
   // Propeller spin. SPIN_DIR -1 = clockwise seen from behind the boat, 1 = counter-clockwise. Speeds are radians per second.
   var SPIN_DIR=-1, SPIN_IDLE=1.2, SPIN_BOOST=7;
+  // DF30, DF25 and DF6 GLBs use local Y for the propeller shaft.
+  // DF250 and DF200 keep their existing automatically detected axes.
+  var PROPELLER_AXIS_OVERRIDE={'30':'y','25':'y','6':'y'};
   var lastT=performance.now(), active=null, introRot=0;
   function frame(now){
     requestAnimationFrame(frame);
@@ -108,12 +111,12 @@
   function mk(o){o.side=THREE.DoubleSide;if(!o.envMapIntensity)o.envMapIntensity=1.3;return new THREE.MeshPhysicalMaterial(o);}
   var FIN={
     carbon:{body:mk({color:0x060708,metalness:0.25,roughness:0.34,clearcoat:1,clearcoatRoughness:0.05,envMapIntensity:0.75}),
-            emblem:mk({color:0x59626c,metalness:1,roughness:0.22,envMapIntensity:1.6})},
+      emblem:mk({color:0x59626c,metalness:1,roughness:0.22,envMapIntensity:1.6})},
     white:{body:mk({color:0xf4f6f8,metalness:0.1,roughness:0.24,clearcoat:1,clearcoatRoughness:0.05,envMapIntensity:1.2}),
-           emblem:mk({color:0x14181d,metalness:0.8,roughness:0.3})}
+      emblem:mk({color:0x14181d,metalness:0.8,roughness:0.3})}
   };
   var EDGE={carbon:new THREE.LineBasicMaterial({color:0x8aa0ae,transparent:true,opacity:0.3}),
-            white:new THREE.LineBasicMaterial({color:0x0b2230,transparent:true,opacity:0.28})};
+    white:new THREE.LineBasicMaterial({color:0x0b2230,transparent:true,opacity:0.28})};
   var graphite=mk({color:0x2b333a,metalness:0.7,roughness:0.38}), chrome=mk({color:0xffffff,metalness:1,roughness:0.08}), cache={};
   var finish='white', finishAuto=true;   // auto = pick the finish that contrasts with the page theme until the visitor chooses
   var BODY=/Lower_Cowl_And_Leg|Removable_Upper_Cowling|SideMatched_(Gearcase|Skeg|Lower_Adapter|Leg_Flange)/;
@@ -161,7 +164,9 @@
       for(var a=0;a<3;a++){var dd=Math.abs(e[(a+1)%3]-e[(a+2)%3]);if(dd<bd){bd=dd;best=a;}}
       var g2=new THREE.Group();g2.position.copy(hc);m.add(g2);m.updateMatrixWorld(true);
       parts.forEach(function(o){g2.attach(o);});
-      M.spin={g:g2,axis:['x','y','z'][best],angle:0};
+      var shaftAxis=PROPELLER_AXIS_OVERRIDE[id]||['x','y','z'][best];
+      M.spin={g:g2,axis:shaftAxis,angle:0};
+      console.info(M.label+' propeller rotation axis: '+shaftAxis);
     }
     var box=new THREE.Box3().setFromObject(m),size=box.getSize(new THREE.Vector3()),ctr=box.getCenter(new THREE.Vector3());
     M.sc=2/Math.max(size.y,1e-6);
