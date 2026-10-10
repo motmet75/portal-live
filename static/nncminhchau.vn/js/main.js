@@ -1,4 +1,4 @@
-/* DF250 3D scroll showcase. Model path: assets/suzuki250.glb */
+/* Suzuki multi-model scroll showcase: five GLB models, loaded on demand. */
 (function(){
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var canvas = document.getElementById('gl');
@@ -68,6 +68,7 @@
   // Propeller spin. SPIN_DIR -1 = clockwise seen from behind the boat, 1 = counter-clockwise. Speeds are radians per second.
   var SPIN_DIR=-1, SPIN_IDLE=1.2, SPIN_BOOST=7;
   var spinGroup=null, spinAxis='x', spinAngle=0, lastT=performance.now();
+  var activeHolder=null, requestSerial=0, currentModel='250';
   function frame(now){
     requestAnimationFrame(frame);
     if(document.hidden)return;
@@ -101,7 +102,7 @@
   }
 
   // Decode the embedded model and fit it to a 2-unit-tall frame
-  function onModel(g){
+  function onModel(g,modelId){
     var m=g.scene;
         // Keep the materials from the file, upgraded with reflections; only the unnamed black fallbacks get a finish by part name
     function up(src,extra){var p=new THREE.MeshPhysicalMaterial({color:src.color,metalness:src.metalness,roughness:src.roughness,side:THREE.DoubleSide,envMapIntensity:1.3});for(var k in extra)p[k]=extra[k];return p;}
@@ -125,7 +126,7 @@
     });
     // Propeller: gather its parts, put a pivot on the hub centre and turn them around the shaft axis
     (function(){
-      var modelId=(document.body.getAttribute('data-engine')||'DF250');
+      modelId='DF'+modelId;
       var re=new RegExp('^'+modelId+'_(Propeller_|Watergrip_)'), parts=[], hub=null;
       m.updateMatrixWorld(true);
       m.traverse(function(o){if(o.isMesh&&re.test(o.name)){parts.push(o);if(/Exhaust_Hub/.test(o.name))hub=o;}});
@@ -141,12 +142,57 @@
     })();
     var box=new THREE.Box3().setFromObject(m), size=box.getSize(new THREE.Vector3()), ctr=box.getCenter(new THREE.Vector3());
     var sc=2/Math.max(size.y,1e-6);
-    m.position.sub(ctr); var holder=new THREE.Group(); holder.add(m); holder.scale.setScalar(sc); pivot.add(holder);
+    m.position.sub(ctr); var holder=new THREE.Group(); holder.add(m); holder.scale.setScalar(sc); pivot.add(holder); activeHolder=holder;
 
     ready=true; document.getElementById('load').classList.add('done'); document.body.classList.add('ready');
   }
-  function onFail(e){document.getElementById('load').textContent='The 3D model could not be loaded.';console.error(e);}
+  function disposeHolder(holder){
+    if(!holder)return;
+    pivot.remove(holder);
+    var geometries=new Set(), materials=new Set();
+    holder.traverse(function(o){
+      if(o.geometry)geometries.add(o.geometry);
+      if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(function(mat){materials.add(mat);});
+    });
+    geometries.forEach(function(g){g.dispose();});
+    materials.forEach(function(m){m.dispose();});
+  }
   var loader=new THREE.GLTFLoader();
-  loader.load(document.body.getAttribute('data-model')||'/nncminhchau.vn/assets/suzuki250.glb',onModel,undefined,onFail);
+  var ids=['250','200','30','25','6'];
+  function selectEngine(id,updateUrl){
+    if(ids.indexOf(id)<0)id='250';
+    var url=document.body.getAttribute('data-model-'+id);
+    if(!url)return;
+    var serial=++requestSerial;
+    var load=document.getElementById('load');
+    load.classList.remove('done');load.textContent='Loading Suzuki DF'+id+' 3D model…';
+    document.querySelectorAll('[data-model-btn]').forEach(function(btn){
+      var on=btn.getAttribute('data-model-btn')===id;
+      btn.classList.toggle('on',on);btn.setAttribute('aria-pressed',String(on));
+    });
+    document.querySelectorAll('[data-for]').forEach(function(el){el.hidden=el.getAttribute('data-for')!==id;});
+    document.getElementById('brand').textContent='DF'+id;
+    document.title='Suzuki DF'+id+' Outboard Motor | 3D View';
+    if(updateUrl&&history.replaceState){
+      var urlObj=new URL(location.href);urlObj.searchParams.set('model','DF'+id);history.replaceState(null,'',urlObj.toString());
+    }
+    loader.load(url,function(g){
+      if(serial!==requestSerial){
+        // stale load: free the downloaded model without touching the current selection
+        var stale=new THREE.Group();stale.add(g.scene);disposeHolder(stale);return;
+      }
+      disposeHolder(activeHolder);activeHolder=null;
+      spinGroup=null;spinAxis='x';spinAngle=0;
+      try{onModel(g,id);currentModel=id;}
+      catch(e){load.textContent='Cannot display DF'+id+' model.';console.error(e);}
+    },function(e){
+      if(serial===requestSerial&&e.total){load.textContent='Loading DF'+id+'… '+Math.round(e.loaded/e.total*100)+'%';}
+    },function(e){if(serial===requestSerial){load.textContent='Could not load DF'+id+' model.';console.error(e);}});
+  }
+  document.querySelectorAll('[data-model-btn]').forEach(function(btn){
+    btn.addEventListener('click',function(){selectEngine(btn.getAttribute('data-model-btn'),true);});
+  });
+  var requested=(new URLSearchParams(location.search).get('model')||'250').toUpperCase().replace(/^DF/,'');
+  selectEngine(requested,false);
   requestAnimationFrame(frame);
 })();
