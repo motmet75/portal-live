@@ -66,9 +66,9 @@
   var t0=performance.now();
   // Propeller spin. SPIN_DIR -1 = clockwise seen from behind the boat, 1 = counter-clockwise. Speeds are radians per second.
   var SPIN_DIR=-1, SPIN_IDLE=1.2, SPIN_BOOST=7;
-  // DF30, DF25 and DF6 GLBs use local Y for the propeller shaft.
+  // Verified from the uploaded GLB hub transforms: the shaft points along scene X.
   // DF250 and DF200 keep their existing automatically detected axes.
-  var PROPELLER_AXIS_OVERRIDE={'30':'y','25':'y','6':'y'};
+  var PROPELLER_AXIS_OVERRIDE={'30':'x','25':'x','6':'x'};
   var lastT=performance.now(), active=null, introRot=0;
   function frame(now){
     requestAnimationFrame(frame);
