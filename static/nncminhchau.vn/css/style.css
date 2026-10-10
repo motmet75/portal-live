@@ -9,8 +9,7 @@ html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
 body{margin:0;background:var(--page);color:var(--fg);font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:1.0625rem;line-height:1.55;overflow-x:hidden}
 #sky{position:fixed;inset:0;z-index:0;background:linear-gradient(180deg,#27506a 0%,#0c2a3a 55%,#04121b 100%);transition:none}
 #glow{position:fixed;left:0;top:0;width:60vmin;height:60vmin;margin:-30vmin 0 0 -30vmin;z-index:1;pointer-events:none;border-radius:50%;background:radial-gradient(circle,rgba(120,205,255,.55) 0%,rgba(61,184,255,.22) 35%,rgba(61,184,255,0) 70%);opacity:0;will-change:transform,opacity}
-canvas#gl{position:fixed;inset:0;width:100%;height:100%;z-index:1;display:block;opacity:0;transition:opacity 1.2s ease}
-body.model-in canvas#gl{opacity:1}
+canvas#gl{position:fixed;inset:0;width:100%;height:100%;z-index:1;display:block}
 header{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:1.1rem clamp(1.2rem,4vw,3rem)}
 header b{font:800 1.25rem "Bricolage Grotesque",sans-serif;letter-spacing:-.02em}
 header a{color:var(--fg);text-decoration:none;font-weight:500;border-bottom:1px solid var(--signal);padding-bottom:2px}
@@ -30,7 +29,7 @@ dl{display:grid;grid-template-columns:auto 1fr;gap:.7rem 1.6rem;margin:0 0 2rem;
 dt{color:var(--mist)} dd{margin:0;font-weight:500}
 dl>*{border-bottom:1px solid rgba(157,182,191,.25);padding-bottom:.7rem}
 small{display:block;color:var(--mist);max-width:26rem;margin-top:1.5rem}
-#load{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:10;background:rgba(var(--shade),.88);color:var(--fg);padding:.5rem 1.1rem;border-radius:999px;font:500 .9rem "IBM Plex Sans",system-ui,sans-serif;white-space:nowrap;backdrop-filter:blur(6px);transition:opacity .5s}
+#load{position:fixed;inset:0;z-index:10;background:var(--page);display:flex;align-items:center;justify-content:center;font:300 1.4rem "Bricolage Grotesque",sans-serif;transition:opacity .8s}
 #load.done{opacity:0;pointer-events:none}
 #hero-in h1,#hero-in .lede,#hero-in .cta{opacity:0;transform:translateY(24px)}
 body.ready #hero-in h1{animation:in 1s .1s forwards cubic-bezier(.2,.7,.2,1)}
@@ -56,22 +55,3 @@ body.light #glow{background:radial-gradient(circle,rgba(10,127,209,.35) 0%,rgba(
 #specs dt{white-space:nowrap}
 #specs dd{text-align:right}
 @media (max-width:760px){#specs dd{text-align:left}}
-
-[hidden]{display:none!important}
-#picker{display:flex;gap:.7rem;align-items:center}
-.seg{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--mist);border-radius:999px;background:rgba(var(--shade),.55);backdrop-filter:blur(6px)}
-.seg button{font:500 .9rem "IBM Plex Sans",system-ui,sans-serif;color:var(--fg);background:transparent;border:0;border-radius:999px;padding:.35rem .95rem;cursor:pointer;min-height:36px}
-.seg button.on{background:var(--signal);color:var(--btnfg)}
-.seg button.busy::after{content:"";display:inline-block;width:.6em;height:.6em;margin-left:.45em;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .8s linear infinite;vertical-align:-1px}
-.seg button.sw{width:38px;padding:0;position:relative}
-.seg button.sw::before{content:"";position:absolute;inset:7px;border-radius:50%;border:1px solid rgba(128,128,128,.7)}
-.sw.carbon::before{background:radial-gradient(circle at 35% 30%,#59626c,#0b0d10 70%)}
-.sw.white::before{background:radial-gradient(circle at 35% 30%,#ffffff,#cfd6dc 80%)}
-.seg button.sw.on{background:transparent;box-shadow:inset 0 0 0 2px var(--signal)}
-@keyframes spin{to{transform:rotate(360deg)}}
-.btn.call{margin-right:.6rem}
-@media (max-width:760px){
-  header{flex-wrap:wrap;row-gap:.5rem}
-  #picker{order:3;width:100%;justify-content:center}
-}
-@media (prefers-reduced-motion:reduce){canvas#gl{transition:none}}
