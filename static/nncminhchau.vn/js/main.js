@@ -1,4 +1,4 @@
-/* DF250 3D scroll showcase. Model path: assets/suzuki250.glb */
+/* Suzuki DF250 / DF200 3D scroll showcase. Models load in the background: DF250 first, then DF200. */
 (function(){
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var canvas = document.getElementById('gl');
@@ -55,10 +55,9 @@
   var skyTop=new THREE.Color(0x27506a), deepTop=new THREE.Color(0x06202e), c=new THREE.Color();
   var sky=document.getElementById('sky');
 
-  var light=true, lTop=new THREE.Color(0xffffff), lDeep=new THREE.Color(0xc4dae6), mode=document.getElementById('mode');
-  mode.addEventListener('click',function(){light=!light;document.body.classList.toggle('light',light);mode.textContent=light?'Dark mode':'Light mode';renderer.toneMappingExposure=light?1.0:1.1;bm.color.set(light?0x2a7fb0:0xcfeaff);});
-  bm.color.set(0x2a7fb0); renderer.toneMappingExposure=1.0;
-  var ready=false, target=0, cur=0;
+  var light=false, lTop=new THREE.Color(0xffffff), lDeep=new THREE.Color(0xc4dae6), mode=document.getElementById('mode');
+  renderer.toneMappingExposure=1.1; bm.color.set(0xcfeaff);
+  var target=0, cur=0;
   function onScroll(){var h=document.documentElement.scrollHeight-innerHeight;target=h>0?Math.min(1,Math.max(0,scrollY/h)):0;}
   addEventListener('scroll',onScroll,{passive:true}); onScroll();
   function resize(){var w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
@@ -67,18 +66,23 @@
   var t0=performance.now();
   // Propeller spin. SPIN_DIR -1 = clockwise seen from behind the boat, 1 = counter-clockwise. Speeds are radians per second.
   var SPIN_DIR=-1, SPIN_IDLE=1.2, SPIN_BOOST=7;
-  var spinGroup=null, spinAxis='x', spinAngle=0, lastT=performance.now();
+  var lastT=performance.now(), active=null, introRot=0;
   function frame(now){
     requestAnimationFrame(frame);
     cur += (target-cur)*0.07;
     var s=sample(cur), narrow=camera.aspect<0.9;
     var dt=Math.min(0.05,(now-lastT)/1000); lastT=now;
-    if(spinGroup&&!reduce){ // faster while the lower unit is on screen
-      spinAngle+=SPIN_DIR*dt*(SPIN_IDLE+SPIN_BOOST*Math.exp(-Math.pow((cur-.75)/.14,2)));
-      spinGroup.rotation[spinAxis]=spinAngle;
+    if(active){
+      if(active.spin&&!reduce){ // faster while the lower unit is on screen
+        active.spin.angle+=SPIN_DIR*dt*(SPIN_IDLE+SPIN_BOOST*Math.exp(-Math.pow((cur-.75)/.14,2)));
+        active.spin.g.rotation[active.spin.axis]=active.spin.angle;
+      }
+      if(active.t<1)active.t=Math.min(1,active.t+dt/0.9);
+      var e=1-Math.pow(1-active.t,3); // reveal: grows and turns into place
+      active.holder.scale.setScalar(active.sc*(0.92+0.08*e)); introRot=reduce?0:(1-e)*0.8;
     }
     var idle = reduce?0:Math.sin((now-t0)/2400)*0.08;
-    pivot.rotation.y = s.ry + idle;
+    pivot.rotation.y = s.ry + idle + introRot;
     pivot.position.x = narrow?0:s.x;
     pivot.position.y = narrow?0.55:0;  // lift the motor above the text on phones
     camera.position.set(0, s.cy, narrow?s.cz*1.25:s.cz);
@@ -99,52 +103,112 @@
     renderer.render(scene,camera);
   }
 
-  // Decode the embedded model and fit it to a 2-unit-tall frame
-  function onModel(g){
-    var m=g.scene;
-        // Keep the materials from the file, upgraded with reflections; only the unnamed black fallbacks get a finish by part name
-    function up(src,extra){var p=new THREE.MeshPhysicalMaterial({color:src.color,metalness:src.metalness,roughness:src.roughness,side:THREE.DoubleSide,envMapIntensity:1.3});for(var k in extra)p[k]=extra[k];return p;}
-    function mk(o){o.side=THREE.DoubleSide;o.envMapIntensity=1.3;return new THREE.MeshPhysicalMaterial(o);}
-    var pearl=mk({color:0xf1f4f6,metalness:0.2,roughness:0.3,clearcoat:1,clearcoatRoughness:0.08}),
-        graphite=mk({color:0x2b333a,metalness:0.7,roughness:0.38}),
-        chrome=mk({color:0xffffff,metalness:1,roughness:0.08}), cache={};
-    var edgeMat=new THREE.LineBasicMaterial({color:0x9fb6c4,transparent:true,opacity:0.35});
+
+  // ---------- Finishes (carbon black / pearl white) ----------
+  function mk(o){o.side=THREE.DoubleSide;if(!o.envMapIntensity)o.envMapIntensity=1.3;return new THREE.MeshPhysicalMaterial(o);}
+  var FIN={
+    carbon:{body:mk({color:0x060708,metalness:0.25,roughness:0.34,clearcoat:1,clearcoatRoughness:0.05,envMapIntensity:0.75}),
+            emblem:mk({color:0x59626c,metalness:1,roughness:0.22,envMapIntensity:1.6})},
+    white:{body:mk({color:0xf4f6f8,metalness:0.1,roughness:0.24,clearcoat:1,clearcoatRoughness:0.05,envMapIntensity:1.2}),
+           emblem:mk({color:0x14181d,metalness:0.8,roughness:0.3})}
+  };
+  var EDGE={carbon:new THREE.LineBasicMaterial({color:0x8aa0ae,transparent:true,opacity:0.3}),
+            white:new THREE.LineBasicMaterial({color:0x0b2230,transparent:true,opacity:0.28})};
+  var graphite=mk({color:0x2b333a,metalness:0.7,roughness:0.38}), chrome=mk({color:0xffffff,metalness:1,roughness:0.08}), cache={};
+  var finish='white', finishAuto=true;   // auto = pick the finish that contrasts with the page theme until the visitor chooses
+  var BODY=/Lower_Cowl_And_Leg|Removable_Upper_Cowling|SideMatched_(Gearcase|Skeg|Lower_Adapter|Leg_Flange)/;
+  var EMBL=/Brand_SUZUKI|Horsepower_|Badge_.*Face/;
+  var EDGES=/Lower_Cowl_And_Leg|Removable_Upper_Cowling|Lower_Adapter|Gearcase/;
+  function applyFinish(){
+    for(var id in models){var M=models[id];if(!M.holder)continue;
+      M.body.forEach(function(o){o.material=FIN[finish].body;});
+      M.emb.forEach(function(o){o.material=FIN[finish].emblem;});
+      M.edges.forEach(function(l){l.material=EDGE[finish];});}
+    [].forEach.call(document.querySelectorAll('[data-finish]'),function(b){var on=b.getAttribute('data-finish')===finish;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);});
+  }
+  function setFinish(f,byUser){finish=f;if(byUser)finishAuto=false;applyFinish();}
+
+  // ---------- Models: load the page first, DF250 next, DF200 in the background ----------
+  var models={
+    '250':{url:document.body.getAttribute('data-model-250')||'/nncminhchau.vn/assets/suzuki250.glb',label:'DF250'},
+    '200':{url:document.body.getAttribute('data-model-200')||'/nncminhchau.vn/assets/suzuki200.glb',label:'DF200'}
+  };
+  var wanted='250', loader=new THREE.GLTFLoader(), loadEl=document.getElementById('load');
+  for(var k in models){var M0=models[k];M0.body=[];M0.emb=[];M0.edges=[];M0.edgeSrc=[];M0.t=1;M0.sc=1;}
+  function toast(txt){loadEl.textContent=txt||'';loadEl.classList.toggle('done',!txt);}
+  function build(id,g){
+    var M=models[id], m=g.scene;
+    function up(src,extra){var p=new THREE.MeshPhysicalMaterial({color:src.color,metalness:src.metalness,roughness:src.roughness,side:THREE.DoubleSide,envMapIntensity:1.3});for(var q in extra)p[q]=extra[q];return p;}
     m.traverse(function(o){
       if(!o.isMesh)return; var n=o.name, src=o.material;
-      if(src.name==='fallback Material'){
-        o.material=/Badge.*Rim/.test(n)?chrome:(/Gearcase|Skeg|Lower_Adapter/.test(n)?pearl:graphite);
-      }else{
-        var key=src.uuid; if(!cache[key]) cache[key]=up(src,/lacquer/i.test(src.name)?{clearcoat:1,clearcoatRoughness:0.08}:{});
-        o.material=cache[key];
-      }
-      // crisp panel lines make the cowl surface detail easy to read
-      if(/Lower_Cowl_And_Leg|Removable_Upper_Cowling|Lower_Adapter|Gearcase/.test(n)){
-        o.add(new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry,28),edgeMat));
-      }
+      if(src.name==='fallback Material'){o.material=/Badge.*Rim/.test(n)?chrome:graphite;}
+      else{var key=src.uuid;if(!cache[key])cache[key]=up(src,/lacquer/i.test(src.name)?{clearcoat:1,clearcoatRoughness:0.08}:{});o.material=cache[key];}
+      if(BODY.test(n))M.body.push(o); else if(EMBL.test(n))M.emb.push(o);
+      if(EDGES.test(n))M.edgeSrc.push(o);
     });
     // Propeller: gather its parts, put a pivot on the hub centre and turn them around the shaft axis
-    (function(){
-      var re=/^DF250_(Propeller_|Watergrip_)/, parts=[], hub=null;
-      m.updateMatrixWorld(true);
-      m.traverse(function(o){if(o.isMesh&&re.test(o.name)){parts.push(o);if(/Exhaust_Hub/.test(o.name))hub=o;}});
-      if(!hub||!parts.length)return;
-      var hb=new THREE.Box3().setFromObject(hub), hs=hb.getSize(new THREE.Vector3()), hc=hb.getCenter(new THREE.Vector3());
-      // the shaft axis is the one whose two other extents are most alike (the hub is round)
-      var e=[hs.x,hs.y,hs.z], best=0, bd=1e9;
+    m.updateMatrixWorld(true);
+    var parts=[],hub=null;
+    m.traverse(function(o){if(o.isMesh&&/^DF\d+_(Propeller_|Watergrip_)/.test(o.name)){parts.push(o);if(/Exhaust_Hub/.test(o.name))hub=o;}});
+    if(hub&&parts.length){
+      var hb=new THREE.Box3().setFromObject(hub),hs=hb.getSize(new THREE.Vector3()),hc=hb.getCenter(new THREE.Vector3());
+      var e=[hs.x,hs.y,hs.z],best=0,bd=1e9; // shaft axis = the one whose two other extents are most alike (round hub)
       for(var a=0;a<3;a++){var dd=Math.abs(e[(a+1)%3]-e[(a+2)%3]);if(dd<bd){bd=dd;best=a;}}
-      spinAxis=['x','y','z'][best];
-      var g2=new THREE.Group(); g2.position.copy(hc); m.add(g2); m.updateMatrixWorld(true);
+      var g2=new THREE.Group();g2.position.copy(hc);m.add(g2);m.updateMatrixWorld(true);
       parts.forEach(function(o){g2.attach(o);});
-      spinGroup=g2;
-    })();
-    var box=new THREE.Box3().setFromObject(m), size=box.getSize(new THREE.Vector3()), ctr=box.getCenter(new THREE.Vector3());
-    var sc=2/Math.max(size.y,1e-6);
-    m.position.sub(ctr); var holder=new THREE.Group(); holder.add(m); holder.scale.setScalar(sc); pivot.add(holder);
-
-    ready=true; document.getElementById('load').classList.add('done'); document.body.classList.add('ready');
+      M.spin={g:g2,axis:['x','y','z'][best],angle:0};
+    }
+    var box=new THREE.Box3().setFromObject(m),size=box.getSize(new THREE.Vector3()),ctr=box.getCenter(new THREE.Vector3());
+    M.sc=2/Math.max(size.y,1e-6);
+    m.position.sub(ctr);var holder=new THREE.Group();holder.add(m);holder.scale.setScalar(M.sc);holder.visible=false;pivot.add(holder);M.holder=holder;
+    applyFinish();
+    // panel lines are added a moment later so the first picture appears sooner
+    setTimeout(function(){M.edgeSrc.forEach(function(o){var l=new THREE.LineSegments(new THREE.EdgesGeometry(o.geometry,28),EDGE[finish]);o.add(l);M.edges.push(l);});},120);
   }
-  function onFail(e){document.getElementById('load').textContent='The 3D model could not be loaded.';console.error(e);}
-  var loader=new THREE.GLTFLoader();
-  loader.load(document.body.getAttribute('data-model')||'/nncminhchau.vn/assets/suzuki250.glb',onModel,undefined,onFail);
+  function activate(id){
+    var M=models[id];
+    for(var q in models){if(models[q].holder)models[q].holder.visible=(q===id);}
+    M.t=0;active=M;toast('');document.body.classList.add('model-in');
+  }
+  function loadModel(id){
+    var M=models[id]; if(M.state)return; M.state='loading';
+    loader.load(M.url,function(g){
+      build(id,g);M.state='ready';refreshUI();
+      if(wanted===id)activate(id);
+      if(id==='250')preloadNext();
+    },function(e){
+      M.pct=e.lengthComputable&&e.total?Math.round(e.loaded/e.total*100):null;
+      if(wanted===id&&!M.holder)toast('Loading '+M.label+' 3D model'+(M.pct!=null?' '+M.pct+'%':'…'));
+    },function(err){M.state='error';console.error(err);if(wanted===id)toast('The '+M.label+' 3D model could not be loaded.');refreshUI();});
+  }
+  function preloadNext(){
+    var c=navigator.connection; if(c&&c.saveData)return;      // respect data-saver: DF200 then loads only when chosen
+    (window.requestIdleCallback||function(f){setTimeout(f,1500);})(function(){loadModel('200');},{timeout:5000});
+  }
+  function show(id){
+    wanted=id;var M=models[id];
+    [].forEach.call(document.querySelectorAll('[data-for]'),function(el){el.hidden=el.getAttribute('data-for')!==id;});
+    var b=document.getElementById('brand');if(b)b.textContent=M.label;
+    refreshUI();
+    if(M.state==='ready'){activate(id);}
+    else{loadModel(id);toast(M.pct!=null?'Loading '+M.label+' 3D model '+M.pct+'%':'Loading '+M.label+' 3D model…');}
+  }
+  function refreshUI(){
+    [].forEach.call(document.querySelectorAll('[data-model-btn]'),function(b){
+      var id=b.getAttribute('data-model-btn'),on=id===wanted,st=models[id].state;
+      b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);b.classList.toggle('busy',st==='loading');
+    });
+  }
+  [].forEach.call(document.querySelectorAll('[data-model-btn]'),function(b){b.addEventListener('click',function(){show(b.getAttribute('data-model-btn'));});});
+  [].forEach.call(document.querySelectorAll('[data-finish]'),function(b){b.addEventListener('click',function(){setFinish(b.getAttribute('data-finish'),true);});});
+
+  // ---------- Page theme ----------
+  function setLight(v){light=v;document.body.classList.toggle('light',light);mode.textContent=light?'Dark mode':'Light mode';renderer.toneMappingExposure=light?1.0:1.1;bm.color.set(light?0x2a7fb0:0xcfeaff);if(finishAuto)setFinish(light?'carbon':'white',false);}
+  mode.addEventListener('click',function(){setLight(!light);});
+
+  document.body.classList.add('ready');   // text and buttons are usable straight away
+  setLight(false);
+  show('250');
   requestAnimationFrame(frame);
+  /*__DEBUG__*/
 })();

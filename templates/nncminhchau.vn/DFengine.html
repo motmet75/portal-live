@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Suzuki DF250 and DF200 Outboard Motors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,500;12..96,800&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/nncminhchau.vn/css/style.css" th:href="@{/nncminhchau.vn/css/style.css}">
+</head>
+<body data-model-250="/nncminhchau.vn/assets/suzuki250.glb" data-model-200="/nncminhchau.vn/assets/suzuki200.glb"
+      th:attr="data-model-250=@{/nncminhchau.vn/assets/suzuki250.glb},data-model-200=@{/nncminhchau.vn/assets/suzuki200.glb}">
+<div id="sky"></div>
+<div id="glow"></div>
+<canvas id="gl" aria-label="Interactive 3D model of a Suzuki outboard motor" role="img"></canvas>
+<div id="load" role="status" aria-live="polite">Loading DF250 3D model…</div>
+<header>
+  <b id="brand">DF250</b>
+  <div id="picker" role="group" aria-label="Choose model and finish">
+    <div class="seg">
+      <button type="button" class="on" data-model-btn="250" aria-pressed="true">DF250</button>
+      <button type="button" data-model-btn="200" aria-pressed="false">DF200</button>
+    </div>
+    <div class="seg">
+      <button type="button" class="sw carbon" data-finish="carbon" aria-label="Carbon black finish" title="Carbon black" aria-pressed="false"></button>
+      <button type="button" class="sw white on" data-finish="white" aria-label="Pearl white finish" title="Pearl white" aria-pressed="true"></button>
+    </div>
+  </div>
+  <div class="nav"><a href="#specs">Specifications</a><button id="mode" type="button">Light mode</button></div>
+</header>
+<main>
+  <section id="hero-in"><div class="copy">
+    <h1 data-for="250">DF250</h1>
+    <h1 data-for="200" hidden>DF200</h1>
+    <p class="lede" data-for="250">The Stealth V-6 four-stroke outboard. 250 horsepower for tournament bass boats, large flat boats, performance pontoons and ski boats.</p>
+    <p class="lede" data-for="200" hidden>The Suzuki DF200 four-stroke outboard. 200 horsepower for fishing, family and work boats.</p>
+    <div class="cta"><a class="btn" href="#power">Explore the motor</a></div>
+  </div></section>
+
+  <section id="power" class="right">
+    <div class="copy" data-for="250">
+      <h2>BigBlock V6. 4,028 cc.</h2>
+      <p>A 55° V6 with 24 valves and DOHC, built on Suzuki's BigBlock displacement. It gives a powerful hole shot and strong punch through the mid-range.</p>
+    </div>
+    <div class="copy" data-for="200" hidden>
+      <h2>200 horsepower.</h2>
+      <p>Smooth four-stroke power from Suzuki. Ask us which shaft length and propeller suit your boat.</p>
+    </div>
+  </section>
+
+  <section id="burn">
+    <div class="copy" data-for="250">
+      <h2>Precise fuel. Great economy.</h2>
+      <p>Multi-point sequential electronic injection with an oxygen sensor meters fuel to each cylinder, so you get the power you want and good fuel economy on 89 octane.</p>
+    </div>
+    <div class="copy" data-for="200" hidden>
+      <h2>Ready for your boat.</h2>
+      <p>Talk to us about rigging, installation and a quote for your boat.</p>
+    </div>
+  </section>
+
+  <section id="lower" class="right">
+    <div class="copy" data-for="250">
+      <h2>Where the power meets the water.</h2>
+      <p>An offset driveshaft and two-stage gear reduction (2.08:1) carry the power down to the propeller. Choose from the 17 to 30 propeller range with your dealer, in a 20 in or 25 in shaft.</p>
+    </div>
+    <div class="copy" data-for="200" hidden>
+      <h2>Where the power meets the water.</h2>
+      <p>The gear case and propeller, up close. We can help you choose the right propeller for your boat.</p>
+    </div>
+  </section>
+
+  <section id="specs"><div class="copy">
+    <div data-for="250">
+      <h2>DF250 Stealth specifications</h2>
+      <dl>
+        <dt>Body color</dt><dd>Matte black</dd>
+        <dt>Maximum output</dt><dd>250 hp</dd>
+        <dt>Operating range</dt><dd>5,300 to 6,300 rpm</dd>
+        <dt>Engine</dt><dd>6-cylinder, 24-valve DOHC, V6 (55°)</dd>
+        <dt>Displacement</dt><dd>245.6 cu in (4,028 cc)</dd>
+        <dt>Bore x stroke</dt><dd>98 x 89 mm</dd>
+        <dt>Fuel delivery</dt><dd>Multi-point sequential electronic injection with oxygen sensor</dd>
+        <dt>Recommended fuel</dt><dd>89 octane</dd>
+        <dt>Ignition</dt><dd>Solid-state direct ignition</dd>
+        <dt>Starting</dt><dd>Electric (Suzuki Start System)</dd>
+        <dt>System output</dt><dd>12V 54A</dd>
+        <dt>Gear ratio</dt><dd>2.08:1</dd>
+        <dt>Steering</dt><dd>Remote</dd>
+        <dt>Oil pan capacity</dt><dd>8 qt</dd>
+        <dt>Transom height</dt><dd>L: 20 in, X: 25 in</dd>
+        <dt>Weight</dt><dd>L: 578 lb, X: 606 lb</dd>
+        <dt>Standard propeller</dt><dd>Optional, see dealer</dd>
+        <dt>Propeller selection</dt><dd>17 to 30</dd>
+      </dl>
+    </div>
+    <div data-for="200" hidden>
+      <h2>DF200 specifications</h2>
+      <dl>
+        <dt>Model</dt><dd>Suzuki DF200</dd>
+        <dt>Maximum output</dt><dd>200 hp</dd>
+        <dt>Engine type</dt><dd>Four-stroke</dd>
+        <dt>Full specifications</dt><dd>Call us for the details</dd>
+      </dl>
+    </div>
+    <a class="btn call" href="tel:0936837967">Call 0936837967</a>
+    <a class="btn ghost" href="#hero-in">Back to top</a>
+    <small>Finish colours in the 3D view are a preview. Specifications from the Suzuki Marine USA DF250 Stealth page. Suzuki and the DF250 and DF200 names are Suzuki trademarks.</small>
+  </div></section>
+</main>
+
+<script src="/nncminhchau.vn/js/vendor/three.min.js" th:src="@{/nncminhchau.vn/js/vendor/three.min.js}"></script>
+<script src="/nncminhchau.vn/js/vendor/GLTFLoader.js" th:src="@{/nncminhchau.vn/js/vendor/GLTFLoader.js}"></script>
+<script src="/nncminhchau.vn/js/main.js" th:src="@{/nncminhchau.vn/js/main.js}"></script>
+</body>
+</html>
