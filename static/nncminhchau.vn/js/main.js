@@ -122,12 +122,12 @@
   function mk(o){o.side=THREE.DoubleSide;if(!o.envMapIntensity)o.envMapIntensity=1.3;return new THREE.MeshPhysicalMaterial(o);}
   var FIN={
     carbon:{body:mk({color:0x060708,metalness:0.25,roughness:0.34,clearcoat:1,clearcoatRoughness:0.05,envMapIntensity:0.75}),
-      emblem:mk({color:0x59626c,metalness:1,roughness:0.22,envMapIntensity:1.6})},
+            emblem:mk({color:0x59626c,metalness:1,roughness:0.22,envMapIntensity:1.6})},
     white:{body:mk({color:0xf4f6f8,metalness:0.1,roughness:0.24,clearcoat:1,clearcoatRoughness:0.05,envMapIntensity:1.2}),
-      emblem:mk({color:0x14181d,metalness:0.8,roughness:0.3})}
+           emblem:mk({color:0x14181d,metalness:0.8,roughness:0.3})}
   };
   var EDGE={carbon:new THREE.LineBasicMaterial({color:0x8aa0ae,transparent:true,opacity:0.3}),
-    white:new THREE.LineBasicMaterial({color:0x0b2230,transparent:true,opacity:0.28})};
+            white:new THREE.LineBasicMaterial({color:0x0b2230,transparent:true,opacity:0.28})};
   var graphite=mk({color:0x2b333a,metalness:0.7,roughness:0.38}), chrome=mk({color:0xffffff,metalness:1,roughness:0.08}), cache={};
   var finish='white', finishAuto=true;   // auto = pick the finish that contrasts with the page theme until the visitor chooses
   var BODY=/Lower_Cowl_And_Leg|Removable_Upper_Cowling|SideMatched_(Gearcase|Skeg|Lower_Adapter|Leg_Flange)/;
@@ -200,7 +200,7 @@
           registered.push(node);
           node.updateMatrix();
           var parentLocal=new THREE.Matrix4().multiplyMatrices(
-              new THREE.Matrix4().copy(m.matrixWorld).invert(),node.parent.matrixWorld);
+            new THREE.Matrix4().copy(m.matrixWorld).invert(),node.parent.matrixWorld);
           entries.push({node:node,original:node.matrix.clone(),
             parentLocal:parentLocal,parentInv:parentLocal.clone().invert()});
           node.matrixAutoUpdate=false;

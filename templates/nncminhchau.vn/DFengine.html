@@ -3,13 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Suzuki DF250 Outboard Motor</title>
+<title>Suzuki DF250, DF200, DF30, DF25 and DF6 Outboard Motors</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,500;12..96,800&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/nncminhchau.vn/css/style.css" th:href="@{/nncminhchau.vn/css/style.css}">
 </head>
-<body>
+<body data-model-250="/nncminhchau.vn/assets/suzuki250.glb" data-model-200="/nncminhchau.vn/assets/suzuki200.glb" data-model-30="/nncminhchau.vn/assets/df30.glb" data-model-25="/nncminhchau.vn/assets/df25.glb" data-model-6="/nncminhchau.vn/assets/df6.glb"
+      th:attr="data-model-250=@{/nncminhchau.vn/assets/suzuki250.glb},data-model-200=@{/nncminhchau.vn/assets/suzuki200.glb},data-model-30=@{/nncminhchau.vn/assets/df30.glb},data-model-25=@{/nncminhchau.vn/assets/df25.glb},data-model-6=@{/nncminhchau.vn/assets/df6.glb}">
 <div id="sky"></div>
 <div id="glow"></div>
 <canvas id="gl" aria-label="Interactive 3D model of a Suzuki outboard motor" role="img"></canvas>
@@ -17,12 +18,12 @@
 <header>
   <b id="brand">DF250</b>
   <div id="picker" role="group" aria-label="Choose model and finish">
-    <div class="seg models" role="group" aria-label="Model">
-      <button type="button" class="on" data-model-btn="250" data-label="DF250" data-hp="250" data-url="/nncminhchau.vn/assets/suzuki250.glb" th:attr="data-url=@{/nncminhchau.vn/assets/suzuki250.glb}" aria-pressed="true">DF250</button>
-      <button type="button" data-model-btn="200" data-label="DF200" data-hp="200" data-url="/nncminhchau.vn/assets/suzuki200.glb" th:attr="data-url=@{/nncminhchau.vn/assets/suzuki200.glb}" aria-pressed="false">DF200</button>
-      <button type="button" data-model-btn="30" data-label="DF30" data-hp="30" data-url="/nncminhchau.vn/assets/suzuki30.glb" th:attr="data-url=@{/nncminhchau.vn/assets/suzuki30.glb}" aria-pressed="false">DF30</button>
-      <button type="button" data-model-btn="25" data-label="DF25" data-hp="25" data-url="/nncminhchau.vn/assets/suzuki25.glb" th:attr="data-url=@{/nncminhchau.vn/assets/suzuki25.glb}" aria-pressed="false">DF25</button>
-      <button type="button" data-model-btn="6" data-label="DF6" data-hp="6" data-url="/nncminhchau.vn/assets/suzuki6.glb" th:attr="data-url=@{/nncminhchau.vn/assets/suzuki6.glb}" aria-pressed="false">DF6</button>
+    <div class="seg">
+      <button type="button" class="on" data-model-btn="250" aria-pressed="true">DF250</button>
+      <button type="button" data-model-btn="200" aria-pressed="false">DF200</button>
+      <button type="button" data-model-btn="30" aria-pressed="false">DF30</button>
+      <button type="button" data-model-btn="25" aria-pressed="false">DF25</button>
+      <button type="button" data-model-btn="6" aria-pressed="false">DF6</button>
     </div>
     <div class="seg">
       <button type="button" class="sw carbon" data-finish="carbon" aria-label="Carbon black finish" title="Carbon black" aria-pressed="false"></button>
@@ -34,9 +35,15 @@
 <main>
   <section id="hero-in"><div class="copy">
     <h1 data-for="250">DF250</h1>
-    <h1 data-for="other" class="model-name" hidden>DF200</h1>
+    <h1 data-for="200" hidden>DF200</h1>
     <p class="lede" data-for="250">The Stealth V-6 four-stroke outboard. 250 horsepower for tournament bass boats, large flat boats, performance pontoons and ski boats.</p>
-    <p class="lede" data-for="other" hidden>The Suzuki <span class="model-name">DF200</span> four-stroke outboard, <span class="model-hp">200</span> horsepower. Ask us which model suits your boat.</p>
+    <p class="lede" data-for="200" hidden>The Suzuki DF200 four-stroke outboard. 200 horsepower for fishing, family and work boats.</p>
+    <h1 data-for="30" hidden>DF30</h1>
+    <p class="lede" data-for="30" hidden>Explore the Suzuki DF30 outboard motor in 3D. Rotate through its details while scrolling, and contact us for specifications and availability.</p>
+    <h1 data-for="25" hidden>DF25</h1>
+    <p class="lede" data-for="25" hidden>Explore the Suzuki DF25 outboard motor in 3D. Rotate through its details while scrolling, and contact us for specifications and availability.</p>
+    <h1 data-for="6" hidden>DF6</h1>
+    <p class="lede" data-for="6" hidden>Explore the Suzuki DF6 outboard motor in 3D. Rotate through its details while scrolling, and contact us for specifications and availability.</p>
     <div class="cta"><a class="btn" href="#power">Explore the motor</a></div>
   </div></section>
 
@@ -45,10 +52,13 @@
       <h2>BigBlock V6. 4,028 cc.</h2>
       <p>A 55° V6 with 24 valves and DOHC, built on Suzuki's BigBlock displacement. It gives a powerful hole shot and strong punch through the mid-range.</p>
     </div>
-    <div class="copy" data-for="other" hidden>
-      <h2><span class="model-hp">200</span> horsepower.</h2>
+    <div class="copy" data-for="200" hidden>
+      <h2>200 horsepower.</h2>
       <p>Smooth four-stroke power from Suzuki. Ask us which shaft length and propeller suit your boat.</p>
     </div>
+    <div class="copy" data-for="30" hidden><h2>Suzuki DF30 in detail.</h2><p>Explore the motor’s cowling and mounting assembly in the interactive 3D view.</p></div>
+    <div class="copy" data-for="25" hidden><h2>Suzuki DF25 in detail.</h2><p>Explore the motor’s cowling and mounting assembly in the interactive 3D view.</p></div>
+    <div class="copy" data-for="6" hidden><h2>Suzuki DF6 in detail.</h2><p>Explore the motor’s cowling and mounting assembly in the interactive 3D view.</p></div>
   </section>
 
   <section id="burn">
@@ -56,10 +66,13 @@
       <h2>Precise fuel. Great economy.</h2>
       <p>Multi-point sequential electronic injection with an oxygen sensor meters fuel to each cylinder, so you get the power you want and good fuel economy on 89 octane.</p>
     </div>
-    <div class="copy" data-for="other" hidden>
+    <div class="copy" data-for="200" hidden>
       <h2>Ready for your boat.</h2>
       <p>Talk to us about rigging, installation and a quote for your boat.</p>
     </div>
+    <div class="copy" data-for="30" hidden><h2>Designed for the water.</h2><p>Compare the overall engine design and finishes. Ask us about configuration and availability.</p></div>
+    <div class="copy" data-for="25" hidden><h2>Designed for the water.</h2><p>Compare the overall engine design and finishes. Ask us about configuration and availability.</p></div>
+    <div class="copy" data-for="6" hidden><h2>Designed for the water.</h2><p>Compare the overall engine design and finishes. Ask us about configuration and availability.</p></div>
   </section>
 
   <section id="lower" class="right">
@@ -67,10 +80,13 @@
       <h2>Where the power meets the water.</h2>
       <p>An offset driveshaft and two-stage gear reduction (2.08:1) carry the power down to the propeller. Choose from the 17 to 30 propeller range with your dealer, in a 20 in or 25 in shaft.</p>
     </div>
-    <div class="copy" data-for="other" hidden>
+    <div class="copy" data-for="200" hidden>
       <h2>Where the power meets the water.</h2>
       <p>The gear case and propeller, up close. We can help you choose the right propeller for your boat.</p>
     </div>
+    <div class="copy" data-for="30" hidden><h2>Explore the lower unit.</h2><p>Scroll down to examine the gearcase and propeller assembly of the DF30 3D model.</p></div>
+    <div class="copy" data-for="25" hidden><h2>Explore the lower unit.</h2><p>Scroll down to examine the gearcase and propeller assembly of the DF25 3D model.</p></div>
+    <div class="copy" data-for="6" hidden><h2>Explore the lower unit.</h2><p>Scroll down to examine the gearcase and propeller assembly of the DF6 3D model.</p></div>
   </section>
 
   <section id="specs"><div class="copy">
@@ -97,24 +113,26 @@
         <dt>Propeller selection</dt><dd>17 to 30</dd>
       </dl>
     </div>
-    <div data-for="other" hidden>
-      <h2><span class="model-name">DF200</span> specifications</h2>
+    <div data-for="200" hidden>
+      <h2>DF200 specifications</h2>
       <dl>
-        <dt>Model</dt><dd>Suzuki <span class="model-name">DF200</span></dd>
-        <dt>Maximum output</dt><dd><span class="model-hp">200</span> hp</dd>
+        <dt>Model</dt><dd>Suzuki DF200</dd>
+        <dt>Maximum output</dt><dd>200 hp</dd>
         <dt>Engine type</dt><dd>Four-stroke</dd>
         <dt>Full specifications</dt><dd>Call us for the details</dd>
       </dl>
     </div>
+    <div data-for="30" hidden><h2>DF30 model information</h2><dl><dt>Model</dt><dd>Suzuki DF30</dd><dt>3D preview</dt><dd>Available</dd><dt>Technical specifications</dt><dd>Contact us for the exact version</dd></dl></div>
+    <div data-for="25" hidden><h2>DF25 model information</h2><dl><dt>Model</dt><dd>Suzuki DF25</dd><dt>3D preview</dt><dd>Available</dd><dt>Technical specifications</dt><dd>Contact us for the exact version</dd></dl></div>
+    <div data-for="6" hidden><h2>DF6 model information</h2><dl><dt>Model</dt><dd>Suzuki DF6</dd><dt>3D preview</dt><dd>Available</dd><dt>Technical specifications</dt><dd>Contact us for the exact version</dd></dl></div>
     <a class="btn call" href="tel:0936837967">Call 0936837967</a>
     <a class="btn ghost" href="#hero-in">Back to top</a>
-    <small>Finish colours in the 3D view are a preview. Specifications from the Suzuki Marine USA DF250 Stealth page. Suzuki and the DF model names are Suzuki trademarks.</small>
+    <small>Finish colours in the 3D view are a preview. Specifications from the Suzuki Marine USA DF250 Stealth page. Suzuki and DF model names are Suzuki trademarks.</small>
   </div></section>
 </main>
 
 <script src="/nncminhchau.vn/js/vendor/three.min.js" th:src="@{/nncminhchau.vn/js/vendor/three.min.js}"></script>
 <script src="/nncminhchau.vn/js/vendor/GLTFLoader.js" th:src="@{/nncminhchau.vn/js/vendor/GLTFLoader.js}"></script>
-<script src="/nncminhchau.vn/js/vendor/meshopt_decoder.js" th:src="@{/nncminhchau.vn/js/vendor/meshopt_decoder.js}"></script>
 <script src="/nncminhchau.vn/js/main.js" th:src="@{/nncminhchau.vn/js/main.js}"></script>
 </body>
 </html>
