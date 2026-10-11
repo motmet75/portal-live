@@ -1,13 +1,32 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Suzuki DF250, DF200, DF30, DF25 and DF6 Outboard Motors</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,500;12..96,800&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/nncminhchau.vn/css/style.css" th:href="@{/nncminhchau.vn/css/style.css}">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Suzuki DF250, DF200, DF30, DF25 and DF6 Outboard Motors</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,500;12..96,800&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/nncminhchau.vn/css/style.css" th:href="@{/nncminhchau.vn/css/style.css}">
+  <style>
+    /* Home button: readable over both the dark and light 3D backgrounds */
+    header .nav .home-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.55rem 0.85rem;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+    header .nav .home-button:hover,
+    header .nav .home-button:focus-visible {
+      background: rgba(127, 127, 127, 0.2);
+    }
+  </style>
 </head>
 <body data-model-250="/nncminhchau.vn/assets/suzuki250.glb" data-model-200="/nncminhchau.vn/assets/suzuki200.glb" data-model-30="/nncminhchau.vn/assets/df30.glb" data-model-25="/nncminhchau.vn/assets/df25.glb" data-model-6="/nncminhchau.vn/assets/df6.glb"
       th:attr="data-model-250=@{/nncminhchau.vn/assets/suzuki250.glb},data-model-200=@{/nncminhchau.vn/assets/suzuki200.glb},data-model-30=@{/nncminhchau.vn/assets/df30.glb},data-model-25=@{/nncminhchau.vn/assets/df25.glb},data-model-6=@{/nncminhchau.vn/assets/df6.glb}">
@@ -30,7 +49,7 @@
       <button type="button" class="sw white on" data-finish="white" aria-label="Pearl white finish" title="Pearl white" aria-pressed="true"></button>
     </div>
   </div>
-  <div class="nav"><a href="#specs">Specifications</a><button id="mode" type="button">Light mode</button></div>
+  <div class="nav"><a class="home-button" href="/" th:href="@{/}" aria-label="Go to home page">&#8592; Home</a><a href="#specs">Specifications</a><button id="mode" type="button">Light mode</button></div>
 </header>
 <main>
   <section id="hero-in"><div class="copy">
