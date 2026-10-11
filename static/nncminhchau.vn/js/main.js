@@ -67,7 +67,7 @@
   // Propeller spin. SPIN_DIR -1 = clockwise seen from behind the boat, 1 = counter-clockwise. Speeds are radians per second.
   var SPIN_DIR=-1, SPIN_IDLE=1.2, SPIN_BOOST=7;
   // Verified from the uploaded GLB hub transforms: the shaft points along scene X.
-  // DF250 and DF200 keep their existing automatically detected axes.
+  // DF250 and DF200 retain automatically detected axes; all five use safe matrix animation.
   var PROPELLER_AXIS_OVERRIDE={'30':'x','25':'x','6':'x'};
   var lastT=performance.now(), active=null, introRot=0;
   function frame(now){
@@ -142,7 +142,7 @@
   }
   function setFinish(f,byUser){finish=f;if(byUser)finishAuto=false;applyFinish();}
 
-  // ---------- Models: load the page first, DF250 next, DF200 in the background ----------
+  // ---------- Models: lazy loading, one engine at a time ----------
   var models={
     '250':{url:document.body.getAttribute('data-model-250')||'/nncminhchau.vn/assets/suzuki250.glb',label:'DF250'},
     '200':{url:document.body.getAttribute('data-model-200')||'/nncminhchau.vn/assets/suzuki200.glb',label:'DF200'},
@@ -186,8 +186,8 @@
         if(dd<bd){bd=dd;best=a;}
       }
       var shaftAxis=PROPELLER_AXIS_OVERRIDE[id] || ['x','y','z'][best];
-      if(id==='30'||id==='25'||id==='6'){
-        // Use a SINGLE common model-local X axis through the actual hub center.
+      {
+        // Rotate original GLB nodes safely without reparenting, for every Suzuki model.
         // The helical thread, shaft, hub, and blades are all included.
         var center=m.worldToLocal(hc.clone());
         var unit=new THREE.Vector3(shaftAxis==='x'?1:0,shaftAxis==='y'?1:0,shaftAxis==='z'?1:0);
@@ -206,15 +206,6 @@
           node.matrixAutoUpdate=false;
         });
         M.spin={entries:entries,center:center,axisVector:unit,axis:shaftAxis,angle:0};
-      } else {
-        // Preserve existing DF250/DF200 behavior.
-        var g2=new THREE.Group();
-        g2.position.copy(m.worldToLocal(hc.clone()));
-        var worldQ=new THREE.Quaternion();m.getWorldQuaternion(worldQ);
-        g2.quaternion.copy(worldQ.invert());m.add(g2);
-        m.updateMatrixWorld(true);
-        parts.forEach(function(o){g2.attach(o);});
-        M.spin={g:g2,axis:shaftAxis,angle:0};
       }
       console.info(M.label+' propeller axis: '+shaftAxis+'; rotor parts: '+parts.length);
     }
@@ -231,9 +222,18 @@
     M.t=0;active=M;toast('');document.body.classList.add('model-in');
   }
   function loadModel(id){
-    var M=models[id]; if(M.state)return; M.state='loading';
+    var M=models[id]; if(M.state==='loading'||M.state==='ready')return; M.state='loading';
     loader.load(M.url,function(g){
-      build(id,g);M.state='ready';refreshUI();
+      try {
+        build(id,g);
+        M.state='ready';refreshUI();
+      } catch (err) {
+        M.state='error';
+        console.error('Suzuki '+M.label+' build failed:',err);
+        if(wanted===id)toast('Could not display '+M.label+'. Open the browser console for details.');
+        refreshUI();
+        return;
+      }
       if(wanted===id)activate(id);
       // The other engines are loaded on demand to avoid unnecessary transfers.
     },function(e){
