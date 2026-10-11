@@ -66,6 +66,9 @@
   var t0=performance.now();
   // Propeller spin. SPIN_DIR -1 = clockwise seen from behind the boat, 1 = counter-clockwise. Speeds are radians per second.
   var SPIN_DIR=-1, SPIN_IDLE=1.2, SPIN_BOOST=7;
+  // Verified from the uploaded GLB hub transforms: the shaft points along scene X.
+  // DF250 and DF200 keep their existing automatically detected axes.
+  var PROPELLER_AXIS_OVERRIDE={'30':'x','25':'x','6':'x'};
   var lastT=performance.now(), active=null, introRot=0;
   function frame(now){
     requestAnimationFrame(frame);
@@ -75,7 +78,18 @@
     if(active){
       if(active.spin&&!reduce){ // faster while the lower unit is on screen
         active.spin.angle+=SPIN_DIR*dt*(SPIN_IDLE+SPIN_BOOST*Math.exp(-Math.pow((cur-.75)/.14,2)));
-        active.spin.g.rotation[active.spin.axis]=active.spin.angle;
+        if(active.spin.entries){
+          // Rotate every original GLB transform around the SAME model-local shaft axis.
+          // Matrix multiplication preserves the imported non-uniform scale / skew.
+          var spin=active.spin, R=new THREE.Matrix4().makeRotationAxis(spin.axisVector,spin.angle);
+          var T=new THREE.Matrix4().makeTranslation(spin.center.x,spin.center.y,spin.center.z);
+          var Ti=new THREE.Matrix4().makeTranslation(-spin.center.x,-spin.center.y,-spin.center.z);
+          var turn=T.multiply(R).multiply(Ti);
+          spin.entries.forEach(function(e){
+            e.node.matrix.copy(e.parentInv).multiply(turn).multiply(e.parentLocal).multiply(e.original);
+            e.node.matrixWorldNeedsUpdate=true;
+          });
+        } else active.spin.g.rotation[active.spin.axis]=active.spin.angle;
       }
       if(active.t<1)active.t=Math.min(1,active.t+dt/0.9);
       var e=1-Math.pow(1-active.t,3); // reveal: grows and turns into place
@@ -108,12 +122,12 @@
   function mk(o){o.side=THREE.DoubleSide;if(!o.envMapIntensity)o.envMapIntensity=1.3;return new THREE.MeshPhysicalMaterial(o);}
   var FIN={
     carbon:{body:mk({color:0x060708,metalness:0.25,roughness:0.34,clearcoat:1,clearcoatRoughness:0.05,envMapIntensity:0.75}),
-            emblem:mk({color:0x59626c,metalness:1,roughness:0.22,envMapIntensity:1.6})},
+      emblem:mk({color:0x59626c,metalness:1,roughness:0.22,envMapIntensity:1.6})},
     white:{body:mk({color:0xf4f6f8,metalness:0.1,roughness:0.24,clearcoat:1,clearcoatRoughness:0.05,envMapIntensity:1.2}),
-           emblem:mk({color:0x14181d,metalness:0.8,roughness:0.3})}
+      emblem:mk({color:0x14181d,metalness:0.8,roughness:0.3})}
   };
   var EDGE={carbon:new THREE.LineBasicMaterial({color:0x8aa0ae,transparent:true,opacity:0.3}),
-            white:new THREE.LineBasicMaterial({color:0x0b2230,transparent:true,opacity:0.28})};
+    white:new THREE.LineBasicMaterial({color:0x0b2230,transparent:true,opacity:0.28})};
   var graphite=mk({color:0x2b333a,metalness:0.7,roughness:0.38}), chrome=mk({color:0xffffff,metalness:1,roughness:0.08}), cache={};
   var finish='white', finishAuto=true;   // auto = pick the finish that contrasts with the page theme until the visitor chooses
   var BODY=/Lower_Cowl_And_Leg|Removable_Upper_Cowling|SideMatched_(Gearcase|Skeg|Lower_Adapter|Leg_Flange)/;
@@ -151,17 +165,58 @@
       if(BODY.test(n))M.body.push(o); else if(EMBL.test(n))M.emb.push(o);
       if(EDGES.test(n))M.edgeSrc.push(o);
     });
-    // Propeller: gather its parts, put a pivot on the hub centre and turn them around the shaft axis
+    // Shaft rotation: use original GLB transforms, never reparent into a new pivot.
+    // DF30/DF25/DF6 have NON-UNIFORM imported parent matrices. Object3D.attach()
+    // decomposes such matrices and can squash the round hub or misalign the thread.
     m.updateMatrixWorld(true);
     var parts=[],hub=null;
-    m.traverse(function(o){if(o.isMesh&&/^DF\d+_(Propeller_|Watergrip_)/.test(o.name)){parts.push(o);if(/Exhaust_Hub/.test(o.name))hub=o;}});
-    if(hub&&parts.length){
-      var hb=new THREE.Box3().setFromObject(hub),hs=hb.getSize(new THREE.Vector3()),hc=hb.getCenter(new THREE.Vector3());
-      var e=[hs.x,hs.y,hs.z],best=0,bd=1e9; // shaft axis = the one whose two other extents are most alike (round hub)
-      for(var a=0;a<3;a++){var dd=Math.abs(e[(a+1)%3]-e[(a+2)%3]);if(dd<bd){bd=dd;best=a;}}
-      var g2=new THREE.Group();g2.position.copy(hc);m.add(g2);m.updateMatrixWorld(true);
-      parts.forEach(function(o){g2.attach(o);});
-      M.spin={g:g2,axis:['x','y','z'][best],angle:0};
+    m.traverse(function(o){
+      if(o.isMesh && /^DF\d+_(Propeller_|Watergrip_)/.test(o.name)){
+        parts.push(o);
+        if(/Watergrip_Exhaust_Hub/.test(o.name))hub=o;
+      }
+    });
+    if(hub && parts.length){
+      var hb=new THREE.Box3().setFromObject(hub);
+      var hs=hb.getSize(new THREE.Vector3());
+      var hc=hb.getCenter(new THREE.Vector3());
+      var ext=[hs.x,hs.y,hs.z],best=0,bd=Infinity;
+      for(var a=0;a<3;a++){
+        var dd=Math.abs(ext[(a+1)%3]-ext[(a+2)%3]);
+        if(dd<bd){bd=dd;best=a;}
+      }
+      var shaftAxis=PROPELLER_AXIS_OVERRIDE[id] || ['x','y','z'][best];
+      if(id==='30'||id==='25'||id==='6'){
+        // Use a SINGLE common model-local X axis through the actual hub center.
+        // The helical thread, shaft, hub, and blades are all included.
+        var center=m.worldToLocal(hc.clone());
+        var unit=new THREE.Vector3(shaftAxis==='x'?1:0,shaftAxis==='y'?1:0,shaftAxis==='z'?1:0);
+        var entries=[], registered=[];
+        parts.forEach(function(o){
+          // Work on each original imported transform wrapper when possible.
+          // This avoids changing the mesh-local 0.01 geometry scale.
+          var node=(o.parent && o.parent!==m && o.parent.children.length===1)?o.parent:o;
+          if(registered.indexOf(node)!==-1)return;
+          registered.push(node);
+          node.updateMatrix();
+          var parentLocal=new THREE.Matrix4().multiplyMatrices(
+              new THREE.Matrix4().copy(m.matrixWorld).invert(),node.parent.matrixWorld);
+          entries.push({node:node,original:node.matrix.clone(),
+            parentLocal:parentLocal,parentInv:parentLocal.clone().invert()});
+          node.matrixAutoUpdate=false;
+        });
+        M.spin={entries:entries,center:center,axisVector:unit,axis:shaftAxis,angle:0};
+      } else {
+        // Preserve existing DF250/DF200 behavior.
+        var g2=new THREE.Group();
+        g2.position.copy(m.worldToLocal(hc.clone()));
+        var worldQ=new THREE.Quaternion();m.getWorldQuaternion(worldQ);
+        g2.quaternion.copy(worldQ.invert());m.add(g2);
+        m.updateMatrixWorld(true);
+        parts.forEach(function(o){g2.attach(o);});
+        M.spin={g:g2,axis:shaftAxis,angle:0};
+      }
+      console.info(M.label+' propeller axis: '+shaftAxis+'; rotor parts: '+parts.length);
     }
     var box=new THREE.Box3().setFromObject(m),size=box.getSize(new THREE.Vector3()),ctr=box.getCenter(new THREE.Vector3());
     M.sc=2/Math.max(size.y,1e-6);
