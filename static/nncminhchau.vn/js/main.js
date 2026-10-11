@@ -153,6 +153,7 @@
   var initialModel=(new URLSearchParams(window.location.search).get('model')||'DF250').replace(/^DF/i,'');
   if(!models[initialModel])initialModel='250';
   var wanted=initialModel, loader=new THREE.GLTFLoader(), loadEl=document.getElementById('load');
+  if(typeof MeshoptDecoder!=='undefined')loader.setMeshoptDecoder(MeshoptDecoder);
   for(var k in models){var M0=models[k];M0.body=[];M0.emb=[];M0.edges=[];M0.edgeSrc=[];M0.t=1;M0.sc=1;}
   function toast(txt){loadEl.textContent=txt||'';loadEl.classList.toggle('done',!txt);}
   function build(id,g){
