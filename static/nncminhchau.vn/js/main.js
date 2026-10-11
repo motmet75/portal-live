@@ -66,9 +66,7 @@
   var t0=performance.now();
   // Propeller spin. SPIN_DIR -1 = clockwise seen from behind the boat, 1 = counter-clockwise. Speeds are radians per second.
   var SPIN_DIR=-1, SPIN_IDLE=1.2, SPIN_BOOST=7;
-  // Verified from the uploaded GLB hub transforms: the shaft points along scene X.
-  // DF250 and DF200 retain automatically detected axes; all five use safe matrix animation.
-  var PROPELLER_AXIS_OVERRIDE={'30':'x','25':'x','6':'x'};
+  // All five corrected models use the same automatic shaft-axis detection.
   var lastT=performance.now(), active=null, introRot=0;
   function frame(now){
     requestAnimationFrame(frame);
@@ -170,8 +168,8 @@
       if(EDGES.test(n))M.edgeSrc.push(o);
     });
     // Shaft rotation: use original GLB transforms, never reparent into a new pivot.
-    // DF30/DF25/DF6 have NON-UNIFORM imported parent matrices. Object3D.attach()
-    // decomposes such matrices and can squash the round hub or misalign the thread.
+    // Keep the original hierarchy and apply one rigid rotation to every rotor part.
+    // Corrected source models have round hubs; no model-specific scale or axis fixes.
     m.updateMatrixWorld(true);
     var parts=[],hub=null;
     m.traverse(function(o){
@@ -189,7 +187,7 @@
         var dd=Math.abs(ext[(a+1)%3]-ext[(a+2)%3]);
         if(dd<bd){bd=dd;best=a;}
       }
-      var shaftAxis=PROPELLER_AXIS_OVERRIDE[id] || ['x','y','z'][best];
+      var shaftAxis=['x','y','z'][best];
       {
         // Rotate original GLB nodes safely without reparenting, for every Suzuki model.
         // The helical thread, shaft, hub, and blades are all included.
@@ -242,7 +240,7 @@
       // The other engines are loaded on demand to avoid unnecessary transfers.
     },function(e){
       M.pct=e.lengthComputable&&e.total?Math.round(e.loaded/e.total*100):null;
-      if(wanted===id&&!M.holder)toast('Loading '+M.label+' 3D model'+(M.pct!=null?' '+M.pct+'%':'…'));
+      if(wanted===id&&!M.holder)toast('Loading '+M.label+' 3D model'+(M.pct!=null?' '+M.pct+'%':'â€¦'));
     },function(err){M.state='error';console.error(err);if(wanted===id)toast('The '+M.label+' 3D model could not be loaded.');refreshUI();});
   }
   function show(id){
@@ -251,7 +249,7 @@
     var b=document.getElementById('brand');if(b)b.textContent=M.label;
     refreshUI();
     if(M.state==='ready'){activate(id);}
-    else{loadModel(id);toast(M.pct!=null?'Loading '+M.label+' 3D model '+M.pct+'%':'Loading '+M.label+' 3D model…');}
+    else{loadModel(id);toast(M.pct!=null?'Loading '+M.label+' 3D model '+M.pct+'%':'Loading '+M.label+' 3D modelâ€¦');}
   }
   function refreshUI(){
     [].forEach.call(document.querySelectorAll('[data-model-btn]'),function(b){
