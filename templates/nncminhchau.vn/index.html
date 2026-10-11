@@ -116,6 +116,36 @@
 			min-height: 54px;
 		}
 	}
+	.suzuki-models {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+		align-items: center;
+	}
+	.suzuki-models a {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 44px;
+		padding: 8px 16px;
+		border: 1px solid #0b3a8f;
+		border-radius: 999px;
+		background: #fff;
+		color: #0b3a8f;
+		font-weight: 600;
+		text-decoration: none;
+		transition: background 0.2s, color 0.2s;
+	}
+	.suzuki-models a:hover,
+	.suzuki-models a:focus {
+		background: #0b3a8f;
+		color: #fff;
+		text-decoration: none;
+	}
+	@media (max-width: 600px) {
+		.suzuki-models { width: 100%; }
+		.suzuki-models a { flex: 1 1 28%; }
+	}
 </style>
 
 <body>
@@ -156,8 +186,15 @@
 	<nav class="suzuki-menu" aria-label="Suzuki Outboard">
 		<a class="suzuki-btn" th:href="@{/DFengine}" href="/DFengine">
 			<i class="fa fa-ship" aria-hidden="true"></i>
-			<span>Suzuki Outboard<small>Máy thủy gắn ngoài DF250 · DF200· D30· DF25· DF6</small></span>
+			<span>Suzuki Outboard<small>Máy thủy gắn ngoài DF250 · DF200 · DF30 · DF25 · DF6</small></span>
 		</a>
+		<div class="suzuki-models" aria-label="Chọn model">
+			<a th:href="@{/DFengine(m='250')}" href="/DFengine?m=250">DF250</a>
+			<a th:href="@{/DFengine(m='200')}" href="/DFengine?m=200">DF200</a>
+			<a th:href="@{/DFengine(m='30')}" href="/DFengine?m=30">DF30</a>
+			<a th:href="@{/DFengine(m='25')}" href="/DFengine?m=25">DF25</a>
+			<a th:href="@{/DFengine(m='6')}" href="/DFengine?m=6">DF6</a>
+		</div>
 	</nav>
 </div>
 

@@ -76,11 +76,10 @@ body.light #glow{background:radial-gradient(circle,rgba(10,127,209,.35) 0%,rgba(
 }
 @media (prefers-reduced-motion:reduce){canvas#gl{transition:none}}
 
-/* Improved contrast in light mode; readable against the rotating 3D model */
-body.light{--fg:#081f2e;--body:#183b4e;--mist:#3d5c6d;--signal:#0667ad}
-body.light section .copy{background:rgba(247,251,253,.87);border-radius:18px;padding:clamp(1rem,2.5vw,2rem);box-shadow:0 8px 42px rgba(8,31,46,.10);backdrop-filter:blur(7px)}
-body.light h1,body.light h2,body.light p,body.light .lede,body.light dt,body.light dd,body.light small{color:var(--fg)}
-body.light #picker .seg{background:rgba(250,253,255,.95)}
-body.light #mode{background:rgba(250,253,255,.92)}
-@media(max-width:900px){header{flex-wrap:wrap;gap:.55rem}#picker{order:3;width:100%;justify-content:center}.seg button{padding:.35rem .65rem}}
-@media(max-width:760px){body.light section .copy{margin:0 -1.2rem;padding:2rem 1.2rem;border-radius:16px}}
+.seg button{white-space:nowrap}
+.seg.models{max-width:100%;overflow-x:auto;scrollbar-width:none}
+.seg.models::-webkit-scrollbar{display:none}
+@media (max-width:760px){
+  #picker{flex-wrap:wrap}
+  .seg button{padding:.35rem .7rem}
+}
