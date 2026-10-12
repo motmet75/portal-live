@@ -127,11 +127,16 @@
   var EDGE={carbon:new THREE.LineBasicMaterial({color:0x8aa0ae,transparent:true,opacity:0.3}),
     white:new THREE.LineBasicMaterial({color:0x0b2230,transparent:true,opacity:0.28})};
   var graphite=mk({color:0x2b333a,metalness:0.7,roughness:0.38}), chrome=mk({color:0xffffff,metalness:1,roughness:0.08}), cache={};
-  var finish='white', finishAuto=true;   // auto = pick the finish that contrasts with the page theme until the visitor chooses
+  var finish='carbon';
   // Painted engine housing components.  Keep the original DF250/DF200 rules,
   // and target the real mesh names exported by DF30, DF25 and DF6.
   // Do not recolor propellers, vents, controls, logos, decals or bare metal.
   var BODY=/Lower_Cowl_And_Leg|Removable_Upper_Cowling|SideMatched_(Gearcase|Skeg|Lower_Adapter|Leg_Flange|AntiVent_Plate)|(?:DF30|DF25|DF6)_(?:Compact_Cowling|Scan_Matched_Straight_Leg|Lower_Body_Inward_Curved_Cover|Curved_Body_Conformed_Port_Faces|Photo_Hanger_Curved_Side_Castings|Photo_Hanger_White_Swivel_And_Crossbar_Supports|Tiller_Outer_U_Side_Plates|Body_Inner_U_Stepped_Bracket|Nested_U_Pivot_Caps)/;
+  // The detailed DF250 export gives every factory-painted component this
+  // material, including the cowling slats, mount and trim assembly. Matching
+  // the material keeps future detail meshes switchable without recolouring
+  // stainless hardware, intake inserts, emblems or the propeller.
+  var BODY_MATERIAL=/^DF250_Default_Carbon_Black$/;
   var EMBL=/Brand_SUZUKI|Horsepower_|Badge_.*Face/;
   var EDGES=/Lower_Cowl_And_Leg|Removable_Upper_Cowling|Lower_Adapter|Gearcase/;
   function applyFinish(){
@@ -141,7 +146,7 @@
       M.edges.forEach(function(l){l.material=EDGE[finish];});}
     [].forEach.call(document.querySelectorAll('[data-finish]'),function(b){var on=b.getAttribute('data-finish')===finish;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);});
   }
-  function setFinish(f,byUser){finish=f;if(byUser)finishAuto=false;applyFinish();}
+  function setFinish(f){finish=f;applyFinish();}
 
   // ---------- Models: lazy loading, one engine at a time ----------
   var models={
@@ -164,7 +169,7 @@
       if(!o.isMesh)return; var n=o.name, src=Array.isArray(o.material)?o.material[0]:o.material; if(!src)return;
       if(src.name==='fallback Material'){o.material=/Badge.*Rim/.test(n)?chrome:graphite;}
       else{var key=src.uuid;if(!cache[key])cache[key]=up(src,/lacquer/i.test(src.name)?{clearcoat:1,clearcoatRoughness:0.08}:{});o.material=cache[key];}
-      if(BODY.test(n))M.body.push(o); else if(EMBL.test(n))M.emb.push(o);
+      if(BODY.test(n)||BODY_MATERIAL.test(src.name||''))M.body.push(o); else if(EMBL.test(n))M.emb.push(o);
       if(EDGES.test(n))M.edgeSrc.push(o);
     });
     // Shaft rotation: use original GLB transforms, never reparent into a new pivot.
@@ -258,10 +263,10 @@
     });
   }
   [].forEach.call(document.querySelectorAll('[data-model-btn]'),function(b){b.addEventListener('click',function(){show(b.getAttribute('data-model-btn'));});});
-  [].forEach.call(document.querySelectorAll('[data-finish]'),function(b){b.addEventListener('click',function(){setFinish(b.getAttribute('data-finish'),true);});});
+  [].forEach.call(document.querySelectorAll('[data-finish]'),function(b){b.addEventListener('click',function(){setFinish(b.getAttribute('data-finish'));});});
 
   // ---------- Page theme ----------
-  function setLight(v){light=v;document.body.classList.toggle('light',light);mode.textContent=light?'Dark mode':'Light mode';renderer.toneMappingExposure=light?1.0:1.1;bm.color.set(light?0x2a7fb0:0xcfeaff);if(finishAuto)setFinish(light?'carbon':'white',false);}
+  function setLight(v){light=v;document.body.classList.toggle('light',light);mode.textContent=light?'Dark mode':'Light mode';renderer.toneMappingExposure=light?1.0:1.1;bm.color.set(light?0x2a7fb0:0xcfeaff);}
   mode.addEventListener('click',function(){setLight(!light);});
 
   document.body.classList.add('ready');   // text and buttons are usable straight away
