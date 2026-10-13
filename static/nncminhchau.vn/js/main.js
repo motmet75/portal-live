@@ -128,15 +128,21 @@
     white:new THREE.LineBasicMaterial({color:0x0b2230,transparent:true,opacity:0.28})};
   var graphite=mk({color:0x2b333a,metalness:0.7,roughness:0.38}), chrome=mk({color:0xffffff,metalness:1,roughness:0.08}), cache={};
   var finish='carbon';
-  // Painted engine housing components.  Keep the original DF250/DF200 rules,
-  // and target the real mesh names exported by DF30, DF25 and DF6.
-  // Do not recolor propellers, vents, controls, logos, decals or bare metal.
+  // Body-color rules for the Suzuki engines.
+  // The supplied 2026 DF250 GLB uses DF250_Finished_Gloss_Black for
+  // painted panels, while its intake/slats, forehead, propeller and
+  // stainless/chrome parts all use separate named materials.
   var BODY=/Lower_Cowl_And_Leg|Removable_Upper_Cowling|SideMatched_(Gearcase|Skeg|Lower_Adapter|Leg_Flange|AntiVent_Plate)|(?:DF30|DF25|DF6)_(?:Compact_Cowling|Scan_Matched_Straight_Leg|Lower_Body_Inward_Curved_Cover|Curved_Body_Conformed_Port_Faces|Photo_Hanger_Curved_Side_Castings|Photo_Hanger_White_Swivel_And_Crossbar_Supports|Tiller_Outer_U_Side_Plates|Body_Inner_U_Stepped_Bracket|Nested_U_Pivot_Caps)/;
-  // The detailed DF250 export gives every factory-painted component this
-  // material, including the cowling slats, mount and trim assembly. Matching
-  // the material keeps future detail meshes switchable without recolouring
-  // stainless hardware, intake inserts, emblems or the propeller.
-  var BODY_MATERIAL=/^DF250_Default_Carbon_Black$/;
+  var BODY_MATERIAL=/^(?:DF250_Default_Carbon_Black|DF250_Finished_Gloss_Black)$/;
+  // Exclusions have priority, even if a future exporter reuses the body material.
+  var DF250_NO_RECOLOR=/WindSlat|(?:Right|Left_Mirrored)_Slat|Slat\d+|Forehead|very_topHead|Propeller|Watergrip|Intake|Inlet|Badge|Brand|Emblem|Suzuki_S|Bolts|Washers|Stainless|Polished|Hydraulic_Hose|Sacrificial_Anode|Identification_Plates/i;
+  function isPaintedBody(id,name,materialName){
+    if(id==='250'){
+      if(DF250_NO_RECOLOR.test(name))return false;
+      return BODY_MATERIAL.test(materialName) || BODY.test(name);
+    }
+    return BODY.test(name) || BODY_MATERIAL.test(materialName);
+  }
   var EMBL=/Brand_SUZUKI|Horsepower_|Badge_.*Face/;
   var EDGES=/Lower_Cowl_And_Leg|Removable_Upper_Cowling|Lower_Adapter|Gearcase/;
   function applyFinish(){
@@ -150,7 +156,7 @@
 
   // ---------- Models: lazy loading, one engine at a time ----------
   var models={
-    '250':{url:document.body.getAttribute('data-model-250')||'/nncminhchau.vn/assets/suzuki250.glb',label:'DF250'},
+    '250':{url:document.body.getAttribute('data-model-250')||'/nncminhchau.vn/assets/suzukidf250.glb',label:'DF250'},
     '200':{url:document.body.getAttribute('data-model-200')||'/nncminhchau.vn/assets/suzuki200.glb',label:'DF200'},
     '30':{url:document.body.getAttribute('data-model-30')||'/nncminhchau.vn/assets/df30.glb',label:'DF30'},
     '25':{url:document.body.getAttribute('data-model-25')||'/nncminhchau.vn/assets/df25.glb',label:'DF25'},
@@ -169,7 +175,7 @@
       if(!o.isMesh)return; var n=o.name, src=Array.isArray(o.material)?o.material[0]:o.material; if(!src)return;
       if(src.name==='fallback Material'){o.material=/Badge.*Rim/.test(n)?chrome:graphite;}
       else{var key=src.uuid;if(!cache[key])cache[key]=up(src,/lacquer/i.test(src.name)?{clearcoat:1,clearcoatRoughness:0.08}:{});o.material=cache[key];}
-      if(BODY.test(n)||BODY_MATERIAL.test(src.name||''))M.body.push(o); else if(EMBL.test(n))M.emb.push(o);
+      if(isPaintedBody(id,n,src.name||''))M.body.push(o); else if(EMBL.test(n))M.emb.push(o);
       if(EDGES.test(n))M.edgeSrc.push(o);
     });
     // Shaft rotation: use original GLB transforms, never reparent into a new pivot.
