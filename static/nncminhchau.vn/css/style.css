@@ -84,3 +84,51 @@ body.light #picker .seg{background:rgba(250,253,255,.95)}
 body.light #mode{background:rgba(250,253,255,.92)}
 @media(max-width:900px){header{flex-wrap:wrap;gap:.55rem}#picker{order:3;width:100%;justify-content:center}.seg button{padding:.35rem .65rem}}
 @media(max-width:760px){body.light section .copy{margin:0 -1.2rem;padding:2rem 1.2rem;border-radius:16px}}
+
+
+/* Mobile: place #picker in a narrow vertical rail, not across the model. */
+@media (max-width: 760px) {
+  header #picker {
+    position: fixed;
+    top: calc(92px + env(safe-area-inset-top, 0px));
+    left: calc(6px + env(safe-area-inset-left, 0px));
+    right: auto;
+    bottom: auto;
+    z-index: 8;
+    width: 62px;
+    max-height: calc(100dvh - 112px - env(safe-area-inset-bottom, 0px));
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+  }
+  header #picker::-webkit-scrollbar { display: none; }
+  header #picker .seg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 60px;
+    padding: 3px;
+    border-radius: 18px;
+    flex-shrink: 0;
+  }
+  header #picker .seg button:not(.sw) {
+    width: 54px;
+    min-height: 40px;
+    padding: 6px 2px;
+    font-size: 11px;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  header #picker .seg button.sw {
+    width: 40px;
+    min-height: 40px;
+    margin: 1px 0;
+  }
+}
