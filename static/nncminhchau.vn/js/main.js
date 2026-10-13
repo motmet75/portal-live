@@ -156,7 +156,7 @@
 
   // ---------- Models: lazy loading, one engine at a time ----------
   var models={
-    '250':{url:document.body.getAttribute('data-model-250')||'/nncminhchau.vn/assets/suzukidf250.glb',label:'DF250'},
+    '250':{url:document.body.getAttribute('data-model-250')||'/nncminhchau.vn/assets/suzuki250.glb',label:'DF250'},
     '200':{url:document.body.getAttribute('data-model-200')||'/nncminhchau.vn/assets/suzuki200.glb',label:'DF200'},
     '30':{url:document.body.getAttribute('data-model-30')||'/nncminhchau.vn/assets/df30.glb',label:'DF30'},
     '25':{url:document.body.getAttribute('data-model-25')||'/nncminhchau.vn/assets/df25.glb',label:'DF25'},
