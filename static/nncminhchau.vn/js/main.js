@@ -130,14 +130,15 @@
   var finish='carbon';
   // Body-color rules for the Suzuki engines.
   // The supplied 2026 DF250 GLB uses DF250_Finished_Gloss_Black for
-  // painted panels, while its intake/slats, forehead, propeller and
+  // painted panels, while its intake/slats, forehead insert, propeller and
   // stainless/chrome parts all use separate named materials.
   var BODY=/Lower_Cowl_And_Leg|Removable_Upper_Cowling|SideMatched_(Gearcase|Skeg|Lower_Adapter|Leg_Flange|AntiVent_Plate)|(?:DF30|DF25|DF6)_(?:Compact_Cowling|Scan_Matched_Straight_Leg|Lower_Body_Inward_Curved_Cover|Curved_Body_Conformed_Port_Faces|Photo_Hanger_Curved_Side_Castings|Photo_Hanger_White_Swivel_And_Crossbar_Supports|Tiller_Outer_U_Side_Plates|Body_Inner_U_Stepped_Bracket|Nested_U_Pivot_Caps)/;
   var BODY_MATERIAL=/^(?:DF250_Default_Carbon_Black|DF250_Finished_Gloss_Black)$/;
   // Exclusions have priority, even if a future exporter reuses the body material.
-  var DF250_NO_RECOLOR=/WindSlat|(?:Right|Left_Mirrored)_Slat|Slat\d+|Forehead|very_topHead|Propeller|Watergrip|Intake|Inlet|Badge|Brand|Emblem|Suzuki_S|Bolts|Washers|Stainless|Polished|Hydraulic_Hose|Sacrificial_Anode|Identification_Plates/i;
+  var DF250_NO_RECOLOR=/WindSlat|(?:Right|Left_Mirrored)_Slat|Slat\d+|Forehead|Propeller|Watergrip|Intake|Inlet|Badge|Brand|Emblem|Suzuki_S|Bolts|Washers|Stainless|Polished|Hydraulic_Hose|Sacrificial_Anode|Identification_Plates/i;
   function isPaintedBody(id,name,materialName){
     if(id==='250'){
+      if(name==='DF250_very_topHead')return true;
       if(DF250_NO_RECOLOR.test(name))return false;
       return BODY_MATERIAL.test(materialName) || BODY.test(name);
     }
@@ -156,7 +157,7 @@
 
   // ---------- Models: lazy loading, one engine at a time ----------
   var models={
-    '250':{url:document.body.getAttribute('data-model-250')||'/nncminhchau.vn/assets/suzuki250.glb',label:'DF250'},
+    '250':{url:document.body.getAttribute('data-model-250')||'/nncminhchau.vn/assets/suzukidf250.glb',label:'DF250'},
     '200':{url:document.body.getAttribute('data-model-200')||'/nncminhchau.vn/assets/suzuki200.glb',label:'DF200'},
     '30':{url:document.body.getAttribute('data-model-30')||'/nncminhchau.vn/assets/df30.glb',label:'DF30'},
     '25':{url:document.body.getAttribute('data-model-25')||'/nncminhchau.vn/assets/df25.glb',label:'DF25'},
