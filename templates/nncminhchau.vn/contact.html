@@ -29,10 +29,10 @@
 				<div class="col-md-6">
 					<div class="right-content">
 						<div class="container">
-						<p class="" th:utext="${page.articleContent}"></p>
+
 							<span data-i18n="contact.companyName">CÔNG TY TNHH TM DV NÔNG NGƯ CƠ MINH CHÂU</span> <span></span>
-							<span data-i18n="contact.contactAddress">Địa chỉ liên hệ: 690C Kinh Dương Vương, An Lạc, Bình Tân, Thành phố Hồ Chí Minh, Việt Nam</span>
-							<span data-i18n="contact.warehouseAddress">Địa chỉ kho: 688/2 Kinh Dương Vương, An Lạc, Bình Tân, Thành phố Hồ Chí Minh, Việt Nam</span>
+							<span data-i18n="contact.contactAddress" th:utext="${client.clientAddress}" >Địa chỉ liên hệ: 690C Kinh Dương Vương, An Lạc, Bình Tân, Thành phố Hồ Chí Minh, Việt Nam</span>
+							<span class="" th:utext="${page.articleContent}"></span>
 							<span><span data-i18n="contact.email">Email:</span> <strong>info@nncminhchau.vn</strong></span>
 							<span><span data-i18n="contact.phone">Sdt:</span> <strong>0936837967</strong></span>
 						</div>
